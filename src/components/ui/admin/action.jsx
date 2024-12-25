@@ -4,5 +4,6 @@ import { cookies } from "next/headers";
 export const handleLogout = async () => {
   cookies().delete("token");
   cookies().delete("refreshToken");
+  cookies().delete("logged");
   return true;
 };

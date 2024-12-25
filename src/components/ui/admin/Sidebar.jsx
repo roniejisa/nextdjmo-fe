@@ -5,8 +5,11 @@ import SidebarProfile from "./SidebarProfile";
 import useRouterCustom from "@/packages/translation/Navigation";
 import React from "react";
 const Sidebar = ({ profile }) => {
-  const pathname = usePathname();
   const router = useRouterCustom();
+  if(!profile) {
+    return <></>
+  };
+  const pathname = usePathname();
   const checkActiveMenu = (link, hasChild = false) => {
     const listLink = link.split("|");
     if (

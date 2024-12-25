@@ -3,6 +3,7 @@ import NotifyProvider from "@/context/NotifyProvider";
 import "./globals.scss";
 import LoadingProvider from "@/packages/translation/LoadingProvider";
 import ProgressTransition from "@/packages/translation/Loading/ProgressTransition";
+import AccountProvider from "@/context/AccountProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <LoadingProvider fallback={<ProgressTransition />}>
-          <NotifyProvider>{children}</NotifyProvider>
+          <NotifyProvider>
+            <AccountProvider>{children}</AccountProvider>
+          </NotifyProvider>
         </LoadingProvider>
       </body>
     </html>

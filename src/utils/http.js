@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 export const httpClient = async (url, customHeaders = {}, body = {}, method = "GET", hasPrefixHeader = true, isRefresh = false) => {
   // try {
   const options = {
-    next: { revalidate: 0 },
+    cache: "no-cache",
     headers: {
       ...customHeaders,
     },
@@ -15,7 +15,6 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
   if (hasPrefixHeader) {
     options.headers[process.env.NEXT_PUBLIC_PREFIX_HEADER_KEY] = process.env.NEXT_PUBLIC_PREFIX_HEADER_VALUE;
   }
-  console.log(options)
   if (Object.keys(body).length > 0) {
     if (method === "GET") {
       const searchParams = new URLSearchParams(body);

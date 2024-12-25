@@ -7,23 +7,23 @@ const URL_LOGIN = '/dang-nhap'
 const cache = new Map()
 // Hàm chung để thực hiện các yêu cầu HTTP
 async function fetchForAuth(endpoint, method = 'GET', body = null, headers = {}) {
-    try {
-        const response = await fetch(`${AUTH_BASE_URL}/${endpoint}`, {
-            method,
-            headers: {
-                'X-API-KEY': API_KEY,
-                'Content-Type': 'application/json',
-                ...headers,
-            },
-            cache: 'no-cache',
-            body: body ? JSON.stringify(body) : null,
-        })
-        const data = await response.json()
-        return data
-    } catch (error) {
-        console.error(`Error fetching ${endpoint}:`, error)
-        return { status: 500 }
-    }
+    // try {
+    const response = await fetch(`${AUTH_BASE_URL}/${endpoint}`, {
+        method,
+        headers: {
+            'X-API-KEY': API_KEY,
+            'Content-Type': 'application/json',
+            ...headers,
+        },
+        cache: 'no-cache',
+        body: body ? JSON.stringify(body) : null,
+    })
+    const data = await response.json()
+    return data
+    // } catch (error) {
+    //     console.error(`Error fetching ${endpoint}:`, error)
+    //     return { status: 500 }
+    // }
 }
 // Hàm xóa token
 function deleteTokens(response) {
@@ -110,10 +110,6 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
         sameSite: "strict"
     })
 
-    if (isAuthenticated) {
-        response.cookies.set('logged', "OK")
-    }
-
     // Tạo cookie riêng để làm phần đã xem
     const ssId = request.cookies.get('ssId') != undefined ? request.cookies.get('ssId').value : makeid(12)
     response.cookies.set('ssId', ssId, { httpOnly: true, secure: true, path: "/", sameSite: "strict" })
@@ -122,17 +118,22 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
 }
 export async function middleware(request) {
     // Định nghĩa các route cần bảo vệ
-    const url = request.nextUrl
+
+    // Lấy URL đày đủ
+    const url = request.nextUrl;
+
+    // Lấy params từ URL (nếu có)
+    const params = url.searchParams;
+    // Riêng chỗ này để kiểm tra token sau khi đăng nhập mạng xã hội
+    const socialToken = params.get('token');
+    const socialRefreshToken = params.get('refreshToken');
+    const newCustomer = params.get('created');
+
     const requireRoutes = ["/system"]
-    const pathname = url.pathname
+
+    const pathname = request.nextUrl.pathname
     const method = request.method;
 
-    let socialToken, socialRefreshToken, newCustomer
-    if (pathname === "/") {
-        socialToken = url.searchParams.get('token', null)
-        socialRefreshToken = url.searchParams.get('refreshToken', null)
-        newCustomer = url.searchParams.get('created')
-    }
 
     const { isAuthenticated, accessToken, refreshToken, user, isSocial } = await authenticate(request, socialToken, socialRefreshToken)
     if (pathname === URL_LOGIN) {

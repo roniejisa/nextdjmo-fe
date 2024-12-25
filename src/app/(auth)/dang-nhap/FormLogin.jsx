@@ -1,12 +1,12 @@
 "use client";
 
 import { handleLogin } from "./action";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import InputTypeOne from "@/components/Input/InputTypeOne";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 
-const FormLogin = () => {
+const FormLogin = ({ msg }) => {
   const notify = useNotify();
   const [isPending, startTransition] = useTransition();
   const router = useRouterCustom();
@@ -24,6 +24,13 @@ const FormLogin = () => {
       }
     });
   };
+  
+  useEffect(() => {
+    if (msg) {
+      notify.changeNotify("error", msg);
+      document.cookie = "msg=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+  }, []);
 
   return (
     <form action={submitAction}>

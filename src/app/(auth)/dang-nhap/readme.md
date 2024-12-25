@@ -1,0 +1,1 @@
+# Khi mở popup thì làm kiểu khác

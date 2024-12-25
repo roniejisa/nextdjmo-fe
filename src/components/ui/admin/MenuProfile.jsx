@@ -1,12 +1,22 @@
 "use client";
 
 import useRouterCustom from "@/packages/translation/Navigation";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { handleLogout } from "./action";
+import { AccountContext } from "@/context/AccountProvider";
 
 const MenuProfile = ({ id }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const router = useRouterCustom()
+  const router = useRouterCustom();
+  const clickLogout = async () => {
+    try{
+      await handleLogout();
+    }catch(e){
+      
+    }
+    router.replace("/")
+  };
+
   return (
     <div className="menu relative leading-none bg-white z-10">
       <button
@@ -48,10 +58,7 @@ const MenuProfile = ({ id }) => {
           className={`absolute top-[-60px] left-[-5px] bg-white shadow-lg min-w-[200px] rounded-lg before:content-[''] before:absolute before:w-full before:h-5 before:-bottom-4`}
         >
           <li className="relative bg-white z-20 rounded-full">
-            <button onClick={async() => {
-              await router.replace("/")
-              const removeToken = await handleLogout()
-            }} className="block py-4 px-4">
+            <button onClick={clickLogout} className="block py-4 px-4">
               Đăng xuất
             </button>
           </li>
