@@ -29,8 +29,8 @@ const Header = async () => {
   return (
     <header className="relative flex bg-white justify-between border-b">
       <ul className="flex items-center flex-[0_0_33.333333%] pl-10">
-        {leftMenus.map((menu) => (
-          <li key={menu.id} className="group" >
+        {leftMenus.map((menu,index) => (
+          <li key={index} className="group" >
             {!menu.childs ? (
               <LinkCustom href={menu.link} className="py-2 mr-10 block">
                 {menu.name}
@@ -39,8 +39,8 @@ const Header = async () => {
               <>
                 <span className="py-2 block mr-10">{menu.name}</span>
                 <div className="absolute px-10 py-4 w-full left-0 top-[calc(100%+1px)] opacity-0 invisible group-hover:visible group-hover:opacity-100 bg-white before:content-[''] before:absolute before:top-[-35px] before:w-[200px] before:h-[50px] before:bg-transparent max-h-[100vh] min-h-[150px] z-10">
-                  {menu.childs.map((subMenu) => (
-                    <ul key={subMenu._id}>
+                  {menu.childs.map((subMenu,indexSub) => (
+                    <ul key={indexSub}>
                       <li>
                         <LinkCustom className="py-2 inline-block" href={'/'+subMenu.link}>
                           {subMenu.name}
