@@ -17,16 +17,14 @@ const generateCombinations = (attributes) => {
       });
     } else {
       // Tạo combinations mới nếu thuộc tính có giá trị
-      values
-        .filter((objValue) => objValue.value)
-        .forEach((value) => {
-          combinations.forEach((combo) => {
-            newCombinations.push({
-              ...combo,
-              [name]: value.value,
-            });
+      values.slice(0,-1).forEach((value) => {
+        combinations.forEach((combo) => {
+          newCombinations.push({
+            ...combo,
+            [name]: value.value,
           });
         });
+      });
     }
 
     combinations = newCombinations; // Cập nhật combinations
@@ -108,7 +106,7 @@ const ProductVariant = ({ field, defaultValue }) => {
       const newData = generateCombinations(listAttribute);
       setData(sortData(newData));
     }
-    firstAttributeLength.current = listAttribute.reduce((acc, item, index) => {
+    firstAttributeLength.current = listAttribute.length == 1 ? 1 : listAttribute.reduce((acc, item, index) => {
       if (index) {
         if (!acc) {
           if (item.values.length > 0) {
@@ -438,7 +436,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                         if (
                           (oldValue.current != item[attr.name] ||
                             oldValue.current == null) &&
-                          indexAttr == 0
+                          indexAttr == 0 && listAttribute.length > 1
                         ) {
                           oldValue.current = item[attr.name];
                           return (
@@ -450,7 +448,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                               {item[attr.name]}
                             </td>
                           );
-                        } else if (indexAttr == 0) {
+                        } else if (indexAttr == 0 && listAttribute.length > 1) {
                           return (
                             <React.Fragment
                               key={"" + index + "." + indexAttr}
