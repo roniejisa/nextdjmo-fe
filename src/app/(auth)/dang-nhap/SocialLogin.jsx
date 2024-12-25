@@ -6,8 +6,48 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 const providers = [
-  { name: "Google", url: "http://localhost:8000/auth/google/login/" },
-  { name: "Facebook", url: "http://localhost:8000/auth/facebook/login/" },
+  {
+    name: "Google",
+    url: process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/google/login/",
+    class: "text-red-500",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M20.945 11a9 9 0 1 1 -3.284 -5.997l-2.655 2.392a5.5 5.5 0 1 0 2.119 6.605h-4.125v-3h7.945z" />
+      </svg>
+    ),
+  },
+  {
+    name: "Facebook",
+    url: process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/facebook/login/",
+    class: "text-blue-500",
+    icon: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+        <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" />
+      </svg>
+    ),
+  },
   // Thêm các provider khác nếu cần
 ];
 const SocialLogin = () => {
@@ -31,9 +71,8 @@ const SocialLogin = () => {
       `width=${width},height=${height},top=${top},left=${left}`
     );
     popupWindow.onload = () => {
-        console.log(this)
+      console.log(this);
     };
-    
   };
 
   useEffect(() => {
@@ -41,7 +80,7 @@ const SocialLogin = () => {
     const handleMessage = (event) => {
       const { type, created } = event.data;
       if (type === "login-social-success") {
-        console.log(created, created == "True")
+        console.log(created, created == "True");
         if (created.toLowerCase() == "true") {
           router.push("/account/profile");
         } else {
@@ -58,17 +97,18 @@ const SocialLogin = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <>
+    <div className="flex gap-2 justify-center mt-10">
       {providers.map((provider) => (
         <button
           key={provider.name}
           onClick={() => openPopup(provider.url)}
-          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+          className="mt-2 flex gap-2 px-4 py-2 border rounded text-center"
         >
-          Login with {provider.name}
+          <span>Login with </span>
+          <span className={provider.class}>{provider.icon}</span>
         </button>
       ))}
-    </>
+    </div>
   );
 };
 

@@ -26,6 +26,7 @@ import Group from "./components/Group";
 import Phone from "./components/Phone";
 import Permission from "./components/Permission";
 import MultipleCheckbox from "./components/MultipleCheckbox";
+import ProductVariant from "./components/ProductVariant";
 
 const components = {
   text: Text,
@@ -48,6 +49,7 @@ const components = {
   phone: Phone,
   permission: Permission,
   multiple_checkbox: MultipleCheckbox,
+  product_variants: ProductVariant
 };
 
 const FormCreate = ({ module, fields, moduleStore }) => {

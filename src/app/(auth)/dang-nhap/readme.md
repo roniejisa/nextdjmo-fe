@@ -1,1 +1,1 @@
-# Khi mở popup thì làm kiểu khác
+# Sử dụng API BroadcastChannel để xử lý 
