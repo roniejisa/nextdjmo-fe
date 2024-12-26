@@ -33,12 +33,11 @@ function deleteTokens(response) {
 }
 
 // Hàm kiểm tra và làm mới token nếu cần
-async function authenticate(request, token = null, refreshToken = null, isRefresh = false) {
+async function authenticate(request, token = null, refreshToken = null, isRefresh = false, isOauth = false) {
     const pathname = request.nextUrl.pathname
-    const isSocial = token ? true : false
+    const isSocial = isOauth && token ? true : false
     token = token ? token : request.cookies.get('token')?.value
     refreshToken = refreshToken ? refreshToken : request.cookies.get('refreshToken')?.value
-
     // Kiểm tra token hiện tại
     if (token) {
         let profile = null
@@ -70,14 +69,14 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
         const refreshData = await fetchForAuth('refresh-token', 'POST', { refreshToken })
         if (refreshData.status === 200 && refreshData.data) {
             const { accessToken, refreshToken: newRefreshToken } = refreshData.data
-            return authenticate(request, accessToken, newRefreshToken, true)
+            return await authenticate(request, accessToken, newRefreshToken, true, isOauth)
         }
     }
 
     return { isAuthenticated: false, isSocial }
 }
 
-function setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial) {
+function setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer) {
     const headers = new Headers()
     if (user) headers.set('user', encodeURIComponent(JSON.stringify(user)))
     let response
@@ -87,7 +86,7 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
             response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
             response.cookies.set('msg', "Đăng nhập không thành công!", { httpOnly: false, sameSite: 'Strict' })
         } else {
-            response = NextResponse.redirect(new URL('/', request.url))
+            response = NextResponse.redirect(new URL(newCustomer ? '/account/profile' : '/', request.url))
         }
     } else {
         response = NextResponse.next({
@@ -126,15 +125,12 @@ export async function middleware(request) {
     const requireRoutes = ["/system"]
     const pathname = url.pathname
     const method = request.method;
-
-    let socialToken, socialRefreshToken, newCustomer
+    let socialAuth = {};
     if (pathname === "/") {
-        socialToken = url.searchParams.get('token', null)
-        socialRefreshToken = url.searchParams.get('refreshToken', null)
-        newCustomer = url.searchParams.get('created')
+        socialAuth = extractSocialAuthParams(url);
     }
-
-    const { isAuthenticated, accessToken, refreshToken, user, isSocial } = await authenticate(request, socialToken, socialRefreshToken)
+    const { socialToken, socialRefreshToken, isOauth, newCustomer } = socialAuth;
+    const { isAuthenticated, accessToken, refreshToken, user, isSocial } = await authenticate(request, socialToken, socialRefreshToken, false, isOauth)
     if (pathname === URL_LOGIN) {
         if (isAuthenticated === true) {
             // Nếu đã đăng nhập, chuyển hướng về trang chủ
@@ -160,7 +156,7 @@ export async function middleware(request) {
         return NextResponse.next()
     }
 
-    return setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial)
+    return setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer)
 }
 
 function makeid(length) {
@@ -173,6 +169,20 @@ function makeid(length) {
         counter += 1;
     }
     return result;
+}
+
+
+function extractSocialAuthParams(url) {
+    const socialToken = url.searchParams.get('token') || null;
+    const socialRefreshToken = url.searchParams.get('refreshToken') || null;
+    const newCustomer = url.searchParams.get('created') || null;
+
+    return {
+        socialToken,
+        socialRefreshToken,
+        newCustomer,
+        isOauth: !!newCustomer, // Xác định nếu là đăng nhập mạng xã hội
+    };
 }
 
 export const config = {

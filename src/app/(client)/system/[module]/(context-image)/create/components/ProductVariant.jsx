@@ -3,7 +3,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
 import { makeId } from "@/utils/client/util";
-
+/**
+ * 1. Ấn vào nút thêm chưa có dữ liệu thì phải nhập
+ *
+ *
+ *
+ *
+ *
+ */
 const generateCombinations = (attributes) => {
   // Khởi tạo danh sách combinations ban đầu
   let combinations = [{}];
@@ -97,6 +104,9 @@ const ProductVariant = ({ field, defaultValue }) => {
   const dataMoveRef = useRef(null);
   const firstAttributeLength = useRef(0);
   const oldValue = useRef(null);
+  const inputAddAttributeRef = useRef(null);
+  const [showSuggestion, setShowSuggestion] = useState(false);
+  const suggestionRef = useRef(null);
   useEffect(() => {
     if (data.length > 0) {
       textareaRef.current.value = JSON.stringify(data);
@@ -105,9 +115,35 @@ const ProductVariant = ({ field, defaultValue }) => {
     }
   }, [data]);
 
+  // Add Event
+  const showProductAttributeAvailable = (e) => {
+    setShowSuggestion(true);
+  };
+  const handleClickOutside = (event) => {
+    // Kiểm tra nếu click bên ngoài dropdown
+    if (
+      showSuggestion &&
+      suggestionRef.current &&
+      !event.target.contains(suggestionRef.current)
+    ) {
+      setShowSuggestion(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showSuggestion) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSuggestion]);
+
   const addAttribute = () => {
     // Cần kiểm tra xem attribute này đã tồn tại chưa
-    if (attribute.trim() === "") return;
+    if (attribute.trim() === "") return inputAddAttributeRef.current.focus();
     setListAttribute((prev) => {
       const exists = prev.some((item) => item.name === attribute);
       if (exists) return prev;
@@ -158,9 +194,11 @@ const ProductVariant = ({ field, defaultValue }) => {
             image: getItemOldHasImage ? getItemOldHasImage.image : "",
           };
         });
-        console.log(newListData);
+        // console.log(newListData);
         return newListData;
       });
+    }else{
+      setData([]);
     }
 
     firstAttributeLength.current = listAttribute.reduce((acc, item, index) => {
@@ -207,6 +245,7 @@ const ProductVariant = ({ field, defaultValue }) => {
     });
   };
 
+  // START: DRAG AND DROP
   const dragEnd = (e) => {
     dataMoveRef.current = null;
     e.preventDefault();
@@ -215,6 +254,7 @@ const ProductVariant = ({ field, defaultValue }) => {
   const dragStart = (e, index, indexValue) => {
     dataMoveRef.current = listAttribute[index].values[indexValue];
     dataMoveRef.current.index = indexValue;
+    dataMoveRef.current.attribute_id = index
 
     // Tạo preview khi kéo
     // Lấy phần tử mà sự kiện đang được gắn vào
@@ -244,17 +284,19 @@ const ProductVariant = ({ field, defaultValue }) => {
     // Xóa preview sau sự kiện
     setTimeout(() => document.body.removeChild(preview), 0);
   };
+  // END: DRAG AND DROP
 
   const dragOver = (e, index, indexNew) => {
     e.stopPropagation();
     e.preventDefault();
     if (!dataMoveRef.current) return;
     const indexOld = dataMoveRef.current.index;
+    const attributeOld = dataMoveRef.current.attribute_id;
     // Lấy chiều cao và vị trí của phần tử
     // Lấy phần tử mà sự kiện được gắn vào (currentTarget)
     const draggingElement = e.currentTarget;
 
-    if (!draggingElement) return;
+    if (!draggingElement || attributeOld !== index) return;
     const rect = draggingElement.getBoundingClientRect();
     const middleY = rect.top + rect.height / 2;
 
@@ -319,15 +361,18 @@ const ProductVariant = ({ field, defaultValue }) => {
     setData(newData);
   };
 
-  const deleteValue = (index, indexValue) => {
+  const deleteAttributeValue = (index, indexValue) => {
     const values = listAttribute[index].values.filter(
       (item, index) => index !== indexValue
     );
+    // Kiểm tra nếu rỗng thì xóa luôn
+    if (values.length == 0) return deleteAttribute(index);
     setListAttribute((prev) => {
       prev[index].values = values;
       return [...prev];
     });
   };
+
   return (
     <>
       <textarea name={field.name} hidden ref={textareaRef}></textarea>
@@ -386,14 +431,38 @@ const ProductVariant = ({ field, defaultValue }) => {
       {hasVariant ? (
         <div>
           <div className="flex border p-2 gap-2">
-            <input
-              type="text"
-              data-name="attribute"
-              className="w-full outline-outline outline-4 transition border rounded-md p-2"
-              value={attribute}
-              onChange={(e) => setAttribute(e.target.value)}
-              placeholder="Thuộc tính"
-            />
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                data-name="attribute"
+                className="w-full outline-outline outline-4 transition border rounded-md p-2"
+                value={attribute}
+                onChange={(e) => setAttribute(e.target.value)}
+                placeholder="Thuộc tính"
+                ref={inputAddAttributeRef}
+                onMouseDown={showProductAttributeAvailable}
+              />
+              {field.data_product_attributes.length > 0 && showSuggestion && (
+                <div
+                  className="absolute top-10 left-0 w-full bg-white z-10"
+                  ref={suggestionRef}
+                >
+                  {field.data_product_attributes.map((item, index) => (
+                    <div
+                      key={index}
+                      className="p-2 hover:bg-gray-200 cursor-pointer"
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        setAttribute(item.name);
+                        setShowSuggestion(false);
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <button type="button" onClick={addAttribute} tabIndex="-1">
               Thêm
             </button>
@@ -478,7 +547,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                         </svg>
                       </button>
                       <button
-                        onClick={() => deleteValue(index, indexValue)}
+                        onClick={() => deleteAttributeValue(index, indexValue)}
                         className="text-gray-500"
                         type="button"
                         tabIndex="-1"
@@ -543,6 +612,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                           listAttribute.length > 1;
                         if (firstInit || isSingleFirst) {
                           oldValue.current = item.id;
+                          
                           return (
                             <td
                               key={"" + index + "." + indexAttr}
@@ -558,11 +628,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                               />
                             </td>
                           );
-                        } else if (
-                          indexAttr == 0 &&
-                          listAttribute.length > 1
-                        ) {
-                          console.log("indexAttr", indexAttr);
+                        } else if (indexAttr == 0 && listAttribute.length > 1) {
                           return (
                             <React.Fragment
                               key={"" + index + "." + indexAttr}
@@ -576,7 +642,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                             >
                               {item[attr.name]}
                               <ImageComponent
-                                dataDefault={item?.image}
+                                defaultValue={item?.image}
                                 fnChooseImage={upImageForData}
                                 attrName={attr.name}
                                 attrValue={item[attr.name]}
