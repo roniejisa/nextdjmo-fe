@@ -20,20 +20,21 @@ const Footer = async () => {
   const copyRight = await getCopyRight();
   const logo = await getLogo();
   return (
-    <footer className="pt-8 pb-4 px-10 bg-white text-black">
-      <div className="flex justify-between items-start">
-        <LinkCustom href="/">
+    <footer className="pt-8 pb-4 bg-white border-t-[20px] border-t-gray-800 text-black">
+      <div className="flex justify-between items-start px-4 lg:px-10">
+        <LinkCustom href="/" className="flex h-10">
           <Image
             src={showImageUrl(logo?.data)}
             alt="logo"
             width={100}
             height={100}
+            style={{ objectFit: "contain" }}
           />
         </LinkCustom>
         <FormReceive />
       </div>
       {copyRight && (
-        <div className="mt-10 pt-4 border-t">
+        <div className="mt-10 pt-4 px-4 lg:px-10 border-t">
           <span>{copyRight.data}</span>
         </div>
       )}

@@ -7,6 +7,14 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    screens: {
+      xs: '400px',  // Thêm breakpoint xs
+      sm: '640px',
+      md: '768px',
+      lg: '992px',
+      xl: '1280px',
+      '2xl': '1400px',
+    },
     extend: {
       colors: {
         background: "var(--background)",

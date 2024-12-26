@@ -10,12 +10,16 @@ const RightMenu = () => {
   };
 
   return (
-    <ul className="items-center flex justify-end pr-10">
+    <ul className="items-center flex justify-end lg:pr-10 pr-4">
       {rightMenus.map((menu) => (
         <li key={menu.id}>
           {menu.type === "showSearch" && (
-            <button onClick={handleShowSearch} className="flex items-center py-2 gap-2">
-              <span>{menu.icon}</span> {menu.name}
+            <button
+              onClick={handleShowSearch}
+              className="flex items-center py-2 gap-2"
+            >
+              <span>{menu.icon}</span>
+              <span className="hidden lg:block">{menu.name}</span>
             </button>
           )}
         </li>
@@ -42,7 +46,7 @@ const rightMenus = [
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="w-4 h-4"
+        className="w-6 h-6 lg:w-4 lg:h-4"
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />

@@ -9,9 +9,9 @@ const AdminLayout = async (data) => {
   const storeParams = await params;
   return (
     <AllProvider>
-      <main className="grid md:grid-cols-[280px_1fr] gap-4 md:h-[100vh-16px*2] md:p-4 h-screen p-0">
+      <main className="grid lg:grid-cols-[280px_1fr] gap-4 lg:h-[100vh-16px*2] lg:p-4 h-screen p-0">
         <Sidebar storeParams={storeParams} profile={profile} />
-        <div className="flex-1 shadow-lg  rounded-none md:rounded-2xl bg-main overflow-auto h-screen md:h-[calc(100vh-16px*2)]">
+        <div className="flex-1 shadow-lg  rounded-none lg:rounded-2xl bg-main overflow-auto h-screen lg:h-[calc(100vh-16px*2)]">
           {children}
         </div>
       </main>

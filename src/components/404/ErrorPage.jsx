@@ -7,7 +7,7 @@ const ErrorPage = ({ href = "/", number = 4 }) => {
         {/* Background 403 with Door */}
         <div className="relative">
           {/* Large 403 Text */}
-          <div className="text-[200px] md:text-[300px] font-bold text-[#f4edf5] leading-none tracking-wider text-center">
+          <div className="text-[200px] lg:text-[300px] font-bold text-[#f4edf5] leading-none tracking-wider text-center">
             4
             <span className="relative inline-block">
               {/* Door in the zero */}
@@ -37,7 +37,7 @@ const ErrorPage = ({ href = "/", number = 4 }) => {
 
         {/* Error Message */}
         <div className="text-center space-y-4 -mt-8">
-          <h1 className="text-2xl md:text-4xl font-bold text-[#693e93]">
+          <h1 className="text-2xl lg:text-4xl font-bold text-[#693e93]">
             You&apos;re not permitted to see this.
           </h1>
           <p className="text-[#693e93] text-lg">

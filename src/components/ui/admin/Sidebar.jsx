@@ -27,7 +27,7 @@ const Sidebar = ({ profile }) => {
   if (!profile || !profile.permissions) return router.replace("/");
   const { permissions } = profile;
   return (
-    <aside className="invisible fixed md:relative md:visible w-[280px] shadow-lg h-screen md:h-[calc(100vh-16px*2)] rounded-none md:rounded-2xl bg-main flex-col bg-background-sidebar-admin">
+    <aside className="invisible fixed lg:relative lg:visible w-[280px] shadow-lg h-screen lg:h-[calc(100vh-16px*2)] rounded-none lg:rounded-2xl bg-main flex-col bg-background-sidebar-admin">
       <div>
         <LinkCustom href={"/"} title="Trang chủ" className="p-4 block">
           <svg

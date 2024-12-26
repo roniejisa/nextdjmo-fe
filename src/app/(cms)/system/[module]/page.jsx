@@ -78,7 +78,7 @@ const Module = async ({ params, searchParams }) => {
           )}
         </div>
       </div>
-      <div className="w-[calc(100vw-16px*4)] md:w-[calc(100vw-16px*4-280px-16px*2)] overflow-x-auto">
+      <div className="w-[calc(100vw-16px*4)] lg:w-[calc(100vw-16px*4-280px-16px*2)] overflow-x-auto">
         <div className="min-w-[1000px] my-table">
           <div className="flex w-full my-columns">
             {fields.map((field, index) => (

@@ -67,3 +67,18 @@ header {
 .bg-color {
   background-color: var(--productBg);
 }
+
+header:has(input[type="checkbox"]) {
+  ul,
+  .overlay {
+    transition: all 200ms ease-in-out;
+  }
+}
+header:has(input[type="checkbox"]:checked) {
+  ul {
+    left: 0;
+  }
+  .overlay {
+    right: 0;
+  }
+}

@@ -32,11 +32,11 @@ const ModalSeach = () => {
         >
           <form
             action={handleSubmit}
-            className={`flex transition-all duration-300 px-4 border rounded-lg justify-center absolute w-[calc(100%-80px*2)] py-10 items-center ${
+            className={`flex transition-all duration-300 px-4 border rounded-lg justify-center absolute w-10/12 ml-[calc((100%-100%/12*10)/2)] lg:w-[calc(100%-80px*2)] py-10 items-center ${
               showModalSearch
                 ? "delay-500 opacity-100 visible top-10"
                 : "opacity-0 invisible"
-            } bg-white mx-20`}
+            } bg-white lg:mx-20`}
           >
             <div className="flex items-center w-full border-b py-2">
               <svg
