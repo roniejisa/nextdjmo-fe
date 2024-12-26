@@ -1,32 +1,54 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import ImageComponent from "./product_variant/Image";
+import { makeId } from "@/utils/client/util";
 
 const generateCombinations = (attributes) => {
   // Khởi tạo danh sách combinations ban đầu
   let combinations = [{}];
 
-  attributes.forEach((attribute) => {
+  attributes.forEach((attribute, indexAttr) => {
     const { name, values } = attribute;
     const newCombinations = [];
-
+    // Nói chung là đã giá trị đầu tiên bắt buộc phải có 1 cái là ít nhất 1 giá trị đã
     // Nếu không có giá trị cho thuộc tính, giữ lại các combination hiện có và thêm giá trị trống cho thuộc tính đó
-    if (values.length === 0 || values.every((objValue) => !objValue.value)) {
+    if (indexAttr == 0 && values.length <= 1) {
       combinations.forEach((combo) => {
-        newCombinations.push({ ...combo, [name]: "" });
-      });
-    } else {
-      // Tạo combinations mới nếu thuộc tính có giá trị
-      values.slice(0,-1).forEach((value) => {
-        combinations.forEach((combo) => {
-          newCombinations.push({
-            ...combo,
-            [name]: value.value,
-          });
+        newCombinations.push({
+          id: values[0]?.id,
+          ...combo,
+          [name]: values[0].value,
         });
       });
-    }
+    } else if (
+      values.length === 0 ||
+      values.every((objValue) => !objValue.value)
+    ) {
+      combinations.forEach((combo) => {
+        newCombinations.push({
+          id: indexAttr == 0 ? combo?.id : "",
+          ...combo,
+          [name]: "",
+        });
+      });
+    } else {
+      // Có giá trị đầu tiên thì cứ lấy đi lấy lại cái đầu tiên là xong
 
+      // Tạo combinations mới nếu thuộc tính có giá trị
+      values
+        .filter((value) => value.value)
+        .forEach((value) => {
+          combinations.forEach((combo) => {
+            // Chỗ này kiểm tra nếu id đã tồn tại thì lấy id cũ
+            newCombinations.push({
+              id: indexAttr == 0 ? value?.id : "",
+              ...combo,
+              [name]: value.value,
+            });
+          });
+        });
+    }
     combinations = newCombinations; // Cập nhật combinations
   });
 
@@ -76,7 +98,11 @@ const ProductVariant = ({ field, defaultValue }) => {
   const firstAttributeLength = useRef(0);
   const oldValue = useRef(null);
   useEffect(() => {
-    textareaRef.current.value = JSON.stringify(data);
+    if (data.length > 0) {
+      textareaRef.current.value = JSON.stringify(data);
+    } else {
+      textareaRef.current.value = "";
+    }
   }, [data]);
 
   const addAttribute = () => {
@@ -88,9 +114,11 @@ const ProductVariant = ({ field, defaultValue }) => {
       return [
         ...prev,
         {
+          id: makeId(8),
           name: attribute,
           values: [
             {
+              id: makeId(8),
               placeholder: "Giá trị",
               value: "",
             },
@@ -104,16 +132,45 @@ const ProductVariant = ({ field, defaultValue }) => {
   useEffect(() => {
     if (listAttribute.length > 0) {
       const newData = generateCombinations(listAttribute);
-      setData(sortData(newData));
+      const listData = sortData(newData);
+      setData((prev) => {
+        const newListData = listData.map((item, index) => {
+          const oldData = prev[index];
+          const getKeyOfFirstAttribute = listAttribute[0].name;
+          const getItemOldHasImage = prev.find(
+            (prevItem) =>
+              prevItem[getKeyOfFirstAttribute] ===
+                item[getKeyOfFirstAttribute] && prevItem.image
+          );
+          if (!oldData)
+            return {
+              price: "",
+              stock: 0,
+              sku: "",
+              image: getItemOldHasImage ? getItemOldHasImage.image : "",
+              ...item,
+            };
+          return {
+            ...item,
+            price: oldData.price ?? "",
+            stock: oldData.stock ?? 0,
+            sku: oldData.sku ?? "",
+            image: getItemOldHasImage ? getItemOldHasImage.image : "",
+          };
+        });
+        console.log(newListData);
+        return newListData;
+      });
     }
-    firstAttributeLength.current = listAttribute.length == 1 ? 1 : listAttribute.reduce((acc, item, index) => {
+
+    firstAttributeLength.current = listAttribute.reduce((acc, item, index) => {
       if (index) {
         if (!acc) {
-          if (item.values.length > 0) {
-            acc = item.values.length - 1;
-          }
+          acc = item.values.length - (item.values.length > 1 ? 1 : 0);
         } else {
-          acc *= item.values.length - 1;
+          const length = item.values.filter((item) => item.value).length;
+          const number = length > 1 ? length : 1;
+          acc *= number;
         }
       }
       return acc;
@@ -129,6 +186,7 @@ const ProductVariant = ({ field, defaultValue }) => {
         values: [
           ...(newList[index].values || []), // Sao chép danh sách giá trị hiện tại
           {
+            id: makeId(8),
             placeholder: "Giá trị",
             value: "",
           },
@@ -239,10 +297,37 @@ const ProductVariant = ({ field, defaultValue }) => {
     setListAttribute((prev) => {
       const newList = [...prev];
       newList.splice(index, 1);
-      return newList;
+      return [...newList];
     });
   };
 
+  const changeData = (e, index, key) => {
+    setData((prev) => {
+      const newData = [...prev];
+      newData[index][key] = e.target.value;
+      return newData;
+    });
+  };
+
+  const upImageForData = (imageData, attrName, value) => {
+    const newData = data.map((item) => {
+      if (item[attrName] == value) {
+        item.image = imageData;
+      }
+      return item;
+    });
+    setData(newData);
+  };
+
+  const deleteValue = (index, indexValue) => {
+    const values = listAttribute[index].values.filter(
+      (item, index) => index !== indexValue
+    );
+    setListAttribute((prev) => {
+      prev[index].values = values;
+      return [...prev];
+    });
+  };
   return (
     <>
       <textarea name={field.name} hidden ref={textareaRef}></textarea>
@@ -321,6 +406,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                 onDragEnd={dragEnd}
               >
                 <button
+                  type="button"
                   onClick={(e) => deleteAttribute(index)}
                   className="absolute top-2 right-2"
                 >
@@ -366,6 +452,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                         onDragStart={(e) => dragStart(e, index, indexValue)}
                         className="text-gray-500 mr-2"
                         tabIndex="-1"
+                        type="button"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -393,6 +480,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                       <button
                         onClick={() => deleteValue(index, indexValue)}
                         className="text-gray-500"
+                        type="button"
                         tabIndex="-1"
                       >
                         <svg
@@ -414,7 +502,7 @@ const ProductVariant = ({ field, defaultValue }) => {
               </div>
             ))}
           </div>
-          <div>
+          {data.length > 0 && (
             <table className="w-full">
               <thead>
                 <tr>
@@ -423,9 +511,9 @@ const ProductVariant = ({ field, defaultValue }) => {
                       {item.name}
                     </th>
                   ))}
-                  <th>Giá</th>
-                  <th>Kho</th>
-                  <th>SKU Phân Loại</th>
+                  <th className="text-center border p-2">Giá</th>
+                  <th className="text-center border p-2">Kho hàng</th>
+                  <th className="text-center border p-2">SKU</th>
                 </tr>
               </thead>
               <tbody>
@@ -433,26 +521,67 @@ const ProductVariant = ({ field, defaultValue }) => {
                   return (
                     <tr key={index}>
                       {listAttribute.map((attr, indexAttr) => {
-                        if (
-                          (oldValue.current != item[attr.name] ||
-                            oldValue.current == null) &&
-                          indexAttr == 0 && listAttribute.length > 1
-                        ) {
-                          oldValue.current = item[attr.name];
+                        const countId = data.reduce(
+                          (acc, current) => {
+                            if (!acc.id) {
+                              acc.id = current.id;
+                            } else if (acc.id !== current.id) {
+                              acc.total++;
+                            }
+                            return acc;
+                          },
+                          {
+                            total: 1,
+                          }
+                        ).total;
+
+                        const isSingleFirst =
+                          countId == 1 && indexAttr == 0 && index == 0;
+                        const firstInit =
+                          (oldValue.current != item.id || !oldValue.current) &&
+                          indexAttr == 0 &&
+                          listAttribute.length > 1;
+                        if (firstInit || isSingleFirst) {
+                          oldValue.current = item.id;
                           return (
                             <td
                               key={"" + index + "." + indexAttr}
-                              className="border p-2"
+                              className="border p-2 text-center"
                               rowSpan={firstAttributeLength.current}
                             >
                               {item[attr.name]}
+                              <ImageComponent
+                                defaultValue={item?.image}
+                                fnChooseImage={upImageForData}
+                                attrName={attr.name}
+                                attrValue={item[attr.name]}
+                              />
                             </td>
                           );
-                        } else if (indexAttr == 0 && listAttribute.length > 1) {
+                        } else if (
+                          indexAttr == 0 &&
+                          listAttribute.length > 1
+                        ) {
+                          console.log("indexAttr", indexAttr);
                           return (
                             <React.Fragment
                               key={"" + index + "." + indexAttr}
                             ></React.Fragment>
+                          );
+                        } else if (indexAttr == 0) {
+                          return (
+                            <td
+                              key={"" + index + "." + indexAttr}
+                              className="border p-2"
+                            >
+                              {item[attr.name]}
+                              <ImageComponent
+                                dataDefault={item?.image}
+                                fnChooseImage={upImageForData}
+                                attrName={attr.name}
+                                attrValue={item[attr.name]}
+                              />
+                            </td>
                           );
                         } else {
                           return (
@@ -465,12 +594,39 @@ const ProductVariant = ({ field, defaultValue }) => {
                           );
                         }
                       })}
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={item?.price}
+                          className="w-full outline-outline outline-4 transition border rounded-md p-2"
+                          onChange={(e) => changeData(e, index, "price")}
+                          placeholder="Nhập giá"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={item?.stock}
+                          className="w-full outline-outline outline-4 transition border rounded-md p-2"
+                          onChange={(e) => changeData(e, index, "stock")}
+                          placeholder="Nhập giá"
+                        />
+                      </td>
+                      <td className="border p-2">
+                        <input
+                          type="text"
+                          value={item?.sku}
+                          className="w-full outline-outline outline-4 transition border rounded-md p-2"
+                          onChange={(e) => changeData(e, index, "sku")}
+                          placeholder="Nhập giá"
+                        />
+                      </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
-          </div>
+          )}
         </div>
       ) : (
         <>
