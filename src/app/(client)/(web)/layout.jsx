@@ -9,8 +9,8 @@ const WebLayout = ({ children }) => {
       <Header />
       <main>{children}</main>
       <GoogleSignIn />
-      <AllEffect />
       <Footer />
+      {/* <AllEffect /> */}
     </>
   );
 };

@@ -20,7 +20,7 @@ const Footer = async () => {
   const copyRight = await getCopyRight();
   const logo = await getLogo();
   return (
-    <footer className="pt-8 pb-4 px-10">
+    <footer className="pt-8 pb-4 px-10 bg-white text-black">
       <div className="flex justify-between items-start">
         <LinkCustom href="/">
           <Image

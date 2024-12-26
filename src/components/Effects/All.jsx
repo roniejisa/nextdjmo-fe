@@ -146,7 +146,6 @@ const AllEffect = () => {
     if (!eventDay.current) return;
 
     // Thêm các lớp CSS cho sự kiện
-    console.log(eventDay.current);
     document.body.classList.add(
       eventDay.current?.classBackground,
       eventDay.current?.classColor
@@ -154,8 +153,10 @@ const AllEffect = () => {
 
     return () => {
       // Gỡ bỏ lớp CSS khi component bị unmount
-      document.body.classList.remove(eventDay.current?.classBackground || "");
-      document.body.classList.remove(eventDay.current?.classColor || "");
+      document.body.classList.remove(
+        eventDay.current?.classBackground,
+        eventDay.current?.classColor
+      );
     };
   }, []);
 
@@ -164,9 +165,11 @@ const AllEffect = () => {
     Component = eventDay.current.component;
   }
 
-  return <div className="pointer-events-none">
-    <Component />
-  </div>;
+  return (
+    <div className="pointer-events-none">
+      <Component />
+    </div>
+  );
 };
 
 export default AllEffect;

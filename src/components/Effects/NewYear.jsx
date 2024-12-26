@@ -54,7 +54,7 @@ const NewYearEffect = () => {
             particle.x += particle.velocityX;
             particle.y += particle.velocityY;
             particle.alpha -= particle.decay;
-
+            particle.velocityY -= 0.05
             ctx.beginPath();
             ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
             ctx.fillStyle = `hsla(${Math.random() * 360}, 100%, 50%, ${particle.alpha})`;
@@ -79,7 +79,7 @@ const NewYearEffect = () => {
       const x = Math.random() * canvas.width;
       const y = canvas.height;
       const targetY = Math.random() * canvas.height * 0.5 + canvas.height * 0.2;
-      const speed = Math.random() * 3 + 3;
+      const speed = Math.random() * 6 + 3;
       fireworks.push({ x, y, targetY, speed, particles: null });
     };
 
