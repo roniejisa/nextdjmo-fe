@@ -1,32 +1,33 @@
 "use server";
 
+import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
 export const handleUpdateImage = async (formData) => {
   const token = await getToken();
-  const response = await fetch(process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/edit-file", {
-    headers: {
+  const response = await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/edit-file",
+    {
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(formData),
-    method: "PATCH",
-  });
+    formData,
+    "PATCH",
+    false
+  );
 
-  const data = await response.json();
-  
-  return data;
+  return response;
 };
 
 export const checkHistoryFile = async (id) => {
   const token = await getToken();
-  const response = await fetch(
+  const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/history-file/" + id,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+      Authorization: `Bearer ${token}`,
+    },
+    {},
+    "GET",
+    false
   );
-  const data = await response.json();
-  return data;
+  return response;
 };

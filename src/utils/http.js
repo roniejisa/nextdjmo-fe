@@ -23,6 +23,8 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
         options.headers["Content-Type"] = "application/json";
         options.body = JSON.stringify(body);
       }
+    }else if(body instanceof FormData){
+      options.body = body
     }
 
     const response = await fetch(url, options);

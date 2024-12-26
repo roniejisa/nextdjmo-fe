@@ -7,9 +7,9 @@ import React from "react";
 const Sidebar = ({ profile }) => {
   const router = useRouterCustom();
   const pathname = usePathname();
-  if(!profile) {
-    return <></>
-  };
+  if (!profile) {
+    return <></>;
+  }
   const checkActiveMenu = (link, hasChild = false) => {
     const listLink = link.split("|");
     if (
@@ -18,7 +18,7 @@ const Sidebar = ({ profile }) => {
       )
     ) {
       return hasChild
-        ? "bg-red-400 text-white rounded-md"
+        ? "bg-red-400 text-white rounded-md active"
         : "bg-blue-700 text-white rounded-md";
     } else {
       return "";
@@ -90,6 +90,13 @@ const Sidebar = ({ profile }) => {
                       <input
                         type="checkbox"
                         id={`menu-sidebar-${item.id}`}
+                        defaultChecked={item.link
+                          .split("|")
+                          .some(
+                            (link) =>
+                              process.env.NEXT_PUBLIC_ADMIN_URL + link ==
+                              pathname
+                          )}
                         hidden
                       />
                       {item.items

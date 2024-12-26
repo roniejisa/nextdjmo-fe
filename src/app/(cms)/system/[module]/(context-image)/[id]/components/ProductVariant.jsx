@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
 import { makeId } from "@/utils/client/util";
 /**
@@ -107,7 +107,7 @@ const generateKey = (item) => {
   return arrayData.map((entry) => entry.join(":")).join("|");
 };
 
-const ProductVariant = ({ field, defaultValue }) => {
+const ProductVariant = ({ field,item, defaultValue }) => {
   const [hasVariant, setHasVariant] = useState(false);
   const [attribute, setAttribute] = useState("");
   const [listAttribute, setListAttribute] = useState([]);
@@ -136,14 +136,19 @@ const ProductVariant = ({ field, defaultValue }) => {
     try {
       oldData.current = JSON.parse(defaultValue);
     } catch (e) {}
-
     if (
       oldData.current &&
       "data" in oldData.current &&
-      "listAttribute" in oldData.current
+      "listAttribute" in oldData.current &&
+      oldData.current.listAttribute.length > 0
     ) {
       setHasVariant(true);
       setListAttribute(oldData.current.listAttribute);
+    } else if (
+      oldData.current &&
+      "data" in oldData.current
+    ) {
+      setData([...oldData.current.data]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -176,7 +181,8 @@ const ProductVariant = ({ field, defaultValue }) => {
 
   const addAttribute = () => {
     // Cần kiểm tra xem attribute này đã tồn tại chưa
-    if (attribute.trim() === "" || /^\d/.test(attribute.trim())) return inputAddAttributeRef.current.focus();
+    if (attribute.trim() === "" || /^\d/.test(attribute.trim()))
+      return inputAddAttributeRef.current.focus();
     setListAttribute((prev) => {
       const exists = prev.some((item) => item.name === attribute);
       if (exists) return prev;
@@ -206,7 +212,7 @@ const ProductVariant = ({ field, defaultValue }) => {
       // Tạo key duy nhất cho từng phần tử từ listAttribute
 
       setData((prev) => {
-        if (prev.length === 0) {
+        if (prev.length === 0 && oldData.current) {
           prev = oldData.current.data;
         }
         const newListData = listData.map((item) => {
@@ -219,7 +225,6 @@ const ProductVariant = ({ field, defaultValue }) => {
               return dataKey.includes(key);
             }
           });
-          console.log(oldData);
           const getKeyOfFirstAttribute = listAttribute[0].name;
           const getItemOldHasImage = prev.find(
             (prevItem) =>
@@ -245,7 +250,7 @@ const ProductVariant = ({ field, defaultValue }) => {
         // console.log(newListData);
         return newListData;
       });
-    } else {
+    } else if (hasVariant) {
       setData([]);
     }
 
@@ -284,7 +289,7 @@ const ProductVariant = ({ field, defaultValue }) => {
 
   const changeNameAttribute = (e, index) => {
     const value = e.target.value.trim();
-    if(/^\d/.test(value)) return
+    if (/^\d/.test(value)) return;
     setListAttribute((prev) => {
       const newList = [...prev]; // Tạo bản sao của mảng `prev`
       newList[index] = {
@@ -394,9 +399,19 @@ const ProductVariant = ({ field, defaultValue }) => {
   };
 
   const changeData = (e, index, key) => {
+    let value = e.target.value.trim();
+    switch (key) {
+      case "stock":
+      case "price":
+        if (isNaN(value) || Number(value) <= 0) {
+          value = value.replace(/[^0-9.]/g, ""); // Loại bỏ các ký tự không phải số hoặc dấu chấm
+        }
+        value = value > 0 ? value : 0;
+        break;
+    }
     setData((prev) => {
       const newData = [...prev];
-      newData[index][key] = e.target.value;
+      newData[index][key] = value;
       return newData;
     });
   };
@@ -412,8 +427,10 @@ const ProductVariant = ({ field, defaultValue }) => {
   };
 
   const deleteAttributeValue = (index, indexValue) => {
+    // Kiểm tra nếu là phần tử cuối sẽ không xóa
+    if (indexValue == listAttribute[index].values.length - 1) return;
     const values = listAttribute[index].values.filter(
-      (item, index) => index !== indexValue
+      (item, i) => i !== indexValue
     );
     // Kiểm tra nếu rỗng thì xóa luôn
     if (values.length == 0) return deleteAttribute(index);
@@ -780,6 +797,7 @@ const ProductVariant = ({ field, defaultValue }) => {
             <input
               type="text"
               data-name="price"
+              value={data[0] ? data[0]?.price : ""}
               placeholder="Giá"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={handleChangePrice}
@@ -790,6 +808,7 @@ const ProductVariant = ({ field, defaultValue }) => {
             <input
               type="text"
               data-name="sku"
+              value={data[0] ? data[0]?.sku : ""}
               placeholder="Sku"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={handleChangeSku}
@@ -800,6 +819,7 @@ const ProductVariant = ({ field, defaultValue }) => {
             <input
               type="text"
               data-name="stock"
+              value={data[0] ? data[0]?.stock : 0}
               placeholder="Số lượng"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={changeStock}

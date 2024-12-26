@@ -1,3 +1,5 @@
+import { httpClient } from "../http";
+
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 
 export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia) => {
@@ -15,23 +17,12 @@ export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia)
         formData.append("totalChunks", totalChunks);
         formData.append("file_id", file_id);
         try {
-            const response = await fetch(process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/upload-file", {
-                method: "POST",
-                body: formData,
-            });
-
-            if (!response.ok) {
-                console.error(`Failed to upload chunk ${chunkIndex}`);
-                return false;
-            }
-
+            const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/upload-file", {
+            }, formData, "POST", false);
+            if (response.status != 201) return false
             const percentage = Math.round(((chunkIndex + 1) / totalChunks) * 100);
             onProgress(percentage); // Gọi callback cập nhật tiến độ
-
-            if (response.ok) {
-                const { data } = await response.json();
-                onSetMedia(data); // Gọi callback cập nhật tiến độ
-            }
+            onSetMedia(response.data); // Gọi callback cập nhật tiến độ
         } catch (error) {
             console.error("Error uploading chunk:", error);
             return false;

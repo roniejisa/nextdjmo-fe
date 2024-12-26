@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { httpClient } from './utils/http'
 
 // Sử dụng biến môi trường cho URL và API Key để dễ dàng cấu hình và bảo mật
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth' || 'http://localhost:8000/auth'
@@ -8,18 +9,12 @@ const cache = new Map()
 // Hàm chung để thực hiện các yêu cầu HTTP
 async function fetchForAuth(endpoint, method = 'GET', body = null, headers = {}) {
     try {
-        const response = await fetch(`${AUTH_BASE_URL}/${endpoint}`, {
-            method,
-            headers: {
-                'X-API-KEY': API_KEY,
-                'Content-Type': 'application/json',
-                ...headers,
-            },
-            cache: 'no-cache',
-            body: body ? JSON.stringify(body) : null,
-        })
-        const data = await response.json()
-        return data
+        const response = await httpClient(`${AUTH_BASE_URL}/${endpoint}`, {
+            'Content-Type': 'application/json',
+            ...headers,
+
+        }, body ? body : {}, method)
+        return response
     } catch (error) {
         console.error(`Error fetching ${endpoint}:`, error)
         return { status: 500 }

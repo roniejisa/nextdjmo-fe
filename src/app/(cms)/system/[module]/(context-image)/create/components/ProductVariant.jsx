@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
 import { makeId } from "@/utils/client/util";
 /**
@@ -160,7 +160,8 @@ const ProductVariant = ({ field, defaultValue }) => {
 
   const addAttribute = () => {
     // Cần kiểm tra xem attribute này đã tồn tại chưa
-    if (attribute.trim() === "" || /^\d/.test(attribute.trim())) return inputAddAttributeRef.current.focus();
+    if (attribute.trim() === "" || /^\d/.test(attribute.trim()))
+      return inputAddAttributeRef.current.focus();
     setListAttribute((prev) => {
       const exists = prev.some((item) => item.name === attribute);
       if (exists) return prev;
@@ -186,7 +187,7 @@ const ProductVariant = ({ field, defaultValue }) => {
     if (listAttribute.length > 0) {
       const newData = generateCombinations(listAttribute);
       const listData = sortData(newData);
-      
+
       setData((prev) => {
         const newListData = listData.map((item) => {
           const key = generateKey(item);
@@ -262,7 +263,7 @@ const ProductVariant = ({ field, defaultValue }) => {
 
   const changeNameAttribute = (e, index) => {
     const value = e.target.value.trim();
-    if(/^\d/.test(value)) return
+    if (/^\d/.test(value)) return;
     setListAttribute((prev) => {
       const newList = [...prev]; // Tạo bản sao của mảng `prev`
       newList[index] = {
@@ -372,9 +373,19 @@ const ProductVariant = ({ field, defaultValue }) => {
   };
 
   const changeData = (e, index, key) => {
+    let value = e.target.value.trim();
+    switch (key) {
+      case "stock":
+      case "price":
+        if (isNaN(value) || Number(value) <= 0) {
+          value = value.replace(/[^0-9.]/g, ""); // Loại bỏ các ký tự không phải số hoặc dấu chấm
+        }
+        value = value > 0 ? value : 0;
+        break;
+    }
     setData((prev) => {
       const newData = [...prev];
-      newData[index][key] = e.target.value;
+      newData[index][key] = value;
       return newData;
     });
   };
@@ -553,7 +564,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                   type="text"
                   className="w-full outline-outline outline-4 transition border rounded-md p-2"
                   value={item.name}
-                  onChange={(e) => changeNameAttribute(e,index)}
+                  onChange={(e) => changeNameAttribute(e, index)}
                 />
                 {/* Bắt đầu giá trị ở đây */}
                 <div className="flex flex-wrap py-2 -my-2 -mx-4">

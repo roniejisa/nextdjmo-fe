@@ -32,7 +32,7 @@ const QuestionModal = () => {
     <div
       ref={modalRef}
       onClick={handleClose}
-      className="fixed top-0 left-0 w-full transition-opacity duration-300 h-screen bg-[rgba(0,0,0,.2)]"
+      className="fixed top-0 left-0 w-full z-[9999] transition-opacity duration-300 h-screen bg-[rgba(0,0,0,.2)]"
       style={{
         opacity: showModalQuestion ? 1 : 0,
         visibility: showModalQuestion ? "visible" : "hidden",
@@ -51,10 +51,10 @@ const QuestionModal = () => {
               </div>
               <div className="flex justify-center mt-4">
 
-                <button onClick={() => setShowModalQuestion(false)} type="button" className="p-4 rounded-lg border bg-red-300 mr-2">
+                <button onClick={() => setShowModalQuestion(false)} type="button" className="px-4 rounded-lg border bg-orange-500 text-white mr-2">
                     Hủy
                 </button>
-                <button className="p-4 border rounded-lg bg-green-500 text-white">Đồng ý</button>
+                <button className="px-4 border rounded-lg bg-green-600 text-white">Đồng ý</button>
               </div>
             </form>
           </div>

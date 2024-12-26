@@ -1,11 +1,19 @@
 "use client";
 
-import { use, useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  use,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useMedia } from "./MediaProvider";
 import ImageType from "./types/ImageType";
 import VideoType from "./types/VideoType";
 import MediaItem from "./MediaItem";
 import { GalleryContext } from "@/context/ImageProvider";
+import { httpClient } from "@/utils/http";
 
 const mediaType = {
   ".png": ImageType,
@@ -23,17 +31,16 @@ const fetchPosts = async (limit = 10, page = 1, obj = {}, token) => {
   // const storeMedia = localStorage.getItem("mediaStore") || "[]";
   // const mediaLists = JSON.parse(storeMedia);
   //   try {
-  const params = new URLSearchParams({ limit: limit, page: page, ...obj });
-  const response = await fetch(
-    process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/" + `?${params.toString()}`,
+  const response = await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/" + ``,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+      Authorization: `Bearer ${token}`,
+    },
+    { limit: limit, page: page, ...obj },
+    "GET",
+    false
   );
-  
-  const { data: medias } = await response.json();
+  const { data: medias } = response;
   Array.isArray(medias) &&
     medias?.forEach((media) => {
       if (!mediaLists.find((p) => p._id === media._id)) {
@@ -89,117 +96,123 @@ const MediaList = ({ token }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medias]);
 
-  const handleMouseDown = useCallback((event) => {
-    event.preventDefault();
-    if (!event.target.closest(".item")) {
-      selectingRef.current = true;
-      itemsSelectingRef.current = getSelectedItems();
-      canvasRef.current = document.createElement("canvas");
-      ctxRef.current = canvasRef.current.getContext("2d");
-      const rect = mediaItemRef.current.getBoundingClientRect();
-      pageXRef.current = event.pageX - rect.left - window.pageXOffset;
-      pageYRef.current = event.pageY - rect.top - window.pageYOffset;
-      mediaItemRef.current.style.position = "relative";
-      canvasRef.current.style.position = "absolute";
-      canvasRef.current.style.zIndex = "9999";
-      canvasRef.current.width = mediaItemRef.current.clientWidth;
-      canvasRef.current.height = mediaItemRef.current.scrollHeight;
-      canvasRef.current.style.left = 0;
-      canvasRef.current.style.top = 0;
-      mediaItemRef.current.append(canvasRef.current);
+  const handleMouseDown = useCallback(
+    (event) => {
+      event.preventDefault();
+      if (!event.target.closest(".item")) {
+        selectingRef.current = true;
+        itemsSelectingRef.current = getSelectedItems();
+        canvasRef.current = document.createElement("canvas");
+        ctxRef.current = canvasRef.current.getContext("2d");
+        const rect = mediaItemRef.current.getBoundingClientRect();
+        pageXRef.current = event.pageX - rect.left - window.pageXOffset;
+        pageYRef.current = event.pageY - rect.top - window.pageYOffset;
+        mediaItemRef.current.style.position = "relative";
+        canvasRef.current.style.position = "absolute";
+        canvasRef.current.style.zIndex = "9999";
+        canvasRef.current.width = mediaItemRef.current.clientWidth;
+        canvasRef.current.height = mediaItemRef.current.scrollHeight;
+        canvasRef.current.style.left = 0;
+        canvasRef.current.style.top = 0;
+        mediaItemRef.current.append(canvasRef.current);
 
-      // Thêm divClone hình của canvas
-      divCloneCanvasRef.current = document.createElement("div");
-      divCloneCanvasRef.current.style.position = "absolute";
-      divCloneCanvasRef.current.style.zIndex = "1000";
-      mediaItemRef.current.append(divCloneCanvasRef.current);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [medias]);
+        // Thêm divClone hình của canvas
+        divCloneCanvasRef.current = document.createElement("div");
+        divCloneCanvasRef.current.style.position = "absolute";
+        divCloneCanvasRef.current.style.zIndex = "1000";
+        mediaItemRef.current.append(divCloneCanvasRef.current);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [medias]
+  );
 
   useEffect(() => {
-    if(canvasRef.current){
+    if (canvasRef.current) {
       canvasRef.current.height = mediaItemRef.current.scrollHeight;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [medias])
-  const handleMouseMove = useCallback((event) => {
-    if (selectingRef.current) {
-      let x, y;
-      const canvas = canvasRef.current;
-      if (event.target === canvas) {
-        x = event.offsetX - pageXRef.current;
-        y = event.offsetY - pageYRef.current;
-        const ctx = ctxRef.current;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // Vẽ hình chữ nhật
-        ctx.beginPath();
-        ctx.rect(pageXRef.current, pageYRef.current, x, y);
-        ctx.fillStyle = "#80afe799";
-        ctx.fill();
-        movePageX.current = event.offsetX;
-        movePageY.current = event.offsetY;
-        // Xóa canvas trước khi vẽ lại
-        if (
-          event.offsetX >= pageXRef.current &&
-          event.offsetY >= pageYRef.current
-        ) {
-          positionTransformRef.current = {
-            x: pageXRef.current,
-            y: pageYRef.current,
-          };
-        } else if (
-          event.offsetX >= pageXRef.current &&
-          event.offsetY <= pageYRef.current
-        ) {
-          positionTransformRef.current = {
-            x: pageXRef.current,
-            y: movePageY.current,
-          };
-        } else if (
-          event.offsetX <= pageXRef.current &&
-          event.offsetX &&
-          event.offsetY >= pageYRef.current
-        ) {
-          positionTransformRef.current = {
-            x: movePageX.current,
-            y: pageYRef.current,
-          };
-        } else {
-          positionTransformRef.current = {
-            x: movePageX.current,
-            y: movePageY.current,
-          };
-        }
-        // Xử lý selecting
-        divCloneCanvasRef.current.style.width = Math.abs(x) + "px";
-        divCloneCanvasRef.current.style.height = Math.abs(y) + "px";
-        divCloneCanvasRef.current.style.top =
-          positionTransformRef.current.y + "px";
-        divCloneCanvasRef.current.style.left =
-          positionTransformRef.current.x + "px";
-        Array.from(itemsRef.current).forEach((item) => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medias]);
+  const handleMouseMove = useCallback(
+    (event) => {
+      if (selectingRef.current) {
+        let x, y;
+        const canvas = canvasRef.current;
+        if (event.target === canvas) {
+          x = event.offsetX - pageXRef.current;
+          y = event.offsetY - pageYRef.current;
+          const ctx = ctxRef.current;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          // Vẽ hình chữ nhật
+          ctx.beginPath();
+          ctx.rect(pageXRef.current, pageYRef.current, x, y);
+          ctx.fillStyle = "#80afe799";
+          ctx.fill();
+          movePageX.current = event.offsetX;
+          movePageY.current = event.offsetY;
+          // Xóa canvas trước khi vẽ lại
           if (
-            isCollision(item, divCloneCanvasRef.current) &&
-            event.ctrlKey &&
-            itemsSelectingRef.current.includes(item)
+            event.offsetX >= pageXRef.current &&
+            event.offsetY >= pageYRef.current
           ) {
-            item.firstElementChild.checked = false;
+            positionTransformRef.current = {
+              x: pageXRef.current,
+              y: pageYRef.current,
+            };
           } else if (
-            isCollision(item, divCloneCanvasRef.current) ||
-            (event.ctrlKey && itemsSelectingRef.current.includes(item)) ||
-            (event.shiftKey && itemsSelectingRef.current.includes(item))
+            event.offsetX >= pageXRef.current &&
+            event.offsetY <= pageYRef.current
           ) {
-            if (!item.firstElementChild.checked)
-              item.firstElementChild.checked = true;
+            positionTransformRef.current = {
+              x: pageXRef.current,
+              y: movePageY.current,
+            };
+          } else if (
+            event.offsetX <= pageXRef.current &&
+            event.offsetX &&
+            event.offsetY >= pageYRef.current
+          ) {
+            positionTransformRef.current = {
+              x: movePageX.current,
+              y: pageYRef.current,
+            };
           } else {
-            item.firstElementChild.checked = false;
+            positionTransformRef.current = {
+              x: movePageX.current,
+              y: movePageY.current,
+            };
           }
-        });
+          // Xử lý selecting
+          divCloneCanvasRef.current.style.width = Math.abs(x) + "px";
+          divCloneCanvasRef.current.style.height = Math.abs(y) + "px";
+          divCloneCanvasRef.current.style.top =
+            positionTransformRef.current.y + "px";
+          divCloneCanvasRef.current.style.left =
+            positionTransformRef.current.x + "px";
+          Array.from(itemsRef.current).forEach((item) => {
+            if (
+              isCollision(item, divCloneCanvasRef.current) &&
+              event.ctrlKey &&
+              itemsSelectingRef.current.includes(item)
+            ) {
+              item.firstElementChild.checked = false;
+            } else if (
+              isCollision(item, divCloneCanvasRef.current) ||
+              (event.ctrlKey && itemsSelectingRef.current.includes(item)) ||
+              (event.shiftKey && itemsSelectingRef.current.includes(item))
+            ) {
+              if (!item.firstElementChild.checked)
+                item.firstElementChild.checked = true;
+            } else {
+              item.firstElementChild.checked = false;
+            }
+          });
+        }
       }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[medias])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [medias]
+  );
 
   const handleMouseUp = useCallback(() => {
     divCloneCanvasRef.current && divCloneCanvasRef.current.remove();
@@ -207,15 +220,15 @@ const MediaList = ({ token }) => {
     selectingRef.current = false;
     canvasRef.current && canvasRef.current.remove();
     setTimeout(() => {
-      const listMedia = []
+      const listMedia = [];
       itemsSelectingRef.current = getSelectedItems();
-      for(const index in itemsSelectingRef.current){
-        listMedia.push(medias[index])
+      for (const index in itemsSelectingRef.current) {
+        listMedia.push(medias[index]);
       }
-      setListImage(listMedia)
+      setListImage(listMedia);
     }, 200);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [medias])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medias]);
 
   function isCollision(element1, element2) {
     const rect1 = element1.getBoundingClientRect();
@@ -296,7 +309,7 @@ const MediaList = ({ token }) => {
         /**
          * Kiểm tra đứt đoạn giữa start và last
          */
-        
+
         let isIndexNotSeamless = null;
         for (let i = startItemChecked.index; i <= lastItemChecked.index; i++) {
           if (!listItemSelecting[i]) {
@@ -364,7 +377,7 @@ const MediaList = ({ token }) => {
   };
 
   const handleDoubleClick = (e, item) => {
-    if(!isMultiple){
+    if (!isMultiple) {
       setChoosed(item);
     }
   };
@@ -383,7 +396,7 @@ const MediaList = ({ token }) => {
     });
     loadedPages.current.add(page);
     setIsLoading(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   useEffect(() => {

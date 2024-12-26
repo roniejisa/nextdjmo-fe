@@ -1,23 +1,21 @@
 "use server";
+import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
 export const handleDeleteModule = async (module, id) => {
   const token = await getToken();
-  const response = await fetch(
+  const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}/${id}`,
     {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "X-API-KEY": "123456",
-      },
-      method: "DELETE",
-    }
+      Authorization: `Bearer ${token}`,
+    },
+    {},
+    "DELETE"
   );
-  if (response.ok) {
+  if (response.status == 204) {
     return {
       status: 200,
     };
   }
-  const data = await response.json()
-  return data;
+  return response;
 };

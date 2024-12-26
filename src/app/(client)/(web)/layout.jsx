@@ -1,6 +1,7 @@
 import Footer from "@/components/ui/client/Footer";
 import Header from "@/components/ui/client/Header";
 import GoogleSignIn from "@/components/Google/GoogleSignIn";
+import AllEffect from "@/components/Effects/All";
 
 const WebLayout = ({ children }) => {
   return (
@@ -8,12 +9,8 @@ const WebLayout = ({ children }) => {
       <Header />
       <main>{children}</main>
       <GoogleSignIn />
+      <AllEffect />
       <Footer />
-      
-      {/* <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="beforeInteractive"
-        /> */}
     </>
   );
 };
