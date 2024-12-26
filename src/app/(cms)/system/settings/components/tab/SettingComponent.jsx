@@ -13,7 +13,7 @@ import Slug from "../Slug";
 import Repeat from "../Repeat";
 import DateComponent from "../Date";
 import Textarea from "../Textarea";
-import { listTab } from "@/app/(client)/constants/tab";
+import { listTab } from "@/app/(cms)/constants/tab";
 import Group from "../Group";
 
 const components = {

@@ -65,14 +65,18 @@ const SocialLogin = () => {
     const top = (window.innerHeight - height) / 2;
 
     // Mở cửa sổ popup và giữ tham chiếu đến cửa sổ đó
-    const popupWindow = window.open(
+    const popupWindow = parent.window.open(
       url,
       "popupWindow",
       `width=${width},height=${height},top=${top},left=${left}`
     );
-    popupWindow.onload = () => {
-      console.log(this);
-    };
+
+    var timer = setInterval(function () {
+      if (popupWindow.closed) {
+        clearInterval(timer);
+        alert("closed");
+      }
+    }, 1000);
   };
 
   useEffect(() => {
@@ -93,6 +97,10 @@ const SocialLogin = () => {
 
     const channel = new BroadcastChannel("login-channel");
     channel.addEventListener("message", handleMessage);
+
+    window.addEventListener("message", (event) => {
+      console.log(event);
+    });
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

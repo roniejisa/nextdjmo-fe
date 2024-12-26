@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
-import { debounce, makeId } from "@/utils/client/util";
+import { makeId } from "@/utils/client/util";
 /**
  * 1. Ấn vào nút thêm chưa có dữ liệu thì phải nhập
  *
@@ -120,7 +120,6 @@ const ProductVariant = ({ field, defaultValue }) => {
   const suggestionRef = useRef(null);
   useEffect(() => {
     if (data.length > 0) {
-      console.log(data);
       const all = {
         data,
         listAttribute,
@@ -129,6 +128,7 @@ const ProductVariant = ({ field, defaultValue }) => {
     } else {
       textareaRef.current.value = "";
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   // Add Event
@@ -155,11 +155,12 @@ const ProductVariant = ({ field, defaultValue }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSuggestion]);
 
   const addAttribute = () => {
     // Cần kiểm tra xem attribute này đã tồn tại chưa
-    if (attribute.trim() === "") return inputAddAttributeRef.current.focus();
+    if (attribute.trim() === "" || /^\d/.test(attribute.trim())) return inputAddAttributeRef.current.focus();
     setListAttribute((prev) => {
       const exists = prev.some((item) => item.name === attribute);
       if (exists) return prev;
@@ -185,11 +186,17 @@ const ProductVariant = ({ field, defaultValue }) => {
     if (listAttribute.length > 0) {
       const newData = generateCombinations(listAttribute);
       const listData = sortData(newData);
+      
       setData((prev) => {
         const newListData = listData.map((item) => {
           const key = generateKey(item);
           const oldData = prev.find((prevItem) => {
-            return key.includes(generateKey(prevItem));
+            const dataKey = generateKey(prevItem);
+            if (key.length > dataKey.length) {
+              return key.includes(dataKey);
+            } else {
+              return dataKey.includes(key);
+            }
           });
           const getKeyOfFirstAttribute = listAttribute[0].name;
           const getItemOldHasImage = prev.find(
@@ -213,7 +220,7 @@ const ProductVariant = ({ field, defaultValue }) => {
             image: getItemOldHasImage ? getItemOldHasImage.image : "",
           };
         });
-        // console.log(newListData);
+        console.log(newListData);
         return newListData;
       });
     } else {
@@ -253,12 +260,14 @@ const ProductVariant = ({ field, defaultValue }) => {
     });
   };
 
-  const changeNameAttribute = (index) => {
+  const changeNameAttribute = (e, index) => {
+    const value = e.target.value.trim();
+    if(/^\d/.test(value)) return
     setListAttribute((prev) => {
       const newList = [...prev]; // Tạo bản sao của mảng `prev`
       newList[index] = {
         ...newList[index], // Sao chép object tại vị trí `index`
-        name: newList[index].name,
+        name: e.target.value,
       };
       return newList;
     });
@@ -392,36 +401,32 @@ const ProductVariant = ({ field, defaultValue }) => {
     });
   };
 
-  const changeStock = debounce(
-    (e) =>
-      setData((prev) => {
-        if (!prev.length) prev.push({});
-        const obj = prev[0];
-        obj.stock = e.target.value;
-        return [...prev];
-      }),
-    500
-  );
+  const changeStock = (e) => {
+    setData((prev) => {
+      if (!prev.length) prev.push({});
+      const obj = prev[0];
+      obj.stock = e.target.value;
+      return [...prev];
+    });
+  };
 
-  const handleChangeSku = debounce(
-    (e) =>
-      setData((prev) => {
-        if (!prev.length) prev.push({});
-        const obj = prev[0];
-        obj.sku = e.target.value;
-        return [...prev];
-      }),
-    500
-  );
+  const handleChangeSku = (e) => {
+    setData((prev) => {
+      if (!prev.length) prev.push({});
+      const obj = prev[0];
+      obj.sku = e.target.value;
+      return [...prev];
+    });
+  };
 
-  const handleChangePrice = debounce((e) => {
+  const handleChangePrice = (e) => {
     setData((prev) => {
       if (!prev.length) prev.push({});
       const obj = prev[0];
       obj.price = e.target.value;
       return [...prev];
     });
-  }, 500);
+  };
   return (
     <>
       <textarea name={field.name} hidden ref={textareaRef}></textarea>
@@ -548,7 +553,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                   type="text"
                   className="w-full outline-outline outline-4 transition border rounded-md p-2"
                   value={item.name}
-                  onChange={() => changeNameAttribute(index)}
+                  onChange={(e) => changeNameAttribute(e,index)}
                 />
                 {/* Bắt đầu giá trị ở đây */}
                 <div className="flex flex-wrap py-2 -my-2 -mx-4">
@@ -685,7 +690,10 @@ const ProductVariant = ({ field, defaultValue }) => {
                               key={"" + index + "." + indexAttr}
                             ></React.Fragment>
                           );
-                        } else if (indexAttr == 0) {
+                        } else if (
+                          indexAttr == 0 &&
+                          listAttribute.length == 1
+                        ) {
                           return (
                             <td
                               key={"" + index + "." + indexAttr}

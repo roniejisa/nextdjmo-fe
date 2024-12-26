@@ -30,6 +30,7 @@ const FormLogin = ({ msg }) => {
       notify.changeNotify("error", msg);
       document.cookie = "msg=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

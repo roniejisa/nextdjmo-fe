@@ -1,5 +1,4 @@
-import { listTab } from "@/app/(client)/constants/tab";
-import Group from "./Group";
+import { listTab } from "@/app/(cms)/constants/tab";
 
 const Tab = ({ field, defaultValue }) => {
   return (

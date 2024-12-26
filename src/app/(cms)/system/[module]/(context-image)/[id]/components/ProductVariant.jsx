@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
-import { debounce, makeId } from "@/utils/client/util";
+import { makeId } from "@/utils/client/util";
 /**
  * 1. Ấn vào nút thêm chưa có dữ liệu thì phải nhập
  *
@@ -137,10 +137,15 @@ const ProductVariant = ({ field, defaultValue }) => {
       oldData.current = JSON.parse(defaultValue);
     } catch (e) {}
 
-    if ("data" in oldData.current && "listAttribute" in oldData.current) {
+    if (
+      oldData.current &&
+      "data" in oldData.current &&
+      "listAttribute" in oldData.current
+    ) {
       setHasVariant(true);
       setListAttribute(oldData.current.listAttribute);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Add Event
   const showProductAttributeAvailable = (e) => {
@@ -166,11 +171,12 @@ const ProductVariant = ({ field, defaultValue }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showSuggestion]);
 
   const addAttribute = () => {
     // Cần kiểm tra xem attribute này đã tồn tại chưa
-    if (attribute.trim() === "") return inputAddAttributeRef.current.focus();
+    if (attribute.trim() === "" || /^\d/.test(attribute.trim())) return inputAddAttributeRef.current.focus();
     setListAttribute((prev) => {
       const exists = prev.some((item) => item.name === attribute);
       if (exists) return prev;
@@ -206,8 +212,14 @@ const ProductVariant = ({ field, defaultValue }) => {
         const newListData = listData.map((item) => {
           const key = generateKey(item);
           const oldData = prev.find((prevItem) => {
-            return key.includes(generateKey(prevItem));
+            const dataKey = generateKey(prevItem);
+            if (key.length > dataKey.length) {
+              return key.includes(dataKey);
+            } else {
+              return dataKey.includes(key);
+            }
           });
+          console.log(oldData);
           const getKeyOfFirstAttribute = listAttribute[0].name;
           const getItemOldHasImage = prev.find(
             (prevItem) =>
@@ -270,12 +282,14 @@ const ProductVariant = ({ field, defaultValue }) => {
     });
   };
 
-  const changeNameAttribute = (index) => {
+  const changeNameAttribute = (e, index) => {
+    const value = e.target.value.trim();
+    if(/^\d/.test(value)) return
     setListAttribute((prev) => {
       const newList = [...prev]; // Tạo bản sao của mảng `prev`
       newList[index] = {
         ...newList[index], // Sao chép object tại vị trí `index`
-        name: newList[index].name,
+        name: e.target.value,
       };
       return newList;
     });
@@ -358,7 +372,7 @@ const ProductVariant = ({ field, defaultValue }) => {
     }
   };
 
-  const handleChangeValue = (index, indexValue) => (e) => {
+  const handleChangeValue = (e, index, indexValue) => {
     const valuesLength = listAttribute[index].values.length;
 
     if (valuesLength - 1 == indexValue && e.target.value.trim() !== "") {
@@ -409,36 +423,32 @@ const ProductVariant = ({ field, defaultValue }) => {
     });
   };
 
-  const changeStock = debounce(
-    (e) =>
-      setData((prev) => {
-        if (!prev.length) prev.push({});
-        const obj = prev[0];
-        obj.stock = e.target.value;
-        return [...prev];
-      }),
-    500
-  );
+  const changeStock = (e) => {
+    setData((prev) => {
+      if (!prev.length) prev.push({});
+      const obj = prev[0];
+      obj.stock = e.target.value;
+      return [...prev];
+    });
+  };
 
-  const handleChangeSku = debounce(
-    (e) =>
-      setData((prev) => {
-        if (!prev.length) prev.push({});
-        const obj = prev[0];
-        obj.sku = e.target.value;
-        return [...prev];
-      }),
-    500
-  );
+  const handleChangeSku = (e) => {
+    setData((prev) => {
+      if (!prev.length) prev.push({});
+      const obj = prev[0];
+      obj.sku = e.target.value;
+      return [...prev];
+    });
+  };
 
-  const handleChangePrice = debounce((e) => {
+  const handleChangePrice = (e) => {
     setData((prev) => {
       if (!prev.length) prev.push({});
       const obj = prev[0];
       obj.price = e.target.value;
       return [...prev];
     });
-  }, 500);
+  };
 
   return (
     <>
@@ -565,8 +575,8 @@ const ProductVariant = ({ field, defaultValue }) => {
                 <input
                   type="text"
                   className="w-full outline-outline outline-4 transition border rounded-md p-2"
-                  value={item.name}
-                  onChange={() => changeNameAttribute(index)}
+                  defaultValue={item.name}
+                  onChange={(e) => changeNameAttribute(e, index)}
                 />
                 {/* Bắt đầu giá trị ở đây */}
                 <div className="flex flex-wrap py-2 -my-2 -mx-4">
@@ -578,10 +588,12 @@ const ProductVariant = ({ field, defaultValue }) => {
                     >
                       <input
                         type="text"
-                        value={value.value}
+                        defaultValue={value.value}
                         className="w-full outline-outline outline-4 transition border rounded-md p-2 mr-2"
                         placeholder={value.placeholder}
-                        onChange={handleChangeValue(index, indexValue)}
+                        onChange={(e) =>
+                          handleChangeValue(e, index, indexValue)
+                        }
                       />
                       <button
                         draggable="true"

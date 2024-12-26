@@ -73,6 +73,7 @@ const Permission = ({ field, defaultValue }) => {
       const input = document.querySelector(`[data-value="${item}"]`);
       input.checked = true;
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

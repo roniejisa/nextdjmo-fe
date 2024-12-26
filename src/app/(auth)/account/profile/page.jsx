@@ -1,4 +1,4 @@
-import { getProfile } from "@/app/(client)/system/[module]/actions";
+import { getProfile } from "@/app/(cms)/system/[module]/actions";
 import { redirect } from "next/navigation";
 import FormUpdate from "./FormUpdate";
 

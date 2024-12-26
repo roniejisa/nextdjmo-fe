@@ -22,6 +22,7 @@ const MultipleCheckbox = ({ field, defaultValue }) => {
       const input = document.querySelector(`input[data-value="${item}"]`)
       if(input) input.checked = true
     })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
   return (
     <div>
