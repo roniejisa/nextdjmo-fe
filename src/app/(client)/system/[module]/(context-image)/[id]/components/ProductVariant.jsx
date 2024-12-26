@@ -106,11 +106,13 @@ const generateKey = (item) => {
     .filter((entry) => entry !== null);
   return arrayData.map((entry) => entry.join(":")).join("|");
 };
+
 const ProductVariant = ({ field, defaultValue }) => {
   const [hasVariant, setHasVariant] = useState(false);
   const [attribute, setAttribute] = useState("");
   const [listAttribute, setListAttribute] = useState([]);
   const [data, setData] = useState([]);
+  const oldData = useRef(null);
   const textareaRef = useRef(null);
   const dataMoveRef = useRef(null);
   const firstAttributeLength = useRef(0);
@@ -120,7 +122,6 @@ const ProductVariant = ({ field, defaultValue }) => {
   const suggestionRef = useRef(null);
   useEffect(() => {
     if (data.length > 0) {
-      console.log(data);
       const all = {
         data,
         listAttribute,
@@ -129,8 +130,18 @@ const ProductVariant = ({ field, defaultValue }) => {
     } else {
       textareaRef.current.value = "";
     }
-  }, [data]);
+  }, [data, listAttribute]);
 
+  useEffect(() => {
+    try {
+      oldData.current = JSON.parse(defaultValue);
+    } catch (e) {}
+
+    if ("data" in oldData.current && "listAttribute" in oldData.current) {
+      setHasVariant(true);
+      setListAttribute(oldData.current.listAttribute);
+    }
+  }, []);
   // Add Event
   const showProductAttributeAvailable = (e) => {
     setShowSuggestion(true);
@@ -185,7 +196,13 @@ const ProductVariant = ({ field, defaultValue }) => {
     if (listAttribute.length > 0) {
       const newData = generateCombinations(listAttribute);
       const listData = sortData(newData);
+
+      // Tạo key duy nhất cho từng phần tử từ listAttribute
+
       setData((prev) => {
+        if (prev.length === 0) {
+          prev = oldData.current.data;
+        }
         const newListData = listData.map((item) => {
           const key = generateKey(item);
           const oldData = prev.find((prevItem) => {
@@ -341,7 +358,7 @@ const ProductVariant = ({ field, defaultValue }) => {
     }
   };
 
-  const handleChangeValue = (e, index, indexValue) => {
+  const handleChangeValue = (index, indexValue) => (e) => {
     const valuesLength = listAttribute[index].values.length;
 
     if (valuesLength - 1 == indexValue && e.target.value.trim() !== "") {
@@ -422,6 +439,7 @@ const ProductVariant = ({ field, defaultValue }) => {
       return [...prev];
     });
   }, 500);
+
   return (
     <>
       <textarea name={field.name} hidden ref={textareaRef}></textarea>
@@ -560,12 +578,10 @@ const ProductVariant = ({ field, defaultValue }) => {
                     >
                       <input
                         type="text"
-                        defaultValue={value.value}
+                        value={value.value}
                         className="w-full outline-outline outline-4 transition border rounded-md p-2 mr-2"
                         placeholder={value.placeholder}
-                        onChange={(e) =>
-                          handleChangeValue(e, index, indexValue)
-                        }
+                        onChange={handleChangeValue(index, indexValue)}
                       />
                       <button
                         draggable="true"

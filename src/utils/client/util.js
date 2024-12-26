@@ -128,3 +128,12 @@ export function makeId(length) {
     }
     return result;
 }
+
+export function debounce(func, delay = 500) {
+    let timeout;
+    return function (...args) {
+        const context = this;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), delay);
+    };
+}

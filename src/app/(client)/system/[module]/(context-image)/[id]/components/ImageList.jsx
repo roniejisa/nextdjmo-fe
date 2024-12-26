@@ -30,7 +30,11 @@ const ImageListComponent = ({ defaultValue, item, field }) => {
   }, [itemCurrent, listImageChoosed]);
 
   useEffect(() => {
-    const images = JSON.parse(defaultValue || "") || null;
+    let images = null;
+    try {
+      images = JSON.parse(defaultValue);
+    } catch (e) {}
+    
     if (Array.isArray(images)) {
       setItemCurrent((prev) => {
         const index = prev.findIndex((item) => item.id == id);

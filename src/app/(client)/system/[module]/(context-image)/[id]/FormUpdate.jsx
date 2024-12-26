@@ -24,6 +24,7 @@ import Tab from "./components/Tab";
 import Group from "./components/Group";
 import Permission from "./components/Permission";
 import MultipleCheckbox from "./components/MultipleCheckbox";
+import ProductVariant from "./components/ProductVariant";
 
 const components = {
   text: Text,
@@ -44,7 +45,8 @@ const components = {
   key: Key,
   tab: Tab,
   permission:Permission,
-  multiple_checkbox:MultipleCheckbox
+  multiple_checkbox:MultipleCheckbox,
+  product_variants: ProductVariant
 };
 
 const FormUpdate = ({ module, item, fields, moduleStore }) => {
