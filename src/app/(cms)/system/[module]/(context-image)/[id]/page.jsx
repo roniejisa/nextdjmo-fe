@@ -4,6 +4,8 @@ import FormUpdate from "./FormUpdate";
 import { cookies } from "next/headers";
 import { getProfile } from "../../actions";
 import { cache } from "react";
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 const moduleDetail = async (module, id) => {
   const storeCookie = await cookies();
   const token = storeCookie.get("token")?.value;

@@ -26,6 +26,8 @@ const cacheGetDataModule = cache(async (module, limit, page) => {
   return await getDataModule(module, limit, page);
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 export async function generateMetadata({ params }) {
   const { module } = await params;
   const { data } = await cacheGetDataModule(module);

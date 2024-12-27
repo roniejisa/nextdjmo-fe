@@ -11,7 +11,7 @@ const Slug = ({ field, defaultValue, item }) => {
   const checkChangeInputSlug = async (e) => {
     clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
-      const data = await checkSlug(field.module, toSlug(e.target.value), item);
+      const data = await checkSlug(field.module, toSlug(e.target.value), item._id);
       if (data.status === 200) {
         slugRef.current.value = toSlug(e.target.value);
         notify.changeNotify("success", data.message);
@@ -22,14 +22,6 @@ const Slug = ({ field, defaultValue, item }) => {
     }, 1000);
   };
 
-  useEffect(() => {
-    const inputSlug = document.querySelector(`input[name="${field.from}"]`);
-    inputSlug.addEventListener("change", checkChangeInputSlug);
-    return () => {
-      inputSlug.removeEventListener("change", checkChangeInputSlug);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
     <input
       name={field.name}
