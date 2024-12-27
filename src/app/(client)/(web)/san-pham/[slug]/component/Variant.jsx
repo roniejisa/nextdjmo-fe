@@ -7,8 +7,14 @@ import React, { useContext, useEffect, useState } from "react";
 // Tốt nhất là chỉ nên làm như hiện tại đỡ lỗi vớ vẩn ngu người
 const Variant = () => {
   const [selectedAttributes, setSelectedAttributes] = useState({});
-  const { product, firstAttribute, imageRef, imageVariants, productCurrent } =
-    useContext(ProductContext);
+  const {
+    product,
+    firstAttribute,
+    imageRef,
+    imageVariants,
+    productCurrent,
+    setProductCurrent,
+  } = useContext(ProductContext);
   const [listVariantOk, setListVariantOk] = useState(product.variants);
   const chooseAttribute = (name, label) => {
     // console.log(item,label);
@@ -27,7 +33,7 @@ const Variant = () => {
     // Kiểm tra ở bước đầu chọn màu
     if (selectedAttributes[firstAttribute]) {
       productCurrent.image = imageVariants[selectedAttributes[firstAttribute]];
-    } else {
+    } else if(Object.keys(imageVariants).length > 0){
       productCurrent.image = imageVariants[Object.keys(imageVariants)[0]];
       imageRef.current.src = showImageUrl(productCurrent?.image);
     }
@@ -59,13 +65,25 @@ const Variant = () => {
           );
         }
       });
-      console.log(data);
       setListVariantOk(data);
     } else {
       setListVariantOk(product.variants);
     }
   }, [selectedAttributes]);
 
+  useEffect(() => {
+    if (listVariantOk.length === 1) {
+      setProductCurrent({
+        ...product,
+        ...Object.entries(listVariantOk[0])
+          .filter(([key, value]) => value !== null && value !== undefined)
+          .reduce((acc, [key, value]) => {
+            acc[key] = value;
+            return acc;
+          }, {}),
+      });
+    }
+  }, [listVariantOk]);
   useEffect(() => {
     setSelectedAttributes((prev) => {
       const obj = Object.keys(product.detail_variants).reduce((prev, curr) => {
@@ -103,7 +121,7 @@ const Variant = () => {
     );
   };
 
-  if (product.detail_variants.length === 0) return <></>;
+  if (Object.keys(product.detail_variants).length === 0) return <></>;
 
   return (
     <>
@@ -114,11 +132,11 @@ const Variant = () => {
               ([name, varaints], index) => (
                 <div key={index}>
                   <p>{name}</p>
-                  <div className="flex">
+                  <div className="flex flex-wrap gap-1">
                     {varaints.map((label, index) => (
                       <label
                         key={index}
-                        className="border variant flex items-center gap-2 p-2 rounded-md"
+                        className="border variant flex items-center gap-2 p-2 rounded-md cursor-pointer"
                         {...(name === firstAttribute && {
                           onMouseEnter: () => {
                             imageRef.current.src = showImageUrl(

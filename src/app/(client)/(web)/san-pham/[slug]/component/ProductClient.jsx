@@ -9,6 +9,7 @@ import Image from "next/image";
 const ProductClient = () => {
   const { products, productCurrent, firstAttribute, imageVariants, imageRef } =
     useContext(ProductContext);
+    console.log(showImageUrl(productCurrent?.image))
   if (productCurrent == null) return <div></div>;
   return (
     <div className="flex">
