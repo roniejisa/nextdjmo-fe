@@ -13,11 +13,7 @@ const ClientProvider = ({ children }) => {
   const fetchData = async () => {
     const reponse = await getDataDraftOrder();
     if (reponse.status == 200 && reponse.data.length) {
-      const count = reponse.data.reduce((acc, item) => {
-        return acc + item.qty;
-      }, 0);
       setOrders(reponse.data);
-      setTotalOrders(count);
     }
   };
 
@@ -31,6 +27,14 @@ const ClientProvider = ({ children }) => {
       setUpdateCart(false);
     }
   }, [updateCart]);
+
+  useEffect(() => {
+    const count = orders.reduce((acc, item) => {
+      return +acc + +item.qty;
+    }, 0);
+    console.log(count);
+    setTotalOrders(count);
+  }, [orders]);
 
   return (
     <ClientContext.Provider

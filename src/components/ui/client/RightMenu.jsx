@@ -30,51 +30,54 @@ const RightMenu = () => {
         </li>
       ))}
       <li>
-        <button
-          onClick={() => {
-            router.push("/gio-hang");
-          }}
+        <div
           onMouseEnter={(e) => setShowOrder(true)}
           onMouseLeave={(e) => setShowOrder(false)}
           className="relative p-2 ml-4 block"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+          <button
+            onClick={() => {
+              router.push("/gio-hang");
+            }}
           >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-            <path d="M17 17h-11v-14h-2" />
-            <path d="M6 5l14 1l-1 7h-13" />
-          </svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+              <path d="M17 17h-11v-14h-2" />
+              <path d="M6 5l14 1l-1 7h-13" />
+            </svg>
+          </button>
           <span className="absolute top-0 right-0 translate-x-1/2 min-w-4 h-4 bg-red-500 rounded-full flex justify-center items-center p-2 text-white">
             {totalOrders}
           </span>
           <div>
             {showOrder && (
               <div
-                className="absolute top-12 right-0 w-[300px] bg-white shadow-md z-50 rounded-md before:content-[''] before:absolute before:w-20 before:h-10 before:bg-transparent before:top-[-25px] before:right-0"
-                onMouseEnter={(e) => setShowOrder(true)}
+                className="absolute top-12 right-0 w-[300px] bg-white shadow-md z-50 rounded-md before:content-[''] before:absolute before:w-10 before:cursor-pointer  before:h-10 before:transparent before:top-[-15px] before:right-0 after:content-[''] after:absolute after:border-solid after:border-b-8 after:border-r-[14px] after:border-l-[14px] after:border-transparent after:border-b-white after:bottom-full after:right-1 after:z-0 z-2"
+                onMouseOver={(e) => setShowOrder(true)}
                 onMouseLeave={(e) => setShowOrder(false)}
               >
                 <div className="p-4">
-                  <div>
+                  <div className="flex flex-col gap-2">
                     {orders.map((order) => {
                       return (
                         <LinkCustom
-                          key={order._id}
-                          href={`/chi-tiet-don-hang/${order._id}`}
+                          key={order.product_variant_id}
+                          href={`/san-pham/${order.slug}`}
                           className="link-header"
                         >
-                          <div className="flex items-stretch gap-2 ">
+                          <div className="flex items-stretch gap-2">
                             <span className="relative w-[40px] h-[40px] shadow-2xl border">
                               <Image
                                 src={showImageUrl(order.image)}
@@ -84,10 +87,13 @@ const RightMenu = () => {
                                 className="w-full h-full object-contain"
                               />
                             </span>
-                            <p className="line-clamp-1" title={order.name}>
+                            <p
+                              className="line-clamp-1 whitespace-nowrap leading-4"
+                              title={order.name}
+                            >
                               {order.name}
                             </p>
-                            <span className="flex-1 text-right whitespace-nowrap text-red-500 text-sm">
+                            <span className="flex-1 text-right whitespace-nowrap leading-4 text-red-500 text-sm">
                               {Intl.NumberFormat().format(order.price)} VND
                             </span>
                           </div>
@@ -95,16 +101,19 @@ const RightMenu = () => {
                       );
                     })}
                   </div>
-                  <div className="flex">
-                    <LinkCustom href="/gio-hang" className="link-header">
-                      Giỏ hàng
+                  <div className="flex justify-end mt-3">
+                    <LinkCustom
+                      href="/gio-hang"
+                      className="link-header bg-red-500 px-2 py-1 rounded-md text-white"
+                    >
+                      Xem giỏ hàng
                     </LinkCustom>
                   </div>
                 </div>
               </div>
             )}
           </div>
-        </button>
+        </div>
       </li>
     </ul>
   );

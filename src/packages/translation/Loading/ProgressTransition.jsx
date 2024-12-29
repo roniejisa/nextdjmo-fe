@@ -61,7 +61,7 @@ const ProgressTransition = () => {
                     }
                 }`}
       </style>
-      <div className="fixed top-0 left-0 w-full h-1 bg-transparent z-50">
+      <div className="fixed top-0 left-0 w-full h-1 bg-transparent z-[9999]">
         <div
           className="h-full w-0 bg-red-500 animate-progress"
           ref={(el) => (progressRef.current.el = el)}
