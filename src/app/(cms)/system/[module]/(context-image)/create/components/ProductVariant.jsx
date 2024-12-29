@@ -224,7 +224,6 @@ const ProductVariant = ({ field, defaultValue }) => {
             image: getItemOldHasImage ? getItemOldHasImage.image : "",
           };
         });
-        console.log(newListData);
         return newListData;
       });
     } else {

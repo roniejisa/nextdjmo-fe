@@ -32,7 +32,6 @@ const ClientProvider = ({ children }) => {
     const count = orders.reduce((acc, item) => {
       return +acc + +item.qty;
     }, 0);
-    console.log(count);
     setTotalOrders(count);
   }, [orders]);
 
