@@ -6,7 +6,7 @@ import InputTypeOne from "@/components/Input/InputTypeOne";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 
-const FormLogin = ({ msg }) => {
+const FormLogin = ({ msg, redirect }) => {
   const notify = useNotify();
   const [isPending, startTransition] = useTransition();
   const router = useRouterCustom();
@@ -16,21 +16,24 @@ const FormLogin = ({ msg }) => {
       const formData = Object.fromEntries(form);
       const response = await handleLogin(formData);
       if (response.status == 200) {
-        router.replace("/system");
-        return notify.changeNotify("success", response.message);
+        notify.changeNotify("success", response.message);
+        if (redirect) {
+          return router.replace(redirect);
+        }
+        return router.replace("/system");
       } else {
         setOldData(formData);
         notify.changeNotify("error", response.message);
       }
     });
   };
-  
+
   useEffect(() => {
     if (msg) {
       notify.changeNotify("error", msg);
       document.cookie = "msg=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

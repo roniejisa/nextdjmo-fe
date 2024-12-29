@@ -16,10 +16,10 @@ const QuestionModal = () => {
       modalOptions.module,
       modalOptions.item._id
     );
-    if (response.status == 200) {
+    if (response.status == 204 || response.status == 200 || response.status == 201) {
       setShowModalQuestion(false);
       router.refresh();
-      notify.changeNotify("success", response.messsage || "Thành công!");
+      notify.changeNotify("success", response?.message || "Thành công!");
     }
     return false;
   };

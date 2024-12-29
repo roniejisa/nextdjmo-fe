@@ -12,9 +12,14 @@ export const handleDeleteModule = async (module, id) => {
     {},
     "DELETE"
   );
-  if (response.status == 204) {
+  if (
+    response.status == 204 ||
+    response.status == 200 ||
+    response.status == 201
+  ) {
     return {
       status: 200,
+      message: response?.message,
     };
   }
   return response;

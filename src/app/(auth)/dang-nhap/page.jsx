@@ -4,9 +4,10 @@ import SocialLogin from "./SocialLogin";
 import { cookies } from "next/headers";
 // import BackButton from "@/components/BackButton/BackButton";
 
-const LoginPage = async () => {
+const LoginPage = async ({ searchParams }) => {
   const msg = cookies().get("msg")?.value;
-
+  const storeSeachParams = await searchParams;
+  const {redirect} = storeSeachParams
   return (
     <>
       {/* <BackButton /> */}
@@ -15,8 +16,8 @@ const LoginPage = async () => {
           <div className="text-center w-full">
             <div className="bg-white py-12 px-4 shadow-md rounded-lg">
               <h1 className="text-3xl mb-4 font-bold">Đăng nhập</h1>
-              <FormLogin msg={msg} />
-              <SocialLogin />
+              <FormLogin msg={msg} redirect={redirect}/>
+              <SocialLogin  redirect={redirect}/>
             </div>
           </div>
         </div>

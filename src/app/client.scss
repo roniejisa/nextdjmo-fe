@@ -1,5 +1,5 @@
 header {
-  li a {
+  li a:not(.link-header) {
     text-decoration: none;
     position: relative;
     &::before {

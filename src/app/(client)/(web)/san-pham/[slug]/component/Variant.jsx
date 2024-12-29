@@ -6,8 +6,9 @@ import React, { useContext, useEffect, useState } from "react";
 // Đầu tiên cần xác định cái nào đang không hàng luôn
 // Tốt nhất là chỉ nên làm như hiện tại đỡ lỗi vớ vẩn ngu người
 const Variant = () => {
-  const [selectedAttributes, setSelectedAttributes] = useState({});
   const {
+    selectedAttributes,
+    setSelectedAttributes,
     product,
     firstAttribute,
     imageRef,
@@ -33,7 +34,7 @@ const Variant = () => {
     // Kiểm tra ở bước đầu chọn màu
     if (selectedAttributes[firstAttribute]) {
       productCurrent.image = imageVariants[selectedAttributes[firstAttribute]];
-    } else if(Object.keys(imageVariants).length > 0){
+    } else if (Object.keys(imageVariants).length > 0) {
       productCurrent.image = imageVariants[Object.keys(imageVariants)[0]];
       imageRef.current.src = showImageUrl(productCurrent?.image);
     }

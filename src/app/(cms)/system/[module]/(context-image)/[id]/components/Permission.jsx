@@ -71,7 +71,9 @@ const Permission = ({ field, defaultValue }) => {
   useEffect(() => {
     field.value.map((item) => {
       const input = document.querySelector(`[data-value="${item}"]`);
-      input.checked = true;
+      if (input){
+        input.checked = true;
+      }
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

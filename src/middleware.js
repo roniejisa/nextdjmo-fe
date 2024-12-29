@@ -7,13 +7,13 @@ const API_KEY = process.env.API_KEY || '123456'
 const URL_LOGIN = '/dang-nhap'
 const cache = new Map()
 // Hàm chung để thực hiện các yêu cầu HTTP
-async function fetchForAuth(endpoint, method = 'GET', body = null, headers = {}) {
+async function fetchForAuth(endpoint, method = 'GET', body = null, headers = {}, isRefresh = true) {
     try {
         const response = await httpClient(`${AUTH_BASE_URL}/${endpoint}`, {
             'Content-Type': 'application/json',
             ...headers,
 
-        }, body ? body : {}, method)
+        }, body ? body : {}, method, true, isRefresh)
         return response
     } catch (error) {
         console.error(`Error fetching ${endpoint}:`, error)
@@ -29,6 +29,7 @@ function deleteTokens(response) {
 
 // Hàm kiểm tra và làm mới token nếu cần
 async function authenticate(request, token = null, refreshToken = null, isRefresh = false, isOauth = false) {
+    const method = request.method
     const pathname = request.nextUrl.pathname
     const isSocial = isOauth && token ? true : false
     token = token ? token : request.cookies.get('token')?.value
@@ -51,18 +52,19 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
             profile = await fetchForAuth('profile', 'GET', null, {
                 'Authorization': `Bearer ${token}`
             })
-            cache.set('DATA_USER_' + token, { profile, expired: now.getTime() + 1000 * 60 * process.env.NEXT_PUBLIC_MINUTE_TOKEN_EXPIRES })
         }
-
-        if (profile.status == 200) {
+        
+        if (profile && profile.status == 200) {
+            cache.set('DATA_USER_' + token, { profile, expired: now.getTime() + 1000 * 60 * process.env.NEXT_PUBLIC_MINUTE_TOKEN_EXPIRES })
             return { isAuthenticated: true, user: profile.data, accessToken: token, refreshToken, isSocial }
         }
     }
 
     // Nếu token không hợp lệ, thử làm mới
-    if (refreshToken && !isRefresh) {
-        const refreshData = await fetchForAuth('refresh-token', 'POST', { refreshToken })
-        if (refreshData.status === 200 && refreshData.data) {
+    if (refreshToken && !isRefresh && method == "GET") {
+        const refreshData = await fetchForAuth('refresh-token', 'POST', { refreshToken },{}, true)
+        
+        if (refreshData && refreshData.status === 200 && refreshData.data) {
             const { accessToken, refreshToken: newRefreshToken } = refreshData.data
             return await authenticate(request, accessToken, newRefreshToken, true, isOauth)
         }

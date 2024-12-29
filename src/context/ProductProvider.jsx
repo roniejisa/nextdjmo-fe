@@ -1,12 +1,12 @@
 "use client";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
 
 export const ProductContext = createContext(null);
 const ProductProvider = ({ children, product }) => {
-  const context = useContext(ProductContext);
   const [firstAttribute, setFirstAttribute] = useState(null);
   const [productCurrent, setProductCurrent] = useState(null);
   const [imageVariants, setImageVariants] = useState({});
+  const [selectedAttributes, setSelectedAttributes] = useState({});
   const imageRef = useRef(null);
 
   useEffect(() => {
@@ -46,6 +46,8 @@ const ProductProvider = ({ children, product }) => {
         product,
         setProductCurrent,
         imageVariants,
+        selectedAttributes,
+        setSelectedAttributes,
         imageRef,
       }}
     >

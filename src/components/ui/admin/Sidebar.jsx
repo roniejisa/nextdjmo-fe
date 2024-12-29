@@ -248,4 +248,21 @@ const items = [
       },
     ],
   },
+  {
+    id: 6,
+    name: "Quản lý đơn hàng",
+    link: "orders|draft-orders",
+    items: [
+      {
+        id: 6.1,
+        name: "Đơn hàng",
+        link: "orders",
+      },
+      {
+        id: 6.2,
+        name: "Giỏ hàng",
+        link: "draft-orders",
+      }
+    ],
+  }
 ];

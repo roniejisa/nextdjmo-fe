@@ -50,7 +50,7 @@ const providers = [
   },
   // Thêm các provider khác nếu cần
 ];
-const SocialLogin = () => {
+const SocialLogin = ({ redirect }) => {
   const router = useRouterCustom();
   const pathname = usePathname();
   const notify = useNotify();
@@ -65,31 +65,32 @@ const SocialLogin = () => {
     const top = (window.innerHeight - height) / 2;
 
     // Mở cửa sổ popup và giữ tham chiếu đến cửa sổ đó
+
+    if (redirect) {
+      url += `?redirect=${redirect}`;
+    }
     const popupWindow = parent.window.open(
       url,
       "popupWindow",
       `width=${width},height=${height},top=${top},left=${left}`
     );
-
-    var timer = setInterval(function () {
-      if (popupWindow.closed) {
-        clearInterval(timer);
-        alert("closed");
-      }
-    }, 1000);
   };
 
   useEffect(() => {
     // Lắng nghe thông điệp từ cửa sổ popup
     const handleMessage = (event) => {
-      const { type, created } = event.data;
+      const { type, created, redirect } = event.data;
       if (type === "login-social-success") {
-        console.log(created, created == "True");
         if (created.toLowerCase() == "true") {
           router.push("/account/profile");
         } else {
-          router.push("/");
+          if (redirect) {
+            router.push(redirect);
+          } else {
+            router.push("/");
+          }
         }
+        return notify.changeNotify("success", "Đăng nhập thành công!");
       } else if (type === "login-social-fail") {
         notify.changeNotify("error", "Đăng nhập không thành công!");
       }
