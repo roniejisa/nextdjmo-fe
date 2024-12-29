@@ -18,7 +18,6 @@ const Variant = () => {
   } = useContext(ProductContext);
   const [listVariantOk, setListVariantOk] = useState(product.variants);
   const chooseAttribute = (name, label) => {
-    // console.log(item,label);
     setSelectedAttributes((prevSelected) => {
       // Nếu giá trị đã chọn là label, thì bỏ chọn (set lại thành null)
       if (prevSelected[name] === label) {

@@ -15,7 +15,7 @@ const FormAddOrder = () => {
   const router = useRouterCustom();
   const { productCurrent, selectedAttributes, product, setProductCurrent } =
     useContext(ProductContext);
-  const { setTotalOrders } = useContext(ClientContext);
+  const { setUpdateCart } = useContext(ClientContext);
 
   const handleStock = (e) => {
     let value = e.target.value.trim();
@@ -58,7 +58,7 @@ const FormAddOrder = () => {
         });
 
         if (data.status == 200) {
-          setTotalOrders((prev) => +prev + Number(stock));
+          setUpdateCart(true);
           product.variants = product.variants.map((variant) => {
             if (variant._id == productCurrent._id) {
               variant.stock = Number(variant.stock) - Number(stock);

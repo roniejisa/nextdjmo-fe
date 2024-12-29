@@ -17,7 +17,6 @@ const MultipleCheckbox = ({ field, defaultValue }) => {
   }, [value]);
 
   useEffect(() => {
-    console.log(field.value)
     field.value.forEach((item) => {
       const input = document.querySelector(`input[data-value="${item}"]`)
       if(input) input.checked = true

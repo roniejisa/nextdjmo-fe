@@ -2,10 +2,12 @@
 import { ClientContext } from "@/context/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
 import useRouterCustom from "@/packages/translation/Navigation";
+import { showImageUrl } from "@/utils/client/util";
+import Image from "next/image";
 import { useContext, useState } from "react";
 
 const RightMenu = () => {
-  const { setShowModalSearch, totalOrders } = useContext(ClientContext);
+  const { setShowModalSearch, totalOrders, orders } = useContext(ClientContext);
   const [showOrder, setShowOrder] = useState(false);
   const router = useRouterCustom();
   const handleShowSearch = () => {
@@ -53,18 +55,50 @@ const RightMenu = () => {
             <path d="M17 17h-11v-14h-2" />
             <path d="M6 5l14 1l-1 7h-13" />
           </svg>
-          <span className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full flex justify-center items-center p-2 text-white">
+          <span className="absolute top-0 right-0 translate-x-1/2 min-w-4 h-4 bg-red-500 rounded-full flex justify-center items-center p-2 text-white">
             {totalOrders}
           </span>
           <div>
             {showOrder && (
-              <div className="absolute top-12 right-0 w-72 bg-white shadow-md z-50 rounded-md before:content-[''] before:absolute before:w-20 before:h-10 before:bg-transparent before:top-[-25px] before:right-0" onMouseEnter={(e) => setShowOrder(true)} onMouseLeave={(e) => setShowOrder(false)}>
+              <div
+                className="absolute top-12 right-0 w-[300px] bg-white shadow-md z-50 rounded-md before:content-[''] before:absolute before:w-20 before:h-10 before:bg-transparent before:top-[-25px] before:right-0"
+                onMouseEnter={(e) => setShowOrder(true)}
+                onMouseLeave={(e) => setShowOrder(false)}
+              >
                 <div className="p-4">
                   <div>
-
-                  </div>                  
+                    {orders.map((order) => {
+                      return (
+                        <LinkCustom
+                          key={order._id}
+                          href={`/chi-tiet-don-hang/${order._id}`}
+                          className="link-header"
+                        >
+                          <div className="flex items-stretch gap-2 ">
+                            <span className="relative w-[40px] h-[40px] shadow-2xl border">
+                              <Image
+                                src={showImageUrl(order.image)}
+                                alt={order.name}
+                                width={100}
+                                height={100}
+                                className="w-full h-full object-contain"
+                              />
+                            </span>
+                            <p className="line-clamp-1" title={order.name}>
+                              {order.name}
+                            </p>
+                            <span className="flex-1 text-right whitespace-nowrap text-red-500 text-sm">
+                              {Intl.NumberFormat().format(order.price)} VND
+                            </span>
+                          </div>
+                        </LinkCustom>
+                      );
+                    })}
+                  </div>
                   <div className="flex">
-                    <LinkCustom href="/gio-hang" className="link-header">Giỏ hàng</LinkCustom>
+                    <LinkCustom href="/gio-hang" className="link-header">
+                      Giỏ hàng
+                    </LinkCustom>
                   </div>
                 </div>
               </div>

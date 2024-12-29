@@ -98,11 +98,7 @@ const SocialLogin = ({ redirect }) => {
 
     const channel = new BroadcastChannel("login-channel");
     channel.addEventListener("message", handleMessage);
-
-    window.addEventListener("message", (event) => {
-      console.log(event);
-    });
-    return () => {};
+    return () => channel.removeEventListener("message", handleMessage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
