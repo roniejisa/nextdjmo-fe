@@ -11,6 +11,7 @@ import Slug from "./components/Slug";
 import DeleteItem from "./components/buttons/DeleteItem";
 import { cache } from "react";
 import Phone from "./components/Phone";
+import OrderStatus from "./components/OrderStatus";
 
 const components = {
   text: Text,
@@ -19,7 +20,8 @@ const components = {
   email: Email,
   editor: Editor,
   slug: Slug,
-  phone: Phone
+  phone: Phone,
+  order_status: OrderStatus
 };
 
 const cacheGetDataModule = cache(async (module, limit, page) => {

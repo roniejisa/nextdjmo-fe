@@ -12,11 +12,9 @@ const Sidebar = ({ profile }) => {
   }
   const checkActiveMenu = (link, hasChild = false) => {
     const listLink = link.split("|");
-    if (
-      listLink.some(
-        (link) => pathname === process.env.NEXT_PUBLIC_ADMIN_URL + link
-      )
-    ) {
+    if (listLink.some((link) => {
+      return pathname.startsWith(process.env.NEXT_PUBLIC_ADMIN_URL + link) 
+    })) {
       return hasChild
         ? "bg-red-400 text-white rounded-md active"
         : "bg-blue-700 text-white rounded-md";
@@ -262,7 +260,7 @@ const items = [
         id: 6.2,
         name: "Giỏ hàng",
         link: "draft-orders",
-      }
+      },
     ],
-  }
+  },
 ];
