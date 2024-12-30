@@ -175,7 +175,7 @@ const items = [
   {
     id: 1,
     name: "Tài khoản",
-    link: "customers||roles",
+    link: "customers|roles",
     items: [
       {
         id: 1.1,
