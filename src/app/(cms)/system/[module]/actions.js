@@ -35,3 +35,33 @@ export const getProfile = async () => {
   }
   return null
 }
+
+export const changeOrderStatus = async (value, _id) => {
+  const token = await getToken()
+  const response = await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "orders/change-order-status",
+    {
+      Authorization: `Bearer ${token}`,
+    },
+    {
+      _id, status: value
+    },
+    "POST"
+  );
+  return response
+}
+
+export const changePaymentStatus = async (value, _id) => {
+  const token = await getToken()
+  const response = await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "orders/change-order-status",
+    {
+      Authorization: `Bearer ${token}`,
+    },
+    {
+      _id, payment_status: value
+    },
+    "POST"
+  );
+  return response
+}

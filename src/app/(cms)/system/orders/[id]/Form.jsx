@@ -9,6 +9,7 @@ const Form = ({ order }) => {
   const { status, setStatus } = useContext(OrderContext);
   const notify = useNotify();
   const handleChangeStatusOrder = async (e) => {
+    if(!e.target.value) return false
     const response = await changeOrderStatus({
       type: e.target.value,
       _id: order._id,
@@ -25,7 +26,7 @@ const Form = ({ order }) => {
         chính xác ảnh hưởng tới thống kê thực tế)
       </label>
       <select
-        className="p-2"
+        className="px-2"
         defaultValue={status}
         onChange={(e) => handleChangeStatusOrder(e)}
       >
