@@ -1,8 +1,8 @@
 import Sidebar from "@/components/ui/admin/Sidebar";
 import "@/app/system.scss";
 import AllProvider from "@/context/AllProvider";
-import { getProfile } from "./system/settings/actions";
 import React from "react";
+import { getProfile } from "./system/[module]/actions";
 const AdminLayout = async (data) => {
   const { params, children } = await data;
   const profile = await getProfile();

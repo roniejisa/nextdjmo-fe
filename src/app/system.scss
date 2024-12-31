@@ -3,12 +3,11 @@ select,
 textarea {
   @apply w-full outline-outline outline-4 transition border rounded-md;
 }
-
 :root {
   --background: #ebebeb;
   --foreground: #0a0a0a;
   --main: #ffffff;
-  --outline: #6fa9ff;
+  --outline: #2a85ff;
   --danger: #ff0000;
   --color-table: #e5e7eb;
 }
@@ -20,8 +19,8 @@ textarea {
   }
 }
 
-input[type="checkbox"],
-input[type="radio"] {
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
   accent-color: var(--outline);
   border: 1px solid var(--outline);
 }
@@ -29,41 +28,20 @@ input[type="radio"] {
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter);
 }
 
 .my-table {
   .my-columns {
     > div {
-      border: 1px solid var(--color-table);
-      + div {
-        border-left-width: 0px;
-        border-top-width: 0px;
-      }
-      &:first-of-type {
-        border-top: none;
-      }
+      border-bottom: 1px solid var(--color-table);
     }
     &:first-of-type {
       font-weight: bold;
-      > div {
-        border-top: 1px solid var(--color-table);
-        &:first-of-type {
-          border-top-left-radius: 5px;
-        }
-        &:last-of-type {
-          border-top-right-radius: 5px;
-        }
-      }
     }
     &:last-of-type {
       > div {
-        &:first-of-type {
-          border-bottom-left-radius: 5px;
-        }
-        &:last-of-type {
-          border-bottom-right-radius: 5px;
-        }
+        border-bottom: none;
       }
     }
   }
@@ -120,18 +98,23 @@ body {
   label {
     display: block;
     text-align: center;
-    padding:4px;
+    padding: 4px;
     cursor: pointer;
     transition: all 200ms ease-in-out;
-    &:hover{
-      background: #9cccf8
+    &:hover {
+      background: #9cccf8;
     }
   }
   tr {
-    td:nth-child(1){
-      label{
+    td:nth-child(1) {
+      label {
         text-align: left;
       }
     }
   }
+}
+
+.fill-neutral {
+  stroke: white;
+  fill: white;
 }

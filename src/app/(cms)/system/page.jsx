@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProfile } from "./settings/actions";
+import { getProfile } from "./[module]/actions";
 
 const Dashboard = async () => {
   const profile = await getProfile();

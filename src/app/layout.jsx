@@ -5,14 +5,14 @@ import LoadingProvider from "@/packages/translation/LoadingProvider";
 import ProgressTransition from "@/packages/translation/Loading/ProgressTransition";
 import AccountProvider from "@/context/AccountProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+const interItalicFont = localFont({
+  src: "./fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf",
+  variable: "--font-inter-italic",
   weight: "100 900",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+const interFont = localFont({
+  src: "./fonts/Inter/Inter-VariableFont_opsz,wght.ttf",
+  variable: "--font-inter",
   weight: "100 900",
 });
 
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${interItalicFont.variable} ${interFont.variable} antialiased`}
       >
         <LoadingProvider fallback={<ProgressTransition />}>
           <NotifyProvider>

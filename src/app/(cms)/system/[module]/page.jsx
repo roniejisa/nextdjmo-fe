@@ -13,6 +13,11 @@ import { cache } from "react";
 import Phone from "./components/Phone";
 import OrderStatus from "./components/OrderStatus";
 import PaymentStatus from "./components/PaymentStatus";
+import ModuleProvider from "@/context/ModuleProvider";
+import SelectRow from "./components/SelectRow";
+import SelectAllRow from "./components/SelectAllRow";
+import HeaderTable from "./HeaderTable";
+import ActionTable from "./components/ActionTable";
 
 const components = {
   text: Text,
@@ -23,19 +28,19 @@ const components = {
   slug: Slug,
   phone: Phone,
   order_status: OrderStatus,
-  payment_status: PaymentStatus
+  payment_status: PaymentStatus,
 };
 
 const cacheGetDataModule = cache(async (module, limit, page) => {
   return await getDataModule(module, limit, page);
 });
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export async function generateMetadata({ params }) {
   const { module } = await params;
   const { data } = await cacheGetDataModule(module);
-  if(Object.keys(data).length === 0) redirect("/403");
+  if (Object.keys(data).length === 0) redirect("/403");
   let { module: moduleMain } = data;
   return {
     title: moduleMain.name,
@@ -44,9 +49,9 @@ export async function generateMetadata({ params }) {
 
 const Module = async ({ params, searchParams }) => {
   const { module } = await params;
-  const { limit, page } = await searchParams;
+  const { limit, page, ...propSearchParams } = await searchParams;
   const user = await getProfile();
-  const { data } = await getDataModule(module, limit, page);
+  const { data } = await getDataModule(module, limit, page, propSearchParams);
   if (Object.keys(data).length === 0) {
     return redirect("/403");
   }
@@ -59,7 +64,7 @@ const Module = async ({ params, searchParams }) => {
     total,
     module: moduleMain,
   } = data;
-
+  const allFields = fields;
   fields = fields
     .sort((a, b) => {
       b.sort = b.sort ?? 999999;
@@ -70,82 +75,88 @@ const Module = async ({ params, searchParams }) => {
       return item.hidden === 0;
     });
   return (
-    <div className="px-4">
-      <div className="flex py-4 sticky top-0 z-10 bg-white">
-        <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
-        <div className="ml-auto">
-          {user.permissions.includes(`${module}.create`) && (
-            <LinkCustom
-              href={`${module}/create`}
-              className={"bg-blue-400 inline-block px-2 py-1 rounded-md"}
-            >
-              Thêm
-            </LinkCustom>
-          )}
-        </div>
-      </div>
-      <div className="w-[calc(100vw-16px*4)] lg:w-[calc(100vw-16px*4-280px-16px*2)] overflow-x-auto">
-        <div className="min-w-[1000px] my-table">
-          <div className="flex w-full my-columns">
-            {fields.map((field, index) => (
-              <div
-                key={index + field.name}
-                className="flex-1 py-1 px-2 flex items-center"
+    <ModuleProvider module={module} fields={allFields} user={user}>
+      <div className="px-4 relative">
+        <div className="flex py-4 sticky top-0 z-10 bg-white">
+          <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
+          <div className="ml-auto">
+            {user?.permissions.includes(`${module}.create`) && (
+              <LinkCustom
+                href={`${module}/create`}
+                className={"bg-blue-400 inline-block px-2 py-1 rounded-md"}
               >
-                {field.label ?? field.name}
+                Thêm
+              </LinkCustom>
+            )}
+          </div>
+        </div>
+        <HeaderTable />
+        <div className="w-[calc(100vw-16px*4)] lg:w-[calc(100vw-16px*4-280px-16px*2)] overflow-x-auto">
+          <div className="min-w-[1000px] my-table">
+            <div className="flex w-full my-columns">
+              <SelectAllRow />
+              {fields.map((field, index) => (
+                <div
+                  key={index + field.name}
+                  className="flex-1 py-1 px-2 flex items-center"
+                >
+                  {field.label ?? field.name}
+                </div>
+              ))}
+              <div className="flex-1 py-1 px-2 flex items-center"></div>
+            </div>
+            {items.map((item) => (
+              <div className="flex w-full my-columns" key={item._id}>
+                <SelectRow id={item._id} />
+                {fields.map((field) => {
+                  const Component = components[field.type];
+                  return (
+                    <div
+                      key={field.name}
+                      className="flex-1 py-1 px-2 flex items-center"
+                    >
+                      <Component
+                        value={item[field.name]}
+                        items={items}
+                        item={item}
+                        field={field}
+                      />
+                    </div>
+                  );
+                })}
+                <div className="flex-1 py-1 px-2 flex items-center">
+                  {user.permissions.includes(`${module}.update`) && (
+                    <LinkCustom
+                      href={`${module}/${item._id}`}
+                      className={
+                        "bg-yellow-500 inline-block px-2 py-1 rounded-md"
+                      }
+                    >
+                      Sửa
+                    </LinkCustom>
+                  )}
+                  {user.permissions.includes(`${module}.delete`) && (
+                    <DeleteItem item={item} data={moduleMain} module={module}>
+                      Xóa
+                    </DeleteItem>
+                  )}
+                </div>
               </div>
             ))}
-            <div className="flex-1 py-1 px-2 flex items-center"></div>
           </div>
-          {items.map((item) => (
-            <div className="flex w-full my-columns" key={item._id}>
-              {fields.map((field) => {
-                const Component = components[field.type];
-                return (
-                  <div
-                    key={field.name}
-                    className="flex-1 py-1 px-2 flex items-center"
-                  >
-                    <Component
-                      value={item[field.name]}
-                      items={items}
-                      item={item}
-                      field={field}
-                    />
-                  </div>
-                );
-              })}
-              <div className="flex-1 py-1 px-2 flex items-center">
-                {user.permissions.includes(`${module}.update`) && (
-                  <LinkCustom
-                    href={`${module}/${item._id}`}
-                    className={
-                      "bg-yellow-500 inline-block px-2 py-1 rounded-md"
-                    }
-                  >
-                    Sửa
-                  </LinkCustom>
-                )}
-                {user.permissions.includes(`${module}.delete`) && (
-                  <DeleteItem item={item} data={moduleMain} module={module}>
-                    Xóa
-                  </DeleteItem>
-                )}
-              </div>
-            </div>
-          ))}
+        </div>
+        <div>
+          <Pagination
+            page={pageItem}
+            limit={limitItem}
+            total={total}
+            module={module}
+            items={items}
+          />
         </div>
       </div>
-      <div>
-        <Pagination
-          page={pageItem}
-          limit={limitItem}
-          total={total}
-          module={module}
-          items={items}
-        />
-      </div>
-    </div>
+      <ActionTable />
+    </ModuleProvider>
   );
 };
 

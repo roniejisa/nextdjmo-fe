@@ -1,10 +1,11 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
-import { createContext, useEffect, useState } from "react";
+import { createContext, use, useEffect, useState } from "react";
 
 export const LoadingContext = createContext();
 const LoadingProvider = ({ children, fallback }) => {
   const [transition, setTransition] = useState(false);
+  const [isRefresh, setIsRefresh] = useState(false);
   const [currentPathname, setCurrentPathname] = useState(null);
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -12,20 +13,30 @@ const LoadingProvider = ({ children, fallback }) => {
   useEffect(() => {
     setCurrentPathname((prev) => {
       if (prev !== pathname) {
-        setTransition(false);
         return pathname;
       }
+      setTransition(false);
       return prev;
     });
-
+    
     setSearchParamString((prev) => {
       if (prev !== searchParams.toString()) {
-        setTransition(false);
         return searchParams.toString();
       }
+      setTransition(false);
       return prev;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams]);
+
+  useEffect(() => {
+    if (isRefresh) {
+      setTimeout(() => {
+        setTransition(false);
+        setIsRefresh(false);
+      }, 1000);
+    }
+  }, [isRefresh]);
   return (
     <LoadingContext.Provider
       value={{
@@ -35,6 +46,7 @@ const LoadingProvider = ({ children, fallback }) => {
         setCurrentPathname,
         searchParamString,
         setSearchParamString,
+        setIsRefresh
       }}
     >
       {children}

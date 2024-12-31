@@ -53,7 +53,7 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
                 'Authorization': `Bearer ${token}`
             })
         }
-        
+
         if (profile && profile.status == 200) {
             cache.set('DATA_USER_' + token, { profile, expired: now.getTime() + 1000 * 60 * process.env.NEXT_PUBLIC_MINUTE_TOKEN_EXPIRES })
             return { isAuthenticated: true, user: profile.data, accessToken: token, refreshToken, isSocial }
@@ -62,8 +62,8 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
 
     // Nếu token không hợp lệ, thử làm mới
     if (refreshToken && !isRefresh && method == "GET") {
-        const refreshData = await fetchForAuth('refresh-token', 'POST', { refreshToken },{}, true)
-        
+        const refreshData = await fetchForAuth('refresh-token', 'POST', { refreshToken }, {}, true)
+
         if (refreshData && refreshData.status === 200 && refreshData.data) {
             const { accessToken, refreshToken: newRefreshToken } = refreshData.data
             return await authenticate(request, accessToken, newRefreshToken, true, isOauth)

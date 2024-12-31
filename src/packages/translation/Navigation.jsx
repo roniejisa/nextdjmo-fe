@@ -4,9 +4,10 @@ import { useContext } from "react";
 
 const useRouterCustom = () => {
   const router = useRouter();
-  const { setTransition } = useContext(LoadingContext);
-  const push = async (path) => {
+  const { setTransition, setIsRefresh } = useContext(LoadingContext);
+  const push = async (path,isRefresh = false) => {
     setTransition(true);
+    setIsRefresh(isRefresh)
     router.push(path);
   };
 
@@ -25,13 +26,15 @@ const useRouterCustom = () => {
     router.refresh();
   };
 
-  const replace = async (path) => {
+  const replace = async (path, isRefresh = false) => {
     setTransition(true);
+    setIsRefresh(isRefresh)
     router.replace(path);
   };
 
-  const prefetch = async (path) => {
+  const prefetch = async (path, isRefresh = false) => {
     setTransition(true);
+    setIsRefresh(isRefresh)
     router.prefetch(path);
   };
 

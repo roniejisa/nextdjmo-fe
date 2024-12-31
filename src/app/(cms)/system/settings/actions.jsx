@@ -18,14 +18,3 @@ export const getDataModule = async (module) => {
     return [];
   }
 };
-
-
-
-export const getProfile = async () => {
-  const header = await headers()
-  const user = header.get('user')
-  if (user && user != "undefined") {
-    return JSON.parse(decodeURIComponent(user))
-  }
-  return null
-}
