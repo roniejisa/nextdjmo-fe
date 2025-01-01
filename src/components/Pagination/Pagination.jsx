@@ -1,9 +1,18 @@
 import LinkCustom from "@/packages/translation/Link";
 
-const Pagination = ({ total, limit, page, module, items }) => {
+const Pagination = ({ total, limit, page, module, items, searchParams }) => {
   const totalPages = Math.ceil(total / limit);
   const startResult = limit * (page - 1) + 1;
   const endResult = limit * (page - 1) + items.length;
+  const createSearchParamString = (page) => {
+    const obj = {
+      ...searchParams,
+      limit,
+      page
+    }
+
+    return new URLSearchParams(obj).toString();
+  } 
   return (
     <div className="flex items-center justify-between mt-4 flex-wrap">
       <div className="flex gap-2 items-center">
@@ -12,7 +21,7 @@ const Pagination = ({ total, limit, page, module, items }) => {
           disabled={page <= 1}
           href={
             process.env.NEXT_PUBLIC_ADMIN_URL +
-            `${module}?limit=${limit}&page=${page - 1}`
+            `${module}?${createSearchParamString(page - 1)}`
           }
         >
           <svg
@@ -48,7 +57,7 @@ const Pagination = ({ total, limit, page, module, items }) => {
                 key={index}
                 href={
                   process.env.NEXT_PUBLIC_ADMIN_URL +
-                  `${module}?limit=${limit}&page=${index + 1}`
+                  `${module}?${createSearchParamString(index + 1)}`
                 }
               >
                 {index + 1}
@@ -66,10 +75,10 @@ const Pagination = ({ total, limit, page, module, items }) => {
         <LinkCustom
           href={
             process.env.NEXT_PUBLIC_ADMIN_URL +
-            `${module}?limit=${limit}&page=${page + 1}`
+            `${module}?${createSearchParamString(page + 1)}`
           }
           className={`[&[disabled]]:opacity-50 [&[disabled]]:cursor-not-allowed [&[disabled]]:pointer-events-none hover:bg-gray-300 transition px-3 py-2 rounded-md`}
-          disabled={page + 1 >= totalPages}
+          disabled={totalPages == page}
         >
           <svg
             stroke="currentColor"

@@ -8,20 +8,9 @@ import { useRouter } from "next/navigation";
 const QuestionModal = () => {
   const { showModalQuestion, setShowModalQuestion, modalOptions } =
     useContext(AllContext);
-  const router = useRouter();
-  const notify = useNotify();
   const modalRef = useRef(null);
   const handleSubmit = async (form) => {
-    const response = await handleDeleteModule(
-      modalOptions.module,
-      modalOptions.item._id
-    );
-    if (response.status == 204 || response.status == 200 || response.status == 201) {
-      setShowModalQuestion(false);
-      router.refresh();
-      notify.changeNotify("success", response?.message || "Thành công!");
-    }
-    return false;
+    modalOptions.confirm();
   };
   const handleClose = (e) => {
     if (e.target.contains(modalRef.current)) {
@@ -32,35 +21,47 @@ const QuestionModal = () => {
     <div
       ref={modalRef}
       onClick={handleClose}
-      className="fixed top-0 left-0 w-full z-[9999] transition-opacity duration-300 h-screen bg-[rgba(0,0,0,.2)]"
+      className="fixed top-0 left-0 w-full z-[9999] transition-all duration-300 h-screen bg-[rgba(0,0,0,.2)]"
       style={{
         opacity: showModalQuestion ? 1 : 0,
         visibility: showModalQuestion ? "visible" : "hidden",
         pointerEvents: showModalQuestion ? "all" : "none",
-        backdropFilter: "blur(12px)"
+        backdropFilter: "blur(12px)",
+        transitionDelay: showModalQuestion ? "0" : "300ms"
       }}
     >
-      {showModalQuestion && (
-        <div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 bg-white -translate-y-1/2 p-4 rounded-lg">
-            <form action={handleSubmit}>
-              <div>
-                {modalOptions.question.replaceAll(
-                  "__TARGET__",
-                  modalOptions.data.name
-                )}
-              </div>
-              <div className="flex justify-center mt-4">
-
-                <button onClick={() => setShowModalQuestion(false)} type="button" className="px-4 rounded-lg border bg-orange-500 text-white mr-2">
-                    Hủy
-                </button>
-                <button className="px-4 border rounded-lg bg-green-600 text-white">Đồng ý</button>
-              </div>
-            </form>
-          </div>
+      <div
+        
+      >
+        <div className="absolute top-1/2 left-1/2 transition-all duration-300 -translate-x-1/2 bg-white -translate-y-1/2 p-4 rounded-lg" style={{
+          opacity: showModalQuestion ? 1 : 0,
+          visibility: showModalQuestion ? "visible" : "hidden",
+          pointerEvents: showModalQuestion ? "all" : "none",
+          scale: showModalQuestion ? 1 : 0,
+          transformOrigin:"top left"
+        }}>
+          <form action={handleSubmit}>
+            <div>
+              {typeof modalOptions === "object" && modalOptions.question ? modalOptions.question.replaceAll(
+                "__TARGET__",
+                modalOptions.data.name
+              ) : ""}
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setShowModalQuestion(false)}
+                type="button"
+                className="px-4 rounded-lg text-gray-400 hover:text-black transition py-2 mr-2"
+              >
+                Hủy
+              </button>
+              <button className="px-4 border rounded-lg bg-outline transition hover:text-outline hover:bg-white border-outline text-white py-2">
+                Đồng ý
+              </button>
+            </div>
+          </form>
         </div>
-      )}
+      </div>
     </div>
   );
 };

@@ -4,7 +4,7 @@ import Bool from "./components/Bool";
 import Email from "./components/Email";
 import { getDataModule, getProfile } from "./actions";
 import Pagination from "@/components/Pagination/Pagination";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import Editor from "./components/Editor";
 import LinkCustom from "@/packages/translation/Link";
 import Slug from "./components/Slug";
@@ -77,7 +77,7 @@ const Module = async ({ params, searchParams }) => {
       return item.hidden === 0;
     });
   return (
-    <ModuleProvider module={module} fields={allFields} user={user}>
+    <ModuleProvider module={module} fields={allFields} user={user} data={moduleMain}>
       <div className="px-4 relative">
         <div className="flex py-4 sticky top-0 z-10 bg-white">
           <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
@@ -183,6 +183,7 @@ const Module = async ({ params, searchParams }) => {
             total={total}
             module={module}
             items={items}
+            searchParams={propSearchParams}
           />
         ) : (
           ""

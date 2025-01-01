@@ -4,33 +4,42 @@ import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext } from "react";
 import { deleteItems } from "../actions";
+import { AllContext } from "@/context/AllProvider";
 
 const ActionTable = () => {
-  const { module, user, selectIds, setSelectIds, selectAllRef } = useContext(ModuleContext);
+  const { module, user, selectIds, setSelectIds, selectAllRef, data } =
+    useContext(ModuleContext);
+  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+  const handleShowModalDeleteForm = () => {
+    setShowModalQuestion(true);
+    setModalOptions({
+      data:{
+        name: selectIds.length + " mục"
+      },
+      question: "Bạn có chắc chắn muốn xóa __TARGET__ này không ?",
+      confirm: handleDelete,
+    });
+  };
   const router = useRouterCustom();
   const notify = useNotify();
   const handleDelete = async () => {
-    if (
-      window.confirm(
-        "Bạn có chắc chắn muốn xóa " + selectIds.length + " mục này không?"
-      )
-    ) {
-      const response = await deleteItems(module, selectIds);
-      notify.changeNotify(
-        response.status == 200 ? "success" : "error",
-        response.message
-      );
-      if (response.status == 200) {
-        const urlCurrent = window.location.pathname + window.location.search;
-        // Reset lại ngay
-        setSelectIds(prev => {
-          return []
-        })
-        selectAllRef.current.checked = false
-        router.push(urlCurrent, true);
-      }
+    const response = await deleteItems(module, selectIds);
+    notify.changeNotify(
+      response.status == 200 ? "success" : "error",
+      response.message
+    );
+    if (response.status == 200) {
+      const urlCurrent = window.location.pathname + window.location.search;
+      // Reset lại ngay
+      setSelectIds((prev) => {
+        return [];
+      });
+      selectAllRef.current.checked = false;
+      setShowModalQuestion(false)
+      router.push(urlCurrent, true);
     }
   };
+
   return (
     <>
       {selectIds.length > 0 ? (
@@ -59,7 +68,7 @@ const ActionTable = () => {
                 className={
                   "text-[#ff6a55] rounded-lg border p-2 border-[#ff6a55]"
                 }
-                onClick={handleDelete}
+                onClick={handleShowModalDeleteForm}
               >
                 Delete
               </button>

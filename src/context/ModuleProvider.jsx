@@ -3,7 +3,7 @@
 import { createContext, useEffect, useRef, useState } from "react";
 
 export const ModuleContext = createContext();
-const ModuleProvider = ({ children, module, fields, user }) => {
+const ModuleProvider = ({ children, module, fields, user, data }) => {
   const selectRef = useRef([]);
   const selectAllRef = useRef(null);
   const [selectIds, setSelectIds] = useState([])
@@ -12,6 +12,7 @@ const ModuleProvider = ({ children, module, fields, user }) => {
   return (
     <ModuleContext.Provider
       value={{
+        data,
         user,
         module,
         fields,
