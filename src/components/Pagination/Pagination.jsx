@@ -14,7 +14,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
     return new URLSearchParams(obj).toString();
   } 
   return (
-    <div className="flex items-center justify-between mt-4 flex-wrap">
+    <div className="flex items-center justify-between mt-4 flex-wrap pb-4">
       <div className="flex gap-2 items-center">
         <LinkCustom
           className={`[&[disabled]]:opacity-50 [&[disabled]]:cursor-not-allowed [&[disabled]]:pointer-events-none hover:bg-gray-300 transition px-3 py-2 rounded-md`}

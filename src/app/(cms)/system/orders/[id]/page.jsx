@@ -69,7 +69,48 @@ const DetailComponent = async ({ params }) => {
       <div className="p-4">
         <h1 className="text-3xl font-bold mb-3">Chi tiết đơn hàng</h1>
         <div className="flex gap-2 flex-wrap">
-          <div className="flex flex-wrap gap-2 flex-[0_0_100%]">
+          <div className="flex-1">
+            <table className="w-full">
+              <thead>
+                <tr>
+                  <th colSpan={5} className="bg-blue-500 text-white">
+                    Thông tin chi tiết đơn hang
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border-r border-b px-4">Sản phẩm</td>
+                  <td className="border-r border-b px-4">Số lượng</td>
+                  <td className="border-r border-b px-4">Giá</td>
+                  <td className="border-r border-b px-4">Thành tiền</td>
+                </tr>
+                {item.order_details.map((item) => (
+                  <tr key={item._id}>
+                    <td className="border-r border-b px-4">
+                      <span>
+                        <Image
+                          src={showImageUrl(item.image)}
+                          width={50}
+                          height={50}
+                          alt=""
+                        />
+                        {item.name}
+                      </span>
+                    </td>
+                    <td className="border-r border-b px-4">{item.qty}</td>
+                    <td className="border-r border-b px-4">
+                      {Intl.NumberFormat().format(item.price)}
+                    </td>
+                    <td className="border-r border-b px-4">
+                      {Intl.NumberFormat().format(item.price * item.qty)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex flex-col flex-wrap gap-2 flex-[0_0_30%]">
             <table className="border flex-1">
               <thead>
                 <tr>
@@ -122,47 +163,6 @@ const DetailComponent = async ({ params }) => {
                     }
                   </td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
-          <div className="border w-full">
-            <table className="w-full">
-              <thead>
-                <tr>
-                  <th colSpan={5} className="bg-blue-500 text-white">
-                    Thống tin chi tiết đơn hang
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border-r border-b px-4">Sản phẩm</td>
-                  <td className="border-r border-b px-4">Số lượng</td>
-                  <td className="border-r border-b px-4">Giá</td>
-                  <td className="border-r border-b px-4">Thành tiền</td>
-                </tr>
-                {item.order_details.map((item) => (
-                  <tr key={item._id}>
-                    <td className="border-r border-b px-4">
-                      <span>
-                        <Image
-                          src={showImageUrl(item.image)}
-                          width={50}
-                          height={50}
-                          alt=""
-                        />
-                        {item.name}
-                      </span>
-                    </td>
-                    <td className="border-r border-b px-4">{item.qty}</td>
-                    <td className="border-r border-b px-4">
-                      {Intl.NumberFormat().format(item.price)}
-                    </td>
-                    <td className="border-r border-b px-4">
-                      {Intl.NumberFormat().format(item.price * item.qty)}
-                    </td>
-                  </tr>
-                ))}
               </tbody>
             </table>
           </div>

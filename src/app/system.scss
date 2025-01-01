@@ -77,14 +77,16 @@ body {
 
 .menu-sidebar {
   .menu-sub {
-    padding-left: 15px;
+    li{
+      padding-left: 32px;
+    }
     overflow: hidden;
     max-height: 0;
     transition: all 150ms ease-in-out;
   }
   &:has(input:checked) {
     label {
-      svg {
+      span+svg {
         transform: rotate(180deg);
       }
     }

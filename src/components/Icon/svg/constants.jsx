@@ -1,0 +1,17 @@
+import Customer from "./Customer";
+import Ecommerce from "./Ecommerce";
+import Feedback from "./Feedback";
+import File from "./File";
+import Link from "./Link";
+import Product from "./Product";
+import Setting from "./Setting";
+
+export const iconSVG = {
+    product: Product,
+    customer: Customer,
+    ecommerce: Ecommerce,
+    file: File,
+    link: Link,
+    setting: Setting,
+    feedback: Feedback
+}

@@ -28,7 +28,7 @@ const FormFilter = () => {
   useEffect(() => {
     setIsClient(true); // Đảm bảo chỉ render trên client
   }, []);
-  
+
   const handleCloseFilter = (e) => {
     if (e.target.contains(modalRef.current)) {
       setShowFilter(false);
@@ -36,7 +36,24 @@ const FormFilter = () => {
   };
   return (
     <>
-      <button onClick={(e) => setShowFilter(true)}>Lọc</button>
+      <button onClick={(e) => setShowFilter(true)} className="border rounded-md w-[42px] flex justify-center items-center hover:bg-outline hover:border-outline transition-all hover:text-white">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M12.97 19.677l-3.97 1.323v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v1.5" />
+          <path d="M17 17v5" />
+          <path d="M21 17v5" />
+        </svg>
+      </button>
       {isClient && (
         <div
           className="fixed top-0 left-0 transition-all duration-300 inset-0 z-[9999] bg-[#00000050] overflow-hidden"
@@ -51,7 +68,7 @@ const FormFilter = () => {
           ref={modalRef}
         >
           <div
-            className="lg:h-screen bg-white absolute right-0 transition-all duration-300"
+            className="lg:h-screen bg-white absolute right-0 transition-all duration-300 lg:min-w-[300px]"
             style={{
               transform: showFilter ? "translateX(0)" : "translateX(100%)",
               transitionDelay: showFilter ? "300ms" : "0",

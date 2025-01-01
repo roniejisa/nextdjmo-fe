@@ -4,6 +4,10 @@ import { usePathname } from "next/navigation";
 import SidebarProfile from "./SidebarProfile";
 import useRouterCustom from "@/packages/translation/Navigation";
 import React from "react";
+import { iconSVG } from "@/components/Icon/svg/constants";
+const IconKnow = () => {
+  return <></>;
+};
 const Sidebar = ({ profile }) => {
   const router = useRouterCustom();
   const pathname = usePathname();
@@ -12,12 +16,14 @@ const Sidebar = ({ profile }) => {
   }
   const checkActiveMenu = (link, hasChild = false) => {
     const listLink = link.split("|");
-    if (listLink.some((link) => {
-      return pathname.startsWith(process.env.NEXT_PUBLIC_ADMIN_URL + link) 
-    })) {
+    if (
+      listLink.some((link) => {
+        return pathname.startsWith(process.env.NEXT_PUBLIC_ADMIN_URL + link);
+      })
+    ) {
       return hasChild
         ? "bg-red-400 text-white rounded-md active"
-        : "bg-blue-700 text-white rounded-md";
+        : "bg-blue-200 rounded-md";
     } else {
       return "";
     }
@@ -53,116 +59,130 @@ const Sidebar = ({ profile }) => {
             const lists = item.link.split("|");
             return lists.some((item) => permissions.includes(`${item}.read`));
           })
-          .map((item) => (
-            <React.Fragment key={item.id}>
-              {item.items ? (
-                <li
-                  className={`flex justify-between items-center mx-2 border-b`}
-                >
-                  <div className="w-full menu-sidebar">
-                    <label
-                      className={`flex justify-between items-center w-full p-4 cursor-pointer ${checkActiveMenu(
-                        item.link,
-                        true
-                      )}`}
-                      htmlFor={`menu-sidebar-${item.id}`}
-                    >
-                      {item.name}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="transition"
+          .map((item) => {
+            const IconComponent =
+              typeof iconSVG === "object" && item.icon && iconSVG[item.icon]
+                ? iconSVG[item.icon]
+                : IconKnow;
+            return (
+              <React.Fragment key={item.id}>
+                {item.items ? (
+                  <li
+                    className={`flex justify-between items-center mx-2 border-b`}
+                  >
+                    <div className="w-full menu-sidebar">
+                      <label
+                        className={`flex justify-between items-center w-full p-4 cursor-pointer hover:bg-gray-200 hover:text-black transition ${checkActiveMenu(
+                          item.link,
+                          true
+                        )}`}
+                        htmlFor={`menu-sidebar-${item.id}`}
                       >
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M6 9l6 6l6 -6" />
-                      </svg>
-                    </label>
-                    <ul className="menu-sub">
-                      <input
-                        type="checkbox"
-                        id={`menu-sidebar-${item.id}`}
-                        defaultChecked={item.link
-                          .split("|")
-                          .some(
-                            (link) =>
-                              process.env.NEXT_PUBLIC_ADMIN_URL + link ==
-                              pathname
-                          )}
-                        hidden
-                      />
-                      {item.items
-                        .filter((item) => {
-                          const lists = item.link.split("|");
-                          return lists.some((item) =>
-                            permissions.includes(`${item}.read`)
-                          );
-                        })
-                        .map((itemChild) => (
-                          <li
-                            className={`flex justify-between items-center ${checkActiveMenu(
-                              itemChild.link
-                            )}`}
-                            key={itemChild.id}
-                          >
-                            <LinkCustom
-                              href={
-                                process.env.NEXT_PUBLIC_ADMIN_URL +
+                        <span class="flex items-center gap-2">
+                          <IconComponent className="w-6 h-6"/>
+                          {item.name}
+                        </span>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="transition"
+                        >
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <path d="M6 9l6 6l6 -6" />
+                        </svg>
+                      </label>
+                      <ul className="menu-sub">
+                        <input
+                          type="checkbox"
+                          id={`menu-sidebar-${item.id}`}
+                          defaultChecked={item.link
+                            .split("|")
+                            .some(
+                              (link) =>
+                                process.env.NEXT_PUBLIC_ADMIN_URL + link ==
+                                pathname
+                            )}
+                          hidden
+                        />
+                        {item.items
+                          .filter((item) => {
+                            const lists = item.link.split("|");
+                            return lists.some((item) =>
+                              permissions.includes(`${item}.read`)
+                            );
+                          })
+                          .map((itemChild) => (
+                            <li
+                              className={`flex justify-between hover:bg-gray-200 hover:text-black transition items-center ${checkActiveMenu(
                                 itemChild.link
-                              }
-                              className="block p-4"
+                              )}`}
+                              key={itemChild.id}
                             >
-                              {itemChild.name}
-                            </LinkCustom>
-                            {itemChild.add &&
-                            permissions.includes(`${itemChild.link}.create`) ? (
                               <LinkCustom
                                 href={
                                   process.env.NEXT_PUBLIC_ADMIN_URL +
-                                  itemChild.add
+                                  itemChild.link
                                 }
-                                className="mr-4 text-3xl text-green-500"
-                                title="Thêm"
+                                className="block p-4 relative before:content-[''] before:absolute before:w-[6px] before:h-[6px] before:border before:rounded-full before:border-black before:top-1/2 before:left-[-6px] before:-translate-y-1/2"
                               >
-                                +
+                                {itemChild.name}
                               </LinkCustom>
-                            ) : null}
-                          </li>
-                        ))}
-                    </ul>
-                  </div>
-                </li>
-              ) : (
-                <li
-                  className={`flex justify-between items-center mx-2 border-b ${checkActiveMenu(
-                    item.link
-                  )}`}
-                >
-                  <LinkCustom
-                    href={process.env.NEXT_PUBLIC_ADMIN_URL + item.link}
-                    className={`block p-4`}
+                              {itemChild.add &&
+                              permissions.includes(
+                                `${itemChild.link}.create`
+                              ) ? (
+                                <LinkCustom
+                                  href={
+                                    process.env.NEXT_PUBLIC_ADMIN_URL +
+                                    itemChild.add
+                                  }
+                                  className="mr-4 text-3xl text-green-500"
+                                  title="Thêm"
+                                >
+                                  +
+                                </LinkCustom>
+                              ) : null}
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  </li>
+                ) : (
+                  <li
+                    className={`flex justify-between items-center hover:bg-gray-200 hover:text-black transition mx-2 border-b ${checkActiveMenu(
+                      item.link
+                    )}`}
                   >
-                    {item.name}
-                  </LinkCustom>
-                  {item.add && permissions.includes(`${item.link}.create`) ? (
                     <LinkCustom
-                      href={process.env.NEXT_PUBLIC_ADMIN_URL + item.add}
-                      className="mr-4 text-3xl text-green-500"
-                      title="Thêm"
+                      href={process.env.NEXT_PUBLIC_ADMIN_URL + item.link}
+                      className={`block p-4`}
                     >
-                      +
+                      <span class="flex items-center gap-2">
+                        <IconComponent className="w-6 h-6"/>
+                        {item.name}
+                      </span>
                     </LinkCustom>
-                  ) : null}
-                </li>
-              )}
-            </React.Fragment>
-          ))}
+                    {item.add && permissions.includes(`${item.link}.create`) ? (
+                      <LinkCustom
+                        href={process.env.NEXT_PUBLIC_ADMIN_URL + item.add}
+                        className="mr-4 text-3xl text-green-500"
+                        title="Thêm"
+                      >
+                        +
+                      </LinkCustom>
+                    ) : null}
+                  </li>
+                )}
+              </React.Fragment>
+            );
+          })}
       </ul>
       <SidebarProfile profile={profile} />
     </aside>
@@ -176,6 +196,7 @@ const items = [
     id: 1,
     name: "Tài khoản",
     link: "customers|roles",
+    icon: "customer",
     items: [
       {
         id: 1.1,
@@ -193,7 +214,8 @@ const items = [
   },
   {
     id: 2,
-    name: "Sản phẩm & Tác giả",
+    name: "Sản phẩm",
+    icon: "product",
     link: "products|authors|product-categories",
     items: [
       {
@@ -219,6 +241,7 @@ const items = [
   {
     id: 3,
     name: "Cấu hình",
+    icon: "setting",
     link: "settings",
     add: "settings/create",
   },
@@ -226,11 +249,13 @@ const items = [
     id: 4,
     name: "Menus",
     link: "links",
+    icon: "link",
     add: "links/create",
   },
   {
     id: 5,
     name: "Biểu mẫu",
+    icon: "feedback",
     link: "contacts|receive-notifications",
     items: [
       {
@@ -249,6 +274,7 @@ const items = [
   {
     id: 6,
     name: "Quản lý đơn hàng",
+    icon: "ecommerce",
     link: "orders|draft-orders",
     items: [
       {

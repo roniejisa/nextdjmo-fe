@@ -20,6 +20,8 @@ import HeaderTable from "./HeaderTable";
 import ActionTable from "./components/ActionTable";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
+import EditItem from "./components/buttons/EditItem";
+import ReadItem from "./components/buttons/ReadItem";
 
 const components = {
   text: Text,
@@ -31,6 +33,12 @@ const components = {
   phone: Phone,
   order_status: OrderStatus,
   payment_status: PaymentStatus,
+};
+
+const componentActions = {
+  delete: DeleteItem,
+  edit: EditItem,
+  read: ReadItem,
 };
 
 const cacheGetDataModule = cache(async (module, limit, page) => {
@@ -64,6 +72,7 @@ const Module = async ({ params, searchParams }) => {
     page: pageItem,
     fields,
     total,
+    actions,
     module: moduleMain,
   } = data;
   const allFields = fields;
@@ -77,7 +86,12 @@ const Module = async ({ params, searchParams }) => {
       return item.hidden === 0;
     });
   return (
-    <ModuleProvider module={module} fields={allFields} user={user} data={moduleMain}>
+    <ModuleProvider
+      module={module}
+      fields={allFields}
+      user={user}
+      data={moduleMain}
+    >
       <div className="px-4 relative">
         <div className="flex py-4 sticky top-0 z-10 bg-white">
           <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
@@ -146,26 +160,29 @@ const Module = async ({ params, searchParams }) => {
                           </div>
                         );
                       })}
-                      <div className="flex-1 py-1 px-2 flex items-center">
-                        {user.permissions.includes(`${module}.update`) && (
-                          <LinkCustom
-                            href={`${module}/${item._id}`}
-                            className={
-                              "bg-yellow-500 inline-block px-2 py-1 rounded-md"
-                            }
-                          >
-                            Sửa
-                          </LinkCustom>
-                        )}
-                        {user.permissions.includes(`${module}.delete`) && (
-                          <DeleteItem
-                            item={item}
-                            data={moduleMain}
-                            module={module}
-                          >
-                            Xóa
-                          </DeleteItem>
-                        )}
+                      <div className="flex-1 py-1 px-2 gap-2 flex items-center">
+                        {actions.map((action, index) => {
+                          if (
+                            user.permissions.includes(
+                              `${module}.${action.permission}`
+                            )
+                          ) {
+                            const ComponentAction = componentActions[action.type];
+                            return (
+                              <ComponentAction
+                                item={item}
+                                data={moduleMain}
+                                module={module}
+                                action={action}
+                                key={index}
+                                href={`${module}/${item._id}`}
+                              >
+                                {action.svg}
+                              </ComponentAction>
+                            );
+                          }
+                          return null;
+                        })}
                       </div>
                     </div>
                   ))}
