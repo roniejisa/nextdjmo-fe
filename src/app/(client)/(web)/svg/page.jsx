@@ -17,7 +17,7 @@ const WalkingRobotIcon = () => {
         Z"
         fill="gold"
         stroke="black"
-        stroke-width="2"
+        strokeWidth="2"
       />
     </svg>
   );

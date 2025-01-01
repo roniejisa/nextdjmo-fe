@@ -78,7 +78,7 @@ const Sidebar = ({ profile }) => {
                         )}`}
                         htmlFor={`menu-sidebar-${item.id}`}
                       >
-                        <span class="flex items-center gap-2">
+                        <span className="flex items-center gap-2">
                           <IconComponent className="w-6 h-6"/>
                           {item.name}
                         </span>
@@ -164,7 +164,7 @@ const Sidebar = ({ profile }) => {
                       href={process.env.NEXT_PUBLIC_ADMIN_URL + item.link}
                       className={`block p-4`}
                     >
-                      <span class="flex items-center gap-2">
+                      <span className="flex items-center gap-2">
                         <IconComponent className="w-6 h-6"/>
                         {item.name}
                       </span>
