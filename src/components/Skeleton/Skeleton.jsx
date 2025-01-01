@@ -1,0 +1,16 @@
+const Skeleton = ({ variant, width = "100%", height = "100%" }) => {
+  return (
+    <div
+      style={{
+        width: width,
+        height: height,
+        borderRadius: variant == "circle" ? "100%" : "4px",
+        background: "linear-gradient(90deg, #e0e0e0 25%, #f5f5f5 50%, #e0e0e0 75%)",
+        backgroundSize: "200% 100%",
+        animation: "shimmer 2s cubic-bezier(.4,0,.6,1) infinite",
+      }}
+    ></div>
+  );
+};
+
+export default Skeleton;

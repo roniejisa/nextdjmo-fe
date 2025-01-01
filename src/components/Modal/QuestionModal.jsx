@@ -37,6 +37,7 @@ const QuestionModal = () => {
         opacity: showModalQuestion ? 1 : 0,
         visibility: showModalQuestion ? "visible" : "hidden",
         pointerEvents: showModalQuestion ? "all" : "none",
+        backdropFilter: "blur(12px)"
       }}
     >
       {showModalQuestion && (

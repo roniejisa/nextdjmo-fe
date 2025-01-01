@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
 import LinkCustom from "@/packages/translation/Link";
-import { getDataModule, getProfile } from "./actions";
+import { getDataModule } from "./actions";
 import SettingComponent from "./components/tab/SettingComponent";
 import FormSubmit from "./components/tab/FormSubmit";
 import { cache } from "react";
+import { getProfile } from "../[module]/actions";
 
 const cacheGetDataModule = cache(async (module) => {
   return await getDataModule(module);

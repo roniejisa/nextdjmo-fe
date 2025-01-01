@@ -18,6 +18,8 @@ import SelectRow from "./components/SelectRow";
 import SelectAllRow from "./components/SelectAllRow";
 import HeaderTable from "./HeaderTable";
 import ActionTable from "./components/ActionTable";
+import Skeleton from "@/components/Skeleton/Skeleton";
+import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 
 const components = {
   text: Text,
@@ -105,47 +107,76 @@ const Module = async ({ params, searchParams }) => {
               ))}
               <div className="flex-1 py-1 px-2 flex items-center"></div>
             </div>
-            {items.map((item) => (
-              <div className="flex w-full my-columns" key={item._id}>
-                <SelectRow id={item._id} />
-                {fields.map((field) => {
-                  const Component = components[field.type];
-                  return (
+            <SkeletonWithChildren
+              delay={1000}
+              className={items.length > 0 ? "" : "text-center"}
+              skeletonComponent={[
+                ...Array(items.length > 0 ? items.length : 10),
+              ].map((item, index) => (
+                <div className="flex w-full my-columns">
+                  {fields.map((field, index) => (
                     <div
-                      key={field.name}
+                      key={index + field.name}
                       className="flex-1 py-1 px-2 flex items-center"
                     >
-                      <Component
-                        value={item[field.name]}
-                        items={items}
-                        item={item}
-                        field={field}
-                      />
+                      <Skeleton height="20px"></Skeleton>
                     </div>
-                  );
-                })}
-                <div className="flex-1 py-1 px-2 flex items-center">
-                  {user.permissions.includes(`${module}.update`) && (
-                    <LinkCustom
-                      href={`${module}/${item._id}`}
-                      className={
-                        "bg-yellow-500 inline-block px-2 py-1 rounded-md"
-                      }
-                    >
-                      Sửa
-                    </LinkCustom>
-                  )}
-                  {user.permissions.includes(`${module}.delete`) && (
-                    <DeleteItem item={item} data={moduleMain} module={module}>
-                      Xóa
-                    </DeleteItem>
-                  )}
+                  ))}
                 </div>
-              </div>
-            ))}
+              ))}
+            >
+              {items.length > 0 ? (
+                <>
+                  {items.map((item) => (
+                    <div className="flex w-full my-columns" key={item._id}>
+                      <SelectRow id={item._id} />
+                      {fields.map((field) => {
+                        const Component = components[field.type];
+                        return (
+                          <div
+                            key={field.name}
+                            className="flex-1 py-1 px-2 flex items-center"
+                          >
+                            <Component
+                              value={item[field.name]}
+                              items={items}
+                              item={item}
+                              field={field}
+                            />
+                          </div>
+                        );
+                      })}
+                      <div className="flex-1 py-1 px-2 flex items-center">
+                        {user.permissions.includes(`${module}.update`) && (
+                          <LinkCustom
+                            href={`${module}/${item._id}`}
+                            className={
+                              "bg-yellow-500 inline-block px-2 py-1 rounded-md"
+                            }
+                          >
+                            Sửa
+                          </LinkCustom>
+                        )}
+                        {user.permissions.includes(`${module}.delete`) && (
+                          <DeleteItem
+                            item={item}
+                            data={moduleMain}
+                            module={module}
+                          >
+                            Xóa
+                          </DeleteItem>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <>Không có {moduleMain.name} nào!</>
+              )}
+            </SkeletonWithChildren>
           </div>
         </div>
-        <div>
+        {items.length > 0 ? (
           <Pagination
             page={pageItem}
             limit={limitItem}
@@ -153,7 +184,9 @@ const Module = async ({ params, searchParams }) => {
             module={module}
             items={items}
           />
-        </div>
+        ) : (
+          ""
+        )}
       </div>
       <ActionTable />
     </ModuleProvider>
