@@ -32,16 +32,16 @@ const Form = ({ order }) => {
       >
         <option value="">-- Thay đổi trạng thái đơn hàng --</option>
         <option value="order|pending">Đặt hàng & Chưa thanh toán</option>
-        <option value="order|success">Đặt hàng & Đã thanh toán</option>
+        <option value="order|paid">Đặt hàng & Đã thanh toán</option>
         <option value="order|fail">Đặt hàng & Thanh toán thất bại</option>
         <option value="delivery|pending">Đang giao & Chưa thanh toán</option>
-        <option value="delivery|success">Đang giao & Đã thanh toán</option>
+        <option value="delivery|paid">Đang giao & Đã thanh toán</option>
         <option value="delivery|fail">Đang giao & Thanh toán thất bại</option>
         <option value="done|pending">Đã giao & Chưa thanh toán</option>
-        <option value="done|success">Đã giao & Đã thanh toán</option>
+        <option value="done|paid">Đã giao & Đã thanh toán</option>
         <option value="done|fail">Đã giao & Chưa thanh toán</option>
         <option value="cancel|pending">Đã hủy & Chưa thanh toán</option>
-        <option value="cancel|success">Đã hủy & Đã thanh toán</option>
+        <option value="cancel|paid">Đã hủy & Đã thanh toán</option>
         <option value="cancel|fail">Đã hủy & Thanh toán thất bại</option>
       </select>
     </div>

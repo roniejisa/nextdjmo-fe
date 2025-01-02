@@ -123,11 +123,10 @@ const Module = async ({ params, searchParams }) => {
             </div>
             <SkeletonWithChildren
               delay={1000}
-              className={items.length > 0 ? "" : "text-center"}
               skeletonComponent={[
                 ...Array(items.length > 0 ? items.length : 10),
               ].map((item, index) => (
-                <div className="flex w-full my-columns">
+                <div className="flex w-full my-columns" key={index}>
                   {fields.map((field, index) => (
                     <div
                       key={index + field.name}
@@ -167,7 +166,8 @@ const Module = async ({ params, searchParams }) => {
                               `${module}.${action.permission}`
                             )
                           ) {
-                            const ComponentAction = componentActions[action.type];
+                            const ComponentAction =
+                              componentActions[action.type];
                             return (
                               <ComponentAction
                                 item={item}
@@ -188,7 +188,9 @@ const Module = async ({ params, searchParams }) => {
                   ))}
                 </>
               ) : (
-                <>Không có {moduleMain.name} nào!</>
+                <div className={items.length > 0 ? "" : "text-center"}>
+                  Không có {moduleMain.name} nào!
+                </div>
               )}
             </SkeletonWithChildren>
           </div>

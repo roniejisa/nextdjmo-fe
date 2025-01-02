@@ -1,0 +1,172 @@
+"use client";
+import { makeId } from "@/utils/client/util";
+import { getOrCreateIndexDB } from "@/utils/indexDB";
+import { useState, useEffect, createContext, useRef, useCallback } from "react";
+import CryptoJS from "crypto-js";
+
+const secretKey = CryptoJS.enc.Hex.parse("0123456789abcdef0123456789abcdef"); // Khóa bí mật (32 ký tự cho AES-256)
+const iv = CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210"); // IV (16 ký tự)
+
+// Hàm mã hóa
+export const encryptData = (data) => {
+  const jsonData = JSON.stringify(data);
+  const encrypted = CryptoJS.AES.encrypt(jsonData, secretKey, { iv: iv });
+  return encrypted.toString(); // Chuỗi mã hóa Base64
+};
+
+const decryptData = (encryptedData) => {
+  try {
+    // Giải mã AES
+    const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    // Chuyển bytes thành chuỗi
+    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    return decryptedData;
+  } catch (error) {
+    console.error("Decryption error:", error);
+    return null;
+  }
+};
+
+export const SocketContext = createContext(null);
+export const SocketProvider = ({ children }) => {
+  const socketRef = useRef(null);
+  const dataDBIndex = useRef(null);
+  const sessionIdRef = useRef(null);
+  const onlineRef = useRef(0);
+  const typeRef = useRef({
+    "update-count": (data) => {
+      onlineRef.current.innerHTML = data.count;
+    },
+
+    ping: () => {
+      socketRef.current.send(
+        encryptData({
+          type: "pong",
+          data: {
+            id: sessionIdRef.current,
+          },
+        })
+      );
+    },
+  });
+
+  const connectSocket = () => {
+    if (socketRef.current) return;
+    socketRef.current = new WebSocket("ws://localhost:8765");
+    socketRef.current.onopen = () => {
+      console.log("Đã kết nối");
+      connectAndSendRequestForServer();
+    };
+
+    socketRef.current.onmessage = (event) => {
+      const { type, data } = JSON.parse(decryptData(event.data));
+      if (
+        typeRef.current &&
+        type &&
+        typeof typeRef.current === "object" &&
+        typeof typeRef.current[type] == "function"
+      ) {
+        typeRef.current[type](data);
+      }
+    };
+
+    socketRef.current.onclose = () => {
+      console.log("Disconnected");
+      socketRef.current = null;
+      setTimeout(connectSocket, 10000); // Thử kết nối lại sau 3 giây
+    };
+
+    socketRef.current.onerror = (error) => {
+      console.error("WebSocket Error", error);
+    };
+
+    socketRef.current.sendEncode = (obj) => {
+      socketRef.current.send(encryptData(obj));
+    };
+  };
+
+  const alertConnectSocket = () => {
+    if (sessionIdRef.current && socketRef.current) {
+      socketRef.current.send(
+        encryptData({
+          type: "connect",
+          data: {
+            id: sessionIdRef.current,
+          },
+        })
+      );
+    }
+  };
+  const checkHasInternet = (e) => {
+    connectSocket();
+  };
+
+  const checkNoInternet = (e) => {
+    socketRef.current.close();
+    socketRef.current = null;
+  };
+
+  const connectAndSendRequestForServer = async () => {
+    if (!sessionIdRef.current) {
+      dataDBIndex.current = getOrCreateIndexDB("MyAppDB", 1);
+      if (typeof dataDBIndex.current.getOrSet === "function") {
+        const newId = makeId(24);
+        const response = await dataDBIndex.current.getOrSet(
+          "myConfig",
+          "main",
+          {
+            id: "main",
+            value: newId,
+          }
+        );
+        sessionIdRef.current = response.data.value;
+        alertConnectSocket();
+      }
+    } else {
+      alertConnectSocket();
+    }
+  };
+  useEffect(() => {
+    connectSocket();
+    window.addEventListener("online", checkHasInternet);
+    window.addEventListener("offline", checkNoInternet);
+    return () => {
+      window.removeEventListener("online", checkHasInternet);
+      window.removeEventListener("offline", checkNoInternet);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const addTypes = (type, callback) => {
+    typeRef.current = { ...typeRef.current, [type]: callback };
+  };
+  const handleSend = () => {
+    socketRef.current.send(
+      encryptData({
+        type: "update-count",
+        data: {
+          id: sessionIdRef.current,
+        },
+      })
+    );
+  };
+  return (
+    <SocketContext.Provider
+      value={{ socketRef, typeRef, addTypes, sessionIdRef }}
+    >
+      {children}
+      <div
+        className="fixed z-[999] bottom-5 right-5 bg-white border border-blue-700 flex justify-center p-4"
+        onClick={handleSend}
+      >
+        Online: <span ref={onlineRef}>0</span>
+      </div>
+    </SocketContext.Provider>
+  );
+};
+
+export default SocketProvider;

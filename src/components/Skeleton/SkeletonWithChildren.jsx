@@ -29,8 +29,9 @@ const SkeletonWithChildren = ({
     return () => {
       clearTimeout(timer);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
-  return <>{loading ? skeletonComponent : <div {...props}>{children}</div>}</>;
+  return <>{loading ? skeletonComponent : children}</>;
 };
 
 export default SkeletonWithChildren;

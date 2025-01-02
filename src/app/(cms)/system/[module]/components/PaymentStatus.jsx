@@ -1,7 +1,7 @@
 "use client";
 
 import { useNotify } from "@/context/NotifyProvider";
-import { changeOrderStatus, changePaymentStatus } from "../actions";
+import { changePaymentStatus } from "../actions";
 import { useState } from "react";
 
 const status = {
@@ -9,7 +9,7 @@ const status = {
     label: "Đang giao",
     className: "bg-yellow-500 text-white px-2 py-1 rounded-md",
   },
-  success: {
+  paid: {
     label: "Thành công",
     className: "bg-blue-500 text-white px-2 py-1 rounded-md",
   },

@@ -27,7 +27,7 @@ const paymentStatus = {
     label: "Chưa thanh toán",
     className: "bg-yellow-500 text-white px-2 py-1 rounded-md",
   },
-  success: {
+  paid: {
     label: "Đã thanh toán",
     className: "bg-green-500 text-white px-2 py-1 rounded-md",
   },

@@ -4,6 +4,7 @@ import "./globals.scss";
 import LoadingProvider from "@/packages/translation/LoadingProvider";
 import ProgressTransition from "@/packages/translation/Loading/ProgressTransition";
 import AccountProvider from "@/context/AccountProvider";
+import SocketProvider from "@/context/SocketProvider";
 
 const interItalicFont = localFont({
   src: "./fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf",
@@ -27,11 +28,13 @@ export default function RootLayout({ children }) {
       <body
         className={`${interItalicFont.variable} ${interFont.variable} antialiased`}
       >
-        <LoadingProvider fallback={<ProgressTransition />}>
-          <NotifyProvider>
-            <AccountProvider>{children}</AccountProvider>
-          </NotifyProvider>
-        </LoadingProvider>
+        <SocketProvider>
+          <LoadingProvider fallback={<ProgressTransition />}>
+            <NotifyProvider>
+              <AccountProvider>{children}</AccountProvider>
+            </NotifyProvider>
+          </LoadingProvider>
+        </SocketProvider>
       </body>
     </html>
   );
