@@ -155,6 +155,7 @@ const AllEffect = () => {
       // Gỡ bỏ lớp CSS khi component bị unmount
       document.body.classList.remove(
         eventDay.current?.classBackground,
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         eventDay.current?.classColor
       );
     };

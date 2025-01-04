@@ -6,7 +6,7 @@ import ImageComponent from "./components/Image";
 import Text from "./components/Text";
 import Password from "./components/Password";
 import GroupButtonForm from "../../components/form/GroupButtonForm";
-import { handleUpdate } from "./actions";
+import { handleCreate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
 import { useState, useTransition } from "react";
 import SelectParent from "./components/SelectParent";
@@ -27,6 +27,7 @@ import Phone from "./components/Phone";
 import Permission from "./components/Permission";
 import MultipleCheckbox from "./components/MultipleCheckbox";
 import ProductVariant from "./components/ProductVariant";
+import Language from "./components/Language";
 
 const components = {
   text: Text,
@@ -49,19 +50,27 @@ const components = {
   phone: Phone,
   permission: Permission,
   multiple_checkbox: MultipleCheckbox,
-  product_variants: ProductVariant
+  product_variants: ProductVariant,
+  language: Language,
 };
 
-const FormCreate = ({ module, fields, moduleStore }) => {
+const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
   const notify = useNotify();
   const router = useRouterCustom();
   const [oldData, setOldData] = useState({});
   const [isPending, startTransition] = useTransition(false);
+  const isMultiple = moduleStore.language ?? false;
+  const language = searchParams.language;
+  
   const handleSubmit = async (form) => {
     startTransition(async () => {
       const formData = Object.fromEntries(form);
-      const data = await handleUpdate(module, formData);
+      const data = await handleCreate(module, formData, language);
       if (data.status == 201) {
+        if (isMultiple)
+          router.push(
+            process.env.NEXT_PUBLIC_ADMIN_URL + `${data.data._id}?language=${language}`
+          );
         router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
         await notify.changeNotify("success", data.message);
         return;
@@ -117,6 +126,7 @@ const FormCreate = ({ module, fields, moduleStore }) => {
                 <Component
                   field={field}
                   defaultValue={oldData[field.name] || ""}
+                  module={module}
                   oldData={oldData}
                 />
               </Group>
@@ -129,6 +139,7 @@ const FormCreate = ({ module, fields, moduleStore }) => {
                 <Component
                   field={field}
                   defaultValue={oldData[field.name] || ""}
+                  module={module}
                   oldData={oldData}
                 />
               </Group>
@@ -143,6 +154,7 @@ const FormCreate = ({ module, fields, moduleStore }) => {
                 <Component
                   field={field}
                   defaultValue={oldData[field.name] || ""}
+                  module={module}
                   oldData={oldData}
                 />
               </Group>

@@ -1,4 +1,5 @@
 import Customer from "./Customer";
+import DashboardIcon from "./Dashboard";
 import Ecommerce from "./Ecommerce";
 import Feedback from "./Feedback";
 import File from "./File";
@@ -7,11 +8,12 @@ import Product from "./Product";
 import Setting from "./Setting";
 
 export const iconSVG = {
-    product: Product,
-    customer: Customer,
-    ecommerce: Ecommerce,
-    file: File,
-    link: Link,
-    setting: Setting,
-    feedback: Feedback
-}
+  product: Product,
+  customer: Customer,
+  ecommerce: Ecommerce,
+  file: File,
+  link: Link,
+  setting: Setting,
+  feedback: Feedback,
+  dashboard: DashboardIcon,
+};

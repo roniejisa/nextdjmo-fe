@@ -117,107 +117,111 @@ const Repeat = ({ field, defaultValue, item }) => {
         hidden
         defaultValue={defaultValue || ""}
       ></textarea>
-      <div onDragEnd={dragEnd}>
-        {data.map((itemData) => (
-          <div
-            key={itemData.id}
-            className="border mb-1 flex flex-col p-2 relative gap-2 rounded-md item-group"
-            onDragOver={(e) => dragOver(e, itemData.id)}
-          >
-            {itemData.fields.map((itemField, index) => {
-              const Component = components[itemField.type];
-              return (
-                <div key={index}>
-                  <Component
-                    field={itemField}
-                    defaultValue={itemData.data[itemField.name]}
-                    onChange={(e) => updateData(e, itemData.id, itemField)}
-                    itemData={itemData}
-                    updateData={updateData}
-                  />
-                </div>
-              );
-            })}
-            <div className="absolute top-2 right-2 flex gap-2">
-              <button
-                type="button"
-                className="border rounded-md"
-                onClick={() =>
-                  setData((prev) => [
-                    ...prev.filter((item) => item.id !== itemData.id),
-                  ])
-                }
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+      <div className="flex-1">
+        <div onDragEnd={dragEnd} className="flex flex-wrap -mx-2">
+          {data.map((itemData) => (
+            <div
+              key={itemData.id}
+              className="mb-1 flex flex-col p-2 flex-[0_0_calc(100%/2)] px-2 relative gap-2 rounded-md item-group"
+              onDragOver={(e) => dragOver(e, itemData.id)}
+            >
+              <div className="border rounded-md p-2">
+                {itemData.fields.map((itemField, index) => {
+                  const Component = components[itemField.type];
+                  return (
+                    <div key={index} className="">
+                      <Component
+                        field={itemField}
+                        defaultValue={itemData.data[itemField.name]}
+                        onChange={(e) => updateData(e, itemData.id, itemField)}
+                        itemData={itemData}
+                        updateData={updateData}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button
+                  type="button"
+                  className="border rounded-md"
+                  onClick={() =>
+                    setData((prev) => [
+                      ...prev.filter((item) => item.id !== itemData.id),
+                    ])
+                  }
                 >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M4 7l16 0" />
-                  <path d="M10 11l0 6" />
-                  <path d="M14 11l0 6" />
-                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                className="border rounded-md"
-                onDragStart={(e) => dragStart(e, itemData.id)}
-                draggable={true}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M4 7l16 0" />
+                    <path d="M10 11l0 6" />
+                    <path d="M14 11l0 6" />
+                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                    <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  className="border rounded-md"
+                  onDragStart={(e) => dragStart(e, itemData.id)}
+                  draggable={true}
                 >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M18 9l3 3l-3 3" />
-                  <path d="M15 12h6" />
-                  <path d="M6 9l-3 3l3 3" />
-                  <path d="M3 12h6" />
-                  <path d="M9 18l3 3l3 -3" />
-                  <path d="M12 15v6" />
-                  <path d="M15 6l-3 -3l-3 3" />
-                  <path d="M12 3v6" />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M18 9l3 3l-3 3" />
+                    <path d="M15 12h6" />
+                    <path d="M6 9l-3 3l3 3" />
+                    <path d="M3 12h6" />
+                    <path d="M9 18l3 3l3 -3" />
+                    <path d="M12 15v6" />
+                    <path d="M15 6l-3 -3l-3 3" />
+                    <path d="M12 3v6" />
+                  </svg>
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <button
+          type="button"
+          className="w-full border p-2 flex-[0_0_50px] rounded-md"
+          onClick={() =>
+            setData([
+              ...data,
+              {
+                id: id + Date.now(),
+                fields: field.fields,
+                data: field.fields.reduce(
+                  (prev, item) => ({ ...prev, [item.name]: "" }),
+                  {}
+                ),
+              },
+            ])
+          }
+        >
+          + Thêm
+        </button>
       </div>
-      <button
-        type="button"
-        className="w-full border p-2"
-        onClick={() =>
-          setData([
-            ...data,
-            {
-              id: id + Date.now(),
-              fields: field.fields,
-              data: field.fields.reduce(
-                (prev, item) => ({ ...prev, [item.name]: "" }),
-                {}
-              ),
-            },
-          ])
-        }
-      >
-        + Thêm
-      </button>
     </>
   );
 };

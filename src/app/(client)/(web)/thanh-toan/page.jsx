@@ -152,6 +152,7 @@ const Checkout = () => {
                         width={70}
                         height={70}
                         style={{ objectFit: "contain" }}
+                        alt={"image"}
                       />
                       <LinkCustom
                         href={`/san-pham/${item.slug}`}

@@ -12,7 +12,7 @@ const ClientProvider = ({ children }) => {
 
   const fetchData = async () => {
     const reponse = await getDataDraftOrder();
-    if (reponse.status == 200 && reponse.data.length) {
+    if (reponse && reponse.status == 200 && reponse.data.length) {
       setOrders(reponse.data);
     }
   };

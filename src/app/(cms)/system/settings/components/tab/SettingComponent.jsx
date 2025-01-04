@@ -40,18 +40,7 @@ const SettingComponent = ({ data }) => {
       items: data.items.filter((item) => item.tab == tab.name),
     };
   });
-  const getCol = (col) => {
-    switch (col) {
-      case "1":
-        return "lg:flex-[0_0_calc(100%/3)]";
-      case "2":
-        return "lg:flex-[0_0_calc(100%/3*2)]";
-      case "3":
-        return "lg:flex-[0_0_calc(100%)]";
-      default:
-        return "lg:flex-[0_0_calc(100%/3)]";
-    }
-  };
+
   return (
     <div className="flex flex-wrap -mx-4">
       <ul className="flex flex-col flex-[0_0_20%] pl-4 sticky top-[68px] self-start h-[calc(100vh-68px-16px*2)] border-r">
@@ -65,7 +54,7 @@ const SettingComponent = ({ data }) => {
           >
             <span
               className={`transition hover:opacity-100 ${
-                tabCurrent == item.name ? "font-bold opacity-100" : "opacity-50"
+                tabCurrent == item.name ? "font-bold text-outline opacity-100" : "opacity-50"
               }`}
             >
               {item.value}
@@ -78,7 +67,7 @@ const SettingComponent = ({ data }) => {
           return (
             <div
               key={index}
-              className={`flex -mx-4 flex-wrap ${
+              className={`flex flex-col flex-wrap ${
                 tabCurrent == tab.name ? "" : "hidden"
               }`}
             >
@@ -94,7 +83,7 @@ const SettingComponent = ({ data }) => {
                     return (
                       <div
                         key={index}
-                        className={`py-4 px-4 ${getCol(item.cols ?? "1")}`}
+                        className={`py-2 px-2`}
                       >
                         <Group
                           field={{

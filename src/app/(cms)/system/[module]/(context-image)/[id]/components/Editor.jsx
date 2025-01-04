@@ -40,14 +40,14 @@ const Editor = ({ defaultValue, item, field, oldData }) => {
   }, []);
 
   useEffect(() => {
-    if (oldData && oldData[field.name]) {
+    if (oldData && oldData[field.name] !== undefined) {
       textareaRef.current.value = oldData[field.name];
     } else if (item && item[field.name]) {
       textareaRef.current.value = item[field.name];
     } else if (defaultValue) {
       textareaRef.current.value = defaultValue;
     }
-    if(textareaRef.current.value){
+    if(textareaRef.current.value !== undefined || textareaRef.current.value !== null){
       quillCurrentRef.current.root.innerHTML = textareaRef.current.value
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

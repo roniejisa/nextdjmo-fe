@@ -1,6 +1,6 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const LoadingContext = createContext();
 const LoadingProvider = ({ children, fallback }) => {
@@ -18,7 +18,6 @@ const LoadingProvider = ({ children, fallback }) => {
       setTransition(false);
       return prev;
     });
-    
     setSearchParamString((prev) => {
       if (prev !== searchParams.toString()) {
         return searchParams.toString();
@@ -46,7 +45,7 @@ const LoadingProvider = ({ children, fallback }) => {
         setCurrentPathname,
         searchParamString,
         setSearchParamString,
-        setIsRefresh
+        setIsRefresh,
       }}
     >
       {children}

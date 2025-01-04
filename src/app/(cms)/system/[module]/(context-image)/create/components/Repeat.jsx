@@ -65,25 +65,41 @@ const Repeat = ({ field, oldData }) => {
     const index = data.findIndex((item) => item.id == id);
     if (index !== -1) dataMoveRef.current = data[index];
 
-    // Tạo preview khi kéo
-    const preview = document.createElement("div");
-    preview.innerHTML = e.currentTarget.closest(".item-group").outerHTML;
-    preview.style.position = "absolute";
-    preview.style.top = "-9999px"; // Ẩn khỏi viewport
-    preview.style.left = "-9999px";
-    preview.style.backgroundColor = "white";
-    preview.style.color = "black";
-    preview.style.padding = "4px 8px";
-    preview.style.border = "1px solid black";
-    preview.style.borderRadius = "4px";
-    preview.style.fontSize = "14px";
+    const draggedItem = e.target.closest(".item-group");
+    const preview = draggedItem.cloneNode(true);
+
+    // Định dạng preview
+    preview.style.position = "fixed"; // Sử dụng `fixed` thay vì `absolute`
+    preview.style.zIndex = "1000";
+    preview.style.pointerEvents = "none";
+    preview.style.width = draggedItem.clientWidth + "px";
+    preview.style.opacity = "0.5";
+
     document.body.appendChild(preview);
 
-    // Gán preview vào drag event
-    e.dataTransfer.setDragImage(preview, 0, 0);
+    // Cập nhật vị trí chuột
+    const updatePreviewPosition = (event) => {
+      preview.style.transform = `translate(${event.clientX}px, ${event.clientY}px)`;
+    };
 
-    // Xóa preview sau sự kiện
-    setTimeout(() => document.body.removeChild(preview), 0);
+    // Lắng nghe sự kiện di chuột để cập nhật vị trí liên tục
+    document.addEventListener("mousemove", updatePreviewPosition);
+
+    // Xóa preview khi kết thúc kéo
+    const removePreview = () => {
+      document.body.removeChild(preview);
+      document.removeEventListener("mousemove", updatePreviewPosition);
+    };
+
+    // Dùng dragend để xóa khi kết thúc
+    e.target.addEventListener("dragend", removePreview, { once: true });
+
+    // Gán dragImage
+    e.dataTransfer.setDragImage(
+      preview,
+      draggedItem.offsetWidth / 2,
+      draggedItem.offsetHeight / 2
+    );
   };
 
   const dragOver = (e, id) => {
@@ -107,6 +123,7 @@ const Repeat = ({ field, oldData }) => {
       });
     }
   };
+
   return (
     <div id={id}>
       <textarea
@@ -138,6 +155,7 @@ const Repeat = ({ field, oldData }) => {
             })}
             <div className="absolute top-2 right-2 flex gap-2">
               <button
+                type="button"
                 className="border rounded-md"
                 onClick={() =>
                   setData((prev) => [
@@ -165,6 +183,7 @@ const Repeat = ({ field, oldData }) => {
                 </svg>
               </button>
               <button
+                type="button"
                 className="border rounded-md"
                 onDragStart={(e) => dragStart(e, itemData.id)}
                 draggable={true}

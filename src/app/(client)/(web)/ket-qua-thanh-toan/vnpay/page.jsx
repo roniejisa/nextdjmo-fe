@@ -2,6 +2,7 @@ import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
 const getReturnData = async (data) => {
+  if (!Object.keys(data).length) return;
   const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + `payment-return-result`,

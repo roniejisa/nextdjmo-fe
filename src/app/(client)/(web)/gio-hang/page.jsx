@@ -180,6 +180,7 @@ const Cart = () => {
                     src={showImageUrl(item.image)}
                     width={70}
                     height={70}
+                    alt={""}
                   />
                   <LinkCustom
                     href={`/san-pham/${item.slug}`}

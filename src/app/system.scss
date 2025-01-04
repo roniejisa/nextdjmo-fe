@@ -87,7 +87,7 @@ body {
   &:has(input:checked) {
     label {
       span+svg {
-        transform: rotate(180deg);
+        transform: rotate(-180deg);
       }
     }
     .menu-sub {

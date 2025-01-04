@@ -124,6 +124,7 @@ const MediaList = ({ token }) => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [medias]
   );
 
@@ -211,6 +212,7 @@ const MediaList = ({ token }) => {
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [medias]
   );
 

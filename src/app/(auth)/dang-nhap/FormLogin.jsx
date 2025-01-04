@@ -18,7 +18,7 @@ const FormLogin = ({ msg, redirect }) => {
       if (response.status == 200) {
         notify.changeNotify("success", response.message);
         if (redirect) {
-          return router.replace(redirect);
+          return router.replace(redirect, true);
         }
         return router.replace("/system");
       } else {

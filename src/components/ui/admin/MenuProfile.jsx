@@ -4,17 +4,16 @@ import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext, useState } from "react";
 import { handleLogout } from "./action";
 import { AccountContext } from "@/context/AccountProvider";
+import LinkCustom from "@/packages/translation/Link";
 
 const MenuProfile = ({ id }) => {
   const [showMenu, setShowMenu] = useState(false);
   const router = useRouterCustom();
   const clickLogout = async () => {
-    try{
+    try {
       await handleLogout();
-    }catch(e){
-      
-    }
-    router.replace("/")
+    } catch (e) {}
+    router.replace("/");
   };
 
   return (
@@ -55,9 +54,14 @@ const MenuProfile = ({ id }) => {
       >
         <div className="w-4 h-4 rotate-45 absolute bg-white shadow top-[-22px] left-[13px] z-10"></div>
         <ul
-          className={`absolute top-[-60px] left-[-5px] bg-white shadow-lg min-w-[200px] rounded-lg before:content-[''] before:absolute before:w-full before:h-5 before:-bottom-4`}
+          className={`absolute top-[-15px] z-20 -translate-y-full left-[-5px] before:z-0 bg-white shadow-lg min-w-[200px] rounded-lg before:content-[''] before:absolute before:w-full before:h-5 before:-bottom-4`}
         >
-          <li className="relative bg-white z-20 rounded-full">
+          <li>
+            <LinkCustom href={"/"} title="Trang chủ" className="p-4 block">
+              Xem trang chủ
+            </LinkCustom>
+          </li>
+          <li className="relative bg-white rounded-full">
             <button onClick={clickLogout} className="block py-4 px-4">
               Đăng xuất
             </button>

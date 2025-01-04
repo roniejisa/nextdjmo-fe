@@ -124,7 +124,9 @@ export const SocketProvider = ({ children }) => {
             value: newId,
           }
         );
-        sessionIdRef.current = response.data.value;
+        if(response.status){
+          sessionIdRef.current = response.data.value;
+        }
         alertConnectSocket();
       }
     } else {
@@ -160,10 +162,10 @@ export const SocketProvider = ({ children }) => {
     >
       {children}
       <div
-        className="fixed z-[999] bottom-5 right-5 bg-white border border-blue-700 flex justify-center p-4"
+        className="fixed z-[999] bottom-20 right-0 rounded-md rounded-tr-none rounded-br-none border-r-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
         onClick={handleSend}
       >
-        Online: <span ref={onlineRef}>0</span>
+        Online: <span className="ml-2" ref={onlineRef}>0</span>
       </div>
     </SocketContext.Provider>
   );

@@ -10,7 +10,7 @@ import { usePathname } from "next/navigation";
 
 const FormAddOrder = () => {
   const [stock, setStock] = useState(1);
-  const pathname = usePathname()
+  const pathname = usePathname();
   const notify = useNotify();
   const router = useRouterCustom();
   const { productCurrent, selectedAttributes, product, setProductCurrent } =
@@ -52,10 +52,14 @@ const FormAddOrder = () => {
       Object.keys(product.detail_variants).length
     ) {
       if (productCurrent.stock > 0) {
-        const data = await postDraftOrder({
-          productId: productCurrent._id,
-          stock,
-        });
+        const data = await postDraftOrder(
+          {
+            productId: productCurrent._id,
+            stock,
+          },
+          "Vui lòng đăng nhập",
+          `redirect=${pathname}`
+        );
 
         if (data.status == 200) {
           setUpdateCart(true);
@@ -70,9 +74,6 @@ const FormAddOrder = () => {
             return { ...prev };
           });
           return notify.changeNotify("success", data.message);
-        } else if (data.status == 401) {
-          router.push("/dang-nhap?redirect=" + pathname);
-          return notify.changeNotify("error", 'Vui lòng đăng nhập!');
         }
         return notify.changeNotify("error", data.message);
       } else {

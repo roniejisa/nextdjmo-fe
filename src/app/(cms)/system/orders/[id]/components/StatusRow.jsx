@@ -6,34 +6,34 @@ import { useContext } from "react";
 const orderStatus = {
   order: {
     label: "Đặt hàng",
-    className: "bg-red-500 text-white px-2 py-1 rounded-md",
+    className: "bg-red-500 text-white px-2 py-1",
   },
   delivery: {
     label: "Đang giao",
-    className: "bg-blue-500 text-white px-2 py-1 rounded-md",
+    className: "bg-blue-500 text-white px-2 py-1",
   },
   done: {
     label: "Giao thành công",
-    className: "bg-green-500 text-white px-2 py-1 rounded-md",
+    className: "bg-green-500 text-white px-2 py-1",
   },
   cancel: {
     label: "Hủy đơn",
-    className: "bg-black text-white px-2 py-1 rounded-md",
+    className: "bg-black text-white px-2 py-1",
   },
 };
 
 const paymentStatus = {
   pending: {
     label: "Chưa thanh toán",
-    className: "bg-yellow-500 text-white px-2 py-1 rounded-md",
+    className: "bg-yellow-500 text-white px-2 py-1",
   },
   paid: {
     label: "Đã thanh toán",
-    className: "bg-green-500 text-white px-2 py-1 rounded-md",
+    className: "bg-green-500 text-white px-2 py-1",
   },
   fail: {
     label: "Thanh toán thất bại",
-    className: "bg-red-500 text-white px-2 py-1 rounded-md",
+    className: "bg-red-500 text-white px-2 py-1",
   },
 };
 

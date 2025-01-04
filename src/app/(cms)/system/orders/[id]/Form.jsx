@@ -9,7 +9,7 @@ const Form = ({ order }) => {
   const { status, setStatus } = useContext(OrderContext);
   const notify = useNotify();
   const handleChangeStatusOrder = async (e) => {
-    if(!e.target.value) return false
+    if (!e.target.value) return false;
     const response = await changeOrderStatus({
       type: e.target.value,
       _id: order._id,
@@ -17,16 +17,19 @@ const Form = ({ order }) => {
     if (response.status === 200) {
       setStatus(e.target.value);
     }
-    notify.changeNotify(response.status == 200 ? "success" : "error", response.message);
+    notify.changeNotify(
+      response.status == 200 ? "success" : "error",
+      response.message
+    );
   };
   return (
-    <div className="flex justify-between gap-4 w-full mt-4">
+    <div className="flex flex-wrap break-all justify-between gap-4 w-full mt-4">
       <label className="whitespace-nowrap">
         Trạng thái đơn hàng (<span className="text-red-500">*</span> Tuyệt đối
         chính xác ảnh hưởng tới thống kê thực tế)
       </label>
       <select
-        className="px-2"
+        className="px-2 rounded-none p-2"
         defaultValue={status}
         onChange={(e) => handleChangeStatusOrder(e)}
       >

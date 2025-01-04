@@ -1,15 +1,31 @@
-"use client"
-import { useEffect, useRef, useState } from "react";
+"use client";
+import { useState, useEffect, useRef } from "react";
 
-export const useDebounce = (value, delay = 500) => {
+// Tạo một hook debounced
+export function useDebounce(value, delay = 500) {
   const [debouncedValue, setDebouncedValue] = useState(value);
-  const timerRef = useRef();
 
   useEffect(() => {
-    timerRef.current = setTimeout(() => setDebouncedValue(value), delay);
+    // Set timeout để trì hoãn thay đổi giá trị
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
 
-    return () => clearTimeout(timerRef.current);
-  }, [value, delay]);
+    // Clean up khi component unmount hoặc value hoặc delay thay đổi
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]); // Chạy effect khi value hoặc delay thay đổi
 
   return debouncedValue;
-};
+}
+
+export function debounce(callback, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      callback(...args);
+    }, delay);
+  };
+}

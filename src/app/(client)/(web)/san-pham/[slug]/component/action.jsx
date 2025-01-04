@@ -3,7 +3,7 @@
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
-export const postDraftOrder = async ({ productId, stock }) => {
+export const postDraftOrder = async ({ productId, stock }, msg, searchParams) => {
   const token = await getToken();
   return httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "create-draft-order",
@@ -11,6 +11,10 @@ export const postDraftOrder = async ({ productId, stock }) => {
       Authorization: `Bearer ${token}`,
     },
     { product_id: productId, stock },
-    "POST"
+    "POST",
+    true,
+    false,
+    searchParams,
+    msg
   );
 };

@@ -25,6 +25,7 @@ const OrderChart = () => {
   const changeTypeOrTime = async () => {
     if (time === "custom" && (startTime == "" || endTime == "")) return;
     const response = await getDataStatistic(type, time, startTime, endTime);
+    if(!response) return
     const {
       times,
       data,

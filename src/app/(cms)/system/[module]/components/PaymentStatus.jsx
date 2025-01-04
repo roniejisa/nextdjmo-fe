@@ -26,11 +26,11 @@ const PaymentStatus = ({ value, item, field }) => {
     <div>
       <select defaultValue={data} onChange={async(e) => {
           const data = await changePaymentStatus(e.target.value,item._id)
-          notify.changeNotify(data.status == 200 ? "success" : "error", data.message)
+          notify.changeNotify(data.status == 200 ? "paid" : "error", data.message)
           setData(e.target.value)
       }} className={status[data].className}>
         <option className="bg-white text-black" value="pending">Chờ thanh toán</option>
-        <option className="bg-white text-black" value="success">Đã thanh toán</option>
+        <option className="bg-white text-black" value="paid">Đã thanh toán</option>
         <option className="bg-white text-black" value="fail">Thanh toán thất bại</option>
       </select>
     </div>

@@ -6,6 +6,8 @@ const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth' || 'http://l
 const API_KEY = process.env.API_KEY || '123456'
 const URL_LOGIN = '/dang-nhap'
 const cache = new Map()
+const defaultLang = 'vi'; // Ngôn ngữ mặc định
+const languages = ['en', 'vi']; // Các ngôn ngữ hỗ trợ
 // Hàm chung để thực hiện các yêu cầu HTTP
 async function fetchForAuth(endpoint, method = 'GET', body = null, headers = {}, isRefresh = true) {
     try {
@@ -59,7 +61,6 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
             return { isAuthenticated: true, user: profile.data, accessToken: token, refreshToken, isSocial }
         }
     }
-
     // Nếu token không hợp lệ, thử làm mới
     if (refreshToken && !isRefresh && method == "GET") {
         const refreshData = await fetchForAuth('refresh-token', 'POST', { refreshToken }, {}, true)
@@ -116,16 +117,37 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
 
     return response
 }
+
+function getLanguage(request) {
+    const url = request.nextUrl
+    const pathname = url.pathname
+    const language = languages.find(language => language === pathname.split("/")[1]) ?? defaultLang
+    return language
+}
+
 export async function middleware(request) {
     // Định nghĩa các route cần bảo vệ
     const url = request.nextUrl
     const requireRoutes = ["/system"]
     const pathname = url.pathname
     const method = request.method;
+
+    // Nếu đường khác thì next cmnl ở đây đi 
+    // Skip middleware for specific paths
+    if (pathname.startsWith('/api/')) {
+        return NextResponse.next();
+    }
+
+    if (method != 'GET') {
+        return NextResponse.next()
+    }
+
+
     let socialAuth = {};
     if (pathname === "/") {
         socialAuth = extractSocialAuthParams(url);
     }
+
     const { socialToken, socialRefreshToken, isOauth, newCustomer } = socialAuth;
     const { isAuthenticated, accessToken, refreshToken, user, isSocial } = await authenticate(request, socialToken, socialRefreshToken, false, isOauth)
     if (pathname === URL_LOGIN) {
@@ -149,11 +171,20 @@ export async function middleware(request) {
         const response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
         return response
     }
-    if (method != 'GET') {
-        return NextResponse.next()
-    }
 
-    return setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer)
+
+
+
+    // Redirect if there is no locale
+    const language = getLanguage(request)
+    const response = setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer)
+    response.cookies.set("lang", language, {
+        httpOnly: true,
+        secure: true,
+        path: "/",
+        sameSite: "strict"
+    })
+    return response
 }
 
 function makeid(length) {

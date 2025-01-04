@@ -69,6 +69,7 @@ const Variant = () => {
     } else {
       setListVariantOk(product.variants);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAttributes]);
 
   useEffect(() => {
@@ -83,6 +84,7 @@ const Variant = () => {
           }, {}),
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listVariantOk]);
   useEffect(() => {
     setSelectedAttributes((prev) => {

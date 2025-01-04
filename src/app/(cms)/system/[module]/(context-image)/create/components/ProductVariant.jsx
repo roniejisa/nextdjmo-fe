@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
 import { makeId } from "@/utils/client/util";
 /**

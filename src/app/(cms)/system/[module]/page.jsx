@@ -22,6 +22,7 @@ import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 import EditItem from "./components/buttons/EditItem";
 import ReadItem from "./components/buttons/ReadItem";
+import CopyItem from "./components/buttons/CopyItem";
 
 const components = {
   text: Text,
@@ -39,6 +40,7 @@ const componentActions = {
   delete: DeleteItem,
   edit: EditItem,
   read: ReadItem,
+  copy: CopyItem
 };
 
 const cacheGetDataModule = cache(async (module, limit, page) => {
@@ -96,7 +98,7 @@ const Module = async ({ params, searchParams }) => {
         <div className="flex py-4 sticky top-0 z-10 bg-white">
           <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
           <div className="ml-auto">
-            {user?.permissions.includes(`${module}.create`) && (
+            {user?.permissions.includes(`${module}.create`) && !moduleMain?.no_add && (
               <LinkCustom
                 href={`${module}/create`}
                 className={"bg-blue-400 inline-block px-2 py-1 rounded-md"}
@@ -155,6 +157,7 @@ const Module = async ({ params, searchParams }) => {
                               items={items}
                               item={item}
                               field={field}
+                              module={module}
                             />
                           </div>
                         );

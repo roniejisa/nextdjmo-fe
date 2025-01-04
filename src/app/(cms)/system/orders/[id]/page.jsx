@@ -33,25 +33,6 @@ export async function generateMetadata({ params }) {
     title: data.data.module.name,
   };
 }
-
-const orderStatus = {
-  order: {
-    label: "Đặt hàng",
-    className: "bg-red-500 text-white px-2 py-1 rounded-md",
-  },
-  delivery: {
-    label: "Đang giao",
-    className: "bg-blue-500 text-white px-2 py-1 rounded-md",
-  },
-  success: {
-    label: "Giao thành công",
-    className: "bg-green-500 text-white px-2 py-1 rounded-md",
-  },
-  cancel: {
-    label: "Hủy đơn",
-    className: "bg-black-500 text-white px-2 py-1 rounded-md",
-  },
-};
 const DetailComponent = async ({ params }) => {
   const { id } = await params;
   const user = await getProfile();
@@ -63,14 +44,16 @@ const DetailComponent = async ({ params }) => {
     return redirect("/403");
   }
   let { item } = data;
-
+  if (!item) {
+    return redirect("/system/orders");
+  }
   return (
     <OrderProvider order={item}>
       <div className="p-4">
         <h1 className="text-3xl font-bold mb-3">Chi tiết đơn hàng</h1>
         <div className="flex gap-2 flex-wrap">
           <div className="flex-1">
-            <table className="w-full">
+            <table className="w-full border">
               <thead>
                 <tr>
                   <th colSpan={5} className="bg-blue-500 text-white">

@@ -7,7 +7,7 @@ import Password from "./components/Password";
 import GroupButtonForm from "../../components/form/GroupButtonForm";
 import { handleUpdate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Editor from "./components/Editor";
 import SelectParent from "./components/SelectParent";
 import useRouterCustom from "@/packages/translation/Navigation";
@@ -25,6 +25,7 @@ import Group from "./components/Group";
 import Permission from "./components/Permission";
 import MultipleCheckbox from "./components/MultipleCheckbox";
 import ProductVariant from "./components/ProductVariant";
+import Language from "./components/Language";
 
 const components = {
   text: Text,
@@ -46,20 +47,23 @@ const components = {
   tab: Tab,
   permission:Permission,
   multiple_checkbox:MultipleCheckbox,
-  product_variants: ProductVariant
+  product_variants: ProductVariant,
+  language: Language
 };
 
-const FormUpdate = ({ module, item, fields, moduleStore }) => {
+const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
   const router = useRouterCustom();
   const notify = useNotify();
   const [isPending, startTransition] = useTransition(false);
   const [oldData, setOldData] = useState({
     ...item,
   });
+  const isMultiple = moduleStore.language ?? false;
+  const language = searchParams.language;
   const submitAction = async (form) => {
     startTransition(async () => {
       const formData = Object.fromEntries(form);
-      const data = await handleUpdate(module, item._id, formData);
+      const data = await handleUpdate(module, item._id, formData, language);
       if (data.status == 200) {
         router.replace(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
         notify.changeNotify("success", data.message);
@@ -70,6 +74,10 @@ const FormUpdate = ({ module, item, fields, moduleStore }) => {
       }
     });
   };
+
+  useEffect(() => {
+    setOldData(item);
+  }, [item]);
 
   const fieldLeft = fields
     .filter((field) => {
@@ -118,6 +126,7 @@ const FormUpdate = ({ module, item, fields, moduleStore }) => {
                   defaultValue={oldData[field.name]}
                   oldData={oldData}
                   item={item}
+                  module={module}
                   field={field}
                 />
               </Group>
@@ -131,6 +140,7 @@ const FormUpdate = ({ module, item, fields, moduleStore }) => {
                   defaultValue={oldData[field.name]}
                   oldData={oldData}
                   item={item}
+                  module={module}
                   field={field}
                 />
               </Group>
@@ -147,6 +157,7 @@ const FormUpdate = ({ module, item, fields, moduleStore }) => {
                   defaultValue={oldData[field.name]}
                   oldData={oldData}
                   item={item}
+                  module={module}
                   field={field}
                 />
               </Group>
