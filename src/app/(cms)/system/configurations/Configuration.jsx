@@ -88,7 +88,6 @@ const ConfigurationComponent = () => {
 
   useEffect(() => {
     const item = data["language"]?.find((item) => item.default === "active");
-    console.log(item);
     if (!item) return;
     setDefaultLanguage((prev) => {
       if (prev != item.code) {
