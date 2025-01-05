@@ -28,7 +28,7 @@ const ImageComponent = ({ value, item, field }) => {
         sizes="100vw"
         style={{ width: "80px", height: "80px", objectFit: "contain" }}
         quality={100}
-        alt={item["name"] || item["username"]}
+        alt={""}
       />
     </div>
   );

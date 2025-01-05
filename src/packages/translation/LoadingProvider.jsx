@@ -13,16 +13,16 @@ const LoadingProvider = ({ children, fallback }) => {
   useEffect(() => {
     setCurrentPathname((prev) => {
       if (prev !== pathname) {
+        setTransition(false);
         return pathname;
       }
-      setTransition(false);
       return prev;
     });
     setSearchParamString((prev) => {
       if (prev !== searchParams.toString()) {
+        setTransition(false);
         return searchParams.toString();
       }
-      setTransition(false);
       return prev;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

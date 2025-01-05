@@ -23,6 +23,7 @@ import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 import EditItem from "./components/buttons/EditItem";
 import ReadItem from "./components/buttons/ReadItem";
 import CopyItem from "./components/buttons/CopyItem";
+import Language from "./components/buttons/Language";
 
 const components = {
   text: Text,
@@ -40,18 +41,23 @@ const componentActions = {
   delete: DeleteItem,
   edit: EditItem,
   read: ReadItem,
-  copy: CopyItem
+  copy: CopyItem,
 };
 
-const cacheGetDataModule = cache(async (module, limit, page) => {
-  return await getDataModule(module, limit, page);
+const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
+  return await getDataModule(module, limit, page, searchParams);
 });
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const { module } = await params;
-  const { data } = await cacheGetDataModule(module);
+  const { data } = await cacheGetDataModule(
+    module,
+    undefined,
+    undefined,
+    searchParams
+  );
   if (Object.keys(data).length === 0) redirect("/403");
   let { module: moduleMain } = data;
   return {
@@ -97,15 +103,17 @@ const Module = async ({ params, searchParams }) => {
       <div className="px-4 relative">
         <div className="flex py-4 sticky top-0 z-10 bg-white">
           <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
-          <div className="ml-auto">
-            {user?.permissions.includes(`${module}.create`) && !moduleMain?.no_add && (
-              <LinkCustom
-                href={`${module}/create`}
-                className={"bg-blue-400 inline-block px-2 py-1 rounded-md"}
-              >
-                Thêm
-              </LinkCustom>
-            )}
+          <div className="ml-auto flex gap-4">
+            <Language module={module} moduleMain={moduleMain} />
+            {user?.permissions.includes(`${module}.create`) &&
+              !moduleMain?.no_add && (
+                <LinkCustom
+                  href={`${module}/create`}
+                  className={"bg-blue-400 inline-block px-2 py-1 rounded-md"}
+                >
+                  Thêm
+                </LinkCustom>
+              )}
           </div>
         </div>
         <HeaderTable />

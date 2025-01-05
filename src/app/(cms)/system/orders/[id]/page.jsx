@@ -71,14 +71,19 @@ const DetailComponent = async ({ params }) => {
                 {item.order_details.map((item) => (
                   <tr key={item._id}>
                     <td className="border-r border-b px-4">
-                      <span>
+                      <span className="flex items-center gap-2">
                         <Image
                           src={showImageUrl(item.image)}
                           width={50}
                           height={50}
                           alt=""
                         />
-                        {item.name}
+                        <div>
+                          <h3>{item.name}</h3>
+                          <span className="text-sm text-gray-700">
+                            {typeof item.variants === "string" && JSON.parse(item.variants).join(" - ")}
+                          </span>
+                        </div>
                       </span>
                     </td>
                     <td className="border-r border-b px-4">{item.qty}</td>

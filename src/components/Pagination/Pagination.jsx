@@ -8,11 +8,11 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
     const obj = {
       ...searchParams,
       limit,
-      page
-    }
+      page,
+    };
 
     return new URLSearchParams(obj).toString();
-  } 
+  };
   return (
     <div className="flex items-center justify-between mt-4 flex-wrap pb-4">
       <div className="flex gap-2 items-center">
@@ -45,9 +45,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
           if (
             [1, 2, 3].includes(index + 1) ||
             [totalPages - 2, totalPages - 1, totalPages].includes(index + 1) ||
-            index + 1 == page ||
-            index + 1 == page - 1 ||
-            index + 1 == page + 1
+            (index + 1 >= +page - 2 && index + 1 <= +page + 2)
           ) {
             return (
               <LinkCustom
@@ -63,10 +61,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
                 {index + 1}
               </LinkCustom>
             );
-          } else if (
-            index + 1 == 4 ||
-            (index + 1 == totalPages - 3 && totalPages > 6)
-          ) {
+          } else if (index + 1 == totalPages - 3 && totalPages > 6) {
             return <span key={index}>...</span>;
           }
           return null;

@@ -32,8 +32,11 @@ const HeaderTable = () => {
   })[0];
 
   const handleSubmit = async (form) => {
-    const searchParams = new URLSearchParams(Object.fromEntries(form));
-    router.replace(pathname + "?" + searchParams.toString());
+    const newSeachParams = new URLSearchParams({
+      ...Object.fromEntries(searchParams),
+      ...Object.fromEntries(form),
+    });
+    router.replace(pathname + "?" + newSeachParams.toString());
   };
 
   const downloadFileExcel = async () => {

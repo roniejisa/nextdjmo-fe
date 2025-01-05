@@ -7,10 +7,15 @@ import { redirect } from "next/navigation";
 const moduleDetail = async (module, language) => {
   const storeCookie = await cookies();
   const token = storeCookie.get("token")?.value;
-  return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}/create` + (language ? `?language=${language}` : ''), {
-    isAdmin: 1,
-    Authorization: `Bearer ${token}`,
-  });
+  return httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL +
+      `${module}/create` +
+      (language ? `?language=${language}` : ""),
+    {
+      isAdmin: 1,
+      Authorization: `Bearer ${token}`,
+    }
+  );
 };
 
 export async function generateMetadata({ params }) {
@@ -33,13 +38,14 @@ const createForm = async ({ params, searchParams }) => {
     isMultiple &&
     (!language ||
       moduleStore.langs.find((item) => item.code === language) === undefined)
-  )
+  ) {
     return redirect(
       process.env.NEXT_PUBLIC_ADMIN_URL +
         `${module}/create?language=${moduleStore.default_lang}`
     );
+  }
 
-    // Hết kiểm tra này
+  // Hết kiểm tra này
   fields = fields.filter((field) => {
     field.hiddenForm = field.hiddenForm ?? 0;
     return field.hiddenForm === 0;
