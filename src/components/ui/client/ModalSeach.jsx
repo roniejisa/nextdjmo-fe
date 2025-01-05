@@ -11,7 +11,8 @@ const ModalSeach = () => {
   const handleSubmit = async (form) => {
     const body = Object.fromEntries(form);
     const url = new URLSearchParams(body).toString();
-    router.replace(`/?${url}`)
+    router.push(`/?${url}`)
+    router.refresh();
     setShowModalSearch(false);
   };
 

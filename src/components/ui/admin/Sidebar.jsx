@@ -35,7 +35,7 @@ const Sidebar = ({ profile }) => {
       return "";
     }
   };
-  if (!profile || !profile.permissions) return router.replace("/");
+  if (!profile || !profile.permissions) return router.push("/");
   const { permissions } = profile;
   return (
     <aside className="invisible fixed lg:relative lg:visible w-[280px] shadow-lg h-screen lg:h-[calc(100vh-16px*2)] rounded-none lg:rounded-2xl bg-main flex-col pt-4">

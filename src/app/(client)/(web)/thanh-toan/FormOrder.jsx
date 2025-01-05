@@ -20,6 +20,7 @@ const FormOrder = ({ children }) => {
           window.location.href = response.data.url;
         } else {
           await router.push("/dat-hang-thanh-cong");
+          await router.refresh();
         }
         setTotalOrders(0);
         setOrders([]);

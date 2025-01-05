@@ -72,6 +72,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
             process.env.NEXT_PUBLIC_ADMIN_URL + `${data.data._id}?language=${language}`
           );
         router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
+        router.refresh();
         await notify.changeNotify("success", data.message);
         return;
       } else {

@@ -65,7 +65,8 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
       const formData = Object.fromEntries(form);
       const data = await handleUpdate(module, item._id, formData, language);
       if (data.status == 200) {
-        router.replace(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
+        router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
+        router.refresh(); // Làm mới dữ liệu sau khi chuyển route
         notify.changeNotify("success", data.message);
         return;
       } else {

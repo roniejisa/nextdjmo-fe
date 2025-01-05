@@ -18,9 +18,11 @@ const FormLogin = ({ msg, redirect }) => {
       if (response.status == 200) {
         notify.changeNotify("success", response.message);
         if (redirect) {
-          return router.replace(redirect, true);
+          router.push(redirect, true);
+        }else{
+          router.push("/system");
         }
-        return router.replace("/system");
+        router.refresh();
       } else {
         setOldData(formData);
         notify.changeNotify("error", response.message);

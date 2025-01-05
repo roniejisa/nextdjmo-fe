@@ -29,7 +29,7 @@ const useRouterCustom = () => {
   const replace = async (path, isRefresh = false) => {
     setTransition(true);
     setIsRefresh(isRefresh)
-    router.replace(path);
+    router.push(path);
   };
 
   const prefetch = async (path, isRefresh = false) => {

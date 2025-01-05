@@ -13,7 +13,7 @@ const MenuProfile = ({ id }) => {
     try {
       await handleLogout();
     } catch (e) {}
-    router.replace("/");
+    router.push("/");
   };
 
   return (

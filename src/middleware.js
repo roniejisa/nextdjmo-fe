@@ -114,6 +114,7 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
     // Tạo cookie riêng để làm phần đã xem
     const ssId = request.cookies.get('ssId') != undefined ? request.cookies.get('ssId').value : makeid(12)
     response.cookies.set('ssId', ssId, { httpOnly: true, secure: true, path: "/", sameSite: "strict" })
+    response.headers.set('Cache-Control', 'no-store, must-revalidate');
 
     return response
 }
@@ -134,12 +135,10 @@ export async function middleware(request) {
 
     // Nếu đường khác thì next cmnl ở đây đi 
     // Skip middleware for specific paths
-    if (pathname.startsWith('/api/')) {
-        return NextResponse.next();
-    }
-
-    if (method != 'GET') {
-        return NextResponse.next()
+    if (method != 'GET' || pathname.startsWith('/api/')) {
+        const response = NextResponse.next()
+        response.headers.set('Cache-Control', 'no-store, must-revalidate');
+        return response
     }
 
 
@@ -153,11 +152,14 @@ export async function middleware(request) {
     if (pathname === URL_LOGIN) {
         if (isAuthenticated === true) {
             // Nếu đã đăng nhập, chuyển hướng về trang chủ
-            return NextResponse.redirect(new URL('/', request.url))
+            const response = NextResponse.redirect(new URL('/', request.url))
+            response.headers.set('Cache-Control', 'no-store, must-revalidate');
+            return response
         }
 
         // Nếu không xác thực, xóa cookie và tiếp tục
         const response = NextResponse.next()
+        response.headers.set('Cache-Control', 'no-store, must-revalidate');
         deleteTokens(response)
         return response
     }
@@ -169,6 +171,7 @@ export async function middleware(request) {
     if (isRedirectLogin) {
         // Nếu chưa xác thực, chuyển hướng đến trang đăng nhập
         const response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
+        response.headers.set('Cache-Control', 'no-store, must-revalidate');
         return response
     }
 

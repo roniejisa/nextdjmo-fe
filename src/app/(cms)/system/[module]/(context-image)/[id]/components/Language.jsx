@@ -12,7 +12,7 @@ const Language = ({ field, module, item }) => {
   );
   const changeLanguage = async (e) => {
     setLanguage(e.target.value);
-    router.replace(
+    router.push(
       process.env.NEXT_PUBLIC_ADMIN_URL +
         `${module}/${item._id}?language=${e.target.value}`
     );

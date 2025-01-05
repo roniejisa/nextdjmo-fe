@@ -11,7 +11,7 @@ const LinkCustom = ({ children, href, isRefresh = false, ...props }) => {
   const changePage = (e) => {
     e.preventDefault();
     if (currentPathname + searchParamString != href.replace("?", ""))
-      router.replace(href, isRefresh);
+      router.push(href, isRefresh);
   };
   return (
     <Link href={href} onClick={changePage} {...props}>
