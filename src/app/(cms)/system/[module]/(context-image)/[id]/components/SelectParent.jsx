@@ -80,14 +80,12 @@ const SelectParent = ({ defaultValue, item, field }) => {
   const [value, setValue] = useState(defaultValue);
   const getListData = async () => {
     const data = await getData(field.module, item, field);
-    console.log(data);
     if (data.status == 200) {
       const list = buildHierarchy(data.data.items, {
         field_id: field.module_id,
         field_label: field.module_label,
         field_parent_id: field.name,
       });
-      console.log(list);
       setList(list);
     }
   };
