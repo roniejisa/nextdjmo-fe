@@ -18,7 +18,7 @@ const Sidebar = ({ profile }) => {
   const checkActiveMenu = (link, hasChild = false) => {
     if (link === "") {
       if (pathname === process.env.NEXT_PUBLIC_ADMIN_URL.slice(0, -1) + link) {
-        return "text-outline";
+        return "text-outline font-medium";
       }
       return "";
     }
@@ -29,8 +29,8 @@ const Sidebar = ({ profile }) => {
       })
     ) {
       return hasChild
-        ? "bg-[#2a85ff1a] text-outline rounded-md active"
-        : "text-outline rounded-md";
+        ? "bg-[#2a85ff1a] text-outline rounded-md active font-medium"
+        : "text-outline rounded-md font-medium";
     } else {
       return "";
     }
@@ -132,7 +132,7 @@ const Sidebar = ({ profile }) => {
                                     process.env.NEXT_PUBLIC_ADMIN_URL +
                                     itemChild.add
                                   }
-                                  className="mr-4 text-xl"
+                                  className="px-4 py-2 text-xl"
                                   title="Thêm"
                                 >
                                   +
@@ -155,7 +155,7 @@ const Sidebar = ({ profile }) => {
                           ? process.env.NEXT_PUBLIC_ADMIN_URL.slice(0, -1)
                           : process.env.NEXT_PUBLIC_ADMIN_URL + item.link
                       }
-                      className={`block px-4 py-2`}
+                      className={`block px-4 w-full py-2`}
                     >
                       <span className="flex items-center gap-2">
                         <IconComponent className="w-5 h-5" />
@@ -165,7 +165,7 @@ const Sidebar = ({ profile }) => {
                     {item.add && permissions.includes(`${item.link}.create`) ? (
                       <LinkCustom
                         href={process.env.NEXT_PUBLIC_ADMIN_URL + item.add}
-                        className="mr-4 text-xl"
+                        className="px-4 py-2 text-xl"
                         title="Thêm"
                       >
                         +

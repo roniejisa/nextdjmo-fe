@@ -120,3 +120,14 @@ body {
   stroke: white;
   fill: white;
 }
+
+.tui-image-editor-container{
+  height: calc(100vh - 40px * 2 - 56px) !important;
+}
+
+svg:has(#tui-image-editor-svg-default-icons){
+  position: fixed;
+  z-index: 0;
+  height: 0;
+  width: 0;
+}

@@ -1,11 +1,11 @@
 import Image from "next/image";
-import React, { useRef, useState } from "react";
-import MediaItem from "../MediaItem";
-import { convertSize } from "@/utils/client/util";
+import React, { useRef } from "react";
+import { convertSize, showImageUrl } from "@/utils/client/util";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
 
-const ImageType = ({ filename, url, file_info, extention, _id }) => {
+const ImageType = ({ media }) => {
+  const { filename, url, file_info, extention, _id } = media;
   let fileInfo = file_info;
   if (typeof file_info === "string") {
     fileInfo = JSON.parse(file_info.replaceAll("'", '"')) ?? {};
@@ -29,7 +29,7 @@ const ImageType = ({ filename, url, file_info, extention, _id }) => {
           attribute: {
             onClick: () =>
               setEditorImage({
-                url,
+                url: showImageUrl(media),
                 filename,
                 fileInfo,
                 extention,
@@ -42,22 +42,20 @@ const ImageType = ({ filename, url, file_info, extention, _id }) => {
       ]);
     }, 200);
   };
-
   return (
-    <div className="relative" onContextMenu={handleShowContextMenu}>
+    <div className="rounded-md" onContextMenu={handleShowContextMenu}>
       <Image
         ref={imageRef}
-        src={process.env.NEXT_PUBLIC_ENDPOINT_URL + url}
-        width={0}
-        height={0}
-        className="w-auto h-[160px] object-contain mx-auto"
+        src={showImageUrl(media)}
+        fill={true}
+        className="rounded-lg object-contain shadow-[0_0_5px_1px_rgba(0,0,0,.2)]"
         sizes="100vw"
         alt="image"
       />
-      <div className="absolute bottom-0 rounded-lg bg-[#00000040] px-2 w-full">
+      <div className="absolute bottom-0 rounded-lg bg-black px-2 w-full">
         <p className="line-clamp-1 text-white">{filename}</p>
         {size ? (
-          <p className="line-clamp-1 text-white">{convertSize(size)}</p>
+          <p className="line-clamp-1 text-gray-500">{convertSize(size)}</p>
         ) : null}
       </div>
     </div>

@@ -3,6 +3,7 @@ import { createContext, useContext, useRef, useState } from "react";
 
 export const MediaContext = createContext(null);
 const MediaProvider = ({ children }) => {
+  const [folders, setFolders] = useState([]);
   const [medias, setMedias] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
   const [showCreateFolder, setShowCreateFolder] = useState(false);
@@ -26,6 +27,8 @@ const MediaProvider = ({ children }) => {
   return (
     <MediaContext.Provider
       value={{
+        folders,
+        setFolders,
         medias,
         setMedias,
         showUpload,

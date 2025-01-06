@@ -27,6 +27,7 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
     } else if (body instanceof FormData) {
       options.body = body
     }
+
     const response = await fetch(url, options);
     // Không cần xử lý refresh token nữa vì khi chạy qua middleware thì nó đã tự động lấy lại rồi
     const data = await response.json();
@@ -51,13 +52,13 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
           }, body, method, hasPrefixHeader, true);
         } else return clearTokensAndRedirect()
       } else {
-        return handleLoginRedirect(msg, searchParams)
+        // return handleLoginRedirect(msg, searchParams)
       }
     }
     return data
   } catch (e) {
     console.log(e)
-    return handleLoginRedirect(msg, searchParams)
+    // return handleLoginRedirect(msg, searchParams)
   }
 };
 

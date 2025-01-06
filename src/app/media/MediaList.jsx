@@ -13,7 +13,13 @@ import ImageType from "./types/ImageType";
 import VideoType from "./types/VideoType";
 import MediaItem from "./MediaItem";
 import { GalleryContext } from "@/context/ImageProvider";
-import { httpClient } from "@/utils/http";
+// import { httpClient } from "@/utils/http";
+import { fetchPosts, getFolders } from "./action";
+import FolderUpload from "@/components/Icon/svg/FolderUpload";
+import Dot from "@/components/Icon/svg/Dot";
+import Trash from "@/components/Icon/svg/Trash";
+import Edit from "@/components/Icon/svg/Edit";
+import Open from "@/components/Icon/svg/Open";
 
 const mediaType = {
   ".png": ImageType,
@@ -24,43 +30,15 @@ const mediaType = {
   ".mp4": VideoType,
 };
 
-const fetchPosts = async (limit = 10, page = 1, obj = {}, token) => {
-  limit = limit ?? 10;
-  page = page ?? 1;
-  const mediaLists = [];
-  // const storeMedia = localStorage.getItem("mediaStore") || "[]";
-  // const mediaLists = JSON.parse(storeMedia);
-  //   try {
-  const response = await httpClient(
-    process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/" + ``,
-    {
-      Authorization: `Bearer ${token}`,
-    },
-    { limit: limit, page: page, ...obj },
-    "GET",
-    false
-  );
-  const { data: medias } = response;
-  Array.isArray(medias) &&
-    medias?.forEach((media) => {
-      if (!mediaLists.find((p) => p._id === media._id)) {
-        mediaLists.push(media);
-      }
-    });
-
-  localStorage.setItem("mediaStore", JSON.stringify(mediaLists));
-  return mediaLists;
-  //   } catch (e) {
-  //     return mediaLists;
-  //   }
-};
-const MediaList = ({ token }) => {
+const MediaList = () => {
   const limitRef = useRef(20);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const observerRef = useRef();
   const loadedPages = useRef(new Set());
   const {
+    folders,
+    setFolders,
     medias,
     setMedias,
     canvasRef,
@@ -79,10 +57,30 @@ const MediaList = ({ token }) => {
 
   const { setChoosed, setListImage, isMultiple } = useContext(GalleryContext);
 
+  const [openMenuIndex, setOpenMenuIndex] = useState(null); // Lưu index của menu đang mở
+  const menuRefs = useRef([]); // Mảng chứa ref của từng menu
+
   useEffect(() => {
     itemsRef.current = Array.from(document.querySelectorAll(".item"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medias]);
+
+  const handleClickOutside = (event) => {
+    // Kiểm tra nếu click xảy ra ngoài tất cả các menu
+    
+    if (menuRefs.current.some((ref) => {
+      return event.target.contains(ref.el)
+    })) {
+      setOpenMenuIndex(null); // Đóng menu
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     // Refresh items on mount
@@ -387,7 +385,7 @@ const MediaList = ({ token }) => {
   const loadMedias = useCallback(async () => {
     if (loadedPages.current.has(page)) return; // Nếu trang đã được tải, không làm gì cả
     setIsLoading(true);
-    const posts = await fetchPosts(limitRef.current, page, {}, token);
+    const posts = await fetchPosts(limitRef.current, page, {});
     setMedias((prevPosts) => {
       const allPosts = [...prevPosts, ...posts];
       // Lọc bài viết trùng dựa trên `id`
@@ -428,31 +426,104 @@ const MediaList = ({ token }) => {
     return () => observer.disconnect();
   }, [medias, page]);
 
+  const getFolder = async () => {
+    const response = await getFolders({ media_id: null });
+    setFolders(response.data);
+  };
+
+  useEffect(() => {
+    getFolder();
+  }, []);
   return (
     <>
-      <section
-        ref={mediaItemRef}
-        className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] p-4 select-none bg-white gap-4 max-h-[calc(100%-140px)] overflow-auto file-selector"
-        onMouseDown={handleMouseDown}
-      >
-        {medias?.map((media, index) => {
-          const Component = mediaType[media.extention];
-          return (
-            <MediaItem
-              key={media._id}
-              {...media}
-              className="item has-[input:checked]:border-green-400"
-              onClick={handleClick}
-              index={index}
-              onDoubleClick={(e) => handleDoubleClick(e, media)}
-            >
-              <input type="checkbox" hidden />
-              <Component {...media} />
-            </MediaItem>
-          );
-        })}
-        <span ref={observerRef} className="w-full"></span>
-      </section>
+      {folders && folders.length > 0 && (
+        <div className="">
+          <h3 className="mb-3 text-xl px-4 font-medium">Thư mục</h3>
+          <div className="grid grid-cols-4 gap-4 p-4">
+            {folders?.map((folder) => (
+              <div
+                key={folder._id}
+                className={"col-span-1"}
+                ref={(el) => {
+                  if (
+                    menuRefs.current.filter((menu) => menu.id != folder._id)
+                  ) {
+                    menuRefs.current.push({
+                      id: folder._id,
+                      el,
+                    });
+                  }
+                }}
+              >
+                <div className="border rounded-lg p-4 cursor-pointer hover:shadow-2xl transition-all flex items-center justify-between">
+                  <div className="flex items-center gap-4 font-bold">
+                    <FolderUpload />
+                    <span>{folder.filename}</span>
+                  </div>
+                  <label
+                    className="w-6 h-6 flex justify-center items-center cursor-pointer rounded-md hover:bg-gray-100 relative"
+                    onClick={() => setOpenMenuIndex(folder._id)}
+                  >
+                    {openMenuIndex === folder._id && (
+                      <div className="min-w-[150px] absolute top-full right-0 shadow-lg bg-white rounded-md">
+                        <ul className="w-full p-2">
+                          <li>
+                            <button className="p-2 flex items-center gap-2 transition-all hover:bg-gray-200 w-full rounded-md">
+                              <Open />
+                              <span>Mở thư mục</span>
+                            </button>
+                          </li>
+                          <li>
+                            <button className="p-2 flex items-center gap-2 transition-all hover:bg-gray-200 w-full rounded-md">
+                              <Edit />
+                              <span>Sửa tên</span>
+                            </button>
+                          </li>
+                          <li>
+                            <button className="p-2 flex items-center gap-2 text-red-400 transition-all hover:bg-gray-200 w-full rounded-md">
+                              <Trash />
+                              <span>Xóa</span>
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
+                    )}
+                    <Dot />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {medias && medias.length > 0 && (
+        <div>
+          <h3 className="mb-3 text-xl px-4 font-medium">Tệp tin</h3>
+          <section
+            ref={mediaItemRef}
+            className="grid grid-cols-[repeat(auto-fill,minmax(calc(100%/12),1fr))] p-4 select-none bg-white gap-4 max-h-[calc(100%-140px)] overflow-auto file-selector"
+            onMouseDown={handleMouseDown}
+          >
+            {medias?.map((media, index) => {
+              const Component = mediaType[media.extention];
+              return (
+                <MediaItem
+                  key={index}
+                  {...media}
+                  className="item has-[input:checked]:border-green-400 has-[input:checked]:border-2 border-2 border-transparent"
+                  onClick={handleClick}
+                  index={index}
+                  onDoubleClick={(e) => handleDoubleClick(e, media)}
+                >
+                  <input type="checkbox" hidden />
+                  <Component media={media} />
+                </MediaItem>
+              );
+            })}
+            <span ref={observerRef} className="w-full"></span>
+          </section>
+        </div>
+      )}
       {isLoading && (
         <div className="text-center flex justify-center mb-[60px]">
           <svg

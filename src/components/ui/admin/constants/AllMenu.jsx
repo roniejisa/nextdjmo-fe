@@ -124,10 +124,10 @@ export const allMenu = [
     add: "links/create",
   },
   {
-    id: 4,
+    id: 10,
     name: "Tệp tin",
     link: "files",
-    icon: "link",
+    icon: "folder",
   },
   {
     id: 5,

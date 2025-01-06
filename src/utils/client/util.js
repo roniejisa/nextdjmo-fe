@@ -2,7 +2,7 @@ import { httpClient } from "../http";
 
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 
-export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia) => {
+export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia, token) => {
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
     for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
@@ -17,8 +17,9 @@ export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia)
         formData.append("totalChunks", totalChunks);
         formData.append("file_id", file_id);
         try {
-            const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "media/upload-file", {
-            }, formData, "POST", false);
+            const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/upload-file", {
+                Authorization: `Bearer ${token}`
+            }, formData, "POST");
             if (response.status != 201) return false
             const percentage = Math.round(((chunkIndex + 1) / totalChunks) * 100);
             onProgress(percentage); // Gọi callback cập nhật tiến độ
@@ -32,23 +33,26 @@ export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia)
     return true; // Upload hoàn tất
 };
 
-export const convertSize = (bytes, decimals = 2) => {
-    if (!+bytes) return '0 Bytes'
+export const convertSize = (bytes, decimals = 1) => {
+    if (!+bytes) return '0 B'
     const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+    let dm = decimals < 0 ? 0 : decimals
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
+    if(i < 3){
+        dm = 0
+    }
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
 
+
 export const showImageUrl = (imageData) => {
     const baseUrl = process.env.NEXT_PUBLIC_ENDPOINT_URL?.replace(/\/?$/, "/");
-
     if (!imageData) return "/next.svg";
 
     // Nếu `url` là object và có `url` bên trong
     if (typeof imageData === "object" && imageData?.url) {
-        return imageData.url.startsWith("/") ? baseUrl + imageData.url.slice(1) : imageData.url;
+        return imageData.url.startsWith("/") ? baseUrl + imageData.url.slice(1) : baseUrl + imageData.url;
     }
 
     // Nếu `url` là string và là URL đầy đủ
@@ -63,7 +67,7 @@ export const showImageUrl = (imageData) => {
         if (parsed?.url) {
             return parsed.url.startsWith("/")
                 ? baseUrl + parsed.url.slice(1)
-                : parsed.url;
+                : baseUrl + parsed.url;
         }
     } catch {
         // Bỏ qua lỗi nếu JSON không hợp lệ

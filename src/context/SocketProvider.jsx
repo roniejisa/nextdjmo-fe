@@ -184,7 +184,7 @@ export const SocketProvider = ({ children }) => {
     >
       {children}
       <div
-        className="fixed z-[999] bottom-20 right-0 rounded-md rounded-tr-none rounded-br-none border-r-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
+        className="fixed z-[999] bottom-0 right-10 rounded-md rounded-bl-none rounded-br-none border-b-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
         onClick={handleSend}
       >
         Online:{" "}
