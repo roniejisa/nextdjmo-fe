@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { httpClient } from './utils/http'
 
 // Sử dụng biến môi trường cho URL và API Key để dễ dàng cấu hình và bảo mật
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth' || 'http://localhost:8000/auth'
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth'
 const API_KEY = process.env.API_KEY || '123456'
 const URL_LOGIN = '/dang-nhap'
 const cache = new Map()

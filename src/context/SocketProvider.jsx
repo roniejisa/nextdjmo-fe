@@ -57,9 +57,9 @@ export const SocketProvider = ({ children }) => {
 
   const connectSocket = () => {
     if (socketRef.current) return;
-    socketRef.current = new WebSocket("ws://localhost:8765");
+    socketRef.current = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URL);
     socketRef.current.onopen = () => {
-      console.log("Đã kết nối");
+      // console.log("Đã kết nối");
       connectAndSendRequestForServer();
     };
 
@@ -76,13 +76,15 @@ export const SocketProvider = ({ children }) => {
     };
 
     socketRef.current.onclose = () => {
-      console.log("Disconnected");
+      // console.log("Disconnected");
       socketRef.current = null;
-      setTimeout(connectSocket, 10000); // Thử kết nối lại sau 3 giây
+      // Thử kết nối lại sau 3 giây
     };
 
     socketRef.current.onerror = (error) => {
-      console.error("WebSocket Error", error);
+      // console.error("WebSocket Error", error);
+      // Kết nối lại khi gặp lỗi
+      setTimeout(connectSocket, 10000);
     };
 
     socketRef.current.sendEncode = (obj) => {
@@ -101,9 +103,6 @@ export const SocketProvider = ({ children }) => {
         })
       );
     }
-  };
-  const checkHasInternet = (e) => {
-    connectSocket();
   };
 
   const checkNoInternet = (e) => {
@@ -124,22 +123,41 @@ export const SocketProvider = ({ children }) => {
             value: newId,
           }
         );
-        if(response.status){
+
+        if (response.status) {
           sessionIdRef.current = response.data.value;
         }
+
+        if (!sessionIdRef.current) {
+          return connectAndSendRequestForServer();
+        }
+
         alertConnectSocket();
       }
     } else {
       alertConnectSocket();
     }
   };
+
+  const disconnectWeb = () => {
+    if (socketRef.current) {
+      socketRef.current.sendEncode({
+        type: "disconnect",
+        data: {
+          id: sessionIdRef.current,
+        },
+      });
+    }
+  };
   useEffect(() => {
     connectSocket();
-    window.addEventListener("online", checkHasInternet);
+    window.addEventListener("online", connectSocket);
     window.addEventListener("offline", checkNoInternet);
+    window.addEventListener("beforeunload", disconnectWeb);
     return () => {
-      window.removeEventListener("online", checkHasInternet);
+      window.removeEventListener("online", connectSocket);
       window.removeEventListener("offline", checkNoInternet);
+      window.removeEventListener("beforeunload", disconnectWeb);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -147,14 +165,18 @@ export const SocketProvider = ({ children }) => {
     typeRef.current = { ...typeRef.current, [type]: callback };
   };
   const handleSend = () => {
-    socketRef.current.send(
-      encryptData({
-        type: "update-count",
-        data: {
-          id: sessionIdRef.current,
-        },
-      })
-    );
+    if (socketRef.current) {
+      socketRef.current.send(
+        encryptData({
+          type: "update-count",
+          data: {
+            id: sessionIdRef.current,
+          },
+        })
+      );
+    } else {
+      connectSocket();
+    }
   };
   return (
     <SocketContext.Provider
@@ -165,7 +187,10 @@ export const SocketProvider = ({ children }) => {
         className="fixed z-[999] bottom-20 right-0 rounded-md rounded-tr-none rounded-br-none border-r-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
         onClick={handleSend}
       >
-        Online: <span className="ml-2" ref={onlineRef}>0</span>
+        Online:{" "}
+        <span className="ml-2" ref={onlineRef}>
+          0
+        </span>
       </div>
     </SocketContext.Provider>
   );
