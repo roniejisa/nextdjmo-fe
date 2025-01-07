@@ -5,8 +5,8 @@ import {
   convertSize,
   uploadFileResumable,
 } from "@/utils/client/util";
-import { useRef, useState } from "react";
-import { useMedia } from "./MediaProvider";
+import { useContext, useRef, useState, useTransition } from "react";
+import { MediaContext, useMedia } from "./MediaProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import ImageUpload from "@/components/Icon/svg/ImageUpload";
 import CloseIcon from "@/components/Icon/svg/Close";
@@ -14,60 +14,71 @@ import Image from "next/image";
 
 const UploadForm = ({ media_id, token }) => {
   const [progress, setProgress] = useState(0);
+  const [isPending, startTransition] = useTransition();
   const countChunkCurrentRef = useRef(0);
   const [uploading, setUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const setMedias = useMedia(({ setMedias }) => setMedias);
+  const { breadcrumbs } = useContext(MediaContext);
   const [files, setFiles] = useState([]);
   const fileListRef = useRef(new DataTransfer());
   const notify = useNotify();
   const modalRef = useRef(null);
   const handleUploadFile = async (e) => {
     e.preventDefault();
-    if (fileListRef.current.files.length > 0) {
-      setUploading(true);
-    } else {
-      notify.changeNotify("error", "Vui lòng chọn file");
-      return;
-    }
-
-    let totalChunks = 0;
-    for (const file of fileListRef.current.files) {
-      totalChunks += Math.ceil(file.size / CHUNK_SIZE);
-    }
-
-    for await (const file of fileListRef.current.files) {
-      // random media_id str and text 10 ký tự
-      const file_id = Math.random().toString(36).slice(-10);
-      const response = await uploadFileResumable(
-        file,
-        file_id,
-        () => {
-          countChunkCurrentRef.current += 1;
-          const percentage = Math.round(
-            (countChunkCurrentRef.current / totalChunks) * 100
-          );
-          setProgress(percentage);
-        }, // Cập nhật tiến độ upload
-        (media) => {
-          if (media && media.message && typeof media.message == "string")
-            return;
-          setMedias((medias) => [media, ...medias]);
-        },
-        token
-      );
-      if (response.status) {
-        notify.changeNotify("error", response.message);
-        return false;
+    startTransition(async () => {
+      if (fileListRef.current.files.length > 0) {
+        setUploading(true);
+      } else {
+        notify.changeNotify("error", "Vui lòng chọn file");
+        return;
       }
-    }
-    fileListRef.current = new DataTransfer();
-    setTimeout(() => {
-      setShowModal(false);
-      setUploading(false);
-      setProgress(0);
-      setFiles([]);
-    }, 200);
+
+      let totalChunks = 0;
+      for (const file of fileListRef.current.files) {
+        totalChunks += Math.ceil(file.size / CHUNK_SIZE);
+      }
+
+      for await (const file of fileListRef.current.files) {
+        const obj = {
+          file_id: Math.random().toString(36).slice(-10),
+        };
+        if (breadcrumbs.length > 0) {
+          obj.media_id = breadcrumbs[breadcrumbs.length - 1]._id;
+        }
+        // random media_id str and text 10 ký tự
+        const response = await uploadFileResumable(
+          file,
+          obj,
+          () => {
+            countChunkCurrentRef.current += 1;
+            const percentage = Math.round(
+              (countChunkCurrentRef.current / totalChunks) * 100
+            );
+            setProgress(percentage);
+          }, // Cập nhật tiến độ upload
+          (media) => {
+            if (media && media.message && typeof media.message == "string")
+              return;
+            setMedias((medias) => [media, ...medias]);
+          },
+          token
+        );
+        if (response.status) {
+          notify.changeNotify("error", response.message);
+          return false;
+        }
+      }
+      fileListRef.current = new DataTransfer();
+      setTimeout(() => {
+        notify.changeNotify("success", "Tải lên thành công");
+        countChunkCurrentRef.current = 0;
+        setShowModal(false);
+        setUploading(false);
+        setProgress(0);
+        setFiles([]);
+      }, 200);
+    });
   };
 
   const handleChangeFile = (e) => {
@@ -170,7 +181,10 @@ const UploadForm = ({ media_id, token }) => {
                 }}
               ></div>
             </div>
-            <form onSubmit={handleUploadFile}>
+            <form
+              onSubmit={handleUploadFile}
+              className={isPending || uploading ? "pointer-events-none" : ""}
+            >
               <label onDragOver={handleDragOver} onDrop={handleDrop}>
                 <div className="flex items-center gap-2 flex-col justify-center transition-all duration-300 rounded-md border-2 border-dashed hover:border-outline py-2">
                   <ImageUpload />
@@ -242,7 +256,10 @@ const UploadForm = ({ media_id, token }) => {
                   hidden
                 />
               )}
-              <button className="bg-outline mt-4 py-2 px-4 rounded-lg text-white w-full">
+              <button
+                className="bg-outline mt-4 py-2 px-4 rounded-lg text-white w-full [&[disabled]]:cursor-not-allowed [&[disabled]]:opacity-50 [&[disabled]]:pointer-events-none"
+                disabled={isPending || uploading}
+              >
                 Tải lên
               </button>
             </form>

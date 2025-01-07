@@ -8,12 +8,14 @@ import { useNotify } from "@/context/NotifyProvider";
 
 const CreateFolder = () => {
   const [folder, setFolder] = useState("");
-  const { folders, setFolders } = useContext(MediaContext);
+  const { folders, setFolders, breadcrumbs } = useContext(MediaContext);
   const [showModal, setShowModal] = useState(false);
-  const notify = useNotify()
+  const notify = useNotify();
   const modalRef = useRef(null);
   const handleCreateFolder = async (form) => {
     const body = Object.fromEntries(form);
+    if (breadcrumbs.length > 0)
+      body.media_id = breadcrumbs[breadcrumbs.length - 1]._id;
     const data = await postCreateFolder(body);
     if (data.status == 200) {
       setFolders([...folders, data.data]);

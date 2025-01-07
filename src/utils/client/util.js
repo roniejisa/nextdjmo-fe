@@ -2,7 +2,7 @@ import { httpClient } from "../http";
 
 export const CHUNK_SIZE = 2 * 1024 * 1024; // 5MB
 
-export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia, token) => {
+export const uploadFileResumable = async (file, obj, onProgress, onSetMedia, token) => {
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
     for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
@@ -14,7 +14,10 @@ export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia,
         formData.append("fileName", file.name);
         formData.append("chunkIndex", chunkIndex);
         formData.append("totalChunks", totalChunks);
-        formData.append("file_id", file_id);
+        if(obj.media_id){
+            formData.append("media_id", obj.media_id);
+        }
+        formData.append("file_id", obj.file_id);
         // try {
         const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/upload-file", {
             Authorization: `Bearer ${token}`,

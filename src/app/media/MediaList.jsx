@@ -21,6 +21,8 @@ import Trash from "@/components/Icon/svg/Trash";
 import Edit from "@/components/Icon/svg/Edit";
 import Open from "@/components/Icon/svg/Open";
 import DefaultType from "./types/DefaultType";
+import { useRouter } from "next/navigation";
+import Folder from "./Folder";
 
 const mediaType = {
   ".png": ImageType,
@@ -29,18 +31,15 @@ const mediaType = {
   ".gif": ImageType,
   ".webp": ImageType,
   ".mp4": VideoType,
-  "default": DefaultType
+  default: DefaultType,
 };
 
 const MediaList = () => {
   const limitRef = useRef(20);
-  const [page, setPage] = useState(1);
+
   const [isLoading, setIsLoading] = useState(false);
   const observerRef = useRef();
-  const loadedPages = useRef(new Set());
   const {
-    folders,
-    setFolders,
     medias,
     setMedias,
     canvasRef,
@@ -55,38 +54,21 @@ const MediaList = () => {
     pageYRef,
     movePageX,
     movePageY,
+    breadcrumbs,
+    page,
+    setPage,
+    loadedPages,
   } = useMedia((media) => media);
 
   const { setChoosed, setListImage, isMultiple } = useContext(GalleryContext);
-
-  const [openMenuIndex, setOpenMenuIndex] = useState(null); // Lưu index của menu đang mở
-  const menuRefs = useRef([]); // Mảng chứa ref của từng menu
 
   useEffect(() => {
     itemsRef.current = Array.from(document.querySelectorAll(".item"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [medias]);
 
-  const handleClickOutside = (event) => {
-    // Kiểm tra nếu click xảy ra ngoài tất cả các menu
-    
-    if (menuRefs.current.some((ref) => {
-      return event.target.contains(ref.el)
-    })) {
-      setOpenMenuIndex(null); // Đóng menu
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   useEffect(() => {
     // Refresh items on mount
-
     document.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("mousemove", handleMouseMove);
     return () => {
@@ -94,12 +76,12 @@ const MediaList = () => {
       document.removeEventListener("mousemove", handleMouseMove);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [medias]);
+  }, [medias, breadcrumbs]);
 
   const handleMouseDown = useCallback(
     (event) => {
       event.preventDefault();
-      if (!event.target.closest(".item")) {
+      if (!event.target.closest(".item") && mediaItemRef.current) {
         selectingRef.current = true;
         itemsSelectingRef.current = getSelectedItems();
         canvasRef.current = document.createElement("canvas");
@@ -129,7 +111,7 @@ const MediaList = () => {
   );
 
   useEffect(() => {
-    if (canvasRef.current) {
+    if (canvasRef.current && mediaItemRef.current) {
       canvasRef.current.height = mediaItemRef.current.scrollHeight;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -387,7 +369,9 @@ const MediaList = () => {
   const loadMedias = useCallback(async () => {
     if (loadedPages.current.has(page)) return; // Nếu trang đã được tải, không làm gì cả
     setIsLoading(true);
-    const posts = await fetchPosts(limitRef.current, page, {});
+    const posts = await fetchPosts(limitRef.current, page, {
+      folder_id: breadcrumbs[breadcrumbs.length - 1]?._id || null,
+    });
     setMedias((prevPosts) => {
       const allPosts = [...prevPosts, ...posts];
       // Lọc bài viết trùng dựa trên `id`
@@ -399,11 +383,12 @@ const MediaList = () => {
     loadedPages.current.add(page);
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+  }, [page, breadcrumbs, loadedPages]);
 
   useEffect(() => {
     loadMedias();
-  }, [loadMedias]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [breadcrumbs, loadedPages, page]);
 
   useEffect(() => {
     if (!medias.length) return; // Không làm gì nếu danh sách trống
@@ -426,78 +411,12 @@ const MediaList = () => {
     observer.observe(observerRef.current);
 
     return () => observer.disconnect();
-  }, [medias, page]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [medias, page, breadcrumbs]);
 
-  const getFolder = async () => {
-    const response = await getFolders({ media_id: null });
-    setFolders(response.data);
-  };
-
-  useEffect(() => {
-    getFolder();
-  }, []);
   return (
     <>
-      {folders && folders.length > 0 && (
-        <div className="">
-          <h3 className="mb-3 text-xl px-4 font-medium">Thư mục</h3>
-          <div className="grid grid-cols-4 gap-4 p-4">
-            {folders?.map((folder) => (
-              <div
-                key={folder._id}
-                className={"col-span-1"}
-                ref={(el) => {
-                  if (
-                    menuRefs.current.filter((menu) => menu.id != folder._id)
-                  ) {
-                    menuRefs.current.push({
-                      id: folder._id,
-                      el,
-                    });
-                  }
-                }}
-              >
-                <div className="border rounded-lg p-4 cursor-pointer hover:shadow-2xl transition-all flex items-center justify-between">
-                  <div className="flex items-center gap-4 font-bold">
-                    <FolderUpload />
-                    <span>{folder.filename}</span>
-                  </div>
-                  <label
-                    className="w-6 h-6 flex justify-center items-center cursor-pointer rounded-md hover:bg-gray-100 relative"
-                    onClick={() => setOpenMenuIndex(folder._id)}
-                  >
-                    {openMenuIndex === folder._id && (
-                      <div className="min-w-[150px] absolute top-full right-0 shadow-lg bg-white rounded-md">
-                        <ul className="w-full p-2">
-                          <li>
-                            <button className="p-2 flex items-center gap-2 transition-all hover:bg-gray-200 w-full rounded-md">
-                              <Open />
-                              <span>Mở thư mục</span>
-                            </button>
-                          </li>
-                          <li>
-                            <button className="p-2 flex items-center gap-2 transition-all hover:bg-gray-200 w-full rounded-md">
-                              <Edit />
-                              <span>Sửa tên</span>
-                            </button>
-                          </li>
-                          <li>
-                            <button className="p-2 flex items-center gap-2 text-red-400 transition-all hover:bg-gray-200 w-full rounded-md">
-                              <Trash />
-                              <span>Xóa</span>
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    )}
-                    <Dot />
-                  </label>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <Folder />
       {medias && medias.length > 0 && (
         <div>
           <h3 className="mb-3 text-xl px-4 font-medium">Tệp tin</h3>
@@ -508,7 +427,7 @@ const MediaList = () => {
           >
             {medias?.map((media, index) => {
               let Component = mediaType[media.extention];
-              if(!Component){
+              if (!Component) {
                 Component = mediaType["default"];
               }
               return (
@@ -532,7 +451,7 @@ const MediaList = () => {
       {isLoading && (
         <div className="text-center flex justify-center mb-[60px]">
           <svg
-            className="text-gray-300 animate-spin"
+            className="text-gray-200 animate-spin"
             viewBox="0 0 64 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -552,7 +471,7 @@ const MediaList = () => {
               strokeWidth="5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-gray-900"
+              className="text-outline"
             ></path>
           </svg>
         </div>

@@ -1,4 +1,5 @@
 "use client";
+import MediaProvider from "@/app/media/MediaProvider";
 import MediaComponent from "@/components/Media/MediaComponent";
 import { createContext, useEffect, useRef, useState } from "react";
 
@@ -92,7 +93,9 @@ const ImageProvider = ({ children }) => {
         >
           <div className="max-w-[90vw] mx-auto" ref={imageRef}>
             <div className="bg-white py-4 px-4 shadow-md rounded-lg h-[calc(100vh-80px)] mt-10 relative">
-              <MediaComponent />
+              <MediaProvider>
+                <MediaComponent />
+              </MediaProvider>
             </div>
           </div>
         </div>

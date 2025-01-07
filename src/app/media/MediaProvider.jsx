@@ -1,12 +1,10 @@
 "use client";
 import { useNotify } from "@/context/NotifyProvider";
-import useRouterCustom from "@/packages/translation/Navigation";
-import { createContext, useContext, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 export const MediaContext = createContext(null);
 const MediaProvider = ({ children }) => {
   const notify = useNotify();
-  const router = useRouterCustom();
   const [folders, setFolders] = useState([]);
   const [medias, setMedias] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
@@ -14,7 +12,8 @@ const MediaProvider = ({ children }) => {
   const [editorImage, setEditorImage] = useState(null);
   const [menuPosition, setMenuPosition] = useState(null);
   const [listComponent, setListComponent] = useState([]);
-
+  const [breadcrumbs, setBreadcrumbs] = useState([]);
+  const [page, setPage] = useState(1);
   // SELECT
   const mediaItemRef = useRef(null);
   const canvasRef = useRef(null);
@@ -28,14 +27,17 @@ const MediaProvider = ({ children }) => {
   const pageYRef = useRef(0);
   const movePageX = useRef(0);
   const movePageY = useRef(0);
+  const loadedPages = useRef(new Set());
 
   const callbackMenu = (type, response, _id) => {
     switch (type) {
       case "delete-file":
-        setMedias(medias.filter((media) => media._id !== _id));
+        if (response.status == 200)
+          setMedias(medias.filter((media) => media._id !== _id));
         break;
       case "delete-folder":
-        setFolders(folders.filter((folder) => folder._id !== _id));
+        if (response.status == 200)
+          setFolders(folders.filter((folder) => folder._id !== _id));
         break;
     }
     if (response.status && response.message) {
@@ -44,11 +46,13 @@ const MediaProvider = ({ children }) => {
         response.message
       );
     }
-    
-    if (response.status == 200) {
-      router.refresh();
-    }
   };
+
+  useEffect(() => {
+    setMedias([]);
+    setFolders([]);
+    setPage(1);
+  }, [breadcrumbs]);
   return (
     <MediaContext.Provider
       value={{
@@ -79,6 +83,11 @@ const MediaProvider = ({ children }) => {
         movePageX,
         movePageY,
         callbackMenu,
+        breadcrumbs,
+        setBreadcrumbs,
+        page,
+        setPage,
+        loadedPages,
       }}
     >
       {children}

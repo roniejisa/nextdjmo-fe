@@ -21,9 +21,6 @@ const ImageType = ({ media }) => {
 
   const imageRef = useRef(null);
 
-  const responseData = async (response, id) => {
-    console.log(response);
-  };
   const handleShowContextMenu = (e) => {
     e.preventDefault();
 
