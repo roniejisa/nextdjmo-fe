@@ -1,6 +1,10 @@
 "use client";
 
-import { convertSize, uploadFileResumable } from "@/utils/client/util";
+import {
+  CHUNK_SIZE,
+  convertSize,
+  uploadFileResumable,
+} from "@/utils/client/util";
 import { useRef, useState } from "react";
 import { useMedia } from "./MediaProvider";
 import { useNotify } from "@/context/NotifyProvider";
@@ -10,6 +14,7 @@ import Image from "next/image";
 
 const UploadForm = ({ media_id, token }) => {
   const [progress, setProgress] = useState(0);
+  const countChunkCurrentRef = useRef(0);
   const [uploading, setUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const setMedias = useMedia(({ setMedias }) => setMedias);
@@ -26,24 +31,43 @@ const UploadForm = ({ media_id, token }) => {
       return;
     }
 
+    let totalChunks = 0;
+    for (const file of fileListRef.current.files) {
+      totalChunks += Math.ceil(file.size / CHUNK_SIZE);
+    }
+
     for await (const file of fileListRef.current.files) {
       // random media_id str and text 10 ký tự
       const file_id = Math.random().toString(36).slice(-10);
-      await uploadFileResumable(
+      const response = await uploadFileResumable(
         file,
         file_id,
-        (percent) => setProgress(percent), // Cập nhật tiến độ upload
+        () => {
+          countChunkCurrentRef.current += 1;
+          const percentage = Math.round(
+            (countChunkCurrentRef.current / totalChunks) * 100
+          );
+          setProgress(percentage);
+        }, // Cập nhật tiến độ upload
         (media) => {
           if (media && media.message && typeof media.message == "string")
             return;
           setMedias((medias) => [media, ...medias]);
-        }
+        },
+        token
       );
+      if (response.status) {
+        notify.changeNotify("error", response.message);
+        return false;
+      }
     }
     fileListRef.current = new DataTransfer();
-    setShowModal(false);
-    setUploading(false);
-    setProgress(0);
+    setTimeout(() => {
+      setShowModal(false);
+      setUploading(false);
+      setProgress(0);
+      setFiles([]);
+    }, 200);
   };
 
   const handleChangeFile = (e) => {
@@ -75,8 +99,8 @@ const UploadForm = ({ media_id, token }) => {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
-                clip-rule="evenodd"
+                fillRule="evenodd"
+                clipRule="evenodd"
                 d="M13.71 4.29l-3-3L10 1H4L3 2v12l1 1h9l1-1V5l-.29-.71zM13 14H4V2h5v4h4v8zm-3-9V2l3 3h-3z"
               ></path>
             </svg>
@@ -180,8 +204,8 @@ const UploadForm = ({ media_id, token }) => {
                             xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
-                              fill-rule="evenodd"
-                              clip-rule="evenodd"
+                              fillRule="evenodd"
+                              clipRule="evenodd"
                               d="M13.71 4.29l-3-3L10 1H4L3 2v12l1 1h9l1-1V5l-.29-.71zM13 14H4V2h5v4h4v8zm-3-9V2l3 3h-3z"
                             ></path>
                           </svg>

@@ -1,9 +1,15 @@
-export const mediaOptions = (id) => {
+import { httpClient } from "@/utils/http";
+import { deleteFile } from "./action";
+
+export const mediaOptions = (id, fn) => {
     return [
         {
             text: "Xóa",
             attribute: {
-                onClick: () => console.log(id)
+                onClick: async () => {
+                    const response = await deleteFile(id)
+                    return fn('delete-file', response, id)
+                }
             }
         }
     ]

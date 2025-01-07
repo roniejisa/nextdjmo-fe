@@ -22,7 +22,6 @@ const useRouterCustom = () => {
   };
 
   const refresh = async () => {
-    setTransition(true);
     router.refresh();
   };
 

@@ -1,6 +1,6 @@
 import { httpClient } from "../http";
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+export const CHUNK_SIZE = 2 * 1024 * 1024; // 5MB
 
 export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia, token) => {
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
@@ -9,25 +9,29 @@ export const uploadFileResumable = async (file, file_id, onProgress, onSetMedia,
         const start = chunkIndex * CHUNK_SIZE;
         const end = Math.min(start + CHUNK_SIZE, file.size);
         const chunk = file.slice(start, end);
-
         const formData = new FormData();
         formData.append("file", chunk);
         formData.append("fileName", file.name);
         formData.append("chunkIndex", chunkIndex);
         formData.append("totalChunks", totalChunks);
         formData.append("file_id", file_id);
-        try {
-            const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/upload-file", {
-                Authorization: `Bearer ${token}`
-            }, formData, "POST");
-            if (response.status != 201) return false
-            const percentage = Math.round(((chunkIndex + 1) / totalChunks) * 100);
-            onProgress(percentage); // Gọi callback cập nhật tiến độ
-            onSetMedia(response.data); // Gọi callback cập nhật tiến độ
-        } catch (error) {
-            console.error("Error uploading chunk:", error);
-            return false;
+        // try {
+        const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/upload-file", {
+            Authorization: `Bearer ${token}`,
+        }, formData, "POST");
+        if (response.status == 200 || response.status == 201) {
+            // const percentage = Math.round(((chunkIndex + 1) / totalFiles) * 100);
+            onProgress(); // Gọi callback cập nhật tiến độ
+            if (response.status == 201) {
+                onSetMedia(response.data); // Gọi callback cập nhật tiến độ
+            }
+        } else {
+            return response
         }
+        // } catch (error) {
+        //     console.error("Error uploading chunk:", error);
+        //     return false;
+        // }
     }
 
     return true; // Upload hoàn tất
@@ -39,7 +43,7 @@ export const convertSize = (bytes, decimals = 1) => {
     let dm = decimals < 0 ? 0 : decimals
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    if(i < 3){
+    if (i < 3) {
         dm = 0
     }
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`

@@ -76,7 +76,7 @@ const Editor = () => {
   return (
     <>
       {editorImage && (
-        <div class="fixed top-0 left-0 w-full h-full overflow-hidden z-[9999]">
+        <div className="fixed top-0 left-0 w-full h-full overflow-hidden z-[9999]">
           <div className="absolute w-full h-full top-0 left-0">
             <div className="p-10 h-full bg-[#00000030]">
               <div className="bg-[#151515] py-2 flex justify-end px-4">

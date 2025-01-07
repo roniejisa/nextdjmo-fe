@@ -20,6 +20,7 @@ import Dot from "@/components/Icon/svg/Dot";
 import Trash from "@/components/Icon/svg/Trash";
 import Edit from "@/components/Icon/svg/Edit";
 import Open from "@/components/Icon/svg/Open";
+import DefaultType from "./types/DefaultType";
 
 const mediaType = {
   ".png": ImageType,
@@ -28,6 +29,7 @@ const mediaType = {
   ".gif": ImageType,
   ".webp": ImageType,
   ".mp4": VideoType,
+  "default": DefaultType
 };
 
 const MediaList = () => {
@@ -505,7 +507,10 @@ const MediaList = () => {
             onMouseDown={handleMouseDown}
           >
             {medias?.map((media, index) => {
-              const Component = mediaType[media.extention];
+              let Component = mediaType[media.extention];
+              if(!Component){
+                Component = mediaType["default"];
+              }
               return (
                 <MediaItem
                   key={index}

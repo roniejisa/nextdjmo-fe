@@ -1,8 +1,12 @@
 "use client";
+import { useNotify } from "@/context/NotifyProvider";
+import useRouterCustom from "@/packages/translation/Navigation";
 import { createContext, useContext, useRef, useState } from "react";
 
 export const MediaContext = createContext(null);
 const MediaProvider = ({ children }) => {
+  const notify = useNotify();
+  const router = useRouterCustom();
   const [folders, setFolders] = useState([]);
   const [medias, setMedias] = useState([]);
   const [showUpload, setShowUpload] = useState(false);
@@ -24,6 +28,27 @@ const MediaProvider = ({ children }) => {
   const pageYRef = useRef(0);
   const movePageX = useRef(0);
   const movePageY = useRef(0);
+
+  const callbackMenu = (type, response, _id) => {
+    switch (type) {
+      case "delete-file":
+        setMedias(medias.filter((media) => media._id !== _id));
+        break;
+      case "delete-folder":
+        setFolders(folders.filter((folder) => folder._id !== _id));
+        break;
+    }
+    if (response.status && response.message) {
+      notify.changeNotify(
+        response.status == 200 ? "success" : "error",
+        response.message
+      );
+    }
+    
+    if (response.status == 200) {
+      router.refresh();
+    }
+  };
   return (
     <MediaContext.Provider
       value={{
@@ -53,6 +78,7 @@ const MediaProvider = ({ children }) => {
         pageYRef,
         movePageX,
         movePageY,
+        callbackMenu,
       }}
     >
       {children}
