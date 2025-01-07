@@ -41,3 +41,15 @@ export const getFolders = async (body) => {
     "POST"
   );
 };
+
+export const editFolder = async (body) => {
+  const token = await getToken();
+  return await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/edit-folder",
+    {
+      Authorization: `Bearer ${token}`,
+    },
+    body,
+    "PATCH"
+  );
+};

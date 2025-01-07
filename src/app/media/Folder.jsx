@@ -5,27 +5,38 @@ import Open from "@/components/Icon/svg/Open";
 import Trash from "@/components/Icon/svg/Trash";
 import React, {
   useCallback,
+  useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
-import { getFolders } from "./action";
+import { editFolder, getFolders } from "./action";
 import { useMedia } from "./MediaProvider";
 import Dot from "@/components/Icon/svg/Dot";
+import { AllContext } from "@/context/AllProvider";
+import { useNotify } from "@/context/NotifyProvider";
 
 const Folder = () => {
-  const { folders, setFolders, breadcrumbs, setBreadcrumbs, loadedPages } =
-    useMedia((media) => media);
-  const [openMenuIndex, setOpenMenuIndex] = useState(null); // Lưu index của menu đang mở
-  const menuRefs = useRef([]); // Mảng chứa ref của từng menu
+  const notify = useNotify();
+  const {
+    folders,
+    setFolders,
+    breadcrumbs,
+    setBreadcrumbs,
+    menuRef,
+    resetDataFolder,
+    openMenuIndex,
+    setOpenMenuIndex,
+  } = useMedia((media) => media);
+
+  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         openMenuIndex !== null &&
-        menuRefs.current[openMenuIndex]?.el &&
-        !menuRefs.current[openMenuIndex].el.contains(event.target)
+        menuRef.current[openMenuIndex]?.el &&
+        !menuRef.current[openMenuIndex].el.contains(event.target)
       ) {
         setOpenMenuIndex(null); // Đóng menu nếu click bên ngoài
       }
@@ -34,9 +45,9 @@ const Folder = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openMenuIndex]);
+  }, [openMenuIndex, menuRef, breadcrumbs]);
   const getFolder = async () => {
     const response = await getFolders({
       folder_id:
@@ -52,8 +63,48 @@ const Folder = () => {
 
   const handleFolderClick = (folder) => {
     setBreadcrumbs((prev) => [...prev, folder]);
-    loadedPages.current = new Set();
+    resetDataFolder();
   };
+
+  const handleEditFolder = (e, folder) => {
+    setShowModalQuestion(true);
+    setModalOptions({
+      title: "Sửa tên thư mục",
+      component: (
+        <input
+          name="name"
+          placeholder="Tên thư mục"
+          defaultValue={folder.filename}
+        />
+      ),
+      btnAccept: "Sửa tên",
+      btnCancel: "Hủy",
+      confirm: async (form) => {
+        const body = Object.fromEntries(form);
+        const response = await editFolder({
+          id: folder._id,
+          ...body,
+        });
+        if (response.status == 200) {
+          setFolders((prev) => {
+            const newFolders = prev.map((item) =>
+              item._id === folder._id
+                ? {
+                    ...item,
+                    filename: body.name,
+                  }
+                : item
+            );
+            return newFolders;
+          });
+          setShowModalQuestion(false);
+          setModalOptions({});
+          notify.changeNotify("success", response?.message || "Thành công!");
+        }
+      },
+    });
+  };
+
   return (
     <>
       {folders && folders.length > 0 && (
@@ -70,10 +121,10 @@ const Folder = () => {
                 }}
                 ref={(el) => {
                   if (
-                    menuRefs.current.filter((menu) => menu.id == folder._id)
+                    menuRef.current.filter((menu) => menu.id == folder._id)
                       .length === 0
                   ) {
-                    menuRefs.current.push({
+                    menuRef.current.push({
                       id: folder._id,
                       el,
                     });
@@ -116,7 +167,10 @@ const Folder = () => {
                             </button>
                           </li>
                           <li>
-                            <button className="p-2 flex items-center gap-2 transition-all hover:bg-gray-200 w-full rounded-md">
+                            <button
+                              className="p-2 flex items-center gap-2 transition-all hover:bg-gray-200 w-full rounded-md"
+                              onClick={(e) => handleEditFolder(e, folder)}
+                            >
                               <Edit />
                               <span>Sửa tên</span>
                             </button>

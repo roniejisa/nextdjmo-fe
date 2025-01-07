@@ -1,12 +1,15 @@
 "use client";
 
 import QuestionModal from "@/components/Modal/QuestionModal";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 
 export const AllContext = createContext();
 const AllProvider = ({ children }) => {
   const [showModalQuestion, setShowModalQuestion] = useState(false);
-  const [modalOptions, setModalOptions] = useState()
+  const [modalOptions, setModalOptions] = useState({});
+  useEffect(() => {
+    if (!showModalQuestion) setModalOptions({});
+  }, [showModalQuestion]);
   return (
     <AllContext.Provider
       value={{

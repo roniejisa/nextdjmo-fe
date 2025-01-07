@@ -4,7 +4,8 @@ import { MediaContext } from "@/app/media/MediaProvider";
 import { useContext } from "react";
 
 const Breadcrumb = () => {
-  const { breadcrumbs, setBreadcrumbs, loadedPages } = useContext(MediaContext);
+  const { breadcrumbs, setBreadcrumbs, resetDataFolder } =
+    useContext(MediaContext);
 
   const handleChangeBreadcrumbs = (index) => {
     setBreadcrumbs((prev) => {
@@ -12,7 +13,7 @@ const Breadcrumb = () => {
       const newPrev = prev.slice(0, index + 1);
       return newPrev;
     });
-    loadedPages.current = new Set();
+    resetDataFolder()
   };
   return (
     <div className="text-2xl font-medium flex items-center gap-2">

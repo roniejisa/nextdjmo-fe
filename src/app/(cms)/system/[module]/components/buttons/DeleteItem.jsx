@@ -14,10 +14,7 @@ const DeleteItem = ({ item, module, data, action }) => {
   const handleShowModalDeleteForm = () => {
     setShowModalQuestion(true);
     setModalOptions({
-      item,
-      module,
-      data,
-      question: "Bạn có chắc chắn muốn xóa __TARGET__ này không ?",
+      title: <span>Bạn có chắc chắn muốn xóa {data.name} này không ?</span>,
       confirm: async () => {
         const response = await handleDeleteModule(module, item._id);
         if (

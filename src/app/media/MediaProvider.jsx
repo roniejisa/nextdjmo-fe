@@ -28,6 +28,8 @@ const MediaProvider = ({ children }) => {
   const movePageX = useRef(0);
   const movePageY = useRef(0);
   const loadedPages = useRef(new Set());
+  const menuRef = useRef([]);
+  const [openMenuIndex, setOpenMenuIndex] = useState(null); // Lưu index của menu đang mở
 
   const callbackMenu = (type, response, _id) => {
     switch (type) {
@@ -49,10 +51,17 @@ const MediaProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    setMedias([]);
-    setFolders([]);
-    setPage(1);
+    menuRef.current = [];
   }, [breadcrumbs]);
+  
+  const resetDataFolder = () => {
+    loadedPages.current = new Set();
+    setOpenMenuIndex(null);
+    setFolders([]);
+    setMedias([]);
+    setPage(1);
+  };
+
   return (
     <MediaContext.Provider
       value={{
@@ -88,6 +97,10 @@ const MediaProvider = ({ children }) => {
         page,
         setPage,
         loadedPages,
+        menuRef,
+        resetDataFolder,
+        openMenuIndex,
+        setOpenMenuIndex,
       }}
     >
       {children}

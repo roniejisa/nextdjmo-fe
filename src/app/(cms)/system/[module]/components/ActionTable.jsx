@@ -13,10 +13,11 @@ const ActionTable = () => {
   const handleShowModalDeleteForm = () => {
     setShowModalQuestion(true);
     setModalOptions({
-      data:{
-        name: selectIds.length + " mục"
-      },
-      question: "Bạn có chắc chắn muốn xóa __TARGET__ này không ?",
+      title: (
+        <span>
+          Bạn có chắc chắn muốn xóa {selectIds.length} mục này không ?
+        </span>
+      ),
       confirm: handleDelete,
     });
   };
@@ -35,7 +36,7 @@ const ActionTable = () => {
         return [];
       });
       selectAllRef.current.checked = false;
-      setShowModalQuestion(false)
+      setShowModalQuestion(false);
       router.push(urlCurrent, true);
     }
   };
