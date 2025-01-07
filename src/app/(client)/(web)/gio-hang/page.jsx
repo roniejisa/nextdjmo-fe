@@ -3,10 +3,10 @@
 import { ClientContext } from "@/context/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
 import { showImageUrl } from "@/utils/client/util";
-import Image from "next/image";
 import { useContext, useRef, useTransition } from "react";
 import { deleteItemInDraftOrder, updateItemInDraftOrder } from "./action";
 import { useNotify } from "@/context/NotifyProvider";
+import ImageCustom from "@/components/Maintain/Image";
 
 const Cart = () => {
   const { orders, setOrders } = useContext(ClientContext);
@@ -176,7 +176,7 @@ const Cart = () => {
                 className="lg:flex border-b items-center relative p-4 lg:p-0"
               >
                 <div className="flex-1 flex text-center">
-                  <Image
+                  <ImageCustom
                     src={showImageUrl(item.image)}
                     width={70}
                     height={70}

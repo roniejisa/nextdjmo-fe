@@ -1,7 +1,7 @@
 "use client";
-import Image from "next/image";
 import { GalleryContext } from "@/context/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
+import ImageCustom from "@/components/Maintain/Image";
 
 const ImageListComponent = ({ defaultValue, item, field }) => {
   const {
@@ -73,7 +73,7 @@ const ImageListComponent = ({ defaultValue, item, field }) => {
               .find((item) => item.id == id)
               ?.items.map((item, index) => (
                 <div className="relative border" key={index}>
-                  <Image
+                  <ImageCustom
                     src={
                       item?.url
                         ? process.env.NEXT_PUBLIC_ENDPOINT_URL + item.url

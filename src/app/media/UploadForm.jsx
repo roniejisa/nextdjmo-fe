@@ -10,7 +10,7 @@ import { MediaContext, useMedia } from "./MediaProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import ImageUpload from "@/components/Icon/svg/ImageUpload";
 import CloseIcon from "@/components/Icon/svg/Close";
-import Image from "next/image";
+import ImageCustom from "@/components/Maintain/Image";
 
 const UploadForm = ({ media_id, token }) => {
   const [progress, setProgress] = useState(0);
@@ -225,7 +225,7 @@ const UploadForm = ({ media_id, token }) => {
                           </svg>
                         )}
                         {file.url && (
-                          <Image
+                          <ImageCustom
                             src={file.url}
                             width={50}
                             height={50}

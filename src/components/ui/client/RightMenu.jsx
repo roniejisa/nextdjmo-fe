@@ -1,9 +1,9 @@
 "use client";
+import ImageCustom from "@/components/Maintain/Image";
 import { ClientContext } from "@/context/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { showImageUrl } from "@/utils/client/util";
-import Image from "next/image";
 import { useContext, useState } from "react";
 
 const RightMenu = () => {
@@ -79,7 +79,7 @@ const RightMenu = () => {
                         >
                           <div className="flex items-stretch gap-2">
                             <span className="relative w-[40px] h-[40px] shadow-2xl border">
-                              <Image
+                              <ImageCustom
                                 src={showImageUrl(order.image)}
                                 alt={order.name}
                                 width={100}

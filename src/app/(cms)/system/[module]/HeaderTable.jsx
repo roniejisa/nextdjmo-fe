@@ -6,6 +6,8 @@ import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname, useSearchParams } from "next/navigation";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
+import ExcelIcon from "@/components/Icon/svg/Excel";
+import SearchIcon from "@/components/Icon/svg/Search";
 
 const HeaderTable = () => {
   const { module, user, selectIds, fields } = useContext(ModuleContext);
@@ -116,69 +118,17 @@ const HeaderTable = () => {
             />
 
             <button className="absolute top-1/2 right-2 transform -translate-y-1/2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-                <path d="M21 21l-6 -6" />
-              </svg>
+              <SearchIcon />
             </button>
           </>
         )}
       </form>
       <FormFilter />
       <button className="ml-2 h-[42px] w-[42px]" onClick={downloadFileExcel}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className=""
-        >
-          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-          <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
-          <path d="M4 15l4 6" />
-          <path d="M4 21l4 -6" />
-          <path d="M17 20.25c0 .414 .336 .75 .75 .75h1.25a1 1 0 0 0 1 -1v-1a1 1 0 0 0 -1 -1h-1a1 1 0 0 1 -1 -1v-1a1 1 0 0 1 1 -1h1.25a.75 .75 0 0 1 .75 .75" />
-          <path d="M11 15v6h3" />
-        </svg>
+        <ExcelIcon />
       </button>
       <button className="ml-2 h-[42px] w-[42px]" onClick={uploadFileExcel}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className=""
-        >
-          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-          <path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" />
-          <path d="M4 15l4 6" />
-          <path d="M4 21l4 -6" />
-          <path d="M17 20.25c0 .414 .336 .75 .75 .75h1.25a1 1 0 0 0 1 -1v-1a1 1 0 0 0 -1 -1h-1a1 1 0 0 1 -1 -1v-1a1 1 0 0 1 1 -1h1.25a.75 .75 0 0 1 .75 .75" />
-          <path d="M11 15v6h3" />
-        </svg>
+        <ExcelIcon />
       </button>
     </div>
   );

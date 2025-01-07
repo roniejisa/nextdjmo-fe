@@ -1,9 +1,9 @@
 "use client";
 import ItemCount from "@/components/ui/admin/statistics/ItemCount";
 import OrderChart from "@/components/ui/admin/statistics/OrderChart";
-import Image from "next/image";
 import { showImageUrl } from "@/utils/client/util";
 import { useEffect, useState } from "react";
+import ImageCustom from "@/components/Maintain/Image";
 const Client = ({ hotProducts, profile }) => {
   const [tab, setTab] = useState("general");
   const handleTab = (tab) => setTab(tab);
@@ -69,7 +69,7 @@ const Client = ({ hotProducts, profile }) => {
                     <div key={product.product_id}>
                       <div className="flex gap-2">
                         <span className="block w-14 h-16 relative bg-gray-200">
-                          <Image
+                          <ImageCustom
                             src={showImageUrl(product.image)}
                             fill={true}
                             className={`object-contain p-1`}

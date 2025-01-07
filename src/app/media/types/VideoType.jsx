@@ -1,8 +1,8 @@
 import { convertSize, showImageUrl } from "@/utils/client/util";
-import Image from "next/image";
 import React, { useEffect, useRef } from "react";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
+import ImageCustom from "@/components/Maintain/Image";
 
 const VideoType = ({ media }) => {
   const { filename, url, file_info, extention, _id } = media;
@@ -71,7 +71,7 @@ const VideoType = ({ media }) => {
       />
       <canvas ref={canvasRef} style={{ display: "none" }} />
 
-      <Image
+      <ImageCustom
         ref={imageRef}
         src={"/next.svg"}
         fill={true}

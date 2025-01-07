@@ -1,7 +1,7 @@
 "use client";
+import ImageCustom from "@/components/Maintain/Image";
 import { ProductContext } from "@/context/ProductProvider";
 import { showImageUrl } from "@/utils/client/util";
-import Image from "next/image";
 import React, { useContext, useEffect, useState } from "react";
 // Đầu tiên cần xác định cái nào đang không hàng luôn
 // Tốt nhất là chỉ nên làm như hiện tại đỡ lỗi vớ vẩn ngu người
@@ -153,7 +153,7 @@ const Variant = () => {
                         })}
                       >
                         {name === firstAttribute && (
-                          <Image
+                          <ImageCustom
                             src={showImageUrl(imageVariants[label])}
                             alt={label}
                             width={40}

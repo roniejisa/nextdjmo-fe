@@ -1,9 +1,6 @@
 "use client";
 import { AllContext } from "@/context/AllProvider";
 import { useContext, useRef } from "react";
-import { handleDeleteModule } from "./action";
-import { useNotify } from "@/context/NotifyProvider";
-import { useRouter } from "next/navigation";
 
 const QuestionModal = () => {
   const { showModalQuestion, setShowModalQuestion, modalOptions } =

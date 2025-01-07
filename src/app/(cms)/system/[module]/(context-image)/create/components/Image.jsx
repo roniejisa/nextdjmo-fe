@@ -1,8 +1,7 @@
 "use client";
-import Image from "next/image";
-import Group from "./Group";
 import { GalleryContext } from "@/context/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
+import ImageCustom from "@/components/Maintain/Image";
 
 const ImageComponent = ({ field, defaultValue }) => {
   const { setShowMedia, itemCurrent, isMultiple, choosed } =
@@ -29,7 +28,7 @@ const ImageComponent = ({ field, defaultValue }) => {
   return (
     <div className="relative" id={id}>
       <div className="group h-0 pt-[100%] before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-black before:opacity-0 before:transition-opacity before:duration-300 before:ease-in-out hover:before:opacity-50 hover:text-white">
-        <Image
+        <ImageCustom
           ref={imageRef}
           src={"/next.svg"}
           height={0}

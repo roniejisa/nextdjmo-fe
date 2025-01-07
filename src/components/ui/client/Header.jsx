@@ -1,9 +1,9 @@
 import LinkCustom from "@/packages/translation/Link";
 import React from "react";
 import RightMenu from "./RightMenu";
-import Image from "next/image";
 import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
+import ImageCustom from "@/components/Maintain/Image";
 
 export const getLogo = async () => {
   try {
@@ -61,7 +61,7 @@ const Header = async () => {
       <ul className="lg:flex z-[9999] bg-white w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full items-center flex-[0_0_calc(100%/3)] lg:pl-10 fixed lg:static">
         <li className="border-b lg:hidden">
           <LinkCustom href={"/"} className="h-20 block">
-            <Image
+            <ImageCustom
               src={showImageUrl(logo?.data)}
               width={100}
               height={40}
@@ -130,7 +130,7 @@ const Header = async () => {
         href={"/"}
         className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/5-80px)] flex items-center justify-center"
       >
-        <Image
+        <ImageCustom
           src={showImageUrl(logo?.data)}
           width={100}
           height={40}

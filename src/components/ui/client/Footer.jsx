@@ -1,9 +1,9 @@
 import LinkCustom from "@/packages/translation/Link";
-import Image from "next/image";
 import { getLogo } from "./Header";
 import { showImageUrl } from "@/utils/client/util";
 import FormReceive from "./FormReceive";
 import { httpClient } from "@/utils/http";
+import ImageCustom from "@/components/Maintain/Image";
 
 const getCopyRight = async () => {
   try {
@@ -23,7 +23,7 @@ const Footer = async () => {
     <footer className="pt-8 pb-4 bg-white border-t-[20px] border-t-gray-800 text-black">
       <div className="flex justify-between items-start px-4 lg:px-10">
         <LinkCustom href="/" className="flex h-10">
-          <Image
+          <ImageCustom
             src={showImageUrl(logo?.data)}
             alt="logo"
             width={100}

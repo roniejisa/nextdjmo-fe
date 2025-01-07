@@ -1,8 +1,8 @@
-import Image from "next/image";
 import React, { useRef } from "react";
 import { convertSize, showImageUrl } from "@/utils/client/util";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
+import Image from "next/image";
 
 const ImageType = ({ media }) => {
   const { filename, url, file_info, extention, _id } = media;

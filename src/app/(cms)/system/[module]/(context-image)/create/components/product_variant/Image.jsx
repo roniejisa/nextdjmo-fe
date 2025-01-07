@@ -1,8 +1,8 @@
 "use client";
-import Image from "next/image";
 import { GalleryContext } from "@/context/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import { showImageUrl } from "@/utils/client/util";
+import ImageCustom from "@/components/Maintain/Image";
 
 const ImageComponent = ({
   defaultValue,
@@ -59,7 +59,7 @@ const ImageComponent = ({
         className="group w-[60px] h-[60px] cursor-pointer group"
         onClick={handleShowUpload}
       >
-        <Image
+        <ImageCustom
           ref={imageRef}
           src={
             itemCurrent.find((item) => item.id == id)

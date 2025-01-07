@@ -22,7 +22,6 @@ const Folder = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      console.log(openMenuIndex);
       if (
         openMenuIndex !== null &&
         menuRefs.current[openMenuIndex]?.el &&
@@ -35,6 +34,7 @@ const Folder = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openMenuIndex]);
   const getFolder = async () => {

@@ -1,8 +1,8 @@
 "use client";
-import Image from "next/image";
 import { GalleryContext } from "@/context/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import Group from "../../../[module]/(context-image)/create/components/Group";
+import ImageCustom from "@/components/Maintain/Image";
 
 const ImageComponent = ({
   field,
@@ -57,7 +57,7 @@ const ImageComponent = ({
     <Group field={field}>
       <div className="relative">
         <div className="group w-[200px] h-[200px] before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-black before:opacity-0 before:transition-opacity before:duration-300 before:ease-in-out hover:before:opacity-50 hover:text-white">
-          <Image
+          <ImageCustom
             ref={imageRef}
             src={
               itemCurrent.find((item) => item.id == id)

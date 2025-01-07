@@ -4,8 +4,8 @@ import { useContext } from "react";
 import Variant from "./Variant";
 import { ProductContext } from "@/context/ProductProvider";
 import { showImageUrl } from "@/utils/client/util";
-import Image from "next/image";
 import FormAddOrder from "./FormAddOrder";
+import ImageCustom from "@/components/Maintain/Image";
 
 const ProductClient = () => {
   const { products, productCurrent, firstAttribute, imageVariants, imageRef } =
@@ -14,7 +14,7 @@ const ProductClient = () => {
   return (
     <div className="flex  lg:gap-10 lg:px-10 mt-10">
       <div className="lg:flex-[0_0_40%]">
-        <Image
+        <ImageCustom
           ref={imageRef}
           src={showImageUrl(productCurrent?.image)}
           alt={productCurrent?.name}

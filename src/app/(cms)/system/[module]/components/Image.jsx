@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import ImageCustom from "@/components/Maintain/Image";
 import { useEffect, useRef } from "react";
 
 const ImageComponent = ({ value, item, field }) => {
@@ -20,7 +20,7 @@ const ImageComponent = ({ value, item, field }) => {
   }, []);
   return (
     <div className="relative">
-      <Image
+      <ImageCustom
         ref={imageRef}
         src={"/next.svg"}
         width={0}

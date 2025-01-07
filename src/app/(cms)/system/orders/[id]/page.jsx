@@ -3,11 +3,11 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { getProfile } from "../../[module]/actions";
-import Image from "next/image";
 import { showImageUrl } from "@/utils/client/util";
 import Form from "./Form";
 import OrderProvider from "@/context/OrderProvider";
 import StatusRow from "./components/StatusRow";
+import ImageCustom from "@/components/Maintain/Image";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const orderDetail = async (id) => {
@@ -72,7 +72,7 @@ const DetailComponent = async ({ params }) => {
                   <tr key={item._id}>
                     <td className="border-r border-b px-4">
                       <span className="flex items-center gap-2">
-                        <Image
+                        <ImageCustom
                           src={showImageUrl(item.image)}
                           width={50}
                           height={50}

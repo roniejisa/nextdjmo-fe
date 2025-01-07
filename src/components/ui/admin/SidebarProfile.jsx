@@ -1,7 +1,7 @@
 import LinkCustom from "@/packages/translation/Link";
-import Image from "next/image";
 import MenuProfile from "./MenuProfile";
 import { showImageUrl } from "@/utils/client/util";
+import ImageCustom from "@/components/Maintain/Image";
 
 const SidebarProfile = ({profile}) => {
   if (!profile) redirect("/");
@@ -16,7 +16,7 @@ const SidebarProfile = ({profile}) => {
           className="flex-1 gap-2 flex w-full"
         >
           <div className="relative w-10 h-0 pt-10 rounded-full shadow-2xl">
-            <Image
+            <ImageCustom
               src={showImageUrl(avatar)}
               alt={username}
               fill={true}
