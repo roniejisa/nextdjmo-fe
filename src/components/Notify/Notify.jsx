@@ -38,7 +38,7 @@ const NotifyComponent = () => {
 
   return (
     <div
-      className={`fixed top-2 right-2 ${
+      className={`fixed top-2 z-[9999] right-2 ${
         showNotify ? "z-[1000]" : "invisible"
       } transition-all duration-300 overflow-hidden`}
     >

@@ -14,7 +14,7 @@ export const uploadFileResumable = async (file, obj, onProgress, onSetMedia, tok
         formData.append("fileName", file.name);
         formData.append("chunkIndex", chunkIndex);
         formData.append("totalChunks", totalChunks);
-        if(obj.media_id){
+        if (obj.media_id) {
             formData.append("media_id", obj.media_id);
         }
         formData.append("file_id", obj.file_id);

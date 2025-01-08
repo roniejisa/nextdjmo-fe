@@ -1,3 +1,4 @@
+import Building from "./Building";
 import Customer from "./Customer";
 import DashboardIcon from "./Dashboard";
 import Ecommerce from "./Ecommerce";
@@ -17,5 +18,6 @@ export const iconSVG = {
   setting: Setting,
   feedback: Feedback,
   dashboard: DashboardIcon,
-  folder: Folder
+  folder: Folder,
+  building: Building
 };

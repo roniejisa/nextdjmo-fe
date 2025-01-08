@@ -1,4 +1,4 @@
-import { listTab } from "@/app/(cms)/constants/tab";
+import { listTab } from "@/app/(cms)/(has-sidebar)/constants/tab";
 
 const Tab = ({ field, defaultValue }) => {
   return (

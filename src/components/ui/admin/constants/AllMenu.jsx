@@ -98,6 +98,32 @@ export const allMenu = [
     ],
   },
   {
+    id: 8,
+    name: "Trang",
+    icon: "building",
+    link: "pages|component-groups|components",
+    items: [
+      {
+        id: 8.1,
+        name: "Trang",
+        link: "pages",
+        add: "pages/create",
+      },
+      {
+        id: 8.2,
+        name: "Nhóm thành phần",
+        link: "component-groups",
+        add: "component-groups/create",
+      },
+      {
+        id: 8.3,
+        name: "Thành phần",
+        link: "components",
+        add: "components/create",
+      }
+    ]
+  },
+  {
     id: 3,
     name: "Cấu hình",
     link: "settings|configurations",

@@ -1,5 +1,1 @@
-# Lưu ý cần sửa sớm
-
-Nếu còn lớn hơn 1 cái thì phải kiểm tra cái nào hết rồi thì phải xóa đi 
-
-Nếu sau khi xóa cái cuối cùng của attribute lớn hơn cái đầu tiên
+# Khi code 1 trang mới chỉ thay đổi trong phần src/app/(client)/(web) thôi còn sửa phần khác thì phải kiểm tra thật kĩ 😍

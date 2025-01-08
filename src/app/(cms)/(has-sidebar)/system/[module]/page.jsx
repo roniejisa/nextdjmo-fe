@@ -24,6 +24,7 @@ import EditItem from "./components/buttons/EditItem";
 import ReadItem from "./components/buttons/ReadItem";
 import CopyItem from "./components/buttons/CopyItem";
 import Language from "./components/buttons/Language";
+import BuilderItem from "./components/buttons/BuilderItem";
 
 const components = {
   text: Text,
@@ -42,6 +43,7 @@ const componentActions = {
   edit: EditItem,
   read: ReadItem,
   copy: CopyItem,
+  builder: BuilderItem
 };
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {

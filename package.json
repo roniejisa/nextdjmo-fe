@@ -15,6 +15,8 @@
     "@react-three/fiber": "^8.17.10",
     "apexcharts": "^4.3.0",
     "crypto-js": "^4.2.0",
+    "cssnano": "^7.0.6",
+    "grapesjs": "^0.22.4",
     "install": "^0.13.0",
     "jsonwebtoken": "^9.0.2",
     "next": "^14.2.20",
@@ -30,7 +32,7 @@
   "devDependencies": {
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
-    "postcss": "^8",
+    "postcss": "^8.4.49",
     "sass": "^1.82.0",
     "sass-loader": "^16.0.4",
     "tailwindcss": "^3.4.1"
