@@ -8,25 +8,37 @@ const Slug = ({ field, defaultValue }) => {
   const slugRef = useRef(null);
   const notify = useNotify();
   const checkChangeInputSlug = async (e) => {
-    const data = await checkSlug(field.module, toSlug(e.target.value));
-    if (data.status === 200) slugRef.current.value = toSlug(e.target.value);
-    else notify.changeNotify("error", data.message);
+    slugRef.current.value = toSlug(e.target.value);
+    if(!slugRef.current.value) return
+    const data = await checkSlug(field.module, slugRef.current.value);
+    if (data.status === 200) {
+      notify.changeNotify("success", data.message);
+    } else {
+      slugRef.current.value = "";
+      notify.changeNotify("error", data.message);
+    }
   };
 
   useEffect(() => {
     const inputSlug = document.querySelector(`input[name="${field.from}"]`);
-    inputSlug.addEventListener("change", checkChangeInputSlug);
+    const checkChange = async (e) => {
+      if (slugRef.current.value == "") {
+        checkChangeInputSlug(e);
+      }
+    };
+    inputSlug.addEventListener("change", checkChange);
     return () => {
-      inputSlug.removeEventListener("change", checkChangeInputSlug);
+      inputSlug.removeEventListener("change", checkChange);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [slugRef]);
   return (
     <input
       name={field.name}
       ref={slugRef}
       placeholder={field.placeholder}
       defaultValue={defaultValue || ""}
+      onBlur={checkChangeInputSlug}
       className="w-full outline-outline outline-4 transition border rounded-md p-2"
     />
   );

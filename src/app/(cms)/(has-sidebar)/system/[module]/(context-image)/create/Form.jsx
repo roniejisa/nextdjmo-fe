@@ -28,6 +28,7 @@ import Permission from "./components/Permission";
 import MultipleCheckbox from "./components/MultipleCheckbox";
 import ProductVariant from "./components/ProductVariant";
 import Language from "./components/Language";
+import PageBuilder from "./components/PageBuilder";
 
 const components = {
   text: Text,
@@ -52,6 +53,7 @@ const components = {
   multiple_checkbox: MultipleCheckbox,
   product_variants: ProductVariant,
   language: Language,
+  page_builder:PageBuilder
 };
 
 const FormCreate = ({ module, fields, moduleStore, searchParams }) => {

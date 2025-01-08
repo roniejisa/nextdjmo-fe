@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Group from "./Group";
 import style from "./Bool.module.scss";
 const Bool = ({ field }) => {
@@ -8,10 +8,11 @@ const Bool = ({ field }) => {
   useEffect(() => {
     inputRef.current.value = isTrue ? "active" : "unactive";
   }, [isTrue]);
+  const id = useId();
   return (
     <label
       className={`${style["switch-on-off"]}`}
-      htmlFor={`${style["switch-on-off"]}`}
+      htmlFor={`${style["switch-on-off"]} ${id}`}
     >
       <input
         type="text"
@@ -24,7 +25,7 @@ const Bool = ({ field }) => {
         type="checkbox"
         onChange={() => setIsTrue(!isTrue)}
         defaultChecked={isTrue}
-        id={`${style["switch-on-off"]}`}
+        id={`${style["switch-on-off"]} ${id}`}
       />
     </label>
   );
