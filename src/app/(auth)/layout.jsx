@@ -1,9 +1,7 @@
-import React from 'react'
+import LoginProvider from "./providers/LoginProvider";
 
-const Login = ({children}) => {
-  return (
-    <>{children}</>
-  )
-}
+const Login = ({ children }) => {
+  return <LoginProvider>{children}</LoginProvider>;
+};
 
-export default Login
+export default Login;

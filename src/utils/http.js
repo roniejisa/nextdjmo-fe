@@ -51,8 +51,6 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
             'Authorization': `Bearer ${data.data.accessToken}`
           }, body, method, hasPrefixHeader, true);
         } else return clearTokensAndRedirect()
-      } else {
-        // return handleLoginRedirect(msg, searchParams)
       }
     }
     return data

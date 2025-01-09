@@ -27,6 +27,7 @@ import MultipleCheckbox from "./components/MultipleCheckbox";
 import ProductVariant from "./components/ProductVariant";
 import Language from "./components/Language";
 import PageBuilder from "./components/PageBuilder";
+import TwoFA from "./components/TwoFA";
 
 const components = {
   text: Text,
@@ -46,14 +47,22 @@ const components = {
   field_type: FieldType,
   key: Key,
   tab: Tab,
-  permission:Permission,
-  multiple_checkbox:MultipleCheckbox,
+  permission: Permission,
+  multiple_checkbox: MultipleCheckbox,
   product_variants: ProductVariant,
   language: Language,
-  page_builder:PageBuilder
+  page_builder: PageBuilder,
+  two_fa: TwoFA,
 };
 
-const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
+const FormUpdate = ({
+  module,
+  item,
+  fields,
+  moduleStore,
+  searchParams,
+  profile,
+}) => {
   const router = useRouterCustom();
   const notify = useNotify();
   const [isPending, startTransition] = useTransition(false);
@@ -113,7 +122,7 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
     });
 
   return (
-    <form action={submitAction}>
+    <form action={submitAction} className="pb-10">
       <GroupButtonForm
         module={module}
         isPending={isPending}
@@ -130,20 +139,7 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
                   oldData={oldData}
                   item={item}
                   module={module}
-                  field={field}
-                />
-              </Group>
-            );
-          })}
-          {fieldCustom.map((field) => {
-            const Component = components[field.type];
-            return (
-              <Group key={field.name} field={field}>
-                <Component
-                  defaultValue={oldData[field.name]}
-                  oldData={oldData}
-                  item={item}
-                  module={module}
+                  profile={profile}
                   field={field}
                 />
               </Group>
@@ -161,12 +157,31 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
                   oldData={oldData}
                   item={item}
                   module={module}
+                  profile={profile}
                   field={field}
                 />
               </Group>
             );
           })}
         </div>
+      </div>
+      <div className="p-4">
+        {fieldCustom.map((field) => {
+          const Component = components[field.type];
+          return (
+            <Group key={field.name} field={field}>
+              <Component
+                key={field.name}
+                defaultValue={oldData[field.name]}
+                oldData={oldData}
+                item={item}
+                profile={profile}
+                module={module}
+                field={field}
+              />
+            </Group>
+          );
+        })}
       </div>
     </form>
   );

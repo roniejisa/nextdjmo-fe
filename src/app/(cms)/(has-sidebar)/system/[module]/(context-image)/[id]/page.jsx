@@ -34,17 +34,16 @@ export async function generateMetadata({ params, searchParams }) {
 }
 const DetailComponent = async ({ params, searchParams }) => {
   const { id, module } = await params;
-  const user = await getProfile();
+  const profile = await getProfile();
 
   const language = searchParams.language;
 
   let { data } = await moduleDetail(module, id, language);
 
 
-
   if (
     !Object.keys(data).length ||
-    !user.permissions.includes(`${module}.update`)
+    !profile.permissions.includes(`${module}.update`)
   ) {
     return redirect("/403");
   }
@@ -73,6 +72,7 @@ const DetailComponent = async ({ params, searchParams }) => {
       item={item}
       module={module}
       id={id}
+      profile={profile}
       fields={fields}
       moduleStore={moduleStore}
       searchParams={searchParams}

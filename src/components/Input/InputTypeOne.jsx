@@ -22,9 +22,9 @@ const InputTypeOne = ({ name, placeholder, defaultValue, type = "text" }) => {
       <div>
         <input
           type={type}
-          className={`w-full rounded-none pt-6 pb-2 font-bold px-3 ${
-            hasValue && !isFocused ? "bg-[#F5F5F5]" : ""
-          } ${!hasValue && !isFocused ? "bg-[#f8f8f8]" : ""}`}
+          className={`w-full pt-6 pb-2 outline-[#2a85ff] font-bold px-3 rounded-2xl ${
+            hasValue && !isFocused ? "bg-white" : ""
+          } ${!hasValue && !isFocused ? "bg-[#f5f5f5]" : ""}`}
           name={name}
           defaultValue={defaultValue || ""}
           onFocus={checkFocus}

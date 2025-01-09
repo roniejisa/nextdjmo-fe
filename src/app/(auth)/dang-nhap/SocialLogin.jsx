@@ -3,7 +3,8 @@
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
+import { LoginContext } from "../providers/LoginProvider";
 
 const providers = [
   {
@@ -51,6 +52,7 @@ const providers = [
   // Thêm các provider khác nếu cần
 ];
 const SocialLogin = ({ redirect }) => {
+  const { showModalOTP, setShowModalOTP } = useContext(LoginContext);
   const router = useRouterCustom();
   const pathname = usePathname();
   const notify = useNotify();
@@ -102,18 +104,22 @@ const SocialLogin = ({ redirect }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <div className="flex gap-2 justify-center mt-10">
-      {providers.map((provider) => (
-        <button
-          key={provider.name}
-          onClick={() => openPopup(provider.url)}
-          className="mt-2 flex gap-2 px-4 py-2 border rounded text-center"
-        >
-          <span>Login with </span>
-          <span className={provider.class}>{provider.icon}</span>
-        </button>
-      ))}
-    </div>
+    <>
+      {!showModalOTP && (
+        <div className="flex gap-2 justify-center mt-10">
+          {providers.map((provider) => (
+            <button
+              key={provider.name}
+              onClick={() => openPopup(provider.url)}
+              className="mt-2 flex gap-2 px-4 py-2 border rounded text-center"
+            >
+              <span>Login with </span>
+              <span className={provider.class}>{provider.icon}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </>
   );
 };
 

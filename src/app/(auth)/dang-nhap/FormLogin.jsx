@@ -1,25 +1,52 @@
 "use client";
 
-import { handleLogin } from "./action";
-import { useEffect, useState, useTransition } from "react";
+import { confirm2FA, handleLogin } from "./action";
+import { useContext, useEffect, useRef, useState, useTransition } from "react";
 import InputTypeOne from "@/components/Input/InputTypeOne";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
+import { LoginContext } from "../providers/LoginProvider";
 
 const FormLogin = ({ msg, redirect }) => {
   const notify = useNotify();
-  const [isPending, startTransition] = useTransition();
   const router = useRouterCustom();
+  const [isPending, startTransition] = useTransition();
   const [oldData, setOldData] = useState({});
+  const {showModalOTP, setShowModalOTP} = useContext(LoginContext)
+  const [value, setValue] = useState("")
+  const customerRef = useRef(null);
   const submitAction = async (form) => {
     startTransition(async () => {
       const formData = Object.fromEntries(form);
       const response = await handleLogin(formData);
       if (response.status == 200) {
         notify.changeNotify("success", response.message);
+        if (response.data && response.data.customer_id) {
+          customerRef.current = response.data.customer_id;
+          setShowModalOTP(true);
+        } else if (redirect) {
+          router.push(redirect, true);
+        } else {
+          router.push("/system");
+        }
+        router.refresh();
+      } else {
+        setOldData(formData);
+        notify.changeNotify("error", response.message);
+      }
+    });
+  };
+
+  const handleConfirm2FA = async (form) => {
+    startTransition(async () => {
+      const formData = Object.fromEntries(form);
+      formData.customer_id = customerRef.current;
+      const response = await confirm2FA(formData);
+      if (response.status == 200) {
+        notify.changeNotify("success", response.message);
         if (redirect) {
           router.push(redirect, true);
-        }else{
+        } else {
           router.push("/system");
         }
         router.refresh();
@@ -39,35 +66,76 @@ const FormLogin = ({ msg, redirect }) => {
   }, []);
 
   return (
-    <form action={submitAction}>
-      <InputTypeOne
-        name="username"
-        placeholder="Tên người dùng"
-        type="text"
-        defaultValue={oldData.username}
-      />
-      <InputTypeOne
-        name="password"
-        placeholder="Mật khẩu"
-        type="password"
-        defaultValue={oldData.password}
-      />
-      <button
-        type="submit"
-        disabled={isPending}
-        className="py-4 bg-[#00CED1] rounded-lg w-16 h-16 flex items-center justify-center mx-auto text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+    <>
+      {showModalOTP ? (
+        <form action={handleConfirm2FA} className="mt-10">
+          <label className="mb-4 block">
+            <span className="block mb-2 text-[#737373] font-medium">
+              Nhập mã OTP
+            </span>
+            <input
+              name="code"
+              placeholder="Nhập mã OTP"
+              onChange={(e) => setValue(e.target.value)}
+              value={value}
+              type="text"
+              className="w-full py-4 outline-[#2a85ff] bg-[#f5f5f5] focus:bg-white font-bold px-3 rounded-2xl"
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="py-4 mt-4 font-bold bg-[#2a85ff] w-full rounded-2xl flex items-center justify-center mx-auto text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+          >
+            Xác thực tài khoản
+          </button>
+        </form>
+      ) : (
+        <form action={submitAction} className="mt-10">
+          <label className="mb-4 block">
+            <span className="block mb-2 text-[#737373] font-medium">
+              Tài khoản hoặc email
+            </span>
+            <input
+              name="username"
+              placeholder="Tài khoản hoặc email"
+              type="text"
+              defaultValue={oldData.username}
+              className="w-full py-4 outline-[#2a85ff] bg-[#f5f5f5] focus:bg-white font-bold px-3 rounded-2xl"
+            />
+          </label>
+          <label>
+            <span className="block mb-2 text-[#737373] font-medium">
+              Mật khẩu
+            </span>
+
+            <input
+              className="w-full py-4 outline-[#2a85ff] bg-[#f5f5f5] focus:bg-white font-bold px-3 rounded-2xl"
+              name="password"
+              placeholder="Mật khẩu"
+              type="password"
+              defaultValue={oldData.password}
+            />
+          </label>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="py-4 mt-4 font-bold bg-[#2a85ff] w-full rounded-2xl flex items-center justify-center mx-auto text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+          >
+            Đăng nhập
+            {/* <svg
+        className="w-6 h-6"
+        role="img"
+        viewBox="0 0 32 32"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-label="forward"
       >
-        <svg
-          className="w-6 h-6"
-          role="img"
-          viewBox="0 0 32 32"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-label="forward"
-        >
-          <path d="M22.8011 14.75L14.2234 6.70971L16.0474 5L26.8695 15.1441C27.3732 15.6163 27.3732 16.3817 26.8695 16.8538L16.0474 26.998L14.2234 25.2883L22.7989 17.25H4.75V14.75H22.8011Z"></path>
-        </svg>
-      </button>
-    </form>
+        <path d="M22.8011 14.75L14.2234 6.70971L16.0474 5L26.8695 15.1441C27.3732 15.6163 27.3732 16.3817 26.8695 16.8538L16.0474 26.998L14.2234 25.2883L22.7989 17.25H4.75V14.75H22.8011Z"></path>
+      </svg> */}
+          </button>
+        </form>
+      )}
+    </>
   );
 };
 

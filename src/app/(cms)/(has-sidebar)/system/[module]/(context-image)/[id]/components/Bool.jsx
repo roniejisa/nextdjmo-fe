@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import style from "./Bool.module.scss";
 const Bool = ({ defaultValue, field }) => {
   const [isTrue, setIsTrue] = useState(defaultValue == "active" ? true : false);
   const inputRef = useRef(null);
+  const id = useId()
   useEffect(() => {
     inputRef.current.value = isTrue ? "active" : "unactive";
   }, [isTrue]);
@@ -11,7 +12,7 @@ const Bool = ({ defaultValue, field }) => {
   return (
     <label
       className={`${style["switch-on-off"]}`}
-      htmlFor={`${style["switch-on-off"]}`}
+      htmlFor={`${style["switch-on-off"]} ${id}`}
     >
       <input
         type="text"
@@ -25,7 +26,7 @@ const Bool = ({ defaultValue, field }) => {
         placeholder={field.placeholder}
         onChange={() => setIsTrue(!isTrue)}
         defaultChecked={isTrue}
-        id={`${style["switch-on-off"]}`}
+        id={`${style["switch-on-off"]} ${id}`}
       />
     </label>
   );
