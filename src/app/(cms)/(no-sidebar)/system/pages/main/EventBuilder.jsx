@@ -8,7 +8,6 @@ const EventBuilder = () => {
     if (editor) {
 
       editor.on('canvas:drop', (data) => {
-        console.log(data)
         const selected = editor.getSelected();
         if (selected && selected.is('grid-container')) {
           selected.append(`
@@ -24,7 +23,6 @@ const EventBuilder = () => {
       // Lắng nghe sự thay đổi trong styleManager
       editor.on("style:property:update", (data) => {
         const { property, value } = data;
-        //   console.log(data);
         if (property.attributes.name == "custom-css") {
           const selectedComponent = editor.getSelected(); // Thành phần đang được chọn
           const css = value; // Giá trị CSS mới

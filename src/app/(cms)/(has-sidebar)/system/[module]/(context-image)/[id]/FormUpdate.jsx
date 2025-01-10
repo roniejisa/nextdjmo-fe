@@ -28,6 +28,7 @@ import ProductVariant from "./components/ProductVariant";
 import Language from "./components/Language";
 import PageBuilder from "./components/PageBuilder";
 import TwoFA from "./components/TwoFA";
+import CodeEditor from "./components/CodeEditor";
 
 const components = {
   text: Text,
@@ -53,6 +54,7 @@ const components = {
   language: Language,
   page_builder: PageBuilder,
   two_fa: TwoFA,
+  code_editor:CodeEditor
 };
 
 const FormUpdate = ({

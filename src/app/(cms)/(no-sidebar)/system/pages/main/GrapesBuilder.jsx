@@ -34,7 +34,7 @@ const GrapesBuilder = ({ token, profile, id = null }) => {
                 html: html
                   .replace("<body", "<section")
                   .replace("</body>", "</section>"),
-                css:css,
+                css: css,
               }),
             },
             "POST"
@@ -61,12 +61,35 @@ const GrapesBuilder = ({ token, profile, id = null }) => {
                 .replace("</section>", "</body>")
             );
             editor.setStyle(data.css);
+
+            const canvasDoc = editor.Canvas.getDocument();
+            const items = canvasDoc.querySelectorAll(".custom-block-nextdjmo");
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              if (typeof item != "undefined") {
+                const type = item.getAttribute("type");
+                const fn = item.getAttribute("fn");
+                if (!item.querySelector(".css-off-" + type)) {
+                  const styleEl = document.createElement("style");
+                  const css = item.getAttribute("css");
+                  styleEl.innerHTML = css;
+                  item.appendChild(styleEl);
+                }
+
+                if (!window[type]) {
+                  window[type] = () => {
+                    eval(new Function("return " + fn)());
+                  };
+                }
+                window[type]();
+              }
+            }
           }
         },
       },
       fromElement: true, // Initialize from an existing HTML element
       canvas: {
-        styles: [style],
+        styles: ["/app/globals.scss"],
       },
     });
 

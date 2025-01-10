@@ -14,7 +14,7 @@ const MediaComponent = () => {
   // const { setShowMedia } = useContext(GalleryContext);
   const [isPending, startTransition] = useTransition();
   const [token, setToken] = useState(null);
-  const { listImage, setListImageChoosed } = useContext(GalleryContext);
+  const { listImage, setListImageChoosed, isMultiple } = useContext(GalleryContext);
   const getTokenFromClient = async () => {
     const token = await getToken();
     startTransition(async function () {
@@ -34,7 +34,7 @@ const MediaComponent = () => {
             <div className="flex justify-end">
               <CreateFolder />
               <UploadForm token={token} />
-              {listImage.length > 0 ? (
+              {listImage.length > 0 && isMultiple ? (
                 <button
                   className="bg-green-400 ml-4 py-2 px-4 rounded-lg text-white"
                   onClick={() => {

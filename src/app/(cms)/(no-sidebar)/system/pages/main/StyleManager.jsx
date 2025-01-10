@@ -34,10 +34,10 @@ const StyleManager = () => {
         ],
       };
 
-      editor.StyleManager.addSector("custom-sector", customSector); // Thêm sector mới
+      // editor.StyleManager.addSector("custom-sector", customSector); // Thêm sector mới
       editor.StyleManager.getConfig().sectors = [
         ...defaultSectors,
-        customSector,
+        // customSector,
       ]; // Kết hợp
     }
   }, [editor]);

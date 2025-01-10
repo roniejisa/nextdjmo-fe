@@ -13,14 +13,14 @@ const BuilderProvider = ({ children }) => {
   const [page, setPage] = useState(null);
 
   useEffect(() => {
-    const handleBeforeUnload = (event) => {
-      // Cập nhật thông báo xác nhận
-      const message = "Bạn có chắc chắn muốn rời khỏi trang này?";
-      event.returnValue = message; // Cài đặt thông báo cho trình duyệt
-      return message; // Một số trình duyệt yêu cầu trả về giá trị này
-    };
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    // const handleBeforeUnload = (event) => {
+    //   // Cập nhật thông báo xác nhận
+    //   const message = "Bạn có chắc chắn muốn rời khỏi trang này?";
+    //   event.returnValue = message; // Cài đặt thông báo cho trình duyệt
+    //   return message; // Một số trình duyệt yêu cầu trả về giá trị này
+    // };
+    // window.addEventListener("beforeunload", handleBeforeUnload);
+    // return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
   return (
     <BuilderContext.Provider
