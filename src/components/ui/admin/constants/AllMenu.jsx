@@ -150,7 +150,21 @@ export const allMenu = [
     add: "links/create",
   },
   {
+    id: 9,
+    name: "Banner",
+    link: "slides",
+    icon: "slide",
+    add: "slides/create",
+  },
+  {
     id: 10,
+    name: "Album",
+    link: "albums",
+    icon: "album",
+    add: "albums/create",
+  },
+  {
+    id: 11,
     name: "Tệp tin",
     link: "files",
     icon: "folder",

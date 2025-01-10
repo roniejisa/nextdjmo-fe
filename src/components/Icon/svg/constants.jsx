@@ -1,3 +1,4 @@
+import Album from "./Album";
 import Building from "./Building";
 import Customer from "./Customer";
 import DashboardIcon from "./Dashboard";
@@ -8,6 +9,7 @@ import Folder from "./Folder";
 import Link from "./Link";
 import Product from "./Product";
 import Setting from "./Setting";
+import Slide from "./Slide";
 
 export const iconSVG = {
   product: Product,
@@ -19,5 +21,7 @@ export const iconSVG = {
   feedback: Feedback,
   dashboard: DashboardIcon,
   folder: Folder,
-  building: Building
+  building: Building,
+  slide: Slide,
+  album: Album
 };
