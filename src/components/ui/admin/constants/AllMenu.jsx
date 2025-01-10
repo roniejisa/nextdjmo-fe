@@ -143,6 +143,13 @@ export const allMenu = [
     ],
   },
   {
+    id: 9,
+    name: "Slide",
+    link: "slides",
+    icon: "slide",
+    add: "slides/create",
+  },
+  {
     id: 4,
     name: "Menus",
     link: "links",

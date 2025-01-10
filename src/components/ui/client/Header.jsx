@@ -1,9 +1,9 @@
 import LinkCustom from "@/packages/translation/Link";
 import React from "react";
-import RightMenu from "./RightMenu";
 import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
 import ImageCustom from "@/components/Maintain/Image";
+import HeaderClient from "./HeaderClient";
 
 export const getLogo = async () => {
   try {
@@ -30,9 +30,21 @@ const Header = async () => {
   const logo = await getLogo();
   const leftMenus = await getMenuHeader();
   return (
-    <header className="relative flex justify-between border-b h-[100px]">
-      <div className="lg:hidden pl-4 lg:flex-[0_0_calc(100%/5*2)] flex-[0_0_calc(100%/3)] flex items-center">
-        <label className="cursor-pointer py-2 pr-2" htmlFor="show-menu">
+    <HeaderClient className="flex justify-between transition-all duration-200 h-[60px] lg:h-[100px] fixed z-[9999] w-full lg:pt-10">
+      <LinkCustom
+        href={"/"}
+        className="flex-[0_0_calc(100%/3)] pl-4 lg:flex-[0_0_calc(100%/5-80px)] lg:pl-10 flex items-center justify-start"
+      >
+        <ImageCustom
+          src={showImageUrl(logo?.data)}
+          width={100}
+          height={40}
+          className="object-contain h-full w-10 lg:w-[100px]"
+          alt="Trang chủ"
+        />
+      </LinkCustom>
+      <div className="lg:hidden pr-4 text-white lg:flex-[0_0_calc(100%/5*2)] flex-[0_0_calc(100%/3)] justify-end flex items-center">
+        <label className="cursor-pointer py-2 pl-2" htmlFor="show-menu">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -58,7 +70,7 @@ const Header = async () => {
         ></label>
       </div>
       <input type="checkbox" id="show-menu" hidden />
-      <ul className="lg:flex z-[9999] bg-white w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full items-center flex-[0_0_calc(100%/3)] lg:pl-10 fixed lg:static">
+      <ul className="lg:flex z-[9999] w-2/3 lg:w-full lg:justify-end border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full items-center flex-1 lg:pr-10 fixed lg:static">
         <li className="border-b lg:hidden">
           <LinkCustom href={"/"} className="h-20 block">
             <ImageCustom
@@ -78,7 +90,7 @@ const Header = async () => {
             {!menu.childs ? (
               <LinkCustom
                 href={menu.link}
-                className="py-2 lg:mr-10 block font-medium"
+                className="py-2 lg:ml-10 block font-medium"
               >
                 {menu.name}
               </LinkCustom>
@@ -126,22 +138,7 @@ const Header = async () => {
           </svg>
         </label>
       </ul>
-      <LinkCustom
-        href={"/"}
-        className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/5-80px)] flex items-center justify-center"
-      >
-        <ImageCustom
-          src={showImageUrl(logo?.data)}
-          width={100}
-          height={40}
-          className="object-contain h-full p-2"
-          alt="Trang chủ"
-        />
-      </LinkCustom>
-      <div className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/5*2)] flex items-center justify-end">
-        <RightMenu />
-      </div>
-    </header>
+    </HeaderClient>
   );
 };
 

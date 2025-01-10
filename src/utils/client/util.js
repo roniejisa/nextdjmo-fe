@@ -59,22 +59,22 @@ export const showImageUrl = (imageData) => {
 
     // Nếu `url` là object và có `url` bên trong
     if (typeof imageData === "object" && imageData?.url) {
-        return imageData.url.startsWith("/") ? baseUrl + imageData.url.slice(1) : baseUrl + imageData.url;
+        return imageData.url.startsWith("/") ? baseUrl + imageData.url.slice(1).replaceAll('\\', "/") : baseUrl + imageData.url.replaceAll('\\', "/");
     }
 
     // Nếu `url` là string và là URL đầy đủ
     if (/^(https?:|blob:|\/\/)/.test(imageData)) return imageData;
 
     // Nếu `url` là string và bắt đầu bằng "/"
-    if (imageData.startsWith("/")) return baseUrl + imageData.slice(1);
+    if (imageData.startsWith("/")) return baseUrl + imageData.slice(1).replaceAll('\\', "/");
 
     // Thử parse `url` như JSON
     try {
         const parsed = JSON.parse(imageData);
         if (parsed?.url) {
             return parsed.url.startsWith("/")
-                ? baseUrl + parsed.url.slice(1)
-                : baseUrl + parsed.url;
+                ? baseUrl + parsed.url.slice(1).replaceAll('\\', "/")
+                : baseUrl + parsed.url.replaceAll('\\', "/");
         }
     } catch {
         // Bỏ qua lỗi nếu JSON không hợp lệ

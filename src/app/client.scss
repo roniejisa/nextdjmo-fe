@@ -5,12 +5,13 @@ header {
   li a:not(.link-header) {
     text-decoration: none;
     position: relative;
+    color: #ffca1c;
     &::before {
       content: "";
       position: absolute;
       width: 0;
       height: 2px;
-      background: #000;
+      background: #ffca1c;
       bottom: 0;
       left: 0;
     }
@@ -27,13 +28,14 @@ header {
     font-weight: 600;
     padding-bottom: 4px;
     margin-bottom: 2px;
+    color: #fffc23;
     display: inline-block;
     &::before {
       content: "";
       position: absolute;
       width: 0;
       height: 2px;
-      background: #000;
+      background: #fffc23;
       bottom: 0;
       left: 0;
     }
