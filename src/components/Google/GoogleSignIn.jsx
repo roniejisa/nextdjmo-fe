@@ -1,5 +1,5 @@
 "use client";
-import { AccountContext } from "@/context/AccountProvider";
+import { AccountContext } from "@/context/client/AccountProvider";
 import { useContext, useEffect } from "react";
 
 const GoogleSignIn = () => {

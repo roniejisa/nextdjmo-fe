@@ -1,6 +1,6 @@
 "use client";
 
-import { ClientContext } from "@/context/ClientProvider";
+import { ClientContext } from "@/context/client/ClientProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext, useRef } from "react";
 

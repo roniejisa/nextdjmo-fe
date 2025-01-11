@@ -2,7 +2,7 @@
 
 import { useContext } from "react";
 import Variant from "./Variant";
-import { ProductContext } from "@/context/ProductProvider";
+import { ProductContext } from "@/context/client/ProductProvider";
 import { showImageUrl } from "@/utils/client/util";
 import FormAddOrder from "./FormAddOrder";
 import ImageCustom from "@/components/Maintain/Image";

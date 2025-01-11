@@ -20,7 +20,7 @@ const Footer = async () => {
   const copyRight = await getCopyRight();
   const logo = await getLogo();
   return (
-    <footer className="pt-8 pb-4 bg-white border-t-[20px] border-t-gray-800 text-black">
+    <footer className="pt-8 pb-4">
       <div className="flex justify-between items-start px-4 lg:px-10">
         <LinkCustom href="/" className="flex h-10">
           <ImageCustom
@@ -34,7 +34,7 @@ const Footer = async () => {
         <FormReceive />
       </div>
       {copyRight && (
-        <div className="mt-10 pt-4 px-4 lg:px-10 border-t">
+        <div className="mt-10 pt-4 px-4 lg:px-10">
           <span>{copyRight.data}</span>
         </div>
       )}

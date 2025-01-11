@@ -3,7 +3,7 @@ import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import Text from "./searchs/Text";
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 
 const component = {
   text: Text,

@@ -1,6 +1,6 @@
 import Sidebar from "@/components/ui/admin/Sidebar";
 import "@/app/system.scss";
-import AllProvider from "@/context/AllProvider";
+import AllProvider from "@/context/cms/AllProvider";
 import React from "react";
 import { getProfile } from "./system/[module]/actions";
 import SocketProvider from "@/context/SocketProvider";

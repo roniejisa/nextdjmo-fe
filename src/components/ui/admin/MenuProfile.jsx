@@ -3,7 +3,7 @@
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext, useState } from "react";
 import { handleLogout } from "./action";
-import { AccountContext } from "@/context/AccountProvider";
+import { AccountContext } from "@/context/client/AccountProvider";
 import LinkCustom from "@/packages/translation/Link";
 
 const MenuProfile = ({ id }) => {

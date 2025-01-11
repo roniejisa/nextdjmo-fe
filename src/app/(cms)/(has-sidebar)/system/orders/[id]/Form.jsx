@@ -3,7 +3,7 @@
 import { useContext, useState } from "react";
 import { changeOrderStatus } from "./action";
 import { useNotify } from "@/context/NotifyProvider";
-import { OrderContext } from "@/context/OrderProvider";
+import { OrderContext } from "@/context/cms/OrderProvider";
 
 const Form = ({ order }) => {
   const { status, setStatus } = useContext(OrderContext);

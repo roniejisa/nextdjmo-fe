@@ -2,7 +2,7 @@
 
 import { handleDeleteModule } from "@/components/Modal/action";
 import TooltipText from "@/components/Tooltip/Text";
-import { AllContext } from "@/context/AllProvider";
+import { AllContext } from "@/context/cms/AllProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext } from "react";

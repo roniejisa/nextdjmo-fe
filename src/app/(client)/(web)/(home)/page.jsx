@@ -1,9 +1,7 @@
-const Home = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+import SectionHome from "@/components/ui/client/components/SectionHome";
 
-export default Home
+const Home = () => {
+  return <SectionHome />;
+};
+
+export default Home;

@@ -1,6 +1,6 @@
 import { httpClient } from "@/utils/http";
 import React from "react";
-import ProductProvider from "@/context/ProductProvider";
+import ProductProvider from "@/context/client/ProductProvider";
 import ProductClient from "./component/ProductClient";
 import { redirect } from "next/navigation";
 

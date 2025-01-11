@@ -4,6 +4,7 @@ import RightMenu from "./RightMenu";
 import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
 import ImageCustom from "@/components/Maintain/Image";
+import HeaderClient from "@/components/Header/HeaderClient";
 
 export const getLogo = async () => {
   try {
@@ -30,8 +31,8 @@ const Header = async () => {
   const logo = await getLogo();
   const leftMenus = await getMenuHeader();
   return (
-    <header className="relative flex justify-between border-b h-[100px]">
-      <div className="lg:hidden pl-4 lg:flex-[0_0_calc(100%/5*2)] flex-[0_0_calc(100%/3)] flex items-center">
+    <HeaderClient className="relative bg-black flex justify-between h-[100px] transition">
+      <div className="lg:hidden flex items-center pl-4 flex-[0_0_calc(100%/3)]">
         <label className="cursor-pointer py-2 pr-2" htmlFor="show-menu">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -53,12 +54,25 @@ const Header = async () => {
           </svg>
         </label>
         <label
-          className="overlay fixed -right-full top-0 bottom-0 w-1/3 bg-black opacity-30 z-[9999] cursor-pointer"
+          className="overlay fixed -right-full top-0 bottom-0 w-1/3 opacity-30 z-[9999] cursor-pointer"
           htmlFor="show-menu"
         ></label>
       </div>
+      <LinkCustom
+        href={"/"}
+        className="flex-[0_0_calc(100%/3)] flex justify-center lg:justify-start lg:flex-[0_0_calc(100%/12*2)] lg:pl-10 outline-none select-none"
+      >
+        <ImageCustom
+          src={showImageUrl(logo?.data)}
+          width={100}
+          height={40}
+          className="object-contain h-full p-2"
+          alt="Trang chủ"
+        />
+      </LinkCustom>
+
       <input type="checkbox" id="show-menu" hidden />
-      <ul className="lg:flex z-[9999] bg-white w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full items-center flex-[0_0_calc(100%/3)] lg:pl-10 fixed lg:static">
+      <ul className="lg:flex z-[9999] bg-black lg:bg-transparent w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full justify-center items-center flex-1 fixed lg:static">
         <li className="border-b lg:hidden">
           <LinkCustom href={"/"} className="h-20 block">
             <ImageCustom
@@ -73,12 +87,12 @@ const Header = async () => {
         {leftMenus.map((menu, index) => (
           <li
             key={index}
-            className="group px-4 border-b lg:border-b-0 bg-slate-100 lg:bg-transparent"
+            className="group px-4 border-b lg:border-b-0 lg:bg-transparent"
           >
             {!menu.childs ? (
               <LinkCustom
                 href={menu.link}
-                className="py-2 lg:mr-10 block font-medium"
+                className="py-2 lg:mr-10 block font-medium text-xl"
               >
                 {menu.name}
               </LinkCustom>
@@ -126,22 +140,10 @@ const Header = async () => {
           </svg>
         </label>
       </ul>
-      <LinkCustom
-        href={"/"}
-        className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/5-80px)] flex items-center justify-center"
-      >
-        <ImageCustom
-          src={showImageUrl(logo?.data)}
-          width={100}
-          height={40}
-          className="object-contain h-full p-2"
-          alt="Trang chủ"
-        />
-      </LinkCustom>
-      <div className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/5*2)] flex items-center justify-end">
+      <div className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/12*2)] flex items-center justify-end">
         <RightMenu />
       </div>
-    </header>
+    </HeaderClient>
   );
 };
 

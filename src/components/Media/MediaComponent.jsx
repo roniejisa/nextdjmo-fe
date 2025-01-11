@@ -1,7 +1,7 @@
 "use client";
 
 import MediaList from "@/app/media/MediaList";
-import { GalleryContext } from "@/context/ImageProvider";
+import { GalleryContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useState, useTransition } from "react";
 import { getToken } from "./action";
 import Editor from "@/app/media/components/Editor";

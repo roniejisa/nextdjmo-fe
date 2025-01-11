@@ -1,7 +1,7 @@
 "use client";
 import { useContext } from "react";
 import FormFilter from "./FormFilter";
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname, useSearchParams } from "next/navigation";
 import { httpClient } from "@/utils/http";

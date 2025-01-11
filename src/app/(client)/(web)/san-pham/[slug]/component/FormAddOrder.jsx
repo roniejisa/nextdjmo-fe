@@ -1,8 +1,8 @@
 "use client";
 
-import { ClientContext } from "@/context/ClientProvider";
+import { ClientContext } from "@/context/client/ClientProvider";
 import { useNotify } from "@/context/NotifyProvider";
-import { ProductContext } from "@/context/ProductProvider";
+import { ProductContext } from "@/context/client/ProductProvider";
 import { useContext, useState } from "react";
 import { postDraftOrder } from "./action";
 import useRouterCustom from "@/packages/translation/Navigation";

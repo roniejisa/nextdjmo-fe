@@ -1,6 +1,6 @@
 "use client";
 
-import { OrderContext } from "@/context/OrderProvider";
+import { OrderContext } from "@/context/cms/OrderProvider";
 import { useContext } from "react";
 
 const orderStatus = {

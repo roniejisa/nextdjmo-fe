@@ -1,10 +1,10 @@
 "use client";
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext } from "react";
 import { deleteItems } from "../actions";
-import { AllContext } from "@/context/AllProvider";
+import { AllContext } from "@/context/cms/AllProvider";
 
 const ActionTable = () => {
   const { module, user, selectIds, setSelectIds, selectAllRef, data } =

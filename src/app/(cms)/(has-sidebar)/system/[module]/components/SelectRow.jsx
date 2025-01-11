@@ -1,6 +1,6 @@
 "use client";
 
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 import { useContext } from "react";
 
 const SelectRow = ({ id }) => {

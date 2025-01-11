@@ -13,7 +13,7 @@ import React, {
 import { editFolder, getFolders } from "./action";
 import { useMedia } from "./MediaProvider";
 import Dot from "@/components/Icon/svg/Dot";
-import { AllContext } from "@/context/AllProvider";
+import { AllContext } from "@/context/cms/AllProvider";
 import { useNotify } from "@/context/NotifyProvider";
 
 const Folder = () => {

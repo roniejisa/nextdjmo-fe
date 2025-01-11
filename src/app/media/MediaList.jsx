@@ -12,7 +12,7 @@ import { useMedia } from "./MediaProvider";
 import ImageType from "./types/ImageType";
 import VideoType from "./types/VideoType";
 import MediaItem from "./MediaItem";
-import { GalleryContext } from "@/context/ImageProvider";
+import { GalleryContext } from "@/context/cms/ImageProvider";
 // import { httpClient } from "@/utils/http";
 import { fetchPosts, getFolders } from "./action";
 import FolderUpload from "@/components/Icon/svg/FolderUpload";

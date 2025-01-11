@@ -1,4 +1,4 @@
-import ImageProvider from "@/context/ImageProvider";
+import ImageProvider from "@/context/cms/ImageProvider";
 import MediaProvider from "./MediaProvider";
 
 const layout = ({ children }) => {

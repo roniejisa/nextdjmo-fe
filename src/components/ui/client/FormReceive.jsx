@@ -23,9 +23,9 @@ const FormReceive = () => {
         type="text"
         name="email"
         placeholder="Nhập email"
-        className="px-2 py-1 rounded-tl-md rounded-bl-md border outline-none"
+        className="px-2 py-1 rounded-tl-md rounded-bl-md outline-none"
       />
-      <button className="bg-gray-700 text-white px-2 py-1 rounded-tr-md rounded-br-md">
+      <button className="bg-white text-black px-2 py-1 rounded-tr-md rounded-br-md">
         Đăng ký nhận tin
       </button>
     </form>

@@ -10,6 +10,12 @@ const ClientProvider = ({ children }) => {
   const [totalOrders, setTotalOrders] = useState(0);
   const [orders, setOrders] = useState([]);
 
+  // HEADER
+  const headerRef = useRef();
+  const sectionRef = useRef({
+    home: []
+  });
+
   const fetchData = async () => {
     const reponse = await getDataDraftOrder();
     if (reponse && reponse.status == 200 && reponse.data.length) {
@@ -46,6 +52,8 @@ const ClientProvider = ({ children }) => {
         setOrders,
         updateCart,
         setUpdateCart,
+        headerRef,
+        sectionRef,
       }}
     >
       {children}

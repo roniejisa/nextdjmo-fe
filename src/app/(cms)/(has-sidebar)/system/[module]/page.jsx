@@ -13,7 +13,7 @@ import { cache } from "react";
 import Phone from "./components/Phone";
 import OrderStatus from "./components/OrderStatus";
 import PaymentStatus from "./components/PaymentStatus";
-import ModuleProvider from "@/context/ModuleProvider";
+import ModuleProvider from "@/context/cms/ModuleProvider";
 import SelectRow from "./components/SelectRow";
 import SelectAllRow from "./components/SelectAllRow";
 import HeaderTable from "./HeaderTable";
