@@ -1,6 +1,7 @@
 import ImageCustom from "@/components/Maintain/Image";
 import SectionHome from "@/components/ui/client/components/SectionHome";
 import SlideComponent from "@/packages/slides/SlideComponent";
+import SlideMultipleClient from "@/packages/slides/SlideMultipleClient";
 import SlideProvider from "@/packages/slides/SlideProvider";
 import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
@@ -29,10 +30,7 @@ const Home = async () => {
           <div className="flex-[0_0_25%] flex flex-col px-2 gap-4">
             {slides.map((item, index) => {
               return (
-                <div
-                  key={index}
-                  className="bg-black rounded-lg flex-1"
-                >
+                <div key={index} className="bg-black rounded-lg flex-1">
                   <div className="flex justify-center items-center relative rounded-lg w-full h-full">
                     <ImageCustom
                       className="rounded-lg"
@@ -47,6 +45,7 @@ const Home = async () => {
           </div>
         </div>
       </div>
+      <SlideMultipleClient />
     </>
   );
 };
