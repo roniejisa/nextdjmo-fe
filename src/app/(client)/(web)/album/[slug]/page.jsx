@@ -1,5 +1,6 @@
 import { httpClient } from "@/utils/http";
 import AlbumClient from "./AlbumClient";
+import PreviewProvider from "@/packages/previews/PreviewProvider";
 
 const getAlbum = async (slug) => {
   const response = await httpClient(
@@ -10,7 +11,15 @@ const getAlbum = async (slug) => {
 const AlbumDetail = async ({ params }) => {
   const { slug } = await params;
   const data = await getAlbum(slug);
-  return <AlbumClient data={data} type="follow" />;
+  let images = [];
+  try {
+    images = JSON.parse(data.images);
+  } catch (e) {}
+  return (
+    <PreviewProvider data={images} type="follow">
+      <AlbumClient images={images} />
+    </PreviewProvider>
+  );
 };
 
 export default AlbumDetail;

@@ -4,11 +4,13 @@ textarea {
   @apply w-full outline-outline outline-4 transition border rounded-md;
 }
 :root {
-  --background: #ebebeb;
-  --foreground: #0a0a0a;
+  --background: #f6f9ff;
+  --foreground: #434656;
+  --text: #434656;
+  --text-sub: #a7aabd;
   --main: #ffffff;
   --outline: #2a85ff;
-  --danger: #ff0000;
+  --danger: #f3456d;
   --color-table: #e5e7eb;
 }
 
@@ -18,6 +20,8 @@ textarea {
     --foreground: #ededed;
   }
 }
+
+
 
 input[type="checkbox"]:checked,
 input[type="radio"]:checked {

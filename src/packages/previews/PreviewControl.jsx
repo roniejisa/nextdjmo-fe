@@ -2,7 +2,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { PreviewContext } from "./PreviewProvider";
 import { showImageUrl } from "@/utils/client/util";
-import MouseEffect from "@/components/Mouse/MouseEffect";
 
 const PreviewControl = () => {
   const { previewIndex, setPreviewIndex, images, type } =
@@ -164,7 +163,6 @@ const PreviewControl = () => {
           </svg>
         </button>
       </section>
-      <MouseEffect dependencies={{ previewIndex }} />
     </>
   );
 };

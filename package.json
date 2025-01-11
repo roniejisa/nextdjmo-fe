@@ -15,6 +15,7 @@
     "@react-three/drei": "^9.120.4",
     "@react-three/fiber": "^8.17.10",
     "apexcharts": "^4.3.0",
+    "chroma-js": "^3.1.2",
     "crypto-js": "^4.2.0",
     "cssnano": "^7.0.6",
     "grapesjs": "^0.22.4",
