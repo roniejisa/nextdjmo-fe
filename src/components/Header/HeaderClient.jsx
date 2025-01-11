@@ -12,22 +12,22 @@ const HeaderClient = ({ children, ...props }) => {
       const headerHeight = headerRef.current.offsetHeight;
       if (scroll > 0) {
         document.body.style.paddingTop = `${headerHeight}px`;
-        headerRef.current.classList.remove("relative", "bg-black");
+        headerRef.current.classList.remove("relative");
         headerRef.current.classList.add(
           "fixed",
           "top-0",
           "w-full",
+          "bg-background",
           "z-[9999]",
-          "bg-[#00000050]"
         );
       } else {
         document.body.style.paddingTop = "0";
-        headerRef.current.classList.add("relative", "bg-black");
+        headerRef.current.classList.add("relative");
         headerRef.current.classList.remove(
           "fixed",
           "top-0",
-          "bg-[#000]",
           "w-full",
+          "bg-background",
           "z-[9999]"
         );
       }

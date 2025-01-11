@@ -22,6 +22,10 @@ module.exports = {
         main: "var(--main)",
         outline: "var(--outline)",
         danger: "var(--danger)",
+        active: "var(--active)",
+        "active-dark": "var(--active-dark)",
+        "active-light": "var(--active-light)",
+        "text-active": "var(--text-active)",
       },
       backgroundImage: {
         'background-sidebar-admin': 'linear-gradient(to top, #fbf8dd, #f7e4ed, #d6def9, #ffffff 60%)',

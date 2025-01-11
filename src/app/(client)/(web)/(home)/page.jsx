@@ -19,13 +19,11 @@ const Home = async () => {
         <div className="flex flex-wrap -mx-2">
           <div className="flex-[0_0_75%] max-w-[75%] px-2">
             <SlideProvider
-              className="border border-foreground rounded-lg"
+              className="rounded-lg"
               slides={slides}
               component={SlideComponent}
               autoPlay={true}
               ms={300}
-              styleDotActive="bg-foreground border border-foreground"
-              styleDotNotActive="bg-transparent border border-foreground"
             />
           </div>
           <div className="flex-[0_0_25%] flex flex-col px-2 gap-4">
@@ -33,7 +31,7 @@ const Home = async () => {
               return (
                 <div
                   key={index}
-                  className="bg-black border border-foreground rounded-lg flex-1"
+                  className="bg-black rounded-lg flex-1"
                 >
                   <div className="flex justify-center items-center relative rounded-lg w-full h-full">
                     <ImageCustom
@@ -49,7 +47,6 @@ const Home = async () => {
           </div>
         </div>
       </div>
-      <SectionHome />
     </>
   );
 };

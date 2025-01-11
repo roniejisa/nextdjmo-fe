@@ -31,7 +31,7 @@ const Header = async () => {
   const logo = await getLogo();
   const leftMenus = await getMenuHeader();
   return (
-    <HeaderClient className="relative bg-black flex justify-between h-[100px] transition">
+    <HeaderClient className="relative flex justify-between h-[100px] transition">
       <div className="lg:hidden flex items-center pl-4 flex-[0_0_calc(100%/3)]">
         <label className="cursor-pointer py-2 pr-2" htmlFor="show-menu">
           <svg
@@ -72,7 +72,7 @@ const Header = async () => {
       </LinkCustom>
 
       <input type="checkbox" id="show-menu" hidden />
-      <ul className="lg:flex z-[9999] bg-black lg:bg-transparent w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full justify-center items-center flex-1 fixed lg:static">
+      <ul className="lg:flex z-[9999] lg:bg-transparent w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full justify-center items-center flex-1 fixed lg:static">
         <li className="border-b lg:hidden">
           <LinkCustom href={"/"} className="h-20 block">
             <ImageCustom

@@ -10,8 +10,8 @@ const SlideProvider = ({
   ms = 300,
   height = "100vh-200px",
   eventName = "slide-change",
-  styleDotActive = "bg-red-500",
-  styleDotNotActive = "bg-white",
+  styleDotActive = "border-active bg-active",
+  styleDotNotActive = "border-text-active bg-text-active",
   className = "",
 }) => {
   const indexRef = useRef(1); // Index hiện tại
@@ -231,7 +231,10 @@ const SlideProvider = ({
       }}
     >
       <div className={`${className}`}>
-        <div ref={slideContainerRef} className="overflow-hidden relative group rounded-[inherit]">
+        <div
+          ref={slideContainerRef}
+          className="overflow-hidden relative group rounded-[inherit]"
+        >
           <div
             ref={slideRef}
             className={`flex h-[calc(${height})]`}
@@ -268,7 +271,7 @@ const SlideProvider = ({
                       ref={(el) => (dotsRef.current[index] = el)}
                       key={index}
                       onClick={handleDotClick.bind(null, index)}
-                      className={`w-4 h-4 inline-block rounded-full  transition-all duration-${ms} cursor-pointer ${
+                      className={`w-4 h-4 inline-block rounded-full border transition-all duration-${ms} cursor-pointer ${
                         indexRef.current == index + 1
                           ? styleDotActive
                           : styleDotNotActive
@@ -279,7 +282,7 @@ const SlideProvider = ({
             </div>
             <div>
               <button
-                className={`text-foreground border p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-${ms} -translate-x-full group-hover:left-10 group-hover:translate-x-0 hover:bg-foreground hover:text-background`}
+                className={`text-active border border-text-active bg-text-active p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-${ms} -translate-x-full group-hover:left-10 group-hover:translate-x-0 hover:bg-active hover:border-active hover:text-text-active`}
                 onMouseMove={stopAuto}
                 onMouseLeave={playAuto}
                 onClick={() => handleActionChangeSlide(indexRef.current - 1)}
@@ -302,7 +305,7 @@ const SlideProvider = ({
                 </svg>
               </button>
               <button
-                className={`text-foreground absolute border p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-${ms} translate-x-full group-hover:right-10 group-hover:-translate-x-0 hover:bg-foreground hover:text-background`}
+                className={`text-active absolute border border-text-active bg-text-active p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-${ms} translate-x-full group-hover:right-10 group-hover:-translate-x-0 hover:bg-active hover:border-active hover:text-text-active`}
                 onMouseMove={stopAuto}
                 onMouseLeave={playAuto}
                 onClick={() => handleActionChangeSlide(indexRef.current + 1)}

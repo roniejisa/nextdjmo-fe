@@ -1,6 +1,10 @@
 :root {
-  --background: #000000;
-  --foreground: #d9daff;
+  --background: #ffffff;
+  --foreground: #000000;
+  --active: #ff90bc;
+  --active-dark: #fd4790;
+  --active-light: #fdb5d2;
+  --text-active: #ffffff;
 }
 body {
   background-color: var(--background);
