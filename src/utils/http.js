@@ -60,6 +60,14 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
   }
 };
 
+function clearTokensAndRedirect() {
+  cookies().delete('token');
+  cookies().delete('refreshToken');
+  cookies().set('msg', 'Vui lòng đăng nhập!');
+  return redirect('/dang-nhap');
+}
+
+
 function serverError() {
   cookies().delete('token');
   cookies().delete('refreshToken');
@@ -67,12 +75,6 @@ function serverError() {
   return redirect('/dang-nhap');
 }
 
-function clearTokensAndRedirect() {
-  cookies().delete('token');
-  cookies().delete('refreshToken');
-  cookies().set('msg', 'Vui lòng đăng nhập!');
-  return redirect('/dang-nhap');
-}
 
 function handleLoginRedirect(msg = "Vui lòng đăng nhập!", searchParams) {
   cookies().set('msg', msg);
