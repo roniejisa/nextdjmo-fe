@@ -1,5 +1,6 @@
 import SectionHome from "@/components/ui/client/components/SectionHome";
 import SlideComponent from "@/packages/slides/SlideComponent";
+import SlideProvider from "@/packages/slides/SlideProvider";
 import { httpClient } from "@/utils/http";
 
 export const getDataHome = async () => {
@@ -12,7 +13,14 @@ const Home = async () => {
   const { slides } = await getDataHome();
   return (
     <>
-      <SlideComponent slides={slides} />
+      <SlideProvider
+        slides={slides}
+        component={SlideComponent}
+        autoPlay={true}
+        ms={300}
+        styleDotActive="bg-foreground border border-foreground"
+        styleDotNotActive="bg-transparent border border-foreground"
+      />
       <SectionHome />
     </>
   );
