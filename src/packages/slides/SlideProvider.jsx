@@ -12,6 +12,7 @@ const SlideProvider = ({
   eventName = "slide-change",
   styleDotActive = "bg-red-500",
   styleDotNotActive = "bg-white",
+  className = "",
 }) => {
   const indexRef = useRef(1); // Index hiện tại
   const dotsRef = useRef([]); // Dot Elements
@@ -22,6 +23,7 @@ const SlideProvider = ({
   const transformXRef = useRef(0); // Transform X
   const offsetXMove = useRef(0); // Offset X Move
   const Component = component; // Component tự thêm vào là đây
+  const slideContainerRef = useRef(null);
   const isTransition = useRef("ok");
   const [items, setItems] = useState(() => {
     const firstSlide = slides[0];
@@ -56,9 +58,9 @@ const SlideProvider = ({
           : styleDotNotActive.split(" "))
       );
     });
-    transformXRef.current = -(index * window.innerWidth);
+    transformXRef.current = -(index * slideContainerRef.current.clientWidth);
     slideRef.current.style.transform = `translateX(-${
-      index * window.innerWidth
+      index * slideContainerRef.current.clientWidth
     }px)`;
     clearTimeout(isTransition.current);
     isTransition.current = setTimeout(() => {
@@ -82,35 +84,6 @@ const SlideProvider = ({
       );
     }
   };
-
-  useEffect(() => {
-    transformXRef.current = -(indexRef.current * window.innerWidth);
-    dispatchEventForComponent(indexRef.current);
-    const eventTransitionEnd = (e) => {
-      let checkFirstOrLast = false;
-      if (indexRef.current == 0) {
-        indexRef.current = items.length - 2;
-        checkFirstOrLast = true;
-      } else if (indexRef.current == items.length - 1) {
-        indexRef.current = 1;
-        checkFirstOrLast = true;
-      }
-      if (checkFirstOrLast) {
-        slideRef.current.style.transition = "";
-      }
-      checkFirstOrLast && changeSlide(indexRef.current);
-    };
-    if (slideRef.current) {
-      slideRef.current.addEventListener("transitionend", eventTransitionEnd);
-
-      return () => {
-        slideRef.current.removeEventListener(
-          "transitionend",
-          eventTransitionEnd
-        );
-      };
-    }
-  }, []);
 
   const handleActionChangeSlide = (index) => {
     if (isTransition.current !== "ok") return;
@@ -146,6 +119,48 @@ const SlideProvider = ({
   };
 
   useEffect(() => {
+    dispatchEventForComponent(indexRef.current);
+    const eventTransitionEnd = (e) => {
+      let checkFirstOrLast = false;
+      if (indexRef.current == 0) {
+        indexRef.current = items.length - 2;
+        checkFirstOrLast = true;
+      } else if (indexRef.current == items.length - 1) {
+        indexRef.current = 1;
+        checkFirstOrLast = true;
+      }
+      if (checkFirstOrLast) {
+        slideRef.current.style.transition = "";
+      }
+      checkFirstOrLast && changeSlide(indexRef.current);
+    };
+    if (slideRef.current) {
+      slideRef.current.addEventListener("transitionend", eventTransitionEnd);
+
+      return () => {
+        slideRef.current.removeEventListener(
+          "transitionend",
+          eventTransitionEnd
+        );
+      };
+    }
+  }, []);
+  useEffect(() => {
+    // Tính toán kích thước ban đầu
+    transformXRef.current = -(
+      indexRef.current * slideContainerRef.current.clientWidth
+    );
+    slideRef.current.style.transform = `translateX(${transformXRef.current}px)`;
+    slideRef.current.style.width = `${
+      items.length * slideContainerRef.current.clientWidth
+    }px`;
+    if (slideItemsRef.current) {
+      slideItemsRef.current.forEach((item) => {
+        item.style.width = slideContainerRef.current.clientWidth + "px";
+      });
+    }
+
+    // chạy autoplay
     playAuto();
 
     return () => stopAuto(); // Dọn dẹp interval khi component unmount
@@ -154,7 +169,7 @@ const SlideProvider = ({
   const handleMouseUp = (e) => {
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
-    const totalWidth = window.innerWidth;
+    const totalWidth = slideContainerRef.current.clientWidth;
     const spaceCheck = totalWidth / 4;
     const absOffsetX = Math.abs(offsetXMove.current);
     if (absOffsetX < spaceCheck) {
@@ -215,103 +230,101 @@ const SlideProvider = ({
         handleAddOrRemoveCursor,
       }}
     >
-      <div className="overflow-hidden relative group">
-        <div
-          ref={slideRef}
-          className={`flex h-[calc(${height})]`}
-          onMouseDown={handleMouseDown}
-          style={{
-            transform: `translateX(-100vw)`,
-            width: `${slides.length * 100}vw`,
-          }}
-        >
-          {items.map((slide, index) => {
-            return (
-              <div
-                key={index}
-                className={`w-screen flex-shrink-0 h-screen relative`}
-                ref={(el) => (slideItemsRef.current[index] = el)}
-              >
-                <Component item={slide} index={index} />
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Xử lý control */}
-        <div>
+      <div className={`${className}`}>
+        <div ref={slideContainerRef} className="overflow-hidden relative group rounded-[inherit]">
           <div
-            className="absolute flex gap-4 bottom-4 left-1/2 -translate-x-1/2"
-            onMouseMove={stopAuto}
-            onMouseLeave={playAuto}
+            ref={slideRef}
+            className={`flex h-[calc(${height})]`}
+            onMouseDown={handleMouseDown}
           >
-            {items
-              .filter((_, index) => {
-                if (index == 0 || index == items.length - 1) return false;
-                return true;
-              })
-              .map((_, index) => {
-                return (
-                  <span
-                    ref={(el) => (dotsRef.current[index] = el)}
-                    key={index}
-                    onClick={handleDotClick.bind(null, index)}
-                    className={`w-4 h-4 inline-block rounded-full  transition-all duration-${ms} cursor-pointer ${
-                      indexRef.current == index + 1
-                        ? styleDotActive
-                        : styleDotNotActive
-                    }`}
-                  ></span>
-                );
-              })}
+            {items.map((slide, index) => {
+              return (
+                <div
+                  key={index}
+                  className={`flex-shrink-0 h-screen relative`}
+                  ref={(el) => (slideItemsRef.current[index] = el)}
+                >
+                  <Component item={slide} index={index} />
+                </div>
+              );
+            })}
           </div>
+
+          {/* Xử lý control */}
           <div>
-            <button
-              className={`text-foreground border p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-${ms} -translate-x-full group-hover:left-10 group-hover:translate-x-0 hover:bg-foreground hover:text-background`}
+            <div
+              className="absolute flex gap-4 bottom-4 left-1/2 -translate-x-1/2"
               onMouseMove={stopAuto}
               onMouseLeave={playAuto}
-              onClick={() => handleActionChangeSlide(indexRef.current - 1)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+              {items
+                .filter((_, index) => {
+                  if (index == 0 || index == items.length - 1) return false;
+                  return true;
+                })
+                .map((_, index) => {
+                  return (
+                    <span
+                      ref={(el) => (dotsRef.current[index] = el)}
+                      key={index}
+                      onClick={handleDotClick.bind(null, index)}
+                      className={`w-4 h-4 inline-block rounded-full  transition-all duration-${ms} cursor-pointer ${
+                        indexRef.current == index + 1
+                          ? styleDotActive
+                          : styleDotNotActive
+                      }`}
+                    ></span>
+                  );
+                })}
+            </div>
+            <div>
+              <button
+                className={`text-foreground border p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-${ms} -translate-x-full group-hover:left-10 group-hover:translate-x-0 hover:bg-foreground hover:text-background`}
+                onMouseMove={stopAuto}
+                onMouseLeave={playAuto}
+                onClick={() => handleActionChangeSlide(indexRef.current - 1)}
               >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M5 12l14 0" />
-                <path d="M5 12l4 4" />
-                <path d="M5 12l4 -4" />
-              </svg>
-            </button>
-            <button
-              className={`text-foreground absolute border p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-${ms} translate-x-full group-hover:right-10 group-hover:-translate-x-0 hover:bg-foreground hover:text-background`}
-              onMouseMove={stopAuto}
-              onMouseLeave={playAuto}
-              onClick={() => handleActionChangeSlide(indexRef.current + 1)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 12l14 0" />
+                  <path d="M5 12l4 4" />
+                  <path d="M5 12l4 -4" />
+                </svg>
+              </button>
+              <button
+                className={`text-foreground absolute border p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-${ms} translate-x-full group-hover:right-10 group-hover:-translate-x-0 hover:bg-foreground hover:text-background`}
+                onMouseMove={stopAuto}
+                onMouseLeave={playAuto}
+                onClick={() => handleActionChangeSlide(indexRef.current + 1)}
               >
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M5 12l14 0" />
-                <path d="M15 16l4 -4" />
-                <path d="M15 8l4 4" />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 12l14 0" />
+                  <path d="M15 16l4 -4" />
+                  <path d="M15 8l4 4" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>

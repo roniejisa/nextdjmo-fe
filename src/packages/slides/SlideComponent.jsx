@@ -39,7 +39,7 @@ const SlideComponent = ({ item, index }) => {
         <p>{item.name}</p>
         <LinkCustom
           href={item.url}
-          className="mt-5 min-w-[200px] py-4 flex justify-center items-center border border-foreground"
+          className="mt-5 min-w-[200px] py-4 flex justify-center items-center transition-all duration-300 border border-foreground hover:bg-foreground hover:text-background rounded-lg"
         >
           {item.title}
         </LinkCustom>

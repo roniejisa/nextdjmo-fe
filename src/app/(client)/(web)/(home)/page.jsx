@@ -1,6 +1,8 @@
+import ImageCustom from "@/components/Maintain/Image";
 import SectionHome from "@/components/ui/client/components/SectionHome";
 import SlideComponent from "@/packages/slides/SlideComponent";
 import SlideProvider from "@/packages/slides/SlideProvider";
+import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
 
 export const getDataHome = async () => {
@@ -13,14 +15,40 @@ const Home = async () => {
   const { slides } = await getDataHome();
   return (
     <>
-      <SlideProvider
-        slides={slides}
-        component={SlideComponent}
-        autoPlay={true}
-        ms={300}
-        styleDotActive="bg-foreground border border-foreground"
-        styleDotNotActive="bg-transparent border border-foreground"
-      />
+      <div className="px-10">
+        <div className="flex flex-wrap -mx-2">
+          <div className="flex-[0_0_75%] max-w-[75%] px-2">
+            <SlideProvider
+              className="border border-foreground rounded-lg"
+              slides={slides}
+              component={SlideComponent}
+              autoPlay={true}
+              ms={300}
+              styleDotActive="bg-foreground border border-foreground"
+              styleDotNotActive="bg-transparent border border-foreground"
+            />
+          </div>
+          <div className="flex-[0_0_25%] flex flex-col px-2 gap-4">
+            {slides.map((item, index) => {
+              return (
+                <div
+                  key={index}
+                  className="bg-black border border-foreground rounded-lg flex-1"
+                >
+                  <div className="flex justify-center items-center relative rounded-lg w-full h-full">
+                    <ImageCustom
+                      className="rounded-lg"
+                      src={showImageUrl(item?.image)}
+                      alt={item?.name}
+                      fill={true}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
       <SectionHome />
     </>
   );
