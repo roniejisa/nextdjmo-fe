@@ -9,10 +9,11 @@ const SlideProvider = ({
   autoPlay = true,
   autoPlayTime = 5000,
   ms = 300,
-  height = "100vh-200px",
+  height = "100vh/2",
   eventName = "slide-change",
   styleDotActive = "border-active bg-active",
   styleDotNotActive = "border-text-active bg-text-active",
+  options = {},
   fallback = Skeleton,
   className = "",
 }) => {
@@ -250,14 +251,17 @@ const SlideProvider = ({
         >
           {isCalculator ? (
             <div>
-              <ComponentFallback height={"100vh"} />
+              <ComponentFallback height={"100vh/2"} />
             </div>
           ) : (
             <div
               ref={slideRef}
-              className={`flex h-[calc(${height})]`}
+              className={`flex`}
               onMouseDown={handleMouseDown}
               onTouchStart={handleMouseDown}
+              style={{
+                maxHeight: `calc(${height})`,
+              }}
             >
               {items.map((slide, index) => {
                 return (
@@ -265,6 +269,9 @@ const SlideProvider = ({
                     key={index}
                     className={`flex-shrink-0 h-screen relative`}
                     ref={(el) => (slideItemsRef.current[index] = el)}
+                    style={{
+                      maxHeight: `calc(${height})`,
+                    }}
                   >
                     <Component item={slide} index={index} />
                   </div>

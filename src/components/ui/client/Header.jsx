@@ -31,7 +31,7 @@ const Header = async () => {
   const logo = await getLogo();
   const leftMenus = await getMenuHeader();
   return (
-    <HeaderClient className="relative flex justify-between h-[100px] transition">
+    <HeaderClient className="relative flex justify-between h-[100px] transition bg-active-light">
       <div className="lg:hidden flex items-center pl-4 flex-[0_0_calc(100%/3)]">
         <label className="cursor-pointer py-2 pr-2" htmlFor="show-menu">
           <svg

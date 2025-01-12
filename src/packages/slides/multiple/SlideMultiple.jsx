@@ -6,12 +6,15 @@ const SlideMultiple = ({
   visibleCount = 3,
   component = Skeleton,
   fallback = Skeleton,
-  heightItem = "200px",
+  heightItem = "auto",
+  gap = 0,
+  options = {},
   ...props
 }) => {
   const [isCalculator, setIsCalculator] = useState(true);
   const hasInfinity = items.length > visibleCount;
   const indexRef = useRef(hasInfinity ? visibleCount : 0); // Vị trí hiện tại
+  const defaultVisibleCount = visibleCount;
   const trackRef = useRef(null);
   const containerRef = useRef(null);
   const startPosition = useRef(0);
@@ -30,6 +33,34 @@ const SlideMultiple = ({
         ]
       : items;
 
+  const handleResize = () => {
+    if (!containerRef.current) return;
+    const withCurrent = window.innerWidth;
+    if (withCurrent < 576 && defaultVisibleCount > 1) {
+      visibleCount = 1;
+    } else if (withCurrent < 768 && defaultVisibleCount > 2) {
+      visibleCount = 2;
+    } else if (withCurrent < 1024 && defaultVisibleCount > 3) {
+      visibleCount = 3;
+    } else if (withCurrent < 1200 && defaultVisibleCount > 4) {
+      visibleCount = 4;
+    } else {
+      visibleCount = defaultVisibleCount;
+    }
+    const containerWidth = containerRef.current.offsetWidth;
+    itemWidthRef.current = containerWidth / visibleCount;
+    for (let i = 0; i < trackRef.current.children.length; i++) {
+      trackRef.current.children[i].style.width = `${itemWidthRef.current}px`;
+    }
+    changeIndex(indexRef.current);
+  };
+  // Resize tự động
+  useEffect(() => {
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
   // Tính toán chiều rộng của mỗi item
   useEffect(() => {
     const containerWidth = containerRef.current.offsetWidth;
@@ -39,9 +70,7 @@ const SlideMultiple = ({
 
   useEffect(() => {
     if (!itemWidthRef.current || !trackRef.current) return;
-    for (let i = 0; i < trackRef.current.children.length; i++) {
-      trackRef.current.children[i].style.width = `${itemWidthRef.current}px`;
-    }
+    handleResize();
     changeIndex(indexRef.current);
   }, [isCalculator]);
 
@@ -65,17 +94,21 @@ const SlideMultiple = ({
 
   const checkInfinity = () => {
     if (!hasInfinity) return;
+    trackRef.current.style.transition = "";
     let hasChange = false;
-    if (indexRef.current >= extendedItems.length - visibleCount) {
+    if (
+      indexRef.current >= extendedItems.length - visibleCount ||
+      indexRef.current + visibleCount >= extendedItems.length - 1
+    ) {
       indexRef.current = visibleCount; // Quay lại đầu danh sách
       hasChange = true;
-    } else if (indexRef.current <= 0) {
+    } else if (indexRef.current <= 0 || indexRef.current - visibleCount <= 0) {
       indexRef.current = extendedItems.length - visibleCount; // Quay lại cuối danh sách
       hasChange = true;
     }
     if (hasChange) {
-      trackRef.current.style.transition = "";
       changeIndex(indexRef.current);
+      return true;
     }
   };
 
@@ -90,9 +123,11 @@ const SlideMultiple = ({
     document.addEventListener("touchmove", handleDragMove);
     document.addEventListener("mouseup", handleDragEnd);
     document.addEventListener("touchend", handleDragEnd);
+    changeCursor("grabbing");
   };
 
   const handleDragMove = (event) => {
+    event.preventDefault();
     const currentPosition = event.type.includes("mouse")
       ? event.pageX
       : event.touches[0].clientX;
@@ -105,18 +140,20 @@ const SlideMultiple = ({
     const maxTranslate =
       -(extendedItems.length - visibleCount) * itemWidthRef.current;
     const minTranslate = 0; // Không cho kéo qua đầu
-
+    // Cho phép kéo thêm 1/2 phần tử trước khi snap lại
+    const extraPull = (itemWidthRef.current / 3) * 2;
     // Giới hạn kéo không vượt qua đầu hoặc cuối
     if (currentTranslate.current > minTranslate) {
-      currentTranslate.current = minTranslate; // Dừng lại ở đầu
+      currentTranslate.current = minTranslate - extraPull; // Dừng lại ở đầu
     } else if (currentTranslate.current < maxTranslate) {
-      currentTranslate.current = maxTranslate; // Dừng lại ở cuối
+      currentTranslate.current = maxTranslate + extraPull; // Dừng lại ở cuối
     }
 
     trackRef.current.style.transform = `translateX(${currentTranslate.current}px)`;
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = (event) => {
+    event.preventDefault();
     document.removeEventListener("mousemove", handleDragMove);
     document.removeEventListener("touchmove", handleDragMove);
     document.removeEventListener("mouseup", handleDragEnd);
@@ -135,92 +172,152 @@ const SlideMultiple = ({
       indexRef.current = indexRef.current - totalIndexMove;
     }
     checkIndexRelated(indexRef.current);
-    checkInfinity();
+    changeCursor();
+    if (checkInfinity()) return;
     // Cập nhật index nếu có sự thay đổi
     trackRef.current.style.transition = "300ms ease";
     changeIndex(indexRef.current);
   };
 
   const checkIndexRelated = (newIndex) => {
-    if (newIndex < 0) {
-      indexRef.current = 0;
+    if (newIndex <= 0) {
+      indexRef.current = visibleCount + visibleCount;
     } else if (
       newIndex >= extendedItems.length - 1 ||
-      newIndex + visibleCount >= extendedItems.length
+      newIndex + visibleCount >= extendedItems.length - 1
     ) {
-      indexRef.current = extendedItems.length - visibleCount;
+      indexRef.current = visibleCount + 1;
     } else {
       indexRef.current = newIndex;
     }
   };
+
+  const changeCursor = (type = "default") => {
+    switch (type) {
+      case "grabbing":
+        document.body.style.cursor = "grabbing";
+        break;
+      case "grab":
+        document.body.style.cursor = "grab";
+        break;
+      default:
+        document.body.style.cursor = "default";
+        break;
+    }
+  };
   return (
     <div
-      className="relative w-full overflow-hidden"
+      className="relative w-full group"
       ref={containerRef}
       onMouseDown={handleDragStart}
       onTouchStart={handleDragStart}
     >
-      {/* Slider Track */}
-      <div className="w-full">
-        {isCalculator ? (
-          <div>
-            {[...Array(visibleCount)].map((_, index) => (
-              <ComponentFallback key={index} height={heightItem} />
-            ))}
-          </div>
-        ) : (
-          <div
-            ref={trackRef}
-            className="flex"
-            onTransitionEnd={checkInfinity}
-            style={{
-              width: `${extendedItems.length * itemWidthRef.current}px`,
-            }}
+      <div className="overflow-hidden">
+        {/* Slider Track */}
+        <div
+          className="w-full"
+          style={{
+            paddingLeft: `${gap}px`,
+            paddingRight: `${gap}px`,
+            paddingTop: `${gap}px`,
+            paddingBottom: `${gap}px`,
+          }}
+        >
+          {isCalculator ? (
+            <div>
+              {[...Array(visibleCount)].map((_, index) => (
+                <ComponentFallback key={index} height={heightItem} />
+              ))}
+            </div>
+          ) : (
+            <div
+              ref={trackRef}
+              className={`flex`}
+              onTransitionEnd={checkInfinity}
+              style={{
+                marginLeft: `-${gap}px`,
+                marginRight: `-${gap}px`,
+                width: `${extendedItems.length * itemWidthRef.current}px`,
+              }}
+            >
+              {extendedItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex-shrink-0"
+                  style={{
+                    paddingLeft: `${gap}px`,
+                    paddingRight: `${gap}px`,
+                    height: heightItem,
+                  }}
+                >
+                  <Component index={index} item={item} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div>
+        {/* Nút Prev */}
+        {hasInfinity && (
+          <button
+            onMouseDown={(e) =>
+              handleButtonClick(e, indexRef.current - visibleCount)
+            }
+            onTouchStart={(e) =>
+              handleButtonClick(e, indexRef.current - visibleCount)
+            }
+            className="text-active border border-text-active bg-text-active p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-300 opacity-0 group-hover:-translate-x-1/2 group-hover:opacity-100 hover:bg-active hover:border-active hover:text-text-active"
           >
-            {extendedItems.map((item, index) => (
-              <div
-                key={index}
-                className="flex-shrink-0 "
-                style={{
-                  height: heightItem,
-                }}
-              >
-                <Component index={index} item={item} />
-              </div>
-            ))}
-          </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M5 12l14 0"></path>
+              <path d="M5 12l4 4"></path>
+              <path d="M5 12l4 -4"></path>
+            </svg>
+          </button>
+        )}
+
+        {/* Nút Next */}
+        {hasInfinity && (
+          <button
+            onMouseDown={(e) =>
+              handleButtonClick(e, indexRef.current + visibleCount)
+            }
+            onTouchStart={(e) =>
+              handleButtonClick(e, indexRef.current + visibleCount)
+            }
+            className="text-active absolute border border-text-active bg-text-active p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-300 opacity-0 group-hover:translate-x-1/2 group-hover:opacity-100 hover:bg-active hover:border-active hover:text-text-active"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M5 12l14 0"></path>
+              <path d="M15 16l4 -4"></path>
+              <path d="M15 8l4 4"></path>
+            </svg>
+          </button>
         )}
       </div>
-
-      {/* Nút Prev */}
-      {hasInfinity && (
-        <button
-          onMouseDown={(e) =>
-            handleButtonClick(e, indexRef.current - visibleCount)
-          }
-          onTouchStart={(e) =>
-            handleButtonClick(e, indexRef.current - visibleCount)
-          }
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-gray-700 text-white px-3 py-2 rounded-full hover:bg-gray-800 focus:outline-none z-10"
-        >
-          Prev
-        </button>
-      )}
-
-      {/* Nút Next */}
-      {hasInfinity && (
-        <button
-          onMouseDown={(e) =>
-            handleButtonClick(e, indexRef.current + visibleCount)
-          }
-          onTouchStart={(e) =>
-            handleButtonClick(e, indexRef.current + visibleCount)
-          }
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-gray-700 text-white px-3 py-2 rounded-full hover:bg-gray-800 focus:outline-none z-10"
-        >
-          Next
-        </button>
-      )}
     </div>
   );
 };

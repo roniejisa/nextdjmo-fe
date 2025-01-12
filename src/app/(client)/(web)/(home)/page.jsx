@@ -16,13 +16,14 @@ const Home = async () => {
   const { slides } = await getDataHome();
   return (
     <>
-      <div className="px-10">
+      <div className="px-10 py-10">
         <div className="flex flex-wrap -mx-2">
           <div className="flex-[0_0_75%] max-w-[75%] px-2">
             <SlideProvider
               className="rounded-lg"
               slides={slides}
               component={SlideComponent}
+              height="500px"
               autoPlay={true}
               ms={300}
             />
@@ -46,7 +47,10 @@ const Home = async () => {
         </div>
       </div>
       <SlideMultipleClient />
-      <SectionHome />
+      <SlideMultipleClient />
+      <SlideMultipleClient />
+      <SlideMultipleClient />
+      {/* <SectionHome /> */}
     </>
   );
 };

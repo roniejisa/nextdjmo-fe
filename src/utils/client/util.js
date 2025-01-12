@@ -63,7 +63,7 @@ export const showImageUrl = (imageData) => {
     }
 
     // Nếu `url` là string và là URL đầy đủ
-    if (/^(https?:|blob:|\/\/)/.test(imageData)) return imageData;
+    if (/^(https?:|blob:|\/\/|\/)/.test(imageData)) return imageData;
 
     // Nếu `url` là string và bắt đầu bằng "/"
     if (imageData.startsWith("/")) return baseUrl + imageData.slice(1);

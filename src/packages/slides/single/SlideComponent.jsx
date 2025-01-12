@@ -48,7 +48,7 @@ const SlideComponent = ({ item, index }) => {
         src={showImageUrl(item.image)}
         fill={true}
         alt={item.name}
-        className="object-cover"
+        className="object-cover object-top"
       />
     </>
   );

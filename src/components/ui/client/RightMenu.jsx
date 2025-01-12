@@ -24,7 +24,7 @@ const RightMenu = () => {
               className="flex items-center py-2 gap-2"
             >
               <span>{menu.icon}</span>
-              <span className="hidden lg:block">{menu.name}</span>
+              {/* <span className="hidden lg:block">{menu.name}</span> */}
             </button>
           )}
         </li>
@@ -58,7 +58,7 @@ const RightMenu = () => {
               <path d="M6 5l14 1l-1 7h-13" />
             </svg>
           </button>
-          <span className="absolute top-0 right-0 translate-x-1/2 min-w-4 h-4 bg-red-500 rounded-full flex justify-center items-center p-2 text-white">
+          <span className="absolute top-0 right-0 translate-x-1/2 min-w-4 h-4 bg-active-dark rounded-full flex justify-center items-center p-2 text-white">
             {totalOrders}
           </span>
           <div>
@@ -70,41 +70,43 @@ const RightMenu = () => {
               >
                 <div className="p-4">
                   <div className="flex flex-col gap-2">
-                    {orders.map((order) => {
-                      return (
-                        <LinkCustom
-                          key={order.product_variant_id}
-                          href={`/san-pham/${order.slug}`}
-                          className="link-header"
-                        >
-                          <div className="flex items-stretch gap-2">
-                            <span className="relative w-[40px] h-[40px] shadow-2xl border">
-                              <ImageCustom
-                                src={showImageUrl(order.image)}
-                                alt={order.name}
-                                width={100}
-                                height={100}
-                                className="w-full h-full object-contain"
-                              />
-                            </span>
-                            <p
-                              className="line-clamp-1 whitespace-nowrap leading-4"
-                              title={order.name}
+                    {orders.length > 0
+                      ? orders.map((order) => {
+                          return (
+                            <LinkCustom
+                              key={order.product_variant_id}
+                              href={`/san-pham/${order.slug}`}
+                              className="link-header"
                             >
-                              {order.name}
-                            </p>
-                            <span className="flex-1 text-right whitespace-nowrap leading-4 text-red-500 text-sm">
-                              {Intl.NumberFormat().format(order.price)} VND
-                            </span>
-                          </div>
-                        </LinkCustom>
-                      );
-                    })}
+                              <div className="flex items-stretch gap-2">
+                                <span className="relative w-[40px] h-[40px] shadow-2xl border">
+                                  <ImageCustom
+                                    src={showImageUrl(order.image)}
+                                    alt={order.name}
+                                    width={100}
+                                    height={100}
+                                    className="w-full h-full object-contain"
+                                  />
+                                </span>
+                                <p
+                                  className="line-clamp-1 whitespace-nowrap leading-4"
+                                  title={order.name}
+                                >
+                                  {order.name}
+                                </p>
+                                <span className="flex-1 text-right whitespace-nowrap leading-4 text-active text-sm">
+                                  {Intl.NumberFormat().format(order.price)} VND
+                                </span>
+                              </div>
+                            </LinkCustom>
+                          );
+                        })
+                      : "Chưa có sản phẩm nào trong giỏ hàng!"}
                   </div>
                   <div className="flex justify-end mt-3">
                     <LinkCustom
                       href="/gio-hang"
-                      className="link-header bg-red-500 px-2 py-1 rounded-md text-white"
+                      className="link-header bg-active-dark px-2 py-1 rounded-md text-white"
                     >
                       Xem giỏ hàng
                     </LinkCustom>
@@ -137,7 +139,7 @@ const rightMenus = [
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="w-6 h-6 lg:w-4 lg:h-4"
+        className="w-6 h-6"
       >
         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
         <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
