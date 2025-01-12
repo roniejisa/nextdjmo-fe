@@ -46,6 +46,7 @@ const Home = async () => {
         </div>
       </div>
       <SlideMultipleClient />
+      <SectionHome />
     </>
   );
 };
