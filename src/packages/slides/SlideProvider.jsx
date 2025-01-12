@@ -1,5 +1,6 @@
 "use client";
 
+import Skeleton from "@/components/Skeleton/Skeleton";
 import { createContext, useEffect, useRef, useState } from "react";
 export const SlideContext = createContext();
 const SlideProvider = ({
@@ -12,8 +13,10 @@ const SlideProvider = ({
   eventName = "slide-change",
   styleDotActive = "border-active bg-active",
   styleDotNotActive = "border-text-active bg-text-active",
+  fallback = Skeleton,
   className = "",
 }) => {
+  const [isCalculator, setIsCalculator] = useState(true);
   const indexRef = useRef(1); // Index hiện tại
   const dotsRef = useRef([]); // Dot Elements
   const slideRef = useRef(null); // Slide Element
@@ -23,13 +26,14 @@ const SlideProvider = ({
   const transformXRef = useRef(0); // Transform X
   const offsetXMove = useRef(0); // Offset X Move
   const Component = component; // Component tự thêm vào là đây
+  const ComponentFallback = fallback;
   const slideContainerRef = useRef(null);
   const isTransition = useRef("ok");
-  const [items, setItems] = useState(() => {
-    const firstSlide = slides[0];
-    const lastSlide = slides[slides.length - 1];
-    return [lastSlide, ...slides, firstSlide];
-  }); // Xử lý đầu cuối
+  const totalWidthSlide = useRef(0);
+  const items =
+    slides.length > 1
+      ? [...slides.slice(-1), ...slides, ...slides.slice(0, 1)]
+      : slides;
 
   const handleDotClick = (index) => {
     slideRef.current.style.transition = `transform ${ms}ms`;
@@ -138,7 +142,7 @@ const SlideProvider = ({
       slideRef.current.addEventListener("transitionend", eventTransitionEnd);
 
       return () => {
-        slideRef.current.removeEventListener(
+        slideRef.current?.removeEventListener(
           "transitionend",
           eventTransitionEnd
         );
@@ -147,6 +151,11 @@ const SlideProvider = ({
   }, []);
   useEffect(() => {
     // Tính toán kích thước ban đầu
+    setIsCalculator(false);
+  }, []);
+
+  useEffect(() => {
+    if (isCalculator) return;
     transformXRef.current = -(
       indexRef.current * slideContainerRef.current.clientWidth
     );
@@ -164,11 +173,13 @@ const SlideProvider = ({
     playAuto();
 
     return () => stopAuto(); // Dọn dẹp interval khi component unmount
-  }, []);
+  }, [isCalculator]);
 
   const handleMouseUp = (e) => {
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
+    document.removeEventListener("touchmove", handleMouseMove);
+    document.removeEventListener("touchend", handleMouseUp);
     const totalWidth = slideContainerRef.current.clientWidth;
     const spaceCheck = totalWidth / 4;
     const absOffsetX = Math.abs(offsetXMove.current);
@@ -200,7 +211,9 @@ const SlideProvider = ({
     offsetXRef.current = e.clientX;
 
     document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("touchmove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("touchend", handleMouseUp);
   };
 
   const handleAddOrRemoveCursor = (isAdd = false) => {
@@ -235,23 +248,30 @@ const SlideProvider = ({
           ref={slideContainerRef}
           className="overflow-hidden relative group rounded-[inherit]"
         >
-          <div
-            ref={slideRef}
-            className={`flex h-[calc(${height})]`}
-            onMouseDown={handleMouseDown}
-          >
-            {items.map((slide, index) => {
-              return (
-                <div
-                  key={index}
-                  className={`flex-shrink-0 h-screen relative`}
-                  ref={(el) => (slideItemsRef.current[index] = el)}
-                >
-                  <Component item={slide} index={index} />
-                </div>
-              );
-            })}
-          </div>
+          {isCalculator ? (
+            <div>
+              <ComponentFallback height={"100vh"} />
+            </div>
+          ) : (
+            <div
+              ref={slideRef}
+              className={`flex h-[calc(${height})]`}
+              onMouseDown={handleMouseDown}
+              onTouchStart={handleMouseDown}
+            >
+              {items.map((slide, index) => {
+                return (
+                  <div
+                    key={index}
+                    className={`flex-shrink-0 h-screen relative`}
+                    ref={(el) => (slideItemsRef.current[index] = el)}
+                  >
+                    <Component item={slide} index={index} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Xử lý control */}
           <div>

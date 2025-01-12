@@ -16,6 +16,12 @@ module.exports = {
       '2xl': '1400px',
     },
     extend: {
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        }
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
