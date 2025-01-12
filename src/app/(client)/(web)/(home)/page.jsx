@@ -1,8 +1,8 @@
 import ImageCustom from "@/components/Maintain/Image";
 import SectionHome from "@/components/ui/client/components/SectionHome";
-import SlideComponent from "@/packages/slides/SlideComponent";
-import SlideMultipleClient from "@/packages/slides/SlideMultipleClient";
-import SlideProvider from "@/packages/slides/SlideProvider";
+import SlideComponent from "@/packages/slides/single/SlideComponent";
+import SlideMultipleClient from "@/packages/slides/multiple/SlideMultipleClient";
+import SlideProvider from "@/packages/slides/single/SlideProvider";
 import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
 

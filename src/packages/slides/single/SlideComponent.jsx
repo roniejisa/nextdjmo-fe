@@ -3,7 +3,7 @@
 import ImageCustom from "@/components/Maintain/Image";
 import { showImageUrl } from "@/utils/client/util";
 import { useEffect, useRef } from "react";
-import LinkCustom from "../translation/Link";
+import LinkCustom from "../../translation/Link";
 
 const SlideComponent = ({ item, index }) => {
   const itemRef = useRef(null);
