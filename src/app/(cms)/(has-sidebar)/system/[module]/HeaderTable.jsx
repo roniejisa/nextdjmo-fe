@@ -8,10 +8,12 @@ import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 import ExcelIcon from "@/components/Icon/svg/Excel";
 import SearchIcon from "@/components/Icon/svg/Search";
+import { useNotify } from "@/context/NotifyProvider";
 
 const HeaderTable = () => {
   const { module, user, selectIds, fields } = useContext(ModuleContext);
   const router = useRouterCustom();
+  const notify = useNotify();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const nameSearch = fields.sort((a, b) => {
@@ -85,17 +87,20 @@ const HeaderTable = () => {
     const token = await getToken();
     const formData = new FormData();
     formData.append("file_excel", file);
-    const response = await fetch(
+    const response = await httpClient(
       process.env.NEXT_PUBLIC_ENDPOINT_URL + module + "/create-rows-with-excel",
       {
-        headers: {
-          "X-API-KEY": 123456,
-          Authorization: `Bearer ${token}`,
-        },
-        method: "POST",
-        body: formData,
-      }
+        Authorization: `Bearer ${token}`,
+      },
+      formData,
+      "POST"
     );
+    if (response.status == 200) {
+      notify.changeNotify("success", response.message);
+      router.refresh();
+    } else {
+      notify.changeNotify("error", response.message);
+    }
   };
   const uploadFileExcel = async () => {
     const inputFile = document.createElement("input");
