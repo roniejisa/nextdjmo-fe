@@ -3,13 +3,13 @@ import "@/app/system.scss";
 import AllProvider from "@/context/AllProvider";
 import React from "react";
 import { getProfile } from "./system/[module]/actions";
-import SocketProvider from "@/context/SocketProvider";
+// import SocketProvider from "@/context/SocketProvider";
 const AdminLayout = async (data) => {
   const { params, children } = await data;
   const profile = await getProfile();
   const storeParams = await params;
   return (
-    <SocketProvider>
+    // <SocketProvider>
       <AllProvider>
         <main className="grid lg:grid-cols-[280px_1fr] gap-4 lg:h-[100vh-16px*2] lg:p-4 h-screen p-0">
           <Sidebar storeParams={storeParams} profile={profile} />
@@ -18,7 +18,7 @@ const AdminLayout = async (data) => {
           </div>
         </main>
       </AllProvider>
-    </SocketProvider>
+    // </SocketProvider>
   );
 };
 
