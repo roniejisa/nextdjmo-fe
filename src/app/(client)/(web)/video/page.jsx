@@ -3,7 +3,7 @@ import VideoPlayer from "./VideoPlayer";
 import { getSignedUrl } from "./action";
 
 const page = async () => {
-  const signed_url = await getSignedUrl('data');
+  const signed_url = await getSignedUrl('rose-bruno-mars-apt-official-music-video-mp4');
   return (
     <div>
       <VideoPlayer

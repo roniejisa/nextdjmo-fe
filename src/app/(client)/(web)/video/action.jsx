@@ -2,10 +2,10 @@
 
 import { httpClient } from "@/utils/http";
 
-export const getSignedUrl = async () => {
+export const getSignedUrl = async (projectName) => {
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL +
-      `video/hls/encrypted/create_singed_url/data`
+      `video/hls/encrypted/create_singed_url/${projectName}`
   );
   return response.data;
 };

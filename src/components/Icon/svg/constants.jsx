@@ -10,6 +10,7 @@ import Link from "./Link";
 import Product from "./Product";
 import Setting from "./Setting";
 import Slide from "./Slide";
+import Video from "./Video";
 
 export const iconSVG = {
   product: Product,
@@ -23,5 +24,6 @@ export const iconSVG = {
   folder: Folder,
   building: Building,
   slide: Slide,
-  album: Album
+  album: Album,
+  video: Video
 };

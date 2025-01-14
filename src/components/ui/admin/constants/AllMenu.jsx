@@ -170,6 +170,12 @@ export const allMenu = [
     icon: "folder",
   },
   {
+    id: 12,
+    name: "Video",
+    link: "videos",
+    icon: "video",
+  },
+  {
     id: 5,
     name: "Biểu mẫu",
     icon: "feedback",

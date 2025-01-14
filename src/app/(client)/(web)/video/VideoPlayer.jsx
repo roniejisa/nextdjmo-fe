@@ -4,20 +4,54 @@ import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
 import Plyr from "plyr"; // Plyr.js
 
-function removeSecretFromData(data, secret) {
-  const secretBytes = new TextEncoder().encode(secret);
-  const dataStart = data.slice(0, secretBytes.length);
-  const dataEnd = data.slice(-secretBytes.length);
+// Hàm chuẩn hóa IV (đảm bảo IV có độ dài 16 byte)
+function normalizeIV(iv) {
+  const requiredLength = 16; // Đảm bảo IV luôn có độ dài 16 byte
+  let ivBuffer = iv; // Giả sử iv đã là ArrayBuffer hoặc Uint8Array
 
-  if (JSON.stringify(dataStart) === JSON.stringify(secretBytes)) {
-    return data.slice(secretBytes.length);
+  // Kiểm tra chiều dài của IV và chuẩn hóa
+  if (ivBuffer.byteLength < requiredLength) {
+    const padding = new Uint8Array(requiredLength - ivBuffer.byteLength);
+    ivBuffer = new Uint8Array([...new Uint8Array(ivBuffer), ...padding]);
+  } else if (ivBuffer.byteLength > requiredLength) {
+    ivBuffer = ivBuffer.slice(0, requiredLength); // Cắt bớt nếu IV dài hơn 16 byte
   }
 
-  if (JSON.stringify(dataEnd) === JSON.stringify(secretBytes)) {
-    return data.slice(0, -secretBytes.length);
-  }
+  return ivBuffer;
+}
 
-  return data;
+// Hàm giải mã với Web Crypto API
+async function decryptDataWithWebCrypto(encryptedData, key, iv) {
+  // Key và IV đều đã được chuẩn bị sẵn, bạn chỉ cần sử dụng để giải mã.
+
+  try {
+    // Giải mã dữ liệu sử dụng AES trong chế độ CBC
+    const decryptedData = await crypto.subtle.decrypt(
+      {
+        name: "AES-CBC",
+        iv: iv,
+      },
+      await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
+        "decrypt",
+      ]),
+      encryptedData // Dữ liệu mã hóa đã có sẵn
+    );
+
+    // Trả về dữ liệu giải mã dưới dạng ArrayBuffer
+    return decryptedData;
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    throw error;
+  }
+}
+
+// Hàm chuyển chuỗi hex thành ArrayBuffer
+function hexToArrayBuffer(hex) {
+  const typedArray = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    typedArray[i / 2] = parseInt(hex.substr(i, 2), 16);
+  }
+  return typedArray.buffer;
 }
 
 const VideoPlayer = ({ m3u8Url }) => {
@@ -36,41 +70,54 @@ const VideoPlayer = ({ m3u8Url }) => {
       hls.loadSource(m3u8Url);
       hls.attachMedia(videoRef.current);
 
-      hls.on(Hls.Events.FRAG_LOADING, async (event, data) => {
-        try {
-          const response = await fetch(data.frag.url);
-          const encryptedData = await response.arrayBuffer();
-          console.log("Encrypted data received:", encryptedData);
+      // hls.on(Hls.Events.FRAG_LOADING, async (event, data) => {
+      //   // try {
+      //   const response = await fetch(data.frag.url);
+      //   const encryptedData = await response.arrayBuffer(); // Lấy dữ liệu mã hóa từ video
+      //   const iv = response.headers.get("X-IV"); // Lấy IV từ header "X-IV"
+      //   const key = response.headers.get("X-Key"); // Lấy key từ header "X-KEY"
 
-          const secret = "\x00\x00\x00\x00\x00";
-          const decryptedData = removeSecretFromData(
-            new Uint8Array(encryptedData),
-            secret
-          );
+      //   // Chuyển IV và key sang ArrayBuffer nếu cần
+      //   const ivBuffer = hexToArrayBuffer(iv);
+      //   const keyBuffer = hexToArrayBuffer(key);
 
-          const blob = new Blob([decryptedData], { type: "video/mp2t" });
-          const url = URL.createObjectURL(blob);
+      //   // Giải mã dữ liệu
+      //   const decryptedData = await decryptDataWithWebCrypto(
+      //     encryptedData,
+      //     keyBuffer,
+      //     ivBuffer
+      //   );
+      //   console.log("Decrypted data:", decryptedData);
+      //   const blob = new Blob([decryptedData], {
+      //     type: "video/MP2T", // Kiểm tra MIME type
+      //   });
 
-          data.frag.url = url;
-          console.log("Decrypted data URL:", url);
-        } catch (error) {
-          console.error("Failed to load or decrypt fragment:", error);
-        }
-      });
+      //   const url = URL.createObjectURL(blob);
+
+      //   // Kiểm tra xem URL có hợp lệ không trước khi gán
+      //   if (url) {
+      //     data.frag.url = url;
+      //     console.log("Decrypted data URL:", url);
+      //   } else {
+      //     console.error("Failed to create Blob URL");
+      //   }
+      //   // } catch (error) {
+      //   //   console.error("Failed to load or decrypt fragment:", error);
+      //   // }
+      // });
 
       hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
         // Cập nhật độ phân giải hiện tại khi chuyển cấp độ
         setCurrentResolution(hls.levels[data.level].height);
-        console.log(
-          "Current level switched to:",
-          hls.levels[data.level].height
-        );
+        // console.log(
+        //   "Current level switched to:",
+        //   hls.levels[data.level].height
+        // );
       });
 
       // Khi manifest được tải
       hls.on(Hls.Events.MANIFEST_PARSED, function () {
         const availableResolutions = hls.levels.map((level) => level.height);
-
         if (availableResolutions.length > 0) {
           hls.startLevel = availableResolutions.length - 1; // Đổi chất lượng video tốt nhất
         }
@@ -117,7 +164,6 @@ const VideoPlayer = ({ m3u8Url }) => {
     const levelIndex = hlsRef.current.levels
       .map((level) => level.height)
       .findIndex((resolution) => resolution == event);
-    console.log(levelIndex);
     if (hlsRef.current) {
       // Đặt độ phân giải của HLS.js
       hlsRef.current.currentLevel = levelIndex;
