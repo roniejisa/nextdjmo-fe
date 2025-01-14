@@ -21,7 +21,12 @@ const Language = ({ field, module }) => {
   useEffect(() => {}, []);
 
   return (
-    <select name={field.name} defaultValue={language} onChange={changeLanguage}>
+    <select
+      name={field.name}
+      defaultValue={language}
+      onChange={changeLanguage}
+      className="w-full outline-outline outline-4 transition border rounded-md p-2"
+    >
       {field.data?.map((item) => (
         <option key={item._id} value={item.code} data-code={item.code}>
           {item.name}

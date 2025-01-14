@@ -1,5 +1,6 @@
 "use client";
 import ImageCustom from "@/components/Maintain/Image";
+import PreviewProvider from "@/packages/previews/PreviewProvider";
 import { useEffect, useRef } from "react";
 
 const ImageComponent = ({ value, item, field }) => {
@@ -20,16 +21,17 @@ const ImageComponent = ({ value, item, field }) => {
   }, []);
   return (
     <div className="relative">
-      <ImageCustom
-        ref={imageRef}
-        src={"/next.svg"}
-        width={0}
-        height={0}
-        sizes="100vw"
-        style={{ width: "80px", height: "80px", objectFit: "contain" }}
-        quality={100}
-        alt={""}
-      />
+        <ImageCustom
+          rs-preview="true"
+          ref={imageRef}
+          src={"/next.svg"}
+          width={0}
+          height={0}
+          sizes="100vw"
+          style={{ width: "80px", height: "80px", objectFit: "contain" }}
+          quality={100}
+          alt={""}
+        />
     </div>
   );
 };

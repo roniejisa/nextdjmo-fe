@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Group from "./Group";
 
 const FieldType = ({ defaultValue, field }) => {
   const [hasSetting, setHasSetting] = useState(false);

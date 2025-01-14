@@ -9,6 +9,8 @@ import { getToken } from "@/utils/server/utils";
 import ExcelIcon from "@/components/Icon/svg/Excel";
 import SearchIcon from "@/components/Icon/svg/Search";
 import { useNotify } from "@/context/NotifyProvider";
+import Upload from "@/components/Icon/svg/Upload";
+import TooltipText from "@/components/Tooltip/Text";
 
 const HeaderTable = () => {
   const { module, user, selectIds, fields } = useContext(ModuleContext);
@@ -129,12 +131,18 @@ const HeaderTable = () => {
         )}
       </form>
       <FormFilter />
-      <button className="ml-2 h-[42px] w-[42px]" onClick={downloadFileExcel}>
-        <ExcelIcon />
-      </button>
-      <button className="ml-2 h-[42px] w-[42px]" onClick={uploadFileExcel}>
-        <ExcelIcon />
-      </button>
+      <div className="flex">
+        <TooltipText label={"Mẫu Excel"}>
+          <button className="h-[42px] flex justify-center items-center w-[42px] border rounded-md" onClick={downloadFileExcel}>
+            <ExcelIcon />
+          </button>
+        </TooltipText>
+        <TooltipText label={"Thêm nhiều"}>
+          <button className="ml-2 h-[42px] flex justify-center items-center w-[42px] border rounded-md" onClick={uploadFileExcel}>
+            <Upload />
+          </button>
+        </TooltipText>
+      </div>
     </div>
   );
 };

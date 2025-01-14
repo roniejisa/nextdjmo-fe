@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getData } from "./action";
+import { getDataParent } from "./action";
 function buildHierarchy(categories, listField) {
   // Biến đổi dữ liệu thành đối tượng có key là _id để dễ dàng truy cập
   const categoryMap = categories.reduce((acc, category) => {
@@ -78,8 +78,9 @@ const RecursiveSelect = ({ options, field, ...props }) => {
 const SelectParent = ({ defaultValue, item, field }) => {
   const [list, setList] = useState([]);
   const [value, setValue] = useState(defaultValue);
+
   const getListData = async () => {
-    const data = await getData(field.module, item, field);
+    const data = await getDataParent(field.module, item, field);
     if (data.status == 200) {
       const list = buildHierarchy(data.data.items, {
         field_id: field.module_id,

@@ -1,4 +1,4 @@
-import Group from "../Group";
+import Group from "../../../../components/Group";
 
 const Text = ({ field, onChange, defaultValue }) => {
   return (

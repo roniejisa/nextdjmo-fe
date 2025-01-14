@@ -14,6 +14,7 @@ const Language = ({ module, moduleMain }) => {
           searchParams.get("language") ||
           moduleMain.langs.find((item) => item.default === "active").code
         }
+        className="w-full outline-outline outline-4 transition border rounded-md p-2"
         onChange={(e) => {
           const newSeachParams = new URLSearchParams({
             ...Object.fromEntries(searchParams),

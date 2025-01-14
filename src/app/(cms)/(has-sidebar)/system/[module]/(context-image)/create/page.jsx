@@ -1,5 +1,5 @@
 import React from "react";
-import FormCreate from "./Form";
+import FormCreate from "./FormCreate";
 import { httpClient } from "@/utils/http";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";

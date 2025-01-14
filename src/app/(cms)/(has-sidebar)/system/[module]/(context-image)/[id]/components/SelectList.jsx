@@ -1,17 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { selectList } from "./action";
+import { AllContext } from "@/context/cms/AllProvider";
 
 const SelectList = ({ defaultValue, item, field }) => {
   const [list, setList] = useState([]);
   const [value, setValue] = useState(defaultValue);
+  const { updateField, setUpdateField } = useContext(AllContext);
+
   const getListData = async () => {
     const data = await selectList(field.module, item, field);
     if (data.status == 200) {
       setList(data.data.items);
     }
+    if (updateField == field.name) {
+      setUpdateField(null);
+    }
   };
+
+  useEffect(() => {
+    if (field.name == updateField && updateField) {
+      getListData();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateField]);
+
   useEffect(() => {
     getListData();
     // eslint-disable-next-line react-hooks/exhaustive-deps

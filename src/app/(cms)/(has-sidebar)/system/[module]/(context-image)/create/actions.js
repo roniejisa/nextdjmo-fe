@@ -25,3 +25,17 @@ export const getDataLanguage = async (module, language, _id = null) => {
     })
     return response
 }
+
+
+export const moduleDetail = async (module, language) => {
+  const token = await getToken()
+  return httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL +
+      `${module}/create` +
+      (language ? `?language=${language}` : ""),
+    {
+      isAdmin: 1,
+      Authorization: `Bearer ${token}`,
+    }
+  );
+};

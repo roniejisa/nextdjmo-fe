@@ -1,61 +1,11 @@
 "use client";
-import Bool from "./components/Bool";
-import Email from "./components/Email";
-import ImageComponent from "./components/Image";
-import Text from "./components/Text";
-import Password from "./components/Password";
 import GroupButtonForm from "../../components/form/GroupButtonForm";
 import { handleUpdate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
 import { useEffect, useState, useTransition } from "react";
-import Editor from "./components/Editor";
-import SelectParent from "./components/SelectParent";
 import useRouterCustom from "@/packages/translation/Navigation";
-import ImageListComponent from "./components/ImageList";
-import SelectList from "./components/SelectList";
-import Slug from "./components/Slug";
-import Repeat from "./components/Repeat";
-import DateComponent from "./components/Date";
-import Textarea from "./components/Textarea";
-import Link from "./components/Link";
-import FieldType from "./components/FieldType";
-import Key from "./components/Key";
-import Tab from "./components/Tab";
-import Group from "./components/Group";
-import Permission from "./components/Permission";
-import MultipleCheckbox from "./components/MultipleCheckbox";
-import ProductVariant from "./components/ProductVariant";
-import Language from "./components/Language";
-import PageBuilder from "./components/PageBuilder";
-import TwoFA from "./components/TwoFA";
-import CodeEditor from "./components/CodeEditor";
-
-const components = {
-  text: Text,
-  email: Email,
-  image: ImageComponent,
-  bool: Bool,
-  password: Password,
-  editor: Editor,
-  select_parent: SelectParent,
-  list_image: ImageListComponent,
-  select_list: SelectList,
-  slug: Slug,
-  repeat: Repeat,
-  date: DateComponent,
-  textarea: Textarea,
-  link: Link,
-  field_type: FieldType,
-  key: Key,
-  tab: Tab,
-  permission: Permission,
-  multiple_checkbox: MultipleCheckbox,
-  product_variants: ProductVariant,
-  language: Language,
-  page_builder: PageBuilder,
-  two_fa: TwoFA,
-  code_editor:CodeEditor
-};
+import { components } from "./components";
+import Group from "../../components/Group";
 
 const FormUpdate = ({
   module,

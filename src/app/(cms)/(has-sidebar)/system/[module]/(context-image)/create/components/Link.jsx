@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Group from "./Group";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 

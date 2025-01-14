@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import "quill/dist/quill.snow.css";
-import Group from "../../../[module]/(context-image)/create/components/Group";
+import Group from "../../../[module]/components/Group";
 const Editor = ({ field, defaultValue, oldData, updateData, itemData }) => {
   const editorRef = useRef(null);
   const quillCurrentRef = useRef(null);

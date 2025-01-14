@@ -1,62 +1,12 @@
 "use client";
 
-import Bool from "./components/Bool";
-import Email from "./components/Email";
-import ImageComponent from "./components/Image";
-import Text from "./components/Text";
-import Password from "./components/Password";
 import GroupButtonForm from "../../components/form/GroupButtonForm";
 import { handleCreate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
 import { useState, useTransition } from "react";
-import SelectParent from "./components/SelectParent";
-import Editor from "./components/Editor";
 import useRouterCustom from "@/packages/translation/Navigation";
-import ImageListComponent from "./components/ImageList";
-import SelectList from "./components/SelectList";
-import Slug from "./components/Slug";
-import Repeat from "./components/Repeat";
-import DateComponent from "./components/Date";
-import Textarea from "./components/Textarea";
-import Tab from "./components/Tab";
-import Key from "./components/Key";
-import FieldType from "./components/FieldType";
-import Link from "./components/Link";
-import Group from "./components/Group";
-import Phone from "./components/Phone";
-import Permission from "./components/Permission";
-import MultipleCheckbox from "./components/MultipleCheckbox";
-import ProductVariant from "./components/ProductVariant";
-import Language from "./components/Language";
-import PageBuilder from "./components/PageBuilder";
-import CodeEditor from "./components/CodeEditor";
-
-const components = {
-  text: Text,
-  email: Email,
-  image: ImageComponent,
-  list_image: ImageListComponent,
-  bool: Bool,
-  password: Password,
-  editor: Editor,
-  select_parent: SelectParent,
-  select_list: SelectList,
-  slug: Slug,
-  repeat: Repeat,
-  date: DateComponent,
-  textarea: Textarea,
-  tab: Tab,
-  key: Key,
-  field_type: FieldType,
-  link: Link,
-  phone: Phone,
-  permission: Permission,
-  multiple_checkbox: MultipleCheckbox,
-  product_variants: ProductVariant,
-  language: Language,
-  page_builder:PageBuilder,
-  code_editor:CodeEditor
-};
+import { components } from "./components";
+import Group from "../../components/Group";
 
 const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
   const notify = useNotify();
@@ -65,7 +15,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
   const [isPending, startTransition] = useTransition(false);
   const isMultiple = moduleStore.language ?? false;
   const language = searchParams.language;
-  
+
   const handleSubmit = async (form) => {
     startTransition(async () => {
       const formData = Object.fromEntries(form);
@@ -73,7 +23,8 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
       if (data.status == 201) {
         if (isMultiple)
           router.push(
-            process.env.NEXT_PUBLIC_ADMIN_URL + `${data.data._id}?language=${language}`
+            process.env.NEXT_PUBLIC_ADMIN_URL +
+              `${data.data._id}?language=${language}`
           );
         router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
         router.refresh();
@@ -116,7 +67,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
       return a.sort - b.sort;
     });
   return (
-    <form action={handleSubmit}>
+    <form action={handleSubmit} className="pb-10">
       <GroupButtonForm
         module={module}
         isPending={isPending}

@@ -25,6 +25,7 @@ import ReadItem from "./components/buttons/ReadItem";
 import CopyItem from "./components/buttons/CopyItem";
 import Language from "./components/buttons/Language";
 import BuilderItem from "./components/buttons/BuilderItem";
+import PreviewProvider from "@/packages/previews/PreviewProvider";
 
 const components = {
   text: Text,
@@ -111,7 +112,7 @@ const Module = async ({ params, searchParams }) => {
               !moduleMain?.no_add && (
                 <LinkCustom
                   href={`${module}/create`}
-                  className={"bg-blue-400 inline-block px-2 py-1 rounded-md"}
+                  className={"bg-green-500 text-white flex items-center px-2 py-1 transition-all duration-300 rounded-md hover:bg-green-600"}
                 >
                   Thêm
                 </LinkCustom>
@@ -222,6 +223,7 @@ const Module = async ({ params, searchParams }) => {
         )}
       </div>
       <ActionTable />
+      <PreviewProvider />
     </ModuleProvider>
   );
 };

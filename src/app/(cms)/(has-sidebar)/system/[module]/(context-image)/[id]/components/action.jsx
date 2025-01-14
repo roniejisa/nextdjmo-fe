@@ -3,7 +3,7 @@
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
-export const getData = async (module, item, field) => {
+export const getDataParent = async (module, item, field) => {
   const token = await getToken();
   return httpClient(
     `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/check-parent`,

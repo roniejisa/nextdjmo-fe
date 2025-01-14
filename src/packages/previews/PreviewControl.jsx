@@ -17,7 +17,8 @@ const PreviewControl = () => {
 
       // Reset lại hiệu ứng fade sau một khoảng thời gian (500ms để match với thời gian transition)
       const timer = setTimeout(() => {
-        const url = showImageUrl(images[previewIndex]);
+        let url = showImageUrl(images[previewIndex]);
+        url = url.replace(/\\/g, "/");
         imageRef.current.style.backgroundImage = `url(${url})`;
         setFadeIn(true);
       }, 300);
@@ -96,13 +97,16 @@ const PreviewControl = () => {
             className={`max-w-full h-full bg-center bg-no-repeat bg-contain transition-opacity duration-300 ${
               fadeIn ? "opacity-100" : "opacity-0"
             }`}
+            style={{
+              backgroundColor:"white"
+            }}
             ref={imageRef}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
           ></div>
         </div>
         <button
-          className="text-white absolute top-1/2 -translate-y-1/2 right-4 cursor-none"
+          className="text-white absolute top-1/2 -translate-y-1/2 right-4"
           onClick={handleNext}
         >
           <svg
@@ -122,7 +126,7 @@ const PreviewControl = () => {
           </svg>
         </button>
         <button
-          className="text-white absolute top-1/2 -translate-y-1/2 left-4 cursor-none"
+          className="text-white absolute top-1/2 -translate-y-1/2 left-4"
           onClick={handlePrev}
         >
           <svg
@@ -142,7 +146,7 @@ const PreviewControl = () => {
           </svg>
         </button>
         <button
-          className="text-white absolute top-4 right-4 cursor-none"
+          className="text-white absolute top-4 right-4"
           onClick={handleClose}
         >
           <svg
