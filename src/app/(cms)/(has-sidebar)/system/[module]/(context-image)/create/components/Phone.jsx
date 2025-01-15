@@ -25,6 +25,7 @@ const Phone = ({ field, defaultValue }) => {
         name={name}
         placeholder={field.placeholder}
         value={value}
+        autoComplete="off"
         onChange={handleChange}
         className="w-full outline-outline outline-4 transition border rounded-md p-2"
       />

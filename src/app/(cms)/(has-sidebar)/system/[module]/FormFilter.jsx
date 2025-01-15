@@ -40,7 +40,7 @@ const FormFilter = () => {
   };
   return (
     <>
-      <button onClick={(e) => setShowFilter(true)} className="border rounded-md w-[42px] flex justify-center items-center hover:bg-outline hover:border-outline transition-all hover:text-white">
+      <button onClick={(e) => setShowFilter(true)} className="border py-2 rounded-md w-[42px] flex justify-center items-center hover:bg-outline hover:border-outline transition-all hover:text-white">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"

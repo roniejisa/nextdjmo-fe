@@ -109,6 +109,7 @@ const Tag = ({ field, module }) => {
         <input
           type="text"
           ref={inputRef}
+          autoComplete="off"
           className="bg-gray-100 focus:bg-white transition"
           value={value}
           onChange={handleChangeValue}

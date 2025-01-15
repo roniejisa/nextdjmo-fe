@@ -21,6 +21,7 @@ const Checkout = () => {
                   <label className="block mb-2">Họ và tên</label>
                   <input
                     type="text"
+                    autoComplete="off"
                     className="border border-gray-300 rounded-md px-3 py-2 w-full"
                     placeholder="Nhập họ và tên của bạn"
                     name="name"
@@ -31,6 +32,7 @@ const Checkout = () => {
                   <input
                     placeholder="Nhập số điện thoại của bạn"
                     type="text"
+                    autoComplete="off"
                     name="phone"
                     className="border border-gray-300 rounded-md px-3 py-2 w-full"
                   />
@@ -41,6 +43,7 @@ const Checkout = () => {
                 <input
                   placeholder="Địa chỉ nhận hàng của bạn"
                   type="text"
+                  autoComplete="off"
                   name="address"
                   className="border border-gray-300 rounded-md px-3 py-2 w-full"
                 />
@@ -50,6 +53,7 @@ const Checkout = () => {
                 <input
                   placeholder="Ghi chú"
                   type="text"
+                  autoComplete="off"
                   name="note"
                   className="border border-gray-300 rounded-md px-3 py-2 w-full"
                 />
@@ -69,6 +73,7 @@ const Checkout = () => {
                       className="border border-gray-300 rounded-md px-3 py-2 w-full"
                       placeholder="Nhập họ và tên của bạn"
                       name="name_other"
+                      autoComplete="off"
                     />
                   </div>
                   <div className="flex-1">
@@ -76,7 +81,7 @@ const Checkout = () => {
                     <input
                       placeholder="Nhập số điện thoại của bạn"
                       type="text"
-                      n
+                      autoComplete="off"
                       name="phone_other"
                       className="border border-gray-300 rounded-md px-3 py-2 w-full"
                     />

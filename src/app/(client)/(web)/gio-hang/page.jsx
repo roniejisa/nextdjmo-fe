@@ -213,6 +213,7 @@ const Cart = () => {
                         }
                       }}
                       className="px-2 text-center w-12"
+                      autoComplete="off"
                       defaultValue={item.qty}
                       placeholder="Số lượng"
                       onChange={(e) => changeValue(e)}

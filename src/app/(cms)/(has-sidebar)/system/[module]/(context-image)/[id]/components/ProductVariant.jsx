@@ -538,6 +538,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
                 placeholder="Thuộc tính"
                 ref={inputAddAttributeRef}
                 onMouseDown={showProductAttributeAvailable}
+                autoComplete="off"
               />
               {field.data_product_attributes.length > 0 && showSuggestion && (
                 <div
@@ -597,6 +598,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
                   className="w-full outline-outline outline-4 transition border rounded-md p-2"
                   defaultValue={item.name}
                   onChange={(e) => changeNameAttribute(e, index)}
+                  autoComplete="off"
                 />
                 {/* Bắt đầu giá trị ở đây */}
                 <div className="flex flex-wrap py-2 -my-2 -mx-4">
@@ -614,6 +616,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
                         onChange={(e) =>
                           handleChangeValue(e, index, indexValue)
                         }
+                        autoComplete="off"
                       />
                       <button
                         draggable="true"
@@ -766,6 +769,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
                           className="w-full outline-outline outline-4 transition border rounded-md p-2"
                           onChange={(e) => changeData(e, index, "price")}
                           placeholder="Nhập giá"
+                          autoComplete="off"
                         />
                       </td>
                       <td className="border p-2">
@@ -775,6 +779,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
                           className="w-full outline-outline outline-4 transition border rounded-md p-2"
                           onChange={(e) => changeData(e, index, "stock")}
                           placeholder="Nhập giá"
+                          autoComplete="off"
                         />
                       </td>
                       <td className="border p-2">
@@ -784,6 +789,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
                           className="w-full outline-outline outline-4 transition border rounded-md p-2"
                           onChange={(e) => changeData(e, index, "sku")}
                           placeholder="Nhập giá"
+                          autoComplete="off"
                         />
                       </td>
                     </tr>
@@ -804,6 +810,7 @@ const ProductVariant = ({ field, item, defaultValue }) => {
               placeholder="Giá"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={handleChangePrice}
+              autoComplete="off"
             />
           </div>
           <div className="mt-2">
@@ -815,12 +822,14 @@ const ProductVariant = ({ field, item, defaultValue }) => {
               placeholder="Sku"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={handleChangeSku}
+              autoComplete="off"
             />
           </div>
           <div className="mt-2">
             <p className="mb-2">Số lượng</p>
             <input
               type="text"
+              autoComplete="off"
               data-name="stock"
               value={data[0] ? data[0]?.stock : 0}
               placeholder="Số lượng"

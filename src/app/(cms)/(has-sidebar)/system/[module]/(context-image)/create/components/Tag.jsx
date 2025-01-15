@@ -106,6 +106,7 @@ const Tag = ({ field, module }) => {
         )}
         <input
           type="text"
+          autoComplete="off"
           ref={inputRef}
           className="bg-gray-100 focus:bg-white transition"
           value={value}

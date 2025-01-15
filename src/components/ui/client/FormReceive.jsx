@@ -20,6 +20,7 @@ const FormReceive = () => {
   return (
     <form action={handleSentForm} className="flex" ref={formRef}>
       <input
+        autoComplete="off"
         type="text"
         name="email"
         placeholder="Nhập email"

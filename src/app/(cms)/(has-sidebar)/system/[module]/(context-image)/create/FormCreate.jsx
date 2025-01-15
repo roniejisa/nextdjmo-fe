@@ -77,6 +77,9 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
         <div className="col-span-9">
           {fieldLeft.map((field) => {
             const Component = components[field.type];
+            if (!Component) {
+              return field.type + " không tồn tại";
+            }
             return (
               <Group key={field.name} field={field}>
                 <Component
@@ -90,6 +93,9 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
           })}
           {fieldCustom.map((field) => {
             const Component = components[field.type];
+            if (!Component) {
+              return field.type + " không tồn tại";
+            }
             return (
               <Group key={field.name} field={field}>
                 <Component
@@ -105,6 +111,9 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
         <div className="col-span-3">
           {fieldRight.map((field) => {
             const Component = components[field.type];
+            if (!Component) {
+              return field.type + " không tồn tại";
+            }
             return (
               <Group key={field.name} field={field}>
                 <Component

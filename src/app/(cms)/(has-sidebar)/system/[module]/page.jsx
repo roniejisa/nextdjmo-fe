@@ -1,18 +1,8 @@
-import Text from "./components/Text";
-import ImageComponent from "./components/Image";
-import Bool from "./components/Bool";
-import Email from "./components/Email";
 import { getDataModule, getProfile } from "./actions";
 import Pagination from "@/components/Pagination/Pagination";
 import { redirect } from "next/navigation";
-import Editor from "./components/Editor";
 import LinkCustom from "@/packages/translation/Link";
-import Slug from "./components/Slug";
-import DeleteItem from "./components/buttons/DeleteItem";
 import { cache } from "react";
-import Phone from "./components/Phone";
-import OrderStatus from "./components/OrderStatus";
-import PaymentStatus from "./components/PaymentStatus";
 import ModuleProvider from "@/context/cms/ModuleProvider";
 import SelectRow from "./components/SelectRow";
 import SelectAllRow from "./components/SelectAllRow";
@@ -20,32 +10,9 @@ import HeaderTable from "./HeaderTable";
 import ActionTable from "./components/ActionTable";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
-import EditItem from "./components/buttons/EditItem";
-import ReadItem from "./components/buttons/ReadItem";
-import CopyItem from "./components/buttons/CopyItem";
 import Language from "./components/buttons/Language";
-import BuilderItem from "./components/buttons/BuilderItem";
 import PreviewProvider from "@/packages/previews/PreviewProvider";
-
-const components = {
-  text: Text,
-  image: ImageComponent,
-  bool: Bool,
-  email: Email,
-  editor: Editor,
-  slug: Slug,
-  phone: Phone,
-  order_status: OrderStatus,
-  payment_status: PaymentStatus,
-};
-
-const componentActions = {
-  delete: DeleteItem,
-  edit: EditItem,
-  read: ReadItem,
-  copy: CopyItem,
-  builder: BuilderItem
-};
+import { componentActions, components } from "./components";
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
   return await getDataModule(module, limit, page, searchParams);
@@ -87,6 +54,7 @@ const Module = async ({ params, searchParams }) => {
     module: moduleMain,
   } = data;
   const allFields = fields;
+
   fields = fields
     .sort((a, b) => {
       b.sort = b.sort ?? 999999;
@@ -112,7 +80,9 @@ const Module = async ({ params, searchParams }) => {
               !moduleMain?.no_add && (
                 <LinkCustom
                   href={`${module}/create`}
-                  className={"bg-green-500 text-white flex items-center px-2 py-1 transition-all duration-300 rounded-md hover:bg-green-600"}
+                  className={
+                    "bg-green-500 text-white flex items-center px-2 py-1 transition-all duration-300 rounded-md hover:bg-green-600"
+                  }
                 >
                   Thêm
                 </LinkCustom>
@@ -158,6 +128,9 @@ const Module = async ({ params, searchParams }) => {
                       <SelectRow id={item._id} />
                       {fields.map((field) => {
                         const Component = components[field.type];
+                        if (!Component) {
+                          return field.type + " không tồn tại";
+                        }
                         return (
                           <div
                             key={field.name}

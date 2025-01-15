@@ -1,7 +1,7 @@
 const Text = ({field}) => {
   return (
     <div>
-      <input type="text" name={field.name} placeholder={field.placeholder} />
+      <input autoComplete="off" type="text" name={field.name} placeholder={field.placeholder} />
     </div>
   );
 };

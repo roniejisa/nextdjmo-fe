@@ -139,3 +139,16 @@ export function debounce(func, delay = 500) {
         timeout = setTimeout(() => func.apply(context, args), delay);
     };
 }
+
+
+export const createStringURL = (searchParams, data) => {
+    let newSearchParams = new URLSearchParams(searchParams);
+    for (const [key, value] of [...data]) {
+        if (value == "") {
+            newSearchParams.delete(key);
+        } else {
+            newSearchParams.set(key, value);
+        }
+    }
+    return newSearchParams.toString() ? `?${newSearchParams.toString()}` : "";
+}

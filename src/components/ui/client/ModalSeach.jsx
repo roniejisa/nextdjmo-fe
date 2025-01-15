@@ -57,6 +57,7 @@ const ModalSeach = () => {
                 <path d="M21 21l-6 -6" />
               </svg>
               <input
+                autoComplete="off"
                 type="text"
                 placeholder="Tìm kiếm"
                 name="q"

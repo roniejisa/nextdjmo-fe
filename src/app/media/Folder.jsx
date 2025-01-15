@@ -72,6 +72,8 @@ const Folder = () => {
       title: "Sửa tên thư mục",
       component: (
         <input
+          type="text"
+          autoComplete="off"
           name="name"
           placeholder="Tên thư mục"
           defaultValue={folder.filename}

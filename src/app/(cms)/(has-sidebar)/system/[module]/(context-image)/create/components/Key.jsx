@@ -26,6 +26,7 @@ const Key = ({ field, defaultValue }) => {
     <input
       name={field.name}
       ref={keyRef}
+      autoComplete="off"
       onChange={checkChangeInputKey}
       placeholder={field.placeholder}
       defaultValue={defaultValue || ""}

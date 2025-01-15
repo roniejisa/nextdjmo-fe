@@ -55,6 +55,7 @@ const Link = ({ field, defaultValue, item }) => {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         className="w-full outline-outline outline-4 transition border rounded-md p-2"
+        autoComplete="off"
       />
       <select
         name="model"

@@ -145,6 +145,7 @@ const ColorGenerator = () => {
     const contrastRatio = getContrastRatio(backgroundColor, text);
     const score = calculateContrastScore(contrastRatio);
     setContrastScore(score);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [backgroundColor, generatedColors.link]);
 
   const copyToClipboard = (color) => {
@@ -217,6 +218,7 @@ const ColorGenerator = () => {
         <label>
           <input
             type="text"
+            autoComplete="off"
             className="border"
             style={{
               borderColor: generatedColors.border,

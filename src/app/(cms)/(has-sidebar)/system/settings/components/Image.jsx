@@ -57,6 +57,7 @@ const ImageComponent = ({ defaultValue, item, field }) => {
         />
         <input
           type="text"
+          autoComplete="off"
           ref={inputRef}
           name={field.name}
           defaultValue={defaultValue || ""}

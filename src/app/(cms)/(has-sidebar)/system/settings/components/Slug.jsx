@@ -34,6 +34,8 @@ const Slug = ({ field, defaultValue, item }) => {
     <input
       name={field.name}
       ref={slugRef}
+      type="text"
+      autoComplete="off"
       onChange={checkChangeInputSlug}
       placeholder={field.placeholder}
       defaultValue={defaultValue || ""}

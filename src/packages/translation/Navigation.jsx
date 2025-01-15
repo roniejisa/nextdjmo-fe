@@ -4,10 +4,12 @@ import { useContext } from "react";
 
 const useRouterCustom = () => {
   const router = useRouter();
-  const { setTransition, setIsRefresh } = useContext(LoadingContext);
-  const push = async (path,isRefresh = false) => {
+  const { setTransition, setIsRefresh, currentPathname, searchParamString } =
+    useContext(LoadingContext);
+  const push = async (path, isRefresh = false) => {
+    if (currentPathname + searchParamString == path.replace("?", "")) return;
     setTransition(true);
-    setIsRefresh(isRefresh)
+    setIsRefresh(isRefresh);
     router.push(path);
   };
 
@@ -27,13 +29,13 @@ const useRouterCustom = () => {
 
   const replace = async (path, isRefresh = false) => {
     setTransition(true);
-    setIsRefresh(isRefresh)
+    setIsRefresh(isRefresh);
     router.push(path);
   };
 
   const prefetch = async (path, isRefresh = false) => {
     setTransition(true);
-    setIsRefresh(isRefresh)
+    setIsRefresh(isRefresh);
     router.prefetch(path);
   };
 

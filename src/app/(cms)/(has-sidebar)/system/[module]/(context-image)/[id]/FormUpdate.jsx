@@ -84,6 +84,9 @@ const FormUpdate = ({
         <div className="col-span-9">
           {fieldLeft.map((field) => {
             const Component = components[field.type];
+            if (!Component) {
+              return field.type + " không tồn tại";
+            }
             return (
               <Group key={field.name} field={field}>
                 <Component
@@ -101,6 +104,9 @@ const FormUpdate = ({
         <div className="col-span-3">
           {fieldRight.map((field) => {
             const Component = components[field.type];
+            if (!Component) {
+              return field.type + " không tồn tại";
+            }
             return (
               <Group key={field.name} field={field}>
                 <Component
@@ -120,6 +126,9 @@ const FormUpdate = ({
       <div className="p-4">
         {fieldCustom.map((field) => {
           const Component = components[field.type];
+          if (!Component) {
+            return field.type + " không tồn tại";
+          }
           return (
             <Group key={field.name} field={field}>
               <Component
