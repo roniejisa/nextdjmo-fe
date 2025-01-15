@@ -1,9 +1,12 @@
 :root {
   --background: #ffffff;
   --foreground: #000000;
-  --active: #ff90bc;
-  --active-dark: #fd4790;
-  --active-light: #fdb5d2;
+  // --active: #ff90bc;
+  // --active-dark: #fd4790;
+  // --active-light: #fdb5d2;
+  --active: #ffcb90;
+  --active-dark: #fda847;
+  --active-light: #fdc9b5;
   --text-active: #ffffff;
   --plyr-color-main: var(--active);
 }

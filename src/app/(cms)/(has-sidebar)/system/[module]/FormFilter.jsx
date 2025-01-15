@@ -112,6 +112,7 @@ const FormFilter = () => {
                     return [...newFields, obj];
                   });
                 }}
+                className="w-full p-2 border rounded-md"
               >
                 <option value="">-- Chọn bộ lọc --</option>
                 {Array.from(fields).length > 0 &&
@@ -123,7 +124,7 @@ const FormFilter = () => {
                     );
                   })}
               </select>
-              <form action={searchForm}>
+              <form action={searchForm} className="w-full flex flex-col gap-2 py-4">
                 {searchFields
                   .filter((item) => item.search_type || item.type == "text")
                   .map((item, index) => {

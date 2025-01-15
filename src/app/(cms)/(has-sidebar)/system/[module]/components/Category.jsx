@@ -64,26 +64,32 @@ const Category = ({ value, field, item }) => {
         >
           {firstTag[field.module_label]}
         </span>
-        <div className="border border-outline text-outline p-1 rounded-lg group relative">
-          +{value.length - 1}
-          <div className="absolute top-[calc(100%+10px)] shadow-md group-hover:opacity-100 group-hover:visible group-hover:delay-0 delay-300 transition-all opacity-0 invisible right-0 flex gap-2 flex-wrap w-[300px] bg-white p-4 rounded-md z-[888]">
-            {value
-              .filter((item) => item[field.module_id] !== firstTag[field.module_id])
-              .map((item, index) => (
-                <span
-                  key={index}
-                  className={`border border-outline p-1 transition rounded-lg cursor-pointer ${
-                    selected === item[field.module_id]
-                      ? "bg-outline text-white"
-                      : "text-outline hover:bg-outline hover:text-white"
-                  }`}
-                  onClick={() => handleChooseCategory(item._id)}
-                >
-                  {item[field.module_label]}
-                </span>
-              ))}
+        {value.length - 1 > 0 ? (
+          <div className="border border-outline text-outline p-1 rounded-lg group relative">
+            +{value.length - 1}
+            <div className="absolute top-[calc(100%+10px)] shadow-md group-hover:opacity-100 group-hover:visible group-hover:delay-0 delay-300 transition-all opacity-0 invisible right-0 flex gap-2 flex-wrap w-[300px] bg-white p-4 rounded-md z-[888]">
+              {value
+                .filter(
+                  (item) => item[field.module_id] !== firstTag[field.module_id]
+                )
+                .map((item, index) => (
+                  <span
+                    key={index}
+                    className={`border border-outline p-1 transition rounded-lg cursor-pointer ${
+                      selected === item[field.module_id]
+                        ? "bg-outline text-white"
+                        : "text-outline hover:bg-outline hover:text-white"
+                    }`}
+                    onClick={() => handleChooseCategory(item._id)}
+                  >
+                    {item[field.module_label]}
+                  </span>
+                ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <></>
+        )}
       </div>
     );
   } else {

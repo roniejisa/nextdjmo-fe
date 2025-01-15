@@ -53,3 +53,15 @@ export const editFolder = async (body) => {
     "PATCH"
   );
 };
+
+export const deleteFolder = async (body) => {
+  const token = await getToken();
+  return await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/delete-folder",
+    {
+      Authorization: `Bearer ${token}`,
+    },
+    body,
+    "DELETE"
+  );
+};
