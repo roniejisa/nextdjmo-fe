@@ -99,11 +99,11 @@ const Header = async () => {
             ) : (
               <>
                 <div>
-                  <span className="py-2 block lg:mr-10 font-medium">
+                  <span className="py-2 block lg:mr-10 font-medium text-xl">
                     {menu.name}
                   </span>
                 </div>
-                <div className="lg:absolute pl-6 lg:px-10 lg:py-4 w-full left-0 top-[calc(100%+1px)] lg:opacity-0 lg:invisible lg:group-hover:visible group-hover:opacity-100 lg:bg-white lg:before:content-[''] lg:before:absolute lg:before:top-[-35px] lg:before:w-[200px] lg:before:h-[50px] lg:before:bg-transparent max-h-[100vh] lg:min-h-[150px] z-10">
+                <div className="lg:absolute delay-500 transition-all duration-300 group-hover:delay-0 pl-6 lg:px-10 lg:py-4 w-full left-0 top-full lg:opacity-0 lg:invisible lg:group-hover:visible group-hover:opacity-100 lg:bg-white lg:before:content-[''] max-h-[100vh] lg:min-h-[150px] z-10">
                   {menu.childs.map((subMenu, indexSub) => (
                     <ul key={indexSub}>
                       <li>

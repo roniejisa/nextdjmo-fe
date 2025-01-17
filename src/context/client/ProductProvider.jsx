@@ -10,8 +10,10 @@ const ProductProvider = ({ children, product }) => {
   const imageRef = useRef(null);
 
   useEffect(() => {
+    console.log(product.detail_variants)
     if (Object.keys(product.detail_variants).length > 0) {
-      const firstAttribute = Object.keys(product.detail_variants)[0];
+      let { listAttribute } = JSON.parse(product.product_variants);
+      const firstAttribute = listAttribute[0]?.name;
       setFirstAttribute(firstAttribute);
       setImageVariants(() => {
         const data = product.variants.reduce((acc, variant) => {

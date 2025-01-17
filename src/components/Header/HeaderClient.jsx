@@ -8,6 +8,7 @@ const HeaderClient = ({ children, ...props }) => {
   useEffect(() => {
     if (!headerRef.current) return;
     const handleScroll = () => {
+      if(!headerRef.current) return;
       const scroll = window.scrollY;
       const headerHeight = headerRef.current.offsetHeight;
       if (scroll > 0) {

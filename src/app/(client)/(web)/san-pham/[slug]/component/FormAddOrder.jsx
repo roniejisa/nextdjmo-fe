@@ -49,7 +49,7 @@ const FormAddOrder = () => {
   const handleUpdateOrder = async () => {
     if (
       Object.values(selectedAttributes).filter((item) => item).length ===
-      Object.keys(product.detail_variants).length
+      product.detail_variants.length
     ) {
       if (productCurrent.stock > 0) {
         const data = await postDraftOrder(
@@ -60,7 +60,7 @@ const FormAddOrder = () => {
           "Vui lòng đăng nhập",
           `redirect=${pathname}`
         );
-
+        console.log(data)
         if (data.status == 200) {
           setUpdateCart(true);
           product.variants = product.variants.map((variant) => {
@@ -74,6 +74,9 @@ const FormAddOrder = () => {
             return { ...prev };
           });
           return notify.changeNotify("success", data.message);
+        } else if (data.status == 401) {
+          router.push("/dang-nhap?" + data.searchParams);
+          return notify.changeNotify("error", data.message);
         }
         return notify.changeNotify("error", data.message);
       } else {
