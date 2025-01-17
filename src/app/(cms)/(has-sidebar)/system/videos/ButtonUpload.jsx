@@ -14,7 +14,6 @@ const ButtonUpload = ({ token }) => {
     const response = await updateVideo(
       file,
       (count) => {
-        console.log(count);
         const percentage = Math.round((count / totalChunks) * 100);
         percentRef.current.innerText = `${percentage}%`;
         percentRef.current.style.opacity = "1";

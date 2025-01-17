@@ -18,7 +18,6 @@ const Tag = ({ field, module }) => {
   const getDataTag = async () => {
     const response = await getData(field.module, [field.module_label]);
 
-    console.log(response);
     if (response.status == 200) {
       setTags((prev) => {
         const items = response.data.items;

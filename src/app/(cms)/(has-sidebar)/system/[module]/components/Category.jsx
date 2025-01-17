@@ -93,7 +93,7 @@ const Category = ({ value, field, item }) => {
       </div>
     );
   } else {
-    return <div>Không có {field.label}</div>;
+    return <div>{field.label} chưa được chọn</div>;
   }
 };
 

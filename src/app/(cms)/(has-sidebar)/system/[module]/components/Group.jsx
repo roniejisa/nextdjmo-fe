@@ -19,7 +19,7 @@ const Group = ({ children, field: { label, hasCreateQuick, name } }) => {
           <button
             type="button"
             onClick={handleCreate}
-            className="border rounded-md ml-4 p-1 bg-green-300 hover:bg-green-500 hover:text-white"
+            className="border rounded-md ml-4 p-1 bg-green-100 border-green-100 text-green-500 transition-all duration-300 hover:bg-green-500 hover:text-white"
           >
             Thêm nhanh
           </button>

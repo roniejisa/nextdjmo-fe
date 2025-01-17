@@ -88,7 +88,7 @@ const ImageProvider = ({ children }) => {
       {children}
       {showMedia && (
         <div
-          className="fixed top-0 left-0 w-full h-screen bg-[rgba(0,0,0,.2)] z-[100]"
+          className="fixed top-0 left-0 w-full h-screen bg-[rgba(0,0,0,.2)] z-[9999]"
           onClick={handleOffClick}
         >
           <div className="max-w-[90vw] mx-auto" ref={imageRef}>

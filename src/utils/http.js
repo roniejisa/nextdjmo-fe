@@ -55,8 +55,12 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
     }
     return data
   } catch (e) {
-    console.log(e)
-    // return handleLoginRedirect(msg, searchParams)
+    return {
+      status: 400,
+      message: msg,
+      errorMessage: e.message,
+      searchParams
+    }
   }
 };
 
