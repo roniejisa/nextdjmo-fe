@@ -20,15 +20,15 @@ const ImageComponent = ({ value, item, field }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <div className="relative">
+    <div rs-preview={`${item._id}-${field.name}`} className="relative">
         <ImageCustom
-          rs-preview="true"
+          rs-preview-show={"true"}
           ref={imageRef}
           src={"/next.svg"}
           width={0}
           height={0}
           sizes="100vw"
-          style={{ width: "80px", height: "80px", objectFit: "contain" }}
+          style={{ width: "80px", height: "80px", objectFit: "contain", cursor:"zoom-in" }}
           quality={100}
           alt={""}
         />

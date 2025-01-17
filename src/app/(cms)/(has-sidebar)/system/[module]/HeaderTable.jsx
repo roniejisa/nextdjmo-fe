@@ -21,6 +21,7 @@ const HeaderTable = () => {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const inputSearchRef = useRef(null);
+
   const [nameSearch, setNameSearch] = useState(() => {
     return (
       fields
@@ -42,7 +43,7 @@ const HeaderTable = () => {
 
           // Trường hợp không có điều kiện đặc biệt
           return 0; // a và b ngang bằng, không thay đổi thứ tự
-        })[0]?.name || ""
+        })[0]?.name || null
     );
   });
 
@@ -122,28 +123,30 @@ const HeaderTable = () => {
       [nameSearch, ""],
     ]);
     router.push(pathname + stringSearchParams, true);
-    
+
     setNameSearch(e.target.value);
     inputSearchRef.current.value = "";
   };
 
   return (
     <div className="flex w-full items-center gap-4 mt-10 mb-4">
-      <select
-        className="max-w-[100px] py-2"
-        defaultValue={nameSearch}
-        onChange={handleChangeFilter}
-      >
-        {fields
-          .filter((field) => field.type == "text" && field.name != "_id")
-          .map((field) => {
-            return (
-              <option key={field.name} value={field.name}>
-                {field.label}
-              </option>
-            );
-          })}
-      </select>
+      {nameSearch && (
+        <select
+          className="max-w-[100px] py-2"
+          defaultValue={nameSearch}
+          onChange={handleChangeFilter}
+        >
+          {fields
+            .filter((field) => field.type == "text" && field.name != "_id")
+            .map((field) => {
+              return (
+                <option key={field.name} value={field.name}>
+                  {field.label}
+                </option>
+              );
+            })}
+        </select>
+      )}
       <form action={handleSubmit} className="relative flex-1">
         {nameSearch && (
           <>

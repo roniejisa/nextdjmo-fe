@@ -11,7 +11,6 @@ import ActionTable from "./components/ActionTable";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 import Language from "./components/buttons/Language";
-import PreviewProvider from "@/packages/previews/PreviewProvider";
 import { componentActions, components } from "./components";
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
@@ -196,7 +195,6 @@ const Module = async ({ params, searchParams }) => {
         )}
       </div>
       <ActionTable />
-      <PreviewProvider />
     </ModuleProvider>
   );
 };

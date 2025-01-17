@@ -16,7 +16,7 @@ const AlbumDetail = async ({ params }) => {
     images = JSON.parse(data.images);
   } catch (e) {}
   return (
-    <PreviewProvider data={images} type="follow">
+    <PreviewProvider type="follow">
       <AlbumClient images={images} />
     </PreviewProvider>
   );

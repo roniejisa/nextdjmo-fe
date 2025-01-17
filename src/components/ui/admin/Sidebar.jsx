@@ -35,6 +35,14 @@ const Sidebar = ({ profile }) => {
       return "";
     }
   };
+
+  const checkActiveMenuChild = (link) => {
+    if (pathname.startsWith(process.env.NEXT_PUBLIC_ADMIN_URL + link)) {
+      return "before:bg-outline";
+    } else {
+      return "before:bg-gray-200";
+    }
+  };
   if (!profile || !profile.permissions) return router.push("/");
   const { permissions } = profile;
   return (
@@ -56,12 +64,10 @@ const Sidebar = ({ profile }) => {
             return (
               <React.Fragment key={item.id}>
                 {item.items ? (
-                  <li
-                    className={`flex justify-between items-center mx-2 border-b`}
-                  >
+                  <li className={`flex justify-between items-center mx-2`}>
                     <div className="w-full menu-sidebar">
                       <label
-                        className={`flex justify-between items-center w-full px-4 py-2 cursor-pointer hover:bg-gray-200 hover:text-black transition ${checkActiveMenu(
+                        className={`flex justify-between items-center w-full px-4 py-2 cursor-pointer hover:bg-active-light hover:text-outline transition ${checkActiveMenu(
                           item.link,
                           true
                         )}`}
@@ -109,7 +115,7 @@ const Sidebar = ({ profile }) => {
                           })
                           .map((itemChild) => (
                             <li
-                              className={`flex justify-between hover:bg-gray-200 hover:text-black transition items-center ${checkActiveMenu(
+                              className={`flex justify-between group hover:bg-active-light hover:text-outline transition items-center ${checkActiveMenu(
                                 itemChild.link
                               )}`}
                               key={itemChild.id}
@@ -119,7 +125,9 @@ const Sidebar = ({ profile }) => {
                                   process.env.NEXT_PUBLIC_ADMIN_URL +
                                   itemChild.link
                                 }
-                                className="block py-2 px-4 flex-1 relative before:content-[''] before:absolute before:w-[6px] before:h-[6px] before:border before:rounded-full before:border-current before:top-1/2 before:left-[-6px] before:-translate-y-1/2"
+                                className={`block py-2 px-4 flex-1 group-hover:before:bg-outline before:transition relative before:content-[''] before:absolute before:w-[6px] before:h-[6px] before:rounded-full before:border-current before:top-1/2 before:left-[-6px] before:-translate-y-1/2 ${checkActiveMenuChild(
+                                  itemChild.link
+                                )}`}
                               >
                                 {itemChild.name}
                               </LinkCustom>
@@ -145,7 +153,7 @@ const Sidebar = ({ profile }) => {
                   </li>
                 ) : (
                   <li
-                    className={`flex justify-between items-center hover:bg-gray-200 hover:text-black transition mx-2 border-b ${checkActiveMenu(
+                    className={`flex justify-between items-center hover:bg-active-light hover:text-outline transition mx-2 ${checkActiveMenu(
                       item.link
                     )}`}
                   >

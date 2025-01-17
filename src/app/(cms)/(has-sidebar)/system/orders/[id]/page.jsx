@@ -7,8 +7,10 @@ import { getProfile } from "../../[module]/actions";
 import { showImageUrl } from "@/utils/client/util";
 import Form from "./Form";
 import OrderProvider from "@/context/cms/OrderProvider";
-import StatusRow from "./components/StatusRow";
+import OrderStatus from "./components/OrderStatus";
 import ImageCustom from "@/components/Maintain/Image";
+import PaymentStatus from "./components/PaymentStatus";
+import ActivityOrder from "./components/ActivityOrder";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const orderDetail = async (id) => {
@@ -34,6 +36,7 @@ export async function generateMetadata({ params }) {
     title: data.data.module.name,
   };
 }
+
 const DetailComponent = async ({ params }) => {
   const { id } = await params;
   const user = await getProfile();
@@ -51,109 +54,122 @@ const DetailComponent = async ({ params }) => {
   return (
     <OrderProvider order={item}>
       <div className="p-4">
-        <h1 className="text-3xl font-bold mb-3">Chi tiết đơn hàng</h1>
-        <div className="flex gap-2 flex-wrap">
-          <div className="flex-1">
-            <table className="w-full border">
-              <thead>
-                <tr>
-                  <th colSpan={5} className="bg-blue-500 text-white">
-                    Thông tin chi tiết đơn hang
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border-r border-b px-4">Sản phẩm</td>
-                  <td className="border-r border-b px-4">Số lượng</td>
-                  <td className="border-r border-b px-4">Giá</td>
-                  <td className="border-r border-b px-4">Thành tiền</td>
-                </tr>
-                {item.order_details.map((item) => (
-                  <tr key={item._id}>
-                    <td className="border-r border-b px-4">
-                      <span className="flex items-center gap-2">
-                        <ImageCustom
-                          src={showImageUrl(item.image)}
-                          width={50}
-                          height={50}
-                          alt=""
-                        />
-                        <div>
-                          <h3>{item.name}</h3>
-                          <span className="text-sm text-gray-700">
-                            {typeof item.variants === "string" && JSON.parse(item.variants).join(" - ")}
-                          </span>
-                        </div>
-                      </span>
-                    </td>
-                    <td className="border-r border-b px-4">{item.qty}</td>
-                    <td className="border-r border-b px-4">
-                      {Intl.NumberFormat().format(item.price)}
-                    </td>
-                    <td className="border-r border-b px-4">
-                      {Intl.NumberFormat().format(item.price * item.qty)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="flex items-center gap-4 mb-4">
+          <h1 className="text-3xl font-bold">Chi tiết đơn hàng #{item._id}</h1>
+          <div>
+            <OrderStatus />
           </div>
-          <div className="flex flex-col flex-wrap gap-2 flex-[0_0_30%]">
-            <table className="border flex-1">
-              <thead>
-                <tr>
-                  <th colSpan={2} className="bg-blue-500 text-white">
-                    Thông tin khách hàng
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border-r border-b px-4">Họ và tên</td>
-                  <td className="border-b px-4">{item.name}</td>
-                </tr>
-                <tr>
-                  <td className="border-r border-b px-4">Số điện thoại</td>
-                  <td className="border-b px-4">{item.phone}</td>
-                </tr>
-                <tr>
-                  <td className="border-r border-b px-4">Địa chỉ</td>
-                  <td className="border-b px-4">{item.address}</td>
-                </tr>
-              </tbody>
-            </table>
-            <table className="border">
-              <thead>
-                <tr>
-                  <th colSpan={2} className="bg-blue-500 text-white">
-                    Thông tin đơn hàng
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="border-r border-b px-4">Mã đơn hàng</td>
-                  <td className="border-b px-4">{item._id}</td>
-                </tr>
-                <tr>
-                  <td className="border-r border-b px-4">Tống tiền</td>
-                  <td className="border-b px-4">{item.amount}</td>
-                </tr>
-                <StatusRow />
-                <tr>
-                  <td className="border-r border-b px-4">Ngày tạo</td>
-                  <td className="border-b px-4">
-                    {
-                      new Date(item.order_created_at * 1000)
-                        .toISOString()
-                        .replace("T", " ")
-                        .split(".")[0]
-                    }
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        </div>
+        <div className="flex gap-4 flex-wrap">
+          <div className="flex-1 flex flex-col gap-4">
+            <div className="shadow-md p-4 rounded-md border">
+              <p className="font-bold text-xl mb-4">Sản phẩm đã đặt</p>
+              {item.order_details.map((item) => (
+                <div
+                  key={item._id}
+                  className="flex justify-between bg-active-light p-4 rounded-md"
+                >
+                  <div className="flex gap-2">
+                    <span className="flex items-center gap-4">
+                      <ImageCustom
+                        src={showImageUrl(item.image)}
+                        width={100}
+                        height={100}
+                        alt=""
+                      />
+                      <div>
+                        <h3 className="font-bold">{item.name}</h3>
+                        <span className="text-sm text-gray-700">
+                          {typeof item.variants === "string" &&
+                            JSON.parse(item.variants).join(" - ")}
+                        </span>
+                      </div>
+                    </span>
+                  </div>
+                  <div>
+                    <p className="font-bold">
+                      {Intl.NumberFormat().format(item.price * item.qty)} VND
+                    </p>
+                    <p className="text-sm">Số lượng: {item.qty}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="shadow-md p-4 rounded-md border">
+              <div className="flex items-center gap-4">
+                <p className="text-xl font-bold">Thanh toán</p>
+                <PaymentStatus />
+              </div>
+              <div className="mt-4 flex justify-between">
+                <p className="">Tống phụ</p>
+                <p>{Intl.NumberFormat().format(item.amount)} VND</p>
+              </div>
+              <div className="mt-2 flex justify-between">
+                <p className="">Phí vận chuyển</p>
+                <p>
+                  {Intl.NumberFormat().format(
+                    item.amount_shipping ? item.amount_shipping : 0
+                  )}{" "}
+                  VND
+                </p>
+              </div>
+              <div className="mt-2 flex justify-between">
+                <p className="text-medium">Tổng số tiền</p>
+                <p className="font-bold">
+                  {Intl.NumberFormat().format(
+                    Number(item.amount) +
+                      (item.amount_shipping ? item.amount_shipping : 0)
+                  )}{" "}
+                  VND
+                </p>
+              </div>
+              <div className="mt-4 py-2 flex border-t justify-between">
+                <p className="text-bold">
+                  Tổng số tiền khách hàng cần thanh toán
+                </p>
+                <p className="font-bold">
+                  {Intl.NumberFormat().format(
+                    Number(item.amount) +
+                      (item.amount_shipping ? item.amount_shipping : 0)
+                  )}{" "}
+                  VND
+                </p>
+              </div>
+            </div>
+            <ActivityOrder order={item} />
+          </div>
+
+          <div className="flex-[0_0_30%]">
+            <div className="w-full shadow-md p-4 rounded-md border mb-4">
+              <p className="font-bold text-xl mb-4">Thông tin khách hàng</p>
+              <div className="border-b py-4">
+                <p className="text-lg font-bold mb-2">Họ và tên</p>
+                <p className="">{item.name}</p>
+              </div>
+              <div className="border-b py-4">
+                <p className="text-lg font-bold mb-2">Số điện thoại</p>
+                <a
+                  href={`tel:${item.phone}`}
+                  className="transition hover:text-outline"
+                >
+                  {item.phone}
+                </a>
+              </div>
+              <div className="py-4">
+                <p className="text-lg font-bold mb-2">Địa chỉ</p>
+                <a
+                  href={`https://www.google.com/maps/search/${item.address}`}
+                  target="_blank"
+                  className="transition hover:text-outline"
+                >
+                  {item.address}
+                </a>
+              </div>
+            </div>
+            <div className="w-full shadow-md p-4 rounded-md border">
+              <p className="font-bold text-xl mb-4">Ghi chú</p>
+              <p className="">{item.note ? item.note : "Không có ghi chú"}</p>
+            </div>
           </div>
           <Form order={item} />
         </div>

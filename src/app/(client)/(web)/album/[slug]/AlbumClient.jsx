@@ -10,7 +10,10 @@ import { useContext } from "react";
 const AlbumClient = ({ images }) => {
   const { previewIndex } = useContext(PreviewContext);
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-4">
+    <div
+      className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-4"
+      rs-preview={"true"}
+    >
       {images.map((item, index) => (
         <PreviewItem
           className="relative pt-[100%]"

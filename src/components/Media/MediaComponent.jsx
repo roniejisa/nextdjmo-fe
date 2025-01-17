@@ -29,7 +29,7 @@ const MediaComponent = () => {
     <>
       {token && (
         <div>
-          <div className="flex justify-between items-center p-4">
+          <div className="flex justify-between items-center p-4 sticky top-0 w-full bg-white z-[9999]">
             <Breadcrumb />
             <div className="flex justify-end">
               <CreateFolder />

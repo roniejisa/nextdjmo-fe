@@ -1,4 +1,4 @@
-import Group from "../../../[module]/(context-image)/create/components/Group";
+import Group from "../../../[module]/components/Group";
 
 const Text = ({ field, onChange, defaultValue }) => {
   return (

@@ -19,6 +19,7 @@ import Select from "./components/Select";
 import Category from "./components/Category";
 import Language from "./components/Language";
 import Tag from "./components/Tag";
+import ImageList from "./components/ImageList";
 
 export const components = {
   text: Text,
@@ -36,7 +37,8 @@ export const components = {
   select:Select,
   category:Category,
   language:Language,
-  tag:Tag
+  tag:Tag,
+  list_image:ImageList
 };
 
 export const componentActions = {
