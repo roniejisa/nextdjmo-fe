@@ -145,7 +145,7 @@ const ActivityOrder = ({ order }) => {
                   >
                     <div>
                       <p
-                        className={`text-sm font-bold relative before:absolute before:w-2 before:h-2 before:left-0 before:top-[6px] ${
+                        className={`text-sm font-bold relative before:absolute before:w-2 before:h-2 before:top-[6px] ${
                           isLast
                             ? "before:bg-green-500 text-green-500"
                             : "before:bg-outline"

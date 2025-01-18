@@ -64,10 +64,11 @@ const DetailComponent = async ({ params }) => {
           <div className="flex-1 flex flex-col gap-4">
             <div className="shadow-md p-4 rounded-md border">
               <p className="font-bold text-xl mb-4">Sản phẩm đã đặt</p>
+              <div className="flex flex-wrap gap-2">
               {item.order_details.map((item) => (
                 <div
                   key={item._id}
-                  className="flex justify-between bg-active-light p-4 rounded-md"
+                  className="flex w-full justify-between bg-active-light p-4 rounded-md"
                 >
                   <div className="flex gap-2">
                     <span className="flex items-center gap-4">
@@ -94,6 +95,7 @@ const DetailComponent = async ({ params }) => {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
             <div className="shadow-md p-4 rounded-md border">
               <div className="flex items-center gap-4">
