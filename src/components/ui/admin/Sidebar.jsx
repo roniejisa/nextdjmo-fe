@@ -49,7 +49,7 @@ const Sidebar = ({ profile }) => {
     <aside className="invisible fixed lg:relative lg:visible w-[280px] shadow-lg h-screen lg:h-[calc(100vh-16px*2)] rounded-none lg:rounded-2xl bg-main flex-col pt-4">
       <ul className="flex-1 h-[calc(100vh-16px*2-16px*2-56px)]  overflow-auto">
         {allMenu
-          .filter((item) => {
+          ?.filter((item) => {
             const lists = item.link.split("|");
             return (
               lists.some((item) => permissions.includes(`${item}.read`)) ||
@@ -107,7 +107,7 @@ const Sidebar = ({ profile }) => {
                           hidden
                         />
                         {item.items
-                          .filter((item) => {
+                          ?.filter((item) => {
                             const lists = item.link.split("|");
                             return lists.some((item) =>
                               permissions.includes(`${item}.read`)

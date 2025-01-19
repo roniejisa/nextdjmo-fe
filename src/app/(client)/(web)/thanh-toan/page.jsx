@@ -146,7 +146,7 @@ const Checkout = () => {
                     Số lượng
                   </div>
                 </div>
-                {orders.map((item) => (
+                {orders?.map((item) => (
                   <div
                     key={item.product_variant_id}
                     className="lg:flex border-b items-center p-4 lg:p-0"

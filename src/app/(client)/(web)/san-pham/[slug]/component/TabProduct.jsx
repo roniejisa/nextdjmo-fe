@@ -70,7 +70,7 @@ const TabProduct = () => {
           <div className="p-4">
             <h3>Chi tiết sản phẩm</h3>
             <div>
-              {specifications.map((item, index) => {
+              {specifications?.map((item, index) => {
                 return (
                   <div key={index}>
                     <div className="flex flex-wrap">
@@ -90,7 +90,7 @@ const TabProduct = () => {
               : "duration-0 opacity-0 invisible pointer-events-none h-0 translate-y-[500px]"
           }`}
         >
-          <CommentClient>
+          <CommentClient type="product" id={product._id}>
             <CommentContent />
           </CommentClient>
         </div>

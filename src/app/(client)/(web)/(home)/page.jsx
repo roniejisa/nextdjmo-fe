@@ -29,7 +29,7 @@ const Home = async () => {
             />
           </div>
           <div className="flex-[0_0_25%] flex flex-col px-2 gap-4">
-            {slides.map((item, index) => {
+            {slides?.map((item, index) => {
               return (
                 <div key={index} className="bg-black rounded-lg flex-1">
                   <div className="flex justify-center items-center relative rounded-lg w-full h-full">

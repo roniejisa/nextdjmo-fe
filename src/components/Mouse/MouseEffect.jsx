@@ -63,7 +63,7 @@ const MouseEffect = ({ dependencies }) => {
 
     const updateIcons = () => {
       iconsRef.current = iconsRef.current
-        .map((icon) => ({
+        ?.map((icon) => ({
           ...icon,
           y: icon.y + icon.dy,
         }))

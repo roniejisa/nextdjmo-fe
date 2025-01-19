@@ -1,19 +1,40 @@
 "use client";
 
 import { createContext, useEffect, useRef, useState } from "react";
+import StarInput from "./StarInput";
+import { submitReview } from "./action";
+import { usePathname } from "next/navigation";
+import useRouterCustom from "../translation/Navigation";
+import { useNotify } from "@/context/NotifyProvider";
 
 export const CommentContext = createContext();
-const CommentProvider = ({ children }) => {
+const CommentProvider = ({ children, type, id }) => {
   const [showModel, setShowModel] = useState(false);
   const modelRef = useRef(null);
-
+  const pathname = usePathname();
+  const router = useRouterCustom();
+  const notify = useNotify();
   const handleShowModel = (e) => {
     if (e.target.contains(modelRef.current)) {
       setShowModel(!showModel);
     }
   };
+
+  const handleSubmitFormReview = async (form) => {
+    const body = Object.fromEntries(form);
+    (body.type = type), (body.id = id);
+    const response = await submitReview(body);
+    if (response.status == 401) {
+      notify.changeNotify("error", response.message);
+      return router.push("/dang-nhap?redirect=" + pathname);
+    } else if (response.status == 200) {
+      notify.changeNotify("success", response.message);
+      setShowModel(false);
+    }
+  };
+
   return (
-    <CommentContext.Provider value={{ showModel, setShowModel }}>
+    <CommentContext.Provider value={{ showModel, setShowModel, type, id }}>
       {children}
       <div
         ref={modelRef}
@@ -25,15 +46,30 @@ const CommentProvider = ({ children }) => {
         }`}
       >
         <div className="bg-white rounded-md shadow-md w-full max-w-[600px]">
-            <form className="p-4">
-                <div className="">
-                    <textarea className="px-4 py-2 w-full border rounded-md" name="content" placeholder="Nhập bình luận"></textarea>
-                </div>
-                <div className="flex justify-end gap-2">
-                    <button className="px-4 py-2 rounded-md border" onClick={() => setShowModel(false)}>Đóng</button>
-                    <button className="px-4 py-2 rounded-md border border-active-dark bg-active-dark text-white">Bình luận</button>
-                </div>
-            </form>
+          <form className="p-4" action={handleSubmitFormReview}>
+            <div className="">
+              <StarInput />
+            </div>
+            <div className="">
+              <textarea
+                className="px-4 py-2 w-full border rounded-md"
+                name="content"
+                placeholder="Nhập bình luận"
+              ></textarea>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                className="px-4 py-2 rounded-md border"
+                onClick={() => setShowModel(false)}
+              >
+                Đóng
+              </button>
+              <button className="px-4 py-2 rounded-md border border-active-dark bg-active-dark text-white">
+                Bình luận
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </CommentContext.Provider>

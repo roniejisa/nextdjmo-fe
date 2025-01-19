@@ -152,3 +152,81 @@ export const createStringURL = (searchParams, data) => {
     }
     return newSearchParams.toString() ? `?${newSearchParams.toString()}` : "";
 }
+
+export function formatTime(date, type = "default") {
+    const now = new Date();
+    const diffInMs = now - new Date(date);
+    const dateData = new Date(date);
+    const diffInMinutes = diffInMs / (1000 * 60); // chuyển đổi từ ms sang phút
+    const diffInHours = diffInMinutes / 60; // chuyển đổi từ phút sang giờ
+    if (diffInHours > 24) {
+        if (type === "default") {
+            return dateData.toLocaleDateString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+        // Quá 24 giờ thì trả về định dạng giờ và ngày
+        const options = {
+            weekday: 'long',  // Định dạng thứ (ví dụ: Thứ hai)
+            day: '2-digit',   // Định dạng ngày (ví dụ: 20)
+            month: '2-digit', // Định dạng tháng (ví dụ: 10)
+            year: 'numeric',  // Định dạng năm (ví dụ: 2024)
+            hour: '2-digit',  // Định dạng giờ (ví dụ: 07)
+            minute: '2-digit',// Định dạng phút (ví dụ: 44)
+            timeZone: 'Asia/Bangkok', // Múi giờ GMT+7
+            hour12: false,    // Sử dụng định dạng 24 giờ
+        };
+
+        // Định dạng ngày
+        const formattedDate = dateData.toLocaleString('vi-VN', options);
+
+        // Tách thành phần giờ và phần ngày
+        const [timeAndDayCurrent, day] = formattedDate.split(', ')
+        // Tách giờ và thứ
+        const [time, ...dayCurrent] = timeAndDayCurrent.split(' ')
+        
+        // Thêm múi giờ
+        const timeZoneOffset = ' (GMT+7)';
+        const result = `${dayCurrent.join(" ")}, ${day}, ${time}${timeZoneOffset}`;
+        return result
+    } else if (diffInHours >= 1) {
+        // Trong ngày thì trả về số giờ trước
+        return `${Math.floor(diffInHours)} giờ trước`;
+    } else {
+        // Nếu nhỏ hơn 1 giờ thì trả về số phút trước
+        return `${Math.floor(diffInMinutes)} phút trước`;
+    }
+}
+
+export function formatTimeComment(date, type = "default") {
+    const now = new Date();
+    const diffInMs = now - new Date(date);
+    const diffInSeconds = diffInMs / 1000; // Chuyển đổi từ ms sang giây
+    const diffInMinutes = diffInSeconds / 60; // Chuyển đổi từ giây sang phút
+    const diffInHours = diffInMinutes / 60; // Chuyển đổi từ phút sang giờ
+    const diffInDays = diffInHours / 24; // Chuyển đổi từ giờ sang ngày
+    const diffInWeeks = diffInDays / 7; // Chuyển đổi từ ngày sang tuần
+    const diffInMonths = diffInDays / 30; // Chuyển đổi từ ngày sang tháng (ước tính 30 ngày)
+    const diffInYears = diffInDays / 365; // Chuyển đổi từ ngày sang năm (ước tính 365 ngày)
+
+    if (diffInYears >= 1) {
+        // Nếu hơn 1 năm
+        return `${Math.floor(diffInYears)} năm trước`;
+    } else if (diffInMonths >= 1) {
+        // Nếu hơn 1 tháng
+        return `${Math.floor(diffInMonths)} tháng trước`;
+    } else if (diffInWeeks >= 1) {
+        // Nếu hơn 1 tuần
+        return `${Math.floor(diffInWeeks)} tuần trước`;
+    } else if (diffInDays >= 1) {
+        // Nếu hơn 1 ngày
+        return `${Math.floor(diffInDays)} ngày trước`;
+    } else if (diffInHours >= 1) {
+        // Nếu hơn 1 giờ
+        return `${Math.floor(diffInHours)} giờ trước`;
+    } else if (diffInMinutes >= 1) {
+        // Nếu hơn 1 phút
+        return `${Math.floor(diffInMinutes)} phút trước`;
+    } else {
+        // Nếu nhỏ hơn 1 phút, trả về giây
+        return `${Math.floor(diffInSeconds)} giây trước`;
+    }
+}

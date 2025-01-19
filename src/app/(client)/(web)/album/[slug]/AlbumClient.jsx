@@ -14,7 +14,7 @@ const AlbumClient = ({ images }) => {
       className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-4"
       rs-preview={"true"}
     >
-      {images.map((item, index) => (
+      {images?.map((item, index) => (
         <PreviewItem
           className="relative pt-[100%]"
           key={index}

@@ -117,7 +117,8 @@ const VideoPlayer = ({ m3u8Url }) => {
 
       // Khi manifest được tải
       hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        const availableResolutions = hls.levels.map((level) => level.height);
+        if(!hls.levels) return
+        const availableResolutions = hls.levels?.map((level) => level.height);
         if (availableResolutions.length > 0) {
           hls.startLevel = availableResolutions.length - 1; // Đổi chất lượng video tốt nhất
         }
@@ -161,8 +162,9 @@ const VideoPlayer = ({ m3u8Url }) => {
 
   const handleChangeResolution = (event) => {
     // Tìm index của độ phân giải trong danh sách levels
+    if(!hlsRef.current.levels) return
     const levelIndex = hlsRef.current.levels
-      .map((level) => level.height)
+      ?.map((level) => level.height)
       .findIndex((resolution) => resolution == event);
     if (hlsRef.current) {
       // Đặt độ phân giải của HLS.js

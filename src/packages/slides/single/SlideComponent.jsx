@@ -29,6 +29,7 @@ const SlideComponent = ({ item, index }) => {
     };
     window.addEventListener("slide-change", handleEvent);
     return () => window.removeEventListener("slide-change", handleEvent);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <>

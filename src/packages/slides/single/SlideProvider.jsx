@@ -143,12 +143,14 @@ const SlideProvider = ({
       slideRef.current.addEventListener("transitionend", eventTransitionEnd);
 
       return () => {
-        slideRef.current?.removeEventListener(
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        slideRef.current.removeEventListener(
           "transitionend",
           eventTransitionEnd
         );
       };
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     // Tính toán kích thước ban đầu
@@ -174,6 +176,7 @@ const SlideProvider = ({
     playAuto();
 
     return () => stopAuto(); // Dọn dẹp interval khi component unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCalculator]);
 
   const handleMouseUp = (e) => {

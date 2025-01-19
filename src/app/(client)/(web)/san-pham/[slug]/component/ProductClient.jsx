@@ -7,12 +7,56 @@ import { showImageUrl } from "@/utils/client/util";
 import FormAddOrder from "./FormAddOrder";
 import ImageCustom from "@/components/Maintain/Image";
 import ImagePreview from "./ImagePreview";
+import Skeleton from "@/components/Skeleton/Skeleton";
 
 const ProductClient = () => {
-  const { productCurrent } =
-    useContext(ProductContext);
+  const { productCurrent } = useContext(ProductContext);
 
-  if (productCurrent == null) return <div></div>;
+  if (productCurrent == null)
+    return (
+      <div className="flex w-full lg:gap-10 lg:px-10 mt-10 overflow-hidden h-full max-h-[500px]">
+        <div className="lg:flex-[0_0_40%]">
+          <Skeleton height="500px" />
+        </div>
+        <div className="flex-1">
+          <Skeleton
+            style={{
+              marginBottom: "8px",
+            }}
+            width="50%"
+            height="32px"
+          />
+          <Skeleton
+            style={{
+              marginBottom: "8px",
+            }}
+            width="30%"
+            height="16px"
+          />
+          <Skeleton
+            style={{
+              marginBottom: "8px",
+            }}
+            width="30%"
+            height="16px"
+          />
+          <Skeleton
+            style={{
+              marginBottom: "8px",
+            }}
+            width="50%"
+            height="24px"
+          />
+          <Skeleton
+            style={{
+              marginBottom: "8px",
+            }}
+            height="200px"
+          />
+          <Skeleton width="40%"/>
+        </div>
+      </div>
+    );
 
   return (
     <div className="flex  lg:gap-10 lg:px-10 mt-10">

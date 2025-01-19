@@ -15,7 +15,7 @@ const RightMenu = () => {
 
   return (
     <ul className="items-center flex justify-end lg:pr-10 pr-4">
-      {rightMenus.map((menu) => (
+      {rightMenus?.map((menu) => (
         <li key={menu.id}>
           {menu.type === "showSearch" && (
             <button
@@ -61,7 +61,7 @@ const RightMenu = () => {
               <div className="p-4">
                 <div className="flex flex-col gap-2">
                   {orders.length > 0
-                    ? orders.map((order) => {
+                    ? orders?.map((order) => {
                         return (
                           <LinkCustom
                             key={order.product_variant_id}

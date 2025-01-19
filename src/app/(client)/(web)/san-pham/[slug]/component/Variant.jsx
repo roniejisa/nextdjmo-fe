@@ -153,13 +153,13 @@ const Variant = () => {
       {product.detail_variants && (
         <div>
           <ul>
-            {product.detail_variants.map(
+            {product.detail_variants?.map(
               ({ name, values: varaints }, index) => (
                 <div key={index}>
                   <p>{name}</p>
                   <div className="flex flex-wrap gap-1">
                     {varaints
-                      .filter(({ value }) => value !== "")
+                      ?.filter(({ value }) => value !== "")
                       .map(({ value: label }, index) => (
                         <label
                           key={index}

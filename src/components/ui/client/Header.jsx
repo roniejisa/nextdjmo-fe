@@ -84,7 +84,7 @@ const Header = async () => {
             />
           </LinkCustom>
         </li>
-        {leftMenus.map((menu, index) => (
+        {leftMenus?.map((menu, index) => (
           <li
             key={index}
             className="group px-4 border-b lg:border-b-0 lg:bg-transparent"
@@ -104,7 +104,7 @@ const Header = async () => {
                   </span>
                 </div>
                 <div className="lg:absolute delay-500 transition-all duration-300 group-hover:delay-0 pl-6 lg:px-10 lg:py-4 w-full left-0 top-full lg:opacity-0 lg:invisible lg:group-hover:visible group-hover:opacity-100 lg:bg-white lg:before:content-[''] max-h-[100vh] lg:min-h-[150px] z-10">
-                  {menu.childs.map((subMenu, indexSub) => (
+                  {menu.childs?.map((subMenu, indexSub) => (
                     <ul key={indexSub}>
                       <li>
                         <LinkCustom

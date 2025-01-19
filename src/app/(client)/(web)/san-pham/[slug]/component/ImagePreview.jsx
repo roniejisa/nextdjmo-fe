@@ -219,15 +219,20 @@ const ImagePreview = () => {
     return imageGrassLen;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indexImage]);
+  const handleShowZoom = () => {
+    
+  }
   return (
     <div className="flex flex-wrap gap-4 group" ref={previewRef}>
       <div className="flex-[0_0_90px] gap-4 max-h-[calc(90px*5+16px*2)] overflow-hidden">
         <div className="flex flex-col gap-2" ref={thumbRef}>
-          {images.map((item, index) => {
+          {images?.map((item, index) => {
             return (
               <div
                 className={`relative w-[90px] transition-all duration-300 cursor-pointer h-[90px] shrink-0 border-2 ${
-                  indexImage == index ? "border-active" : "border-transparent opacity-50"
+                  indexImage == index
+                    ? "border-active"
+                    : "border-transparent opacity-50"
                 }`}
                 key={index}
                 onClick={() => handleChangeIndex(index)}
@@ -236,6 +241,7 @@ const ImagePreview = () => {
                   src={showImageUrl(item)}
                   alt={productCurrent?.name}
                   fill={true}
+                  className="object-contain"
                 />
               </div>
             );
@@ -251,6 +257,7 @@ const ImagePreview = () => {
             ref={imageRef}
             src={showImageUrl(productCurrent?.image)}
             alt={productCurrent?.name}
+            onClick={handleShowZoom}
             width={100}
             height={100}
             className="object-contain w-auto max-h-[calc(90px*5+16px*2)] bg-white"

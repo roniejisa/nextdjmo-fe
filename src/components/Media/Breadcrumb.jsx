@@ -32,7 +32,7 @@ const Breadcrumb = () => {
         Quản lý tệp tin
       </span>
       {breadcrumbs.length > 0 &&
-        breadcrumbs.map((item, index) => {
+        breadcrumbs?.map((item, index) => {
           return (
             <span key={item._id} className="flex items-center gap-2">
               <svg

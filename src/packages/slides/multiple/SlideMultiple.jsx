@@ -60,18 +60,21 @@ const SlideMultiple = ({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Tính toán chiều rộng của mỗi item
   useEffect(() => {
     const containerWidth = containerRef.current.offsetWidth;
     itemWidthRef.current = containerWidth / visibleCount;
     setIsCalculator(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!itemWidthRef.current || !trackRef.current) return;
     handleResize();
     changeIndex(indexRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCalculator]);
 
   // Khi indexRef.current thay đổi, kiểm tra nếu đi ra khỏi ranh giới
