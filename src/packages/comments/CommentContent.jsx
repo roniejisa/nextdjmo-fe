@@ -59,13 +59,13 @@ const RenderCommentChilds = ({ comment, onShow }) => {
   };
 
   useEffect(() => {
-    if(focusComment){
-      const item = document.getElementById(`${focusComment}`)
-      if(item){
-        item.focus()
+    if (focusComment) {
+      const item = document.getElementById(`${focusComment}`);
+      if (item) {
+        item.focus();
       }
     }
-  },[focusComment])
+  }, [focusComment]);
 
   const handleSubmitReplication = async (body) => {
     body.type = type;
@@ -93,101 +93,155 @@ const RenderCommentChilds = ({ comment, onShow }) => {
     });
   };
 
+  useEffect(() => {
+    if (page <= 1) return;
+    const getComment = async () => {
+      const response = await getDataComment({
+        comment_id: commentData._id,
+        type,
+        id,
+        page,
+      });
+      if (response.status == 200) {
+        setTotal(response.data.total);
+        setCommentsChilds((prev) => {
+          const newComments = response.data.comments.filter((item) => {
+            return !prev.some((comment) => {
+              return comment._id === item._id;
+            });
+          });
+          return [...prev, ...newComments];
+        });
+      }
+    };
+    startTransition(async () => {
+      await getComment();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
   return (
     <div>
       {commentData.showComment ? (
-        commentsChilds?.map((comment, index) => {
-          return (
-            <div key={comment._id} className="relative mt-2">
-              <div className="flex gap-2 relative">
-                <div className="relative w-8 h-8">
-                  <ImageCustom
-                    src={showImageUrl(comment?.customer?.avatar)}
-                    alt={comment?.customer?.last_name}
-                    fill={true}
-                    className="rounded-full"
-                  />
-                </div>
-                <div className={`relative`}>
-                  <div className="bg-gray-100 p-2 rounded-xl mb-2">
-                    <div className="flex items-center flex-wrap gap-2">
-                      <span className="font-medium">
-                        {comment?.customer?.last_name}
+        <>
+          {commentsChilds?.map((comment, index) => {
+            return (
+              <div
+                key={comment._id}
+                className={`pl-10 relative pt-2 before:w-6 before:h-6 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0 ${
+                  index < commentsChilds.length - 1 ||
+                  total > commentsChilds?.length
+                    ? "after:w-[2px] after:h-full after:content-[''] after:top-0 after:left-[15px] after:absolute after:bg-gray-200"
+                    : ""
+                } `}
+              >
+                <div className="">
+                  <div className="flex gap-2 relative">
+                    <div className="relative">
+                      <span className="relative w-8 h-8 block">
+                        <ImageCustom
+                          src={showImageUrl(comment?.customer?.avatar)}
+                          alt={comment?.customer?.last_name}
+                          fill={true}
+                          className="rounded-full"
+                        />
                       </span>
+                      {(comment?.childs?.total > 0 ||
+                        comment?.showReplication) && (
+                        <div className="w-[2px] bg-gray-200 h-[calc(100%-32px)] absolute top-[32px] left-1/2 -translate-x-1/2"></div>
+                      )}
                     </div>
-                    <div>{comment.content}</div>
-                  </div>
-                  <div className="">
-                    <div className="flex text-sm gap-4">
-                      <span>{formatTimeComment(comment.comment_at)}</span>
-                      <button>Thích</button>
-                      <button
-                        onClick={() => handleShowReplication(comment._id)}
-                      >
-                        Phản hồi
-                      </button>
-                    </div>
-                    {comment?.childs.total > 0 ? (
-                      <RenderCommentChilds
-                        comment={comment}
-                        onShow={showChild}
-                      />
-                    ) : (
-                      ""
-                    )}
-
-                    {comment?.showReplication && (
-                      <div className="bg-gray-100 mt-2 p-2 rounded-xl">
-                        <form
-                          action={async (form) => {
-                            const body = Object.fromEntries(form);
-                            body.comment_id = comment._id;
-                            handleSubmitReplication(body);
-                          }}
-                          className="flex items-center"
-                        >
-                          <textarea
-                            id={comment._id}
-                            name="content"
-                            className="w-full bg-transparent outline-none appearance-none resize-none"
-                            placeholder={`Trả lời ${comment?.customer?.last_name}`}
-                          ></textarea>
-                          <button className="text-active">
-                            <Send />
-                          </button>
-                        </form>
+                    <div className={`relative`}>
+                      <div className="bg-gray-100 p-2 rounded-xl mb-2">
+                        <div className="flex items-center flex-wrap gap-2">
+                          <span className="font-medium">
+                            {comment?.customer?.last_name}
+                          </span>
+                        </div>
+                        <div>{comment.content}</div>
                       </div>
-                    )}
+                      <div className="">
+                        <div className="flex text-sm gap-4">
+                          <span>{formatTimeComment(comment.comment_at)}</span>
+                          <button>Thích</button>
+                          <button
+                            onClick={() => handleShowReplication(comment._id)}
+                          >
+                            Phản hồi
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {comment?.childs.total > 0 ? (
+                  <div className="relative">
+                    {comment?.showReplication && (
+                      <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
+                    )}
+                    <RenderCommentChilds comment={comment} onShow={showChild} />
+                  </div>
+                ) : (
+                  ""
+                )}
+                {comment?.showReplication && (
+                  <div className="pt-2 pl-10 relative before:w-6 before:h-[calc(100%/2+4px)] before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0">
+                    <form
+                      action={async (form) => {
+                        const body = Object.fromEntries(form);
+                        body.comment_id = comment._id;
+                        handleSubmitReplication(body);
+                      }}
+                      className="flex items-center bg-gray-100 p-2 rounded-xl"
+                    >
+                      <textarea
+                        id={comment._id}
+                        name="content"
+                        className="w-full bg-transparent outline-none appearance-none resize-none"
+                        placeholder={`Trả lời ${comment?.customer?.last_name}`}
+                      ></textarea>
+                      <button className="text-active">
+                        <Send />
+                      </button>
+                    </form>
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        })
-      ) : (
-        <button className={`relative my-1`} onClick={handleShowCommentChild}>
-          Xem tất cả {commentData.childs.total} phản hồi
-        </button>
-      )}
-      {isPending ? (
-        <>
-          <div className="mb-2">
-            <Skeleton width="30%" className="mb-2" height="24px" />
-            <Skeleton width="70%" className="mb-2" height="50px" />
-          </div>
-          <div>
-            <Skeleton width="30%" className="mb-2" height="24px" />
-            <Skeleton width="70%" className="mb-2" height="50px" />
-          </div>
-        </>
-      ) : (
-        <>
-          {total > commentsChilds?.length && (
-            <div>
-              <button onClick={() => setPage(page + 1)}>Tải thêm</button>
-            </div>
+            );
+          })}
+          {isPending ? (
+            <>
+              <div className="mb-2">
+                <Skeleton width="30%" className="mb-2" height="24px" />
+                <Skeleton width="70%" className="mb-2" height="50px" />
+              </div>
+              <div>
+                <Skeleton width="30%" className="mb-2" height="24px" />
+                <Skeleton width="70%" className="mb-2" height="50px" />
+              </div>
+            </>
+          ) : (
+            total > commentsChilds?.length && (
+              <button
+                className="pl-10 relative before:content-[''] before:w-6 before:h-4 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[14.5px] before:top-0"
+                onClick={() => setPage(page + 1)}
+              >
+                Xem thêm phản hồi
+              </button>
+            )
           )}
         </>
+      ) : (
+        <button
+          className={`relative py-1 before:content-[''] before:w-6 before:h-4 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[14.5px] before:top-0 pl-10 ${
+            comment?.showReplication
+              ? "after:w-[2px] after:h-full after:content-[''] after:top-0 after:left-[14.5px] after:absolute after:bg-gray-200"
+              : ""
+          }`}
+          onClick={handleShowCommentChild}
+        >
+          Xem tất cả {commentData.childs.total} phản hồi
+        </button>
       )}
     </div>
   );
@@ -202,11 +256,7 @@ const CommentContent = () => {
   const notify = useNotify();
   const pathname = usePathname();
   const [focusComment, setFocusComment] = useState(null);
-  useEffect(() => {
-    if (total > 0) {
-      console.log(total == comments.length);
-    }
-  }, [total, comments]);
+
   useEffect(() => {
     const getComment = async () => {
       const response = await getDataComment({
@@ -258,13 +308,13 @@ const CommentContent = () => {
   };
 
   useEffect(() => {
-    if(focusComment){
-      const item = document.getElementById(`${focusComment}`)
-      if(item){
-        item.focus()
+    if (focusComment) {
+      const item = document.getElementById(`${focusComment}`);
+      if (item) {
+        item.focus();
       }
     }
-  },[focusComment])
+  }, [focusComment]);
 
   const handleSubmitReplication = async (body) => {
     body.type = type;
@@ -310,16 +360,21 @@ const CommentContent = () => {
           return (
             <div key={comment._id}>
               <div className="flex gap-2">
-                <div className="relative w-8 h-8">
-                  <ImageCustom
-                    src={showImageUrl(comment?.customer?.avatar)}
-                    alt={comment?.customer?.last_name}
-                    fill={true}
-                    className="rounded-full"
-                  />
+                <div className="relative">
+                  <span className="relative block w-8 h-8">
+                    <ImageCustom
+                      src={showImageUrl(comment?.customer?.avatar)}
+                      alt={comment?.customer?.last_name}
+                      fill={true}
+                      className="rounded-full"
+                    />
+                  </span>
+                  {(comment?.childs?.total > 0 || comment?.showReplication) && (
+                    <div className="w-[2px] bg-gray-200 h-[calc(100%-32px)] absolute top-[32px] left-1/2 -translate-x-1/2"></div>
+                  )}
                 </div>
-                <div className={`relative`}>
-                  <div className="bg-gray-100 p-2 rounded-xl mb-2">
+                <div className={`relative : ""}`}>
+                  <div className="bg-gray-100 p-2 rounded-xl mb-2 ">
                     <div className="flex items-center flex-wrap gap-2">
                       <span className="font-medium">
                         {comment?.customer?.last_name}
@@ -338,39 +393,41 @@ const CommentContent = () => {
                         Phản hồi
                       </button>
                     </div>
-                    {comment?.childs?.total > 0 ? (
-                      <RenderCommentChilds
-                        comment={comment}
-                        onShow={showChild}
-                      />
-                    ) : (
-                      ""
-                    )}
-                    {comment?.showReplication && (
-                      <div className="bg-gray-100 mt-2 p-2 rounded-xl">
-                        <form
-                          action={async (form) => {
-                            const body = Object.fromEntries(form);
-                            body.comment_id = comment._id;
-                            handleSubmitReplication(body);
-                          }}
-                          className="flex items-center"
-                        >
-                          <textarea
-                            id={comment._id}
-                            name="content"
-                            className="w-full bg-transparent outline-none appearance-none resize-none"
-                            placeholder={`Trả lời ${comment?.customer?.last_name}`}
-                          ></textarea>
-                          <button className="text-active">
-                            <Send />
-                          </button>
-                        </form>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
+              <div className="relative">
+                {comment?.showReplication && (
+                  <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
+                )}
+                {comment?.childs?.total > 0 ? (
+                  <RenderCommentChilds comment={comment} onShow={showChild} />
+                ) : (
+                  ""
+                )}
+              </div>
+              {comment?.showReplication && (
+                <div className="pt-2 pl-10 relative before:w-6 before:h-[calc(100%/2+4px)] before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0">
+                  <form
+                    action={async (form) => {
+                      const body = Object.fromEntries(form);
+                      body.comment_id = comment._id;
+                      handleSubmitReplication(body);
+                    }}
+                    className="bg-gray-100 p-2 flex items-center rounded-xl"
+                  >
+                    <textarea
+                      id={comment._id}
+                      name="content"
+                      className="w-full bg-transparent outline-none appearance-none resize-none"
+                      placeholder={`Trả lời ${comment?.customer?.last_name}`}
+                    ></textarea>
+                    <button className="text-active">
+                      <Send />
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
           );
         })}
