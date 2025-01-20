@@ -183,7 +183,7 @@ export const allMenu = [
     id: 5,
     name: "Biểu mẫu",
     icon: "feedback",
-    link: "contacts|receive-notifications",
+    link: "contacts|receive-notifications|comments",
     items: [
       {
         id: 5.1,
@@ -195,6 +195,11 @@ export const allMenu = [
         id: 5.2,
         name: "Đăng ký nhận tin",
         link: "receive-notifications",
+      },
+      {
+        id: 5.3,
+        name: "Đánh giá",
+        link: "comments",
       },
     ],
   },

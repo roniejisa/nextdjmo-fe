@@ -5,13 +5,13 @@ import useRouterCustom from "./Navigation";
 import { useContext } from "react";
 import { LoadingContext } from "./LoadingProvider";
 
-const LinkCustom = ({ children, href, isRefresh = false, ...props }) => {
+const LinkCustom = ({ children, href, isRefresh = true, ...props }) => {
   const router = useRouterCustom();
-  const { currentPathname, searchParamString } = useContext(LoadingContext);
+  const { currentPathname } = useContext(LoadingContext);
   const changePage = (e) => {
     e.preventDefault();
-    if (currentPathname + searchParamString != href.replace("?", ""))
-      router.push(href, isRefresh);
+    if (currentPathname === href) return;
+    router.push(href, isRefresh);
   };
   return (
     <Link href={href} onClick={changePage} {...props}>

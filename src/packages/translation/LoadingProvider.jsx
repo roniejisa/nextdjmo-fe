@@ -8,8 +8,6 @@ const LoadingProvider = ({ children, fallback }) => {
   const [isRefresh, setIsRefresh] = useState(false);
   const [currentPathname, setCurrentPathname] = useState(null);
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const [searchParamString, setSearchParamString] = useState("");
   useEffect(() => {
     setCurrentPathname((prev) => {
       if (prev !== pathname) {
@@ -18,15 +16,8 @@ const LoadingProvider = ({ children, fallback }) => {
       }
       return prev;
     });
-    setSearchParamString((prev) => {
-      if (prev !== searchParams.toString()) {
-        setTransition(false);
-        return searchParams.toString();
-      }
-      return prev;
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   useEffect(() => {
     if (isRefresh) {
@@ -43,8 +34,6 @@ const LoadingProvider = ({ children, fallback }) => {
         setTransition,
         currentPathname,
         setCurrentPathname,
-        searchParamString,
-        setSearchParamString,
         setIsRefresh,
       }}
     >

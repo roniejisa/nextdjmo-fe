@@ -20,6 +20,7 @@ import Category from "./components/Category";
 import Language from "./components/Language";
 import Tag from "./components/Tag";
 import ImageList from "./components/ImageList";
+import Rating from "./components/Rating";
 
 export const components = {
   text: Text,
@@ -38,7 +39,8 @@ export const components = {
   category:Category,
   language:Language,
   tag:Tag,
-  list_image:ImageList
+  list_image:ImageList,
+  rating:Rating
 };
 
 export const componentActions = {

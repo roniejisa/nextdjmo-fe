@@ -1,13 +1,12 @@
 "use client";
 
-import { createContext, useEffect, useRef, useState } from "react";
+import { createContext, useRef, useState } from "react";
 
 export const ModuleContext = createContext();
 const ModuleProvider = ({ children, module, fields, user, data }) => {
   const selectRef = useRef([]);
   const selectAllRef = useRef(null);
   const [selectIds, setSelectIds] = useState([])
-
   
   return (
     <ModuleContext.Provider

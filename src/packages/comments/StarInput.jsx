@@ -1,9 +1,9 @@
 "use client";
 import StarFullBackground from "@/components/Icon/svg/StarFullBackground";
 import StarNoBackground from "@/components/Icon/svg/StarNoBackground";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 
-const StarInput = ({ size = "24px" }) => {
+const StarInput = ({ size = "24px", reset = false, setReset }) => {
   const starRef = useRef({});
   const starPreviewRef = useRef(null);
   const handleCheckSelected = (e) => {
@@ -22,6 +22,14 @@ const StarInput = ({ size = "24px" }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (reset) {
+      starPreviewRef.current.style.width = `0%`;
+      setReset(false)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reset]);
   return (
     <div className="relative flex w-fit">
       <div className="flex">
