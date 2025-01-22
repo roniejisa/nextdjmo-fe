@@ -219,14 +219,32 @@ const SlideMultiple = ({
 
     if (movedBy < 0) {
       indexRef.current = indexRef.current + totalIndexMove;
-    } else if (movedBy > 0) {
+    } else {
       indexRef.current = indexRef.current - totalIndexMove;
     }
     changeCursor();
-    if (checkInfinity()) return;
+    if (checkInfinityDrag()) return;
     // Cập nhật index nếu có sự thay đổi
-    trackRef.current.style.transition = "2000ms ease";
+    trackRef.current.style.transition = "200ms ease";
     changeIndex(indexRef.current);
+  };
+
+  const checkInfinityDrag = () => {
+    if (!hasInfinity) return false;
+    trackRef.current.style.transition = "";
+    let hasChange = false;
+    if (indexRef.current + visibleCount >= extendedItems.length) {
+      indexRef.current = visibleCount; // Quay lại đầu danh sách
+      hasChange = true;
+    } else if (indexRef.current <= 0) {
+      indexRef.current = items.length; // Quay lại cuối danh sách
+      hasChange = true;
+    }
+    if (hasChange) {
+      changeIndex(indexRef.current);
+      return true;
+    }
+    return false;
   };
 
   const changeCursor = (type = "default") => {
