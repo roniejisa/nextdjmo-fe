@@ -28,6 +28,7 @@ module.exports = {
         main: "var(--main)",
         outline: "var(--outline)",
         danger: "var(--danger)",
+        link: "var(--link)",
         active: "var(--active)",
         "active-dark": "var(--active-dark)",
         "active-light": "var(--active-light)",

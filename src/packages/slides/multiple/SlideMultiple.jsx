@@ -21,6 +21,9 @@ const SlideMultiple = ({
   const currentTranslate = useRef(0);
   const prevTranslate = useRef(0);
   const itemWidthRef = useRef(0);
+  const timeOutRef = useRef("OK");
+  const isDragging = useRef(0); // Biến cờ theo dõi trạng thái drag
+
   const ComponentFallback = fallback;
   const Component = component;
   // Tạo danh sách với các bản sao đầu/cuối để tạo hiệu ứng vô hạn
@@ -60,38 +63,84 @@ const SlideMultiple = ({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // Tính toán chiều rộng của mỗi item
   useEffect(() => {
     const containerWidth = containerRef.current.offsetWidth;
     itemWidthRef.current = containerWidth / visibleCount;
     setIsCalculator(false);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (!itemWidthRef.current || !trackRef.current) return;
     handleResize();
     changeIndex(indexRef.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCalculator]);
 
   // Khi indexRef.current thay đổi, kiểm tra nếu đi ra khỏi ranh giới
 
   const changeIndex = (newIndex) => {
+    clearTimeout(timeOutRef.current);
+    timeOutRef.current = setTimeout(() => {
+      timeOutRef.current = "OK";
+    }, 500);
     prevTranslate.current = -(newIndex * itemWidthRef.current);
     if (trackRef.current) {
       trackRef.current.style.transform = `translateX(${prevTranslate.current}px)`;
     }
   };
 
-  const handleButtonClick = (e, newIndex) => {
+  const checkAndChangeOtherIndex = async (newIndex, type) => {
+    indexRef.current = newIndex;
+    const firstIndexMain = visibleCount;
+    const lastIndexMain = firstIndexMain + items.length - 1;
+
+    const lastIndex = extendedItems.length - 1;
+    if (type === "next") {
+      const endSlide = indexRef.current + visibleCount - 1;
+      // Khi chuyển lên vị trí thì nó đã + 1 rồi nên cần - đi 1
+      if (endSlide > lastIndex) {
+        indexRef.current = indexRef.current - items.length - visibleCount;
+        trackRef.current.style.transition = "";
+        changeIndex(indexRef.current);
+        return new Promise((resolve) => {
+          indexRef.current += visibleCount;
+          setTimeout(() => {
+            resolve(indexRef.current);
+          }, 100);
+        });
+      }
+    } else if (type === "prev") {
+      const endSlide = indexRef.current + visibleCount - 1;
+      if (endSlide < visibleCount) {
+        indexRef.current = indexRef.current + items.length + visibleCount;
+        trackRef.current.style.transition = "";
+        changeIndex(indexRef.current);
+        return new Promise((resolve) => {
+          indexRef.current -= visibleCount;
+          setTimeout(() => {
+            resolve(indexRef.current);
+          }, 100);
+        });
+      }
+    }
+
+    return new Promise((resolve) => {
+      resolve(indexRef.current);
+    });
+  };
+
+  const handleButtonClick = async (e, newIndex, type) => {
+    if (timeOutRef.current !== "OK") return;
+    timeOutRef.current = "CHANGE";
     e.stopPropagation();
     // Tránh việc đi ra ngoài phạm vi danh sách
-    checkIndexRelated(newIndex);
-    trackRef.current.style.transition = "transform 0.3s ease";
+    indexRef.current = await checkAndChangeOtherIndex(newIndex, type);
     // Cập nhật lại chỉ mục
+    trackRef.current.style.transition = "transform 2000ms ease";
     changeIndex(indexRef.current);
   };
 
@@ -99,14 +148,11 @@ const SlideMultiple = ({
     if (!hasInfinity) return;
     trackRef.current.style.transition = "";
     let hasChange = false;
-    if (
-      indexRef.current >= extendedItems.length - visibleCount ||
-      indexRef.current + visibleCount >= extendedItems.length - 1
-    ) {
+    if (indexRef.current >= extendedItems.length) {
       indexRef.current = visibleCount; // Quay lại đầu danh sách
       hasChange = true;
-    } else if (indexRef.current <= 0 || indexRef.current - visibleCount <= 0) {
-      indexRef.current = extendedItems.length - visibleCount; // Quay lại cuối danh sách
+    } else if (indexRef.current <= 0) {
+      indexRef.current = items.length; // Quay lại cuối danh sách
       hasChange = true;
     }
     if (hasChange) {
@@ -117,6 +163,7 @@ const SlideMultiple = ({
 
   const handleDragStart = (event) => {
     if (!hasInfinity) return;
+    isDragging.current = false;
     event.preventDefault();
     startPosition.current = event.type.includes("mouse")
       ? event.pageX
@@ -130,6 +177,7 @@ const SlideMultiple = ({
   };
 
   const handleDragMove = (event) => {
+    isDragging.current = true;
     event.preventDefault();
     const currentPosition = event.type.includes("mouse")
       ? event.pageX
@@ -174,25 +222,11 @@ const SlideMultiple = ({
     } else if (movedBy > 0) {
       indexRef.current = indexRef.current - totalIndexMove;
     }
-    checkIndexRelated(indexRef.current);
     changeCursor();
     if (checkInfinity()) return;
     // Cập nhật index nếu có sự thay đổi
-    trackRef.current.style.transition = "300ms ease";
+    trackRef.current.style.transition = "2000ms ease";
     changeIndex(indexRef.current);
-  };
-
-  const checkIndexRelated = (newIndex) => {
-    if (newIndex <= 0) {
-      indexRef.current = visibleCount + visibleCount;
-    } else if (
-      newIndex >= extendedItems.length - 1 ||
-      newIndex + visibleCount >= extendedItems.length - 1
-    ) {
-      indexRef.current = visibleCount + 1;
-    } else {
-      indexRef.current = newIndex;
-    }
   };
 
   const changeCursor = (type = "default") => {
@@ -206,6 +240,12 @@ const SlideMultiple = ({
       default:
         document.body.style.cursor = "default";
         break;
+    }
+  };
+
+  const handleClick = (e) => {
+    if (isDragging.current) {
+      e.preventDefault();
     }
   };
   return (
@@ -253,7 +293,7 @@ const SlideMultiple = ({
                     height: heightItem,
                   }}
                 >
-                  <Component index={index} item={item} />
+                  <Component index={index} item={item} onClick={handleClick} />
                 </div>
               ))}
             </div>
@@ -265,10 +305,10 @@ const SlideMultiple = ({
         {hasInfinity && (
           <button
             onMouseDown={(e) =>
-              handleButtonClick(e, indexRef.current - visibleCount)
+              handleButtonClick(e, indexRef.current - visibleCount, "prev")
             }
             onTouchStart={(e) =>
-              handleButtonClick(e, indexRef.current - visibleCount)
+              handleButtonClick(e, indexRef.current - visibleCount, "prev")
             }
             className="text-active border border-text-active bg-text-active p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-300 opacity-0 group-hover:-translate-x-1/2 group-hover:opacity-100 hover:bg-active hover:border-active hover:text-text-active"
           >
@@ -295,10 +335,10 @@ const SlideMultiple = ({
         {hasInfinity && (
           <button
             onMouseDown={(e) =>
-              handleButtonClick(e, indexRef.current + visibleCount)
+              handleButtonClick(e, indexRef.current + visibleCount, "next")
             }
             onTouchStart={(e) =>
-              handleButtonClick(e, indexRef.current + visibleCount)
+              handleButtonClick(e, indexRef.current + visibleCount, "next")
             }
             className="text-active absolute border border-text-active bg-text-active p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-300 opacity-0 group-hover:translate-x-1/2 group-hover:opacity-100 hover:bg-active hover:border-active hover:text-text-active"
           >

@@ -1,23 +1,18 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { convertSize, showImageUrl } from "@/utils/client/util";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
 import Image from "next/image";
 
 const ImageType = ({ media }) => {
-  const { filename, url, file_info, extention, _id } = media;
+  const { filename, file_info, extention, _id } = media;
   let fileInfo = file_info;
   if (typeof file_info === "string") {
     fileInfo = JSON.parse(file_info.replaceAll("'", '"')) ?? {};
   }
   const { size } = fileInfo;
-  const {
-    setEditorImage,
-    menuPosition,
-    setMenuPosition,
-    setListComponent,
-    callbackMenu,
-  } = useMedia((data) => data);
+  const { setEditorImage, setMenuPosition, setListComponent, callbackMenu } =
+    useMedia((data) => data);
 
   const imageRef = useRef(null);
 
@@ -47,6 +42,13 @@ const ImageType = ({ media }) => {
       ]);
     }, 200);
   };
+
+  useEffect(() => {
+    const offMenuContext = () => setMenuPosition(null);
+    window.addEventListener("click", offMenuContext);
+    return () => window.removeEventListener("click", offMenuContext);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <div className="rounded-md" onContextMenu={handleShowContextMenu}>
       <Image

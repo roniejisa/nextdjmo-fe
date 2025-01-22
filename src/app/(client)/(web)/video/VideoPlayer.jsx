@@ -60,7 +60,7 @@ const VideoPlayer = ({ m3u8Url }) => {
   const hlsRef = useRef(null);
   const plyrRef = useRef(null);
   useEffect(() => {
-    if (Hls.isSupported()) {
+    if (typeof window !== "undefined" && Hls.isSupported()) {
       const hls = new Hls({
         xhrSetup: (xhr, url) => {
           xhr.setRequestHeader("x-api-key", "123456"); // Thêm API key nếu cần

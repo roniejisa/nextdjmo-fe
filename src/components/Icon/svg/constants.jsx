@@ -1,4 +1,5 @@
 import Album from "./Album";
+import Blog from "./Blog";
 import Building from "./Building";
 import Customer from "./Customer";
 import DashboardIcon from "./Dashboard";
@@ -25,5 +26,6 @@ export const iconSVG = {
   building: Building,
   slide: Slide,
   album: Album,
-  video: Video
+  video: Video,
+  blog: Blog,
 };

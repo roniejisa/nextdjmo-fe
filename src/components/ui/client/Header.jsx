@@ -31,7 +31,7 @@ const Header = async () => {
   const logo = await getLogo();
   const leftMenus = await getMenuHeader();
   return (
-    <HeaderClient className="relative flex justify-between h-[100px] transition bg-active-light">
+    <HeaderClient className="relative flex justify-between h-[100px] transition bg-background">
       <div className="lg:hidden flex items-center pl-4 flex-[0_0_calc(100%/3)]">
         <label className="cursor-pointer py-2 pr-2" htmlFor="show-menu">
           <svg
@@ -92,14 +92,14 @@ const Header = async () => {
             {!menu.childs ? (
               <LinkCustom
                 href={menu.link}
-                className="py-2 lg:mr-10 block font-medium text-xl"
+                className="py-2 lg:mr-10 block font-medium text-xl text-link"
               >
                 {menu.name}
               </LinkCustom>
             ) : (
               <>
                 <div>
-                  <span className="py-2 block lg:mr-10 font-medium text-xl">
+                  <span className="py-2 block lg:mr-10 font-medium text-xl text-link">
                     {menu.name}
                   </span>
                 </div>

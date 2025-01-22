@@ -72,7 +72,7 @@ export const allMenu = [
   {
     id: 7,
     name: "Tin tức",
-    icon: "ecommerce",
+    icon: "blog",
     link: "posts|post-categories|post-tags|post-authors",
     items: [
       {

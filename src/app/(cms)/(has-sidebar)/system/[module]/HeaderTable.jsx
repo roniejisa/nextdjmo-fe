@@ -50,6 +50,7 @@ const HeaderTable = () => {
   const handleSubmit = async (form) => {
     const stringSearchParams = createStringURL(searchParams, form);
     router.push(pathname + stringSearchParams, true);
+    router.refresh()
   };
 
   const downloadFileExcel = async () => {

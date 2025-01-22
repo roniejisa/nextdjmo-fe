@@ -8,7 +8,7 @@ const SelectAllRow = () => {
   const handleChange = (e) => {
     const checked = e.target.checked;
     selectRef.current.forEach((selectItem) => {
-      if(selectItem.el){
+      if (selectItem.el) {
         selectItem.el.checked = checked;
       }
     });

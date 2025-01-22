@@ -31,7 +31,7 @@ const Footer = async () => {
             style={{ objectFit: "contain" }}
           />
         </LinkCustom>
-        <FormReceive />
+        {/* <FormReceive /> */}
       </div>
       {copyRight && (
         <div className="mt-10 pt-4 px-4 lg:px-10">

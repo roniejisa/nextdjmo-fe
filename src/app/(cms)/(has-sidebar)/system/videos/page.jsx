@@ -28,17 +28,24 @@ const VideoPage = async ({ profile }) => {
     return notFound();
   }
 
-  let { module: moduleMain } = data || {};
-  
+  let { module: moduleMain, items } = data || {};
   return (
     <div className="px-4">
       <div className="flex py-4 sticky top-0 z-10 bg-white">
         <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
         <div className="ml-auto">
           {user.permissions.includes(`${moduleName}.create`) && (
-            <ButtonUpload token={token}/>
+            <ButtonUpload token={token} />
           )}
         </div>
+        <div></div>
+      </div>
+      <div className="flex justify-end">
+        {items?.map((item) => (
+          <div key={item._id}>
+            {item.name} - {item.converted}
+          </div>
+        ))}
       </div>
     </div>
   );

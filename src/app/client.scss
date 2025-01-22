@@ -1,13 +1,14 @@
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
+  --background: #221f20;
+  --foreground: #ffffff;
   // --active: #ff90bc;
   // --active-dark: #fd4790;
   // --active-light: #fdb5d2;
-  --active: #2a85ff;
-  --active-dark: #167afd;
-  --active-light: #cfe1f8;
+  --active: #ffd530;
+  --active-dark: #ffd930;
+  --active-light: #f8ebaf;
   --text-active: #ffffff;
+  --link: #ffd530;
   --plyr-color-main: var(--active);
 }
 body {
@@ -23,7 +24,7 @@ header {
       position: absolute;
       width: 0;
       height: 2px;
-      background: var(--foreground);
+      background: var(--link);
       bottom: 0;
       left: 0;
     }

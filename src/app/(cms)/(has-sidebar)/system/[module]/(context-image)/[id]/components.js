@@ -25,6 +25,7 @@ import Password from "./components/Password";
 import Select from "./components/Select";
 import Category from "./components/Category";
 import Tag from "./components/Tag";
+import Rating from "./components/Rating";
 
 export const components = {
     text: Text,
@@ -53,5 +54,6 @@ export const components = {
     code_editor: CodeEditor,
     select: Select,
     category: Category,
-    tag:Tag
+    tag:Tag,
+    rating: Rating
 };

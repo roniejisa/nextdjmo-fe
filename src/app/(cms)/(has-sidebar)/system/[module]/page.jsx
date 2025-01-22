@@ -12,6 +12,7 @@ import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 import Language from "./components/buttons/Language";
 import { componentActions, components } from "./components";
+import TabModule from "./Tab";
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
   return await getDataModule(module, limit, page, searchParams);
@@ -72,7 +73,10 @@ const Module = async ({ params, searchParams }) => {
     >
       <div className="px-4 relative">
         <div className="flex py-4 sticky top-0 z-10 bg-white">
-          <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
+          <div className="flex">
+            <h1 className="text-3xl font-bold">{moduleMain.name}</h1>
+            {moduleMain?.hasTab && <TabModule tab={moduleMain?.hasTab} />}
+          </div>
           <div className="ml-auto flex gap-4">
             <Language module={module} moduleMain={moduleMain} />
             {user?.permissions.includes(`${module}.create`) &&
