@@ -29,7 +29,7 @@ const SlideMultipleItem = ({ item, onClick }) => {
       </div>
       <div className="p-4">
         <h3 className="font-medium transition duration-300 text-2xl text-active hover:text-active-light">
-          <LinkCustom href={"/san-pham/" + item.slug}>{item.name}</LinkCustom>
+          <LinkCustom href={"/tin-tuc/" + item.slug}>{item.name}</LinkCustom>
         </h3>
         <p className="my-2">{item.short_content}</p>
 

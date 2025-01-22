@@ -134,9 +134,9 @@ const SlideMultiple = ({
   };
 
   const handleButtonClick = async (e, newIndex, type) => {
+    e.stopPropagation();
     if (timeOutRef.current !== "OK") return;
     timeOutRef.current = "CHANGE";
-    e.stopPropagation();
     // Tránh việc đi ra ngoài phạm vi danh sách
     indexRef.current = await checkAndChangeOtherIndex(newIndex, type);
     // Cập nhật lại chỉ mục
@@ -212,10 +212,7 @@ const SlideMultiple = ({
     // Tính toán khoảng cách di chuyển
     const movedBy = currentTranslate.current - prevTranslate.current;
 
-    // Nếu di chuyển quá nửa một item, chuyển sang item tiếp theo hoặc trước đó
-    const totalIndexMove = Math.floor(
-      Math.abs(movedBy) / (itemWidthRef.current / 2)
-    );
+    const totalIndexMove = Math.ceil(Math.abs(movedBy) / itemWidthRef.current);
 
     if (movedBy < 0) {
       indexRef.current = indexRef.current + totalIndexMove;
