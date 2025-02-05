@@ -37,6 +37,10 @@ module.exports = {
       backgroundImage: {
         'background-sidebar-admin': 'linear-gradient(to top, #fbf8dd, #f7e4ed, #d6def9, #ffffff 60%)',
       },
+      boxShadow: {
+        "3d": "4px 4px 4px 3px rgba(0,0,0,.3)",
+        "3d-hover": "4px 4px 4px 1px rgba(0,0,0,.5)",
+      },
     },
   },
   plugins: [],

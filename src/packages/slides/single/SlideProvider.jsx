@@ -150,7 +150,7 @@ const SlideProvider = ({
         );
       };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
     // Tính toán kích thước ban đầu
@@ -159,24 +159,29 @@ const SlideProvider = ({
 
   useEffect(() => {
     if (isCalculator) return;
-    transformXRef.current = -(
-      indexRef.current * slideContainerRef.current.clientWidth
-    );
-    slideRef.current.style.transform = `translateX(${transformXRef.current}px)`;
-    slideRef.current.style.width = `${
-      items.length * slideContainerRef.current.clientWidth
-    }px`;
-    if (slideItemsRef.current) {
-      slideItemsRef.current.forEach((item) => {
-        item.style.width = slideContainerRef.current.clientWidth + "px";
-      });
-    }
-
+    const eventResize = () => {
+      transformXRef.current = -(
+        indexRef.current * slideContainerRef.current.clientWidth
+      );
+      slideRef.current.style.transform = `translateX(${transformXRef.current}px)`;
+      slideRef.current.style.width = `${
+        items.length * slideContainerRef.current.clientWidth
+      }px`;
+      if (slideItemsRef.current) {
+        slideItemsRef.current.forEach((item) => {
+          item.style.width = slideContainerRef.current.clientWidth + "px";
+        });
+      }
+    };
+    window.addEventListener("resize", eventResize);
     // chạy autoplay
+    eventResize();
     playAuto();
-
-    return () => stopAuto(); // Dọn dẹp interval khi component unmount
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      stopAuto();
+      window.removeEventListener("resize", eventResize);
+    }; // Dọn dẹp interval khi component unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCalculator]);
 
   const handleMouseUp = (e) => {
@@ -312,7 +317,7 @@ const SlideProvider = ({
             </div>
             <div>
               <button
-                className={`text-active border border-text-active bg-text-active p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-${ms} -translate-x-full group-hover:left-10 group-hover:translate-x-0 hover:bg-active hover:border-active hover:text-text-active`}
+                className={`text-active border bg-background border-background p-4 rounded-full absolute top-1/2 -translate-y-1/2 left-0 transition-all duration-${ms} -translate-x-full group-hover:left-10 group-hover:translate-x-0 hover:bg-active hover:border-active hover:text-text-active`}
                 onMouseMove={stopAuto}
                 onMouseLeave={playAuto}
                 onClick={() => handleActionChangeSlide(indexRef.current - 1)}
@@ -335,7 +340,7 @@ const SlideProvider = ({
                 </svg>
               </button>
               <button
-                className={`text-active absolute border border-text-active bg-text-active p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-${ms} translate-x-full group-hover:right-10 group-hover:-translate-x-0 hover:bg-active hover:border-active hover:text-text-active`}
+                className={`text-active absolute border border-background bg-background p-4 rounded-full top-1/2 -translate-y-1/2 right-0 transition-all duration-${ms} translate-x-full group-hover:right-10 group-hover:-translate-x-0 hover:bg-active hover:border-active hover:text-text-active`}
                 onMouseMove={stopAuto}
                 onMouseLeave={playAuto}
                 onClick={() => handleActionChangeSlide(indexRef.current + 1)}
