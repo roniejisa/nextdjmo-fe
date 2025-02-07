@@ -9,3 +9,78 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+body {
+  display: block;
+}
+@media only screen and (orientation: portrait) {
+  body {
+    height: 100vw;
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
+  }
+}
+@media only screen and (orientation: landscape) {
+  body {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+}
+
+.players {
+  .player {
+    position: absolute;
+  }
+
+  .player:nth-child(1) {
+    left: -45px;
+    top: -30px;
+    transform: translateY(-25%);
+  }
+
+  .player:nth-child(2) {
+    right: -45px;
+    top: -30px;
+    transform: translateY(-25%);
+  }
+
+  .player:nth-child(3) {
+    left: -45px;
+    bottom: -30px;
+    flex-direction: column-reverse;
+  }
+
+  .player:nth-child(4) {
+    right: -45px;
+    bottom: -30px;
+    flex-direction: column-reverse;
+  }
+
+  .player:nth-child(5) {
+    left: 25%;
+    top: -80px;
+  }
+
+  .player:nth-child(6) {
+    right: 25%;
+    top: -80px;
+  }
+
+  .player:nth-child(7) {
+    left: 20%;
+    bottom: -70px;
+    flex-direction: column-reverse;
+  }
+
+  .player:nth-child(8) {
+    right: 20%;
+    bottom: -70px;
+    flex-direction: column-reverse;
+  }
+}

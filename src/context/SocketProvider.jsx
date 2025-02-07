@@ -44,7 +44,7 @@ export const SocketProvider = ({ children }) => {
     },
 
     ping: () => {
-      if(!socketRef.current) return
+      if (!socketRef.current) return;
       socketRef.current.send(
         encryptData({
           type: "pong",
@@ -89,7 +89,7 @@ export const SocketProvider = ({ children }) => {
     };
 
     socketRef.current.sendEncode = (obj) => {
-      if(typeof socketRef.current.send != "function") return
+      if (typeof socketRef.current.send != "function") return;
       socketRef.current.send(encryptData(obj));
     };
   };
@@ -114,29 +114,16 @@ export const SocketProvider = ({ children }) => {
 
   const connectAndSendRequestForServer = async () => {
     if (!sessionIdRef.current) {
-      dataDBIndex.current = getOrCreateIndexDB("MyAppDB", 1);
-      if (typeof dataDBIndex.current.getOrSet === "function") {
-        const newId = makeId(24);
-        const response = await dataDBIndex.current.getOrSet(
-          "myConfig",
-          "main",
-          {
-            id: "main",
-            value: newId,
-          }
-        );
-
-        if (response.status) {
-          sessionIdRef.current = response.data.value;
-        }
-
-        if (!sessionIdRef.current) {
-          return connectAndSendRequestForServer();
-        }
-
-        alertConnectSocket();
-      }
-    } else {
+      // dataDBIndex.current = getOrCreateIndexDB("MyAppDB", 1);
+      // if (typeof dataDBIndex.current.getOrSet === "function") {
+      let rssId = localStorage.getItem("rssId");
+      
+      if (!rssId) {
+        rssId = makeId(24);
+        localStorage.setItem("rssId", rssId);
+      };
+      sessionIdRef.current = rssId;
+      console.log(sessionIdRef.current)
       alertConnectSocket();
     }
   };
@@ -186,7 +173,7 @@ export const SocketProvider = ({ children }) => {
     >
       {children}
       <div
-        className="fixed z-[999] bottom-0 right-10 rounded-md rounded-bl-none rounded-br-none border-b-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
+        className="fixed z-[999] top-0 right-10 rounded-md rounded-tl-none rounded-tr-none border-t-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
         onClick={handleSend}
       >
         Online:{" "}

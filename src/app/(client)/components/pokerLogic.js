@@ -1,5 +1,4 @@
 export const evaluateHand = (hand) => {
-    console.log(hand);
     const values = hand.map(card => card.value);
     const suits = hand.map(card => card.suit);
 
@@ -27,13 +26,12 @@ export const evaluateHand = (hand) => {
     })();
 
     const sortedValueCount = Object.entries(valueCount)
-        .map(([value, count]) => ({ value: parseInt(value) || (value === 'A' ? 14 : 0), count }))
+        .map(([value, count]) => ({ value: parseInt(value) || (value === 'A' ? 14 : 0) || (value === 'K' ? 13 : 0) || (value === 'Q' ? 12 : 0) || (value === 'J' ? 11 : 0), count }))
         .sort((a, b) => b.count - a.count || b.value - a.value);
-
     const handData = {
         rank: 1,
         type: "High Card",
-        values: sortedValues.reverse()
+        values: sortedValueCount.slice(0, 5).map(item => item.value),
     };
 
     if (isFlush && isStraight) {
@@ -56,7 +54,7 @@ export const evaluateHand = (hand) => {
     } else if (sortedValueCount[0].count === 3) {
         handData.rank = 4;
         handData.type = "Three of a Kind";
-        handData.values = [sortedValueCount[0].value, ...sortedValues.filter(v => v !== sortedValueCount[0].value)];
+        handData.values = [sortedValueCount[0].value, sortedValueCount[1].value, sortedValueCount[2].value];
     } else if (sortedValueCount[0].count === 2 && sortedValueCount[1].count === 2) {
         handData.rank = 3;
         handData.type = "Two Pair";
@@ -69,10 +67,12 @@ export const evaluateHand = (hand) => {
         handData.rank = 2;
         handData.type = "One Pair";
         handData.values = [
-            sortedValueCount[0].value, 
-            ...sortedValues.filter(v => v !== sortedValueCount[0].value)
+            sortedValueCount[0].value,
+            sortedValueCount[1].value,
+            sortedValueCount[2].value,
+            sortedValueCount[3].value,
         ];
     }
-
+    console.log(handData.type, handData.values)
     return handData;
 };
