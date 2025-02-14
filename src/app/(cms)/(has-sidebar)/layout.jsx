@@ -11,7 +11,7 @@ const AdminLayout = async (data) => {
   const storeParams = await params;
   return (
     <SocketProvider>
-      <AllProvider>
+      <AllProvider profile={profile}>
         <main className="grid lg:grid-cols-[280px_1fr] gap-4 lg:h-[100vh-16px*2] lg:p-4 h-screen p-0">
           <Sidebar storeParams={storeParams} profile={profile} />
           <div className="flex-1 shadow-lg  rounded-none lg:rounded-2xl bg-main overflow-auto h-screen lg:h-[calc(100vh-16px*2)]">

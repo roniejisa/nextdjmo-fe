@@ -1,41 +1,10 @@
 "use client";
-import { makeId } from "@/utils/client/util";
-import { getOrCreateIndexDB } from "@/utils/indexDB";
-import { useState, useEffect, createContext, useRef, useCallback } from "react";
-import CryptoJS from "crypto-js";
-
-const secretKey = CryptoJS.enc.Hex.parse("0123456789abcdef0123456789abcdef"); // Khóa bí mật (32 ký tự cho AES-256)
-const iv = CryptoJS.enc.Hex.parse("abcdef9876543210abcdef9876543210"); // IV (16 ký tự)
-
-// Hàm mã hóa
-export const encryptData = (data) => {
-  const jsonData = JSON.stringify(data);
-  const encrypted = CryptoJS.AES.encrypt(jsonData, secretKey, { iv: iv });
-  return encrypted.toString(); // Chuỗi mã hóa Base64
-};
-
-const decryptData = (encryptedData) => {
-  try {
-    // Giải mã AES
-    const bytes = CryptoJS.AES.decrypt(encryptedData, secretKey, {
-      iv: iv,
-      mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7,
-    });
-
-    // Chuyển bytes thành chuỗi
-    const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-    return decryptedData;
-  } catch (error) {
-    console.error("Decryption error:", error);
-    return null;
-  }
-};
+import { useEffect, createContext, useRef } from "react";
+import { encryptData, decryptData } from "@/utils/socket/utils";
 
 export const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const socketRef = useRef(null);
-  const dataDBIndex = useRef(null);
   const sessionIdRef = useRef(null);
   const onlineRef = useRef(0);
   const typeRef = useRef({
@@ -44,7 +13,7 @@ export const SocketProvider = ({ children }) => {
     },
 
     ping: () => {
-      if(!socketRef.current) return
+      if (!socketRef.current) return;
       socketRef.current.send(
         encryptData({
           type: "pong",
@@ -57,11 +26,12 @@ export const SocketProvider = ({ children }) => {
   });
 
   const connectSocket = () => {
-    if (socketRef.current) return;
+    if (socketRef.current || !sessionIdRef.current)
+      return console.log("Thiếu thông tin người dùng!");
     socketRef.current = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URL);
     socketRef.current.onopen = () => {
       // console.log("Đã kết nối");
-      connectAndSendRequestForServer();
+      alertConnectSocket();
     };
 
     socketRef.current.onmessage = (event) => {
@@ -89,8 +59,12 @@ export const SocketProvider = ({ children }) => {
     };
 
     socketRef.current.sendEncode = (obj) => {
-      if(typeof socketRef.current.send != "function") return
-      socketRef.current.send(encryptData(obj));
+      try {
+        if (typeof socketRef.current.send != "function") return;
+        socketRef.current.send(encryptData(obj));
+      } catch (error) {
+        console.log(error);
+      }
     };
   };
 
@@ -112,35 +86,6 @@ export const SocketProvider = ({ children }) => {
     socketRef.current = null;
   };
 
-  const connectAndSendRequestForServer = async () => {
-    if (!sessionIdRef.current) {
-      dataDBIndex.current = getOrCreateIndexDB("MyAppDB", 1);
-      if (typeof dataDBIndex.current.getOrSet === "function") {
-        const newId = makeId(24);
-        const response = await dataDBIndex.current.getOrSet(
-          "myConfig",
-          "main",
-          {
-            id: "main",
-            value: newId,
-          }
-        );
-
-        if (response.status) {
-          sessionIdRef.current = response.data.value;
-        }
-
-        if (!sessionIdRef.current) {
-          return connectAndSendRequestForServer();
-        }
-
-        alertConnectSocket();
-      }
-    } else {
-      alertConnectSocket();
-    }
-  };
-
   const disconnectWeb = () => {
     if (socketRef.current) {
       socketRef.current.sendEncode({
@@ -151,8 +96,11 @@ export const SocketProvider = ({ children }) => {
       });
     }
   };
+
+  const setSessionId = (id) => {
+    sessionIdRef.current = id;
+  };
   useEffect(() => {
-    connectSocket();
     window.addEventListener("online", connectSocket);
     window.addEventListener("offline", checkNoInternet);
     window.addEventListener("beforeunload", disconnectWeb);
@@ -167,22 +115,31 @@ export const SocketProvider = ({ children }) => {
     typeRef.current = { ...typeRef.current, [type]: callback };
   };
   const handleSend = () => {
-    if (socketRef.current) {
-      socketRef.current.send(
-        encryptData({
-          type: "update-count",
-          data: {
-            id: sessionIdRef.current,
-          },
-        })
-      );
+    if (
+      socketRef.current &&
+      sessionIdRef.current &&
+      typeof socketRef.current.sendEncode === "function"
+    ) {
+      socketRef.current.sendEncode({
+        type: "update-count",
+        data: {
+          id: sessionIdRef.current,
+        },
+      });
     } else {
       connectSocket();
     }
   };
   return (
     <SocketContext.Provider
-      value={{ socketRef, typeRef, addTypes, sessionIdRef }}
+      value={{
+        socketRef,
+        typeRef,
+        addTypes,
+        sessionIdRef,
+        setSessionId,
+        connectSocket,
+      }}
     >
       {children}
       <div

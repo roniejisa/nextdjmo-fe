@@ -28,7 +28,7 @@ const RightMenu = () => {
           )}
         </li>
       ))}
-      <li>
+      {/* <li>
         <div className="relative p-2 ml-4 block group">
           <button
             onClick={() => {
@@ -105,7 +105,7 @@ const RightMenu = () => {
             </div>
           </div>
         </div>
-      </li>
+      </li> */}
     </ul>
   );
 };

@@ -5,7 +5,6 @@ import { formatTime, showImageUrl } from "@/utils/client/util";
 import React from "react";
 
 const SlideMultipleItem = ({ item, onClick }) => {
-  console.log();
   const date = new Date(item.date);
   const day = date.getDate();
   const month = date.getMonth() + 1;

@@ -7,6 +7,13 @@ import Statistic from "./components/Statistic";
 import Map from "./components/Map";
 import ChartComponent from "./components/Chart";
 
+const listTab = [
+  { name: "Dịch", value: "translate" },
+  { name: "Thống kê", value: "statistic" },
+  { name: "Bản đồ", value: "map" },
+  { name: "Bảng", value: "chart" },
+];
+
 const ExplodeClient = () => {
   const [tab, setTab] = useState(null);
   const tabRef = useRef({});
@@ -48,38 +55,16 @@ const ExplodeClient = () => {
   return (
     <div className="flex flex-wrap gap-4">
       <ul className="sticky top-[120px] self-start flex-[0_0_20%]">
-        <li>
-          <button
-            className={`${tab == "translate" ? `text-active` : ""}`}
-            onClick={() => setTab("translate")}
-          >
-            Dịch
-          </button>
-        </li>
-        <li>
-          <button
-            className={`${tab == "statistic" ? `text-active` : ""}`}
-            onClick={() => setTab("statistic")}
-          >
-            Thống kê
-          </button>
-        </li>
-        <li>
-          <button
-            className={`${tab == "chart" ? `text-active` : ""}`}
-            onClick={() => setTab("chart")}
-          >
-            Hỏi đáp
-          </button>
-        </li>
-        <li>
-          <button
-            className={`${tab == "map" ? `text-active` : ""}`}
-            onClick={() => setTab("map")}
-          >
-            Bản đồ
-          </button>
-        </li>
+        {listTab.map((item, index) => (
+          <li key={index}>
+            <button
+              className={`${tab == item.value ? `text-active text-4xl` : ""}`}
+              onClick={() => setTab(item.value)}
+            >
+              {item.name}
+            </button>
+          </li>
+        ))}
       </ul>
       <div className="flex-1 max-w-[80%]">
         <motion.div
@@ -91,25 +76,25 @@ const ExplodeClient = () => {
           transition={{ duration: 0.6 }}
         >
           <div
-            className={`h-screen translate`}
+            className={`min-h-screen translate`}
             ref={(el) => (tabRef.current.translate = el)}
           >
             <Translate />
           </div>
           <div
-            className={`h-screen statistic`}
+            className={`min-h-screen statistic`}
             ref={(el) => (tabRef.current.statistic = el)}
           >
             <Statistic />
           </div>
           <div
-            className={`h-screen chart`}
+            className={`min-h-screen chart`}
             ref={(el) => (tabRef.current.chart = el)}
           >
             <ChartComponent />
           </div>
           <div
-            className={`h-screen map`}
+            className={`min-h-screen map`}
             ref={(el) => (tabRef.current.map = el)}
           >
             <Map />

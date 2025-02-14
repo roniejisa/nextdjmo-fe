@@ -1,0 +1,26 @@
+/* components/CustomEditor.module.css */
+
+.placeholder {
+    position: relative;
+    &:empty::before {
+        content: attr(data-placeholder);
+        color: #999;
+        pointer-events: none;
+        font-size: 16px;
+    }
+}
+
+.editor {
+    border-radius: 8px;
+    outline: none;
+    margin: 0.5rem 0;
+    min-height: 24px;
+    font-size: 16px;
+    &:empty::before {
+        content: attr(aria-label);
+        color: #999;
+        pointer-events: none;
+        font-size: 16px;
+    }
+}
+
