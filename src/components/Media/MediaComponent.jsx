@@ -1,7 +1,7 @@
 "use client";
 
 import MediaList from "@/app/media/MediaList";
-import { GalleryContext } from "@/context/ImageProvider";
+import { GalleryContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useState, useTransition } from "react";
 import { getToken } from "./action";
 import Editor from "@/app/media/components/Editor";
@@ -29,7 +29,7 @@ const MediaComponent = () => {
     <>
       {token && (
         <div>
-          <div className="flex justify-between items-center p-4">
+          <div className="flex justify-between items-center p-4 sticky top-0 w-full bg-white z-[9999]">
             <Breadcrumb />
             <div className="flex justify-end">
               <CreateFolder />

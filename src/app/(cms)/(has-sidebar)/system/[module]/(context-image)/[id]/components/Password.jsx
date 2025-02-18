@@ -5,6 +5,7 @@ const Password = ({ defaultValue, field, item }) => {
       name={field.name}
       defaultValue={defaultValue || ""}
       className="w-full outline-outline outline-4 transition border rounded-md p-2"
+      autoComplete="off"
     />
   );
 };

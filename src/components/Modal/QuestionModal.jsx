@@ -1,5 +1,5 @@
 "use client";
-import { AllContext } from "@/context/AllProvider";
+import { AllContext } from "@/context/cms/AllProvider";
 import { useContext, useRef } from "react";
 import CloseIcon from "../Icon/svg/Close";
 

@@ -72,28 +72,32 @@ export const allMenu = [
   {
     id: 7,
     name: "Tin tức",
-    icon: "ecommerce",
+    icon: "blog",
     link: "posts|post-categories|post-tags|post-authors",
     items: [
       {
         id: 7.1,
         name: "Bài viết",
         link: "posts",
+        add: "posts/create",
       },
       {
         id: 7.2,
         name: "Danh mục",
         link: "post-categories",
+        add: "post-categories/create",
       },
       {
         id: 7.3,
         name: "Tag",
         link: "post-tags",
+        add: "post-tags/create",
       },
       {
         id: 7.4,
         name: "Tác giả",
         link: "post-authors",
+        add: "post-authors/create",
       },
     ],
   },
@@ -157,16 +161,36 @@ export const allMenu = [
     add: "links/create",
   },
   {
+    id: 9,
+    name: "Banner",
+    link: "slides",
+    icon: "slide",
+    add: "slides/create",
+  },
+  {
     id: 10,
+    name: "Album",
+    link: "albums",
+    icon: "album",
+    add: "albums/create",
+  },
+  {
+    id: 11,
     name: "Tệp tin",
     link: "files",
     icon: "folder",
   },
   {
+    id: 12,
+    name: "Video",
+    link: "videos",
+    icon: "video",
+  },
+  {
     id: 5,
     name: "Biểu mẫu",
     icon: "feedback",
-    link: "contacts|receive-notifications",
+    link: "contacts|receive-notifications|comments",
     items: [
       {
         id: 5.1,
@@ -178,6 +202,11 @@ export const allMenu = [
         id: 5.2,
         name: "Đăng ký nhận tin",
         link: "receive-notifications",
+      },
+      {
+        id: 5.3,
+        name: "Đánh giá",
+        link: "comments",
       },
     ],
   },

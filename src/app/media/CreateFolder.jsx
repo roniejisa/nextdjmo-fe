@@ -56,6 +56,7 @@ const CreateFolder = () => {
             <form action={handleCreateFolder} className="flex">
               <input
                 type="text"
+                autoComplete="off"
                 value={folder}
                 name="name"
                 placeholder="Nhập tên folder"

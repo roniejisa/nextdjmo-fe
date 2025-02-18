@@ -159,6 +159,7 @@ export default function SpeechToTextWithWave() {
       </p>
       <div className="flex gap-4">
         <input
+          autoComplete="off"
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}

@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useId, useRef, useState } from "react";
-import Group from "./Group";
 import style from "./Bool.module.scss";
 const Bool = ({ field }) => {
-  const [isTrue, setIsTrue] = useState(false);
+  const [isTrue, setIsTrue] = useState("active");
   const inputRef = useRef();
   useEffect(() => {
     inputRef.current.value = isTrue ? "active" : "unactive";

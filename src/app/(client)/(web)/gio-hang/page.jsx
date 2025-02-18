@@ -1,6 +1,6 @@
 "use client";
 
-import { ClientContext } from "@/context/ClientProvider";
+import { ClientContext } from "@/context/client/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
 import { showImageUrl } from "@/utils/client/util";
 import { useContext, useRef, useTransition } from "react";
@@ -170,7 +170,7 @@ const Cart = () => {
               </div>
               <div className="flex-1 font-bold border-b"></div>
             </div>
-            {orders.map((item, index) => (
+            {orders?.map((item, index) => (
               <div
                 key={item.product_variant_id}
                 className="lg:flex border-b items-center relative p-4 lg:p-0"
@@ -213,6 +213,7 @@ const Cart = () => {
                         }
                       }}
                       className="px-2 text-center w-12"
+                      autoComplete="off"
                       defaultValue={item.qty}
                       placeholder="Số lượng"
                       onChange={(e) => changeValue(e)}

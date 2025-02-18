@@ -1,6 +1,6 @@
 "use client";
 
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 import { useContext } from "react";
 
 const SelectAllRow = () => {
@@ -8,12 +8,13 @@ const SelectAllRow = () => {
   const handleChange = (e) => {
     const checked = e.target.checked;
     selectRef.current.forEach((selectItem) => {
-      selectItem.el.checked = checked;
+      if (selectItem.el) {
+        selectItem.el.checked = checked;
+      }
     });
-
     setSelectIds(
       selectRef.current
-        .filter((selectItem) => selectItem.el.checked)
+        .filter((selectItem) => selectItem.el && selectItem.el.checked)
         .map((selectItem) => selectItem.id)
     );
   };

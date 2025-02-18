@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { httpClient } from './utils/http'
+import { cookies } from 'next/headers'
 
 // Sử dụng biến môi trường cho URL và API Key để dễ dàng cấu hình và bảo mật
 const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth'
@@ -112,7 +113,7 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
     }
 
     // Tạo cookie riêng để làm phần đã xem
-    const ssId = request.cookies.get('ssId') != undefined ? request.cookies.get('ssId').value : makeid(12)
+    const ssId = cookies().has('ssId') ? cookies().get('ssId').value : makeid(12)
     response.cookies.set('ssId', ssId, { httpOnly: true, secure: true, path: "/", sameSite: "strict" })
     response.headers.set('Cache-Control', 'no-store, must-revalidate');
 
@@ -159,6 +160,19 @@ export async function middleware(request) {
 
         // Nếu không xác thực, xóa cookie và tiếp tục
         const response = NextResponse.next()
+
+        // Xử lý để chắc chắn được lưu ref
+        const ref = cookies().has('ref') ? cookies().get('ref').value : url.searchParams.get('ref') || null;
+        if (ref) {
+            response.cookies.set('ref', ref, {
+                httpOnly: true,
+                secure: true,
+                path: "/",
+                sameSite: "strict",
+                maxAge: 60 * 60 * 24 * 30
+            })
+        }
+
         response.headers.set('Cache-Control', 'no-store, must-revalidate');
         deleteTokens(response)
         return response
@@ -216,9 +230,12 @@ function extractSocialAuthParams(url) {
     };
 }
 
+// Xử lý chức năng lưu ref aff tại middleware
+
 export const config = {
     matcher: [
         // Loại trừ các đường dẫn không cần middleware
         "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|web-app-manifest-192x192.png|sw.js).*)",
     ],
 }
+

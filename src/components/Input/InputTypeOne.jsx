@@ -21,6 +21,7 @@ const InputTypeOne = ({ name, placeholder, defaultValue, type = "text" }) => {
     <div className="relative mb-4">
       <div>
         <input
+          autoComplete="off"
           type={type}
           className={`w-full pt-6 pb-2 outline-[#2a85ff] font-bold px-3 rounded-2xl ${
             hasValue && !isFocused ? "bg-white" : ""

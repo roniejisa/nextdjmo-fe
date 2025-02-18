@@ -1,9 +1,9 @@
 "use client";
 
-import { ClientContext } from "@/context/ClientProvider";
+import { ClientContext } from "@/context/client/ClientProvider";
 import { useNotify } from "@/context/NotifyProvider";
-import { ProductContext } from "@/context/ProductProvider";
-import { useContext, useState } from "react";
+import { ProductContext } from "@/context/client/ProductProvider";
+import { useContext, useState, useTransition } from "react";
 import { postDraftOrder } from "./action";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ const FormAddOrder = () => {
   const pathname = usePathname();
   const notify = useNotify();
   const router = useRouterCustom();
+  const [isPending, startTransition] = useTransition();
   const { productCurrent, selectedAttributes, product, setProductCurrent } =
     useContext(ProductContext);
   const { setUpdateCart } = useContext(ClientContext);
@@ -47,40 +48,45 @@ const FormAddOrder = () => {
   }
 
   const handleUpdateOrder = async () => {
-    if (
-      Object.values(selectedAttributes).filter((item) => item).length ===
-      Object.keys(product.detail_variants).length
-    ) {
-      if (productCurrent.stock > 0) {
-        const data = await postDraftOrder(
-          {
-            productId: productCurrent._id,
-            stock,
-          },
-          "Vui lòng đăng nhập",
-          `redirect=${pathname}`
-        );
-
-        if (data.status == 200) {
-          setUpdateCart(true);
-          product.variants = product.variants.map((variant) => {
-            if (variant._id == productCurrent._id) {
-              variant.stock = Number(variant.stock) - Number(stock);
-            }
-            return variant;
-          });
-          setProductCurrent((prev) => {
-            prev.stock = Number(prev.stock) - Number(stock);
-            return { ...prev };
-          });
-          return notify.changeNotify("success", data.message);
+    startTransition(async () => {
+      if (
+        Object.values(selectedAttributes).filter((item) => item).length ===
+        product.detail_variants.length
+      ) {
+        if (productCurrent.stock > 0) {
+          const data = await postDraftOrder(
+            {
+              productId: productCurrent._id,
+              stock,
+            },
+            "Vui lòng đăng nhập",
+            `redirect=${pathname}`
+          );
+          console.log(data);
+          if (data.status == 200) {
+            setUpdateCart(true);
+            product.variants = product.variants.map((variant) => {
+              if (variant._id == productCurrent._id) {
+                variant.stock = Number(variant.stock) - Number(stock);
+              }
+              return variant;
+            });
+            setProductCurrent((prev) => {
+              prev.stock = Number(prev.stock) - Number(stock);
+              return { ...prev };
+            });
+            return notify.changeNotify("success", data.message);
+          } else if (data.status == 401) {
+            router.push("/dang-nhap?" + data.searchParams);
+            return notify.changeNotify("error", data.message);
+          }
+          return notify.changeNotify("error", data.message);
+        } else {
+          return notify.changeNotify("error", "Số lượng hàng hóa không hợp lệ");
         }
-        return notify.changeNotify("error", data.message);
-      } else {
-        return notify.changeNotify("error", "Số lượng hàng hóa không hợp lệ");
       }
-    }
-    return notify.changeNotify("error", "Đặt hàng không hợp lệ");
+      return notify.changeNotify("error", "Đặt hàng không hợp lệ");
+    });
   };
   return (
     <form action={handleUpdateOrder}>
@@ -121,12 +127,12 @@ const FormAddOrder = () => {
         </button>
       </div>
       <button
-        className={`px-2 py-2 font-bold my-4 border rounded-md ${
+        className={`px-2 py-2 font-bold my-4 border [&[disabled]]:opacity-50 [&[disabled]]:cursor-not-allowed rounded-md ${
           productCurrent.stock <= 0
             ? "cursor-not-allowed bg-red-400"
             : "bg-blue-700 text-white"
         }`}
-        disabled={productCurrent.stock <= 0}
+        disabled={productCurrent.stock <= 0 || isPending}
       >
         Đặt hàng
       </button>

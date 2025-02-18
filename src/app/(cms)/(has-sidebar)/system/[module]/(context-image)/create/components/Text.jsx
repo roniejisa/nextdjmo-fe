@@ -1,6 +1,8 @@
 const Text = ({ field, defaultValue }) => {
   return (
     <input
+      type="text"
+      autoComplete="off"
       name={field.name}
       placeholder={field.placeholder}
       defaultValue={defaultValue || ""}

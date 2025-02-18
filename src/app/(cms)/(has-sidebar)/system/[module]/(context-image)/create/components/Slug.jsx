@@ -34,6 +34,8 @@ const Slug = ({ field, defaultValue }) => {
   }, [slugRef]);
   return (
     <input
+      type="text"
+      autoComplete="off"
       name={field.name}
       ref={slugRef}
       placeholder={field.placeholder}

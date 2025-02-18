@@ -1,6 +1,5 @@
 "use client";
 import { useRef } from "react";
-import Group from "./Group";
 import { checkKey } from "./action";
 import { toSlug } from "@/utils/client/util";
 import { useNotify } from "@/context/NotifyProvider";
@@ -27,6 +26,7 @@ const Key = ({ field, defaultValue }) => {
     <input
       name={field.name}
       ref={keyRef}
+      autoComplete="off"
       onChange={checkChangeInputKey}
       placeholder={field.placeholder}
       defaultValue={defaultValue || ""}

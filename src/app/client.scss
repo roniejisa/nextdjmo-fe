@@ -1,5 +1,19 @@
-body{
-  background: white;
+:root {
+  --background: #221f20;
+  --foreground: #ffffff;
+  // --active: #ff90bc;
+  // --active-dark: #fd4790;
+  // --active-light: #fdb5d2;
+  --active: #ffd530;
+  --active-dark: #ffd930;
+  --active-light: #f8ebaf;
+  --text-active: #ffffff;
+  --link: #ffd530;
+  --plyr-color-main: var(--active);
+}
+body {
+  background-color: var(--background);
+  color: var(--foreground);
 }
 header {
   li a:not(.link-header) {
@@ -11,7 +25,7 @@ header {
       position: absolute;
       width: 0;
       height: 2px;
-      background: #ffca1c;
+      background: var(--link);
       bottom: 0;
       left: 0;
     }
@@ -35,7 +49,7 @@ header {
       position: absolute;
       width: 0;
       height: 2px;
-      background: #fffc23;
+      background: var(--foreground);
       bottom: 0;
       left: 0;
     }
@@ -93,7 +107,14 @@ header:has(input[type="checkbox"]:checked) {
   opacity: 0.5;
   background: gray;
 }
-.variant:has(input:checked){
+.variant:has(input:checked) {
   background-color: #000000;
-  color:white
+  color: white;
+}
+
+.title-shadow {
+  text-shadow: 0 0 1px var(--foreground), 0 0 1px var(--foreground),
+    0 0 1px var(--foreground), 0 0 1px var(--foreground),
+    0 0 1px var(--foreground), 0 0 1px var(--foreground),
+    0 0 1px var(--foreground), 0 0 1px var(--foreground);
 }

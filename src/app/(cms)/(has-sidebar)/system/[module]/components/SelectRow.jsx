@@ -1,6 +1,6 @@
 "use client";
 
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 import { useContext } from "react";
 
 const SelectRow = ({ id }) => {
@@ -9,15 +9,14 @@ const SelectRow = ({ id }) => {
   const handleChange = (e) => {
     const checked = e.target.checked;
     const totalChecked = selectRef.current.filter(
-      (selectItem) => selectItem.el.checked
+      (selectItem) => selectItem.el && selectItem.el.checked
     ).length;
     if (selectAllRef.current)
       selectAllRef.current.checked = totalChecked == selectRef.current.length;
     if (selectAllRef.current && !checked) selectAllRef.current.checked = false;
-
     setSelectIds(
       selectRef.current
-        .filter((selectItem) => selectItem.el.checked)
+        .filter((selectItem) => selectItem.el && selectItem.el.checked)
         .map((selectItem) => selectItem.id)
     );
   };
@@ -28,11 +27,12 @@ const SelectRow = ({ id }) => {
           <input
             type="checkbox"
             ref={(el) => {
-              if (
-                selectRef.current.findIndex(
-                  (selectItem) => selectItem.id == id
-                ) == -1
-              ) {
+              const index = selectRef.current.findIndex(
+                (item) => item.id == id
+              );
+              if (index != -1) {
+                selectRef.current[index].el = el;
+              } else {
                 selectRef.current.push({ id, el });
               }
             }}

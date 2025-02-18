@@ -10,10 +10,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { editFolder, getFolders } from "./action";
+import { deleteFolder, editFolder, getFolders } from "./action";
 import { useMedia } from "./MediaProvider";
 import Dot from "@/components/Icon/svg/Dot";
-import { AllContext } from "@/context/AllProvider";
+import { AllContext } from "@/context/cms/AllProvider";
 import { useNotify } from "@/context/NotifyProvider";
 
 const Folder = () => {
@@ -72,7 +72,10 @@ const Folder = () => {
       title: "Sửa tên thư mục",
       component: (
         <input
+          type="text"
+          autoComplete="off"
           name="name"
+          className="w-full outline-outline outline-4 transition border rounded-md p-2"
           placeholder="Tên thư mục"
           defaultValue={folder.filename}
         />
@@ -100,6 +103,43 @@ const Folder = () => {
           setShowModalQuestion(false);
           setModalOptions({});
           notify.changeNotify("success", response?.message || "Thành công!");
+        }
+      },
+    });
+  };
+
+  const handleDeleteFolder = async (e, folder) => {
+    setShowModalQuestion(true);
+    setModalOptions({
+      title: "Xóa thư mục",
+      component: (
+        <div>
+          <p className="mb-2 text-red-500">Lưu ý: (Sau khi xóa dữ liệu bên trong thư mục cũng sẽ bị xóa sạch!)</p>
+          <input
+            type="password"
+            autoComplete="off"
+            name="password"
+            className="w-full outline-outline outline-4 transition border rounded-md p-2"
+            placeholder="Nhập mật khẩu"
+          />
+        </div>
+      ),
+      btnAccept: "Xóa",
+      btnCancel: "Hủy",
+      confirm: async (form) => {
+        const body = Object.fromEntries(form);
+        body.folder_id = folder._id;
+        const response = await deleteFolder(body);
+        if (response.status == 200) {
+          setFolders((prev) => {
+            const newFolders = prev.filter((item) => item._id !== folder._id);
+            return newFolders;
+          });
+          setShowModalQuestion(false);
+          setModalOptions({});
+          notify.changeNotify("success", response?.message || "");
+        } else {
+          notify.changeNotify("error", response?.message || "");
         }
       },
     });
@@ -176,7 +216,10 @@ const Folder = () => {
                             </button>
                           </li>
                           <li>
-                            <button className="p-2 flex items-center gap-2 text-red-400 transition-all hover:bg-gray-200 w-full rounded-md">
+                            <button
+                              className="p-2 flex items-center gap-2 text-red-400 transition-all hover:bg-gray-200 w-full rounded-md"
+                              onClick={(e) => handleDeleteFolder(e, folder)}
+                            >
                               <Trash />
                               <span>Xóa</span>
                             </button>

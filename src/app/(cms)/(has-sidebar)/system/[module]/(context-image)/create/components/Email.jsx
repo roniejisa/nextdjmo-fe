@@ -22,6 +22,7 @@ const Email = ({ field, defaultValue }) => {
   return (
     <div className="flex relative">
       <input
+        autoComplete="off"
         name={name}
         placeholder={field.placeholder}
         value={value}

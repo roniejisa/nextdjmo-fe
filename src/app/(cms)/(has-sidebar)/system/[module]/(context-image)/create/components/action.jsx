@@ -3,9 +3,9 @@
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
-export const getData = async (module) => {
+export const getData = async (module, fields = ["_id", "name"]) => {
   const token = await getToken();
-  return httpClient(`${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}`, {
+  return httpClient(`${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}?fields=${fields}`, {
     Authorization: `Bearer ${token}`,
   });
 };
@@ -18,7 +18,7 @@ export const checkSlug = async (module, slug) => {
       Authorization: `Bearer ${token}`,
     },
     { module, slug },
-    'post'
+    "post"
   );
 };
 
@@ -29,7 +29,7 @@ export const checkKey = async (module, key) => {
     {
       Authorization: `Bearer ${token}`,
     },
-    { module, key }
-    ,'post'
+    { module, key },
+    "post"
   );
 };

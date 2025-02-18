@@ -1,6 +1,5 @@
 "use client";
 import { useRef } from "react";
-import Group from "./Group";
 import { checkKey } from "./action";
 import { toSlug } from "@/utils/client/util";
 import { useNotify } from "@/context/NotifyProvider";
@@ -35,6 +34,7 @@ const Key = ({ field, defaultValue, item }) => {
       placeholder={field.placeholder}
       defaultValue={defaultValue || ""}
       className="w-full outline-outline outline-4 transition border rounded-md p-2"
+      autoComplete="off"
     />
   );
 };

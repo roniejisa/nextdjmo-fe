@@ -1,27 +1,13 @@
 "use client";
 
-import {
-  use,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useMedia } from "./MediaProvider";
 import ImageType from "./types/ImageType";
 import VideoType from "./types/VideoType";
 import MediaItem from "./MediaItem";
-import { GalleryContext } from "@/context/ImageProvider";
-// import { httpClient } from "@/utils/http";
-import { fetchPosts, getFolders } from "./action";
-import FolderUpload from "@/components/Icon/svg/FolderUpload";
-import Dot from "@/components/Icon/svg/Dot";
-import Trash from "@/components/Icon/svg/Trash";
-import Edit from "@/components/Icon/svg/Edit";
-import Open from "@/components/Icon/svg/Open";
+import { GalleryContext } from "@/context/cms/ImageProvider";
+import { fetchPosts } from "./action";
 import DefaultType from "./types/DefaultType";
-import { useRouter } from "next/navigation";
 import Folder from "./Folder";
 
 const mediaType = {

@@ -1,6 +1,6 @@
 "use client";
 import ImageCustom from "@/components/Maintain/Image";
-import { ProductContext } from "@/context/ProductProvider";
+import { ProductContext } from "@/context/client/ProductProvider";
 import { showImageUrl } from "@/utils/client/util";
 import React, { useContext, useEffect, useState } from "react";
 // Đầu tiên cần xác định cái nào đang không hàng luôn
@@ -67,29 +67,53 @@ const Variant = () => {
       });
       setListVariantOk(data);
     } else {
-      setListVariantOk(product.variants);
+      setListVariantOk(product.variants.filter((variant) => Number(variant.stock) > 0));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAttributes]);
 
   useEffect(() => {
-    if (listVariantOk.length === 1) {
-      setProductCurrent({
-        ...product,
-        ...Object.entries(listVariantOk[0])
-          .filter(([key, value]) => value !== null && value !== undefined)
-          .reduce((acc, [key, value]) => {
-            acc[key] = value;
-            return acc;
-          }, {}),
-      });
+    let price = 0;
+    let priceMin = 0;
+    let priceMax = 0;
+    if (listVariantOk.length > 1) {
+      for (let i = 0; i < listVariantOk.length; i++) {
+        const variant = listVariantOk[i];
+        if (!priceMin || priceMin > Number(variant.price)) {
+          priceMin = Number(variant.price);
+        }
+        if (!priceMax || priceMax < Number(variant.price)) {
+          priceMax = Number(variant.price);
+        }
+        if (!price || price > Number(variant.price)) {
+          price = Number(variant.price);
+        }
+      }
+
+      if (priceMin === priceMax) {
+        price = Intl.NumberFormat().format(priceMin) + " VND";
+      } else {
+        price = `${Intl.NumberFormat().format(priceMin)} VND - ${Intl.NumberFormat().format(priceMax)} VND`;
+      }
+    } else {
+      price = Intl.NumberFormat().format(listVariantOk[0].price) + " VND";
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setProductCurrent({
+      ...product,
+      ...Object.entries(listVariantOk[0])
+        .filter(([key, value]) => value !== null && value !== undefined)
+        .reduce((acc, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        }, {}),
+      price,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listVariantOk]);
   useEffect(() => {
     setSelectedAttributes((prev) => {
-      const obj = Object.keys(product.detail_variants).reduce((prev, curr) => {
-        return { ...prev, [curr]: "" };
+      const obj = product.detail_variants.reduce((prev, curr) => {
+        return { ...prev, [curr.name]: "" };
       }, {});
       return obj;
     });
@@ -123,54 +147,55 @@ const Variant = () => {
     );
   };
 
-  if (Object.keys(product.detail_variants).length === 0) return <></>;
-
+  if (product.detail_variants === 0) return <></>;
   return (
     <>
       {product.detail_variants && (
         <div>
           <ul>
-            {Object.entries(product.detail_variants).map(
-              ([name, varaints], index) => (
+            {product.detail_variants?.map(
+              ({ name, values: varaints }, index) => (
                 <div key={index}>
                   <p>{name}</p>
                   <div className="flex flex-wrap gap-1">
-                    {varaints.map((label, index) => (
-                      <label
-                        key={index}
-                        className="border variant flex items-center gap-2 p-2 rounded-md cursor-pointer"
-                        {...(name === firstAttribute && {
-                          onMouseEnter: () => {
-                            imageRef.current.src = showImageUrl(
-                              imageVariants[label]
-                            );
-                          },
-                          onMouseLeave: () => {
-                            imageRef.current.src = showImageUrl(
-                              productCurrent?.image
-                            );
-                          },
-                        })}
-                      >
-                        {name === firstAttribute && (
-                          <ImageCustom
-                            src={showImageUrl(imageVariants[label])}
-                            alt={label}
-                            width={40}
-                            height={40}
+                    {varaints
+                      ?.filter(({ value }) => value !== "")
+                      .map(({ value: label }, index) => (
+                        <label
+                          key={index}
+                          className="border variant flex items-center gap-2 p-2 rounded-md cursor-pointer"
+                          {...(name === firstAttribute && {
+                            onMouseEnter: () => {
+                              imageRef.current.src = showImageUrl(
+                                imageVariants[label]
+                              );
+                            },
+                            onMouseLeave: () => {
+                              imageRef.current.src = showImageUrl(
+                                productCurrent?.image
+                              );
+                            },
+                          })}
+                        >
+                          {name === firstAttribute && (
+                            <ImageCustom
+                              src={showImageUrl(imageVariants[label])}
+                              alt={label}
+                              width={40}
+                              height={40}
+                            />
+                          )}
+                          {label}
+                          <input
+                            hidden
+                            type="checkbox"
+                            name={label}
+                            checked={selectedAttributes[name] === label} // Kiểm tra xem giá trị có được chọn không
+                            onChange={() => chooseAttribute(name, label)}
+                            disabled={checkDisabled(name, label)}
                           />
-                        )}
-                        {label}
-                        <input
-                          hidden
-                          type="checkbox"
-                          name={label}
-                          checked={selectedAttributes[name] === label} // Kiểm tra xem giá trị có được chọn không
-                          onChange={() => chooseAttribute(name, label)}
-                          disabled={checkDisabled(name, label)}
-                        />
-                      </label>
-                    ))}
+                        </label>
+                      ))}
                   </div>
                 </div>
               )

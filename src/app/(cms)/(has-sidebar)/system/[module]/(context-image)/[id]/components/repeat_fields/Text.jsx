@@ -1,9 +1,11 @@
-import Group from "../Group";
+import Group from "../../../../components/Group";
 
 const Text = ({ field, onChange, defaultValue }) => {
   return (
     <Group field={field}>
       <input
+        type="text"
+        autoComplete="off"
         data-name={field.name}
         placeholder={field.placeholder}
         defaultValue={defaultValue || ""}

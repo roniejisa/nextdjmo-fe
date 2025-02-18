@@ -1,6 +1,6 @@
 "use client";
 
-import { ClientContext } from "@/context/ClientProvider";
+import { ClientContext } from "@/context/client/ClientProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext, useRef } from "react";
 
@@ -57,6 +57,7 @@ const ModalSeach = () => {
                 <path d="M21 21l-6 -6" />
               </svg>
               <input
+                autoComplete="off"
                 type="text"
                 placeholder="Tìm kiếm"
                 name="q"

@@ -1,6 +1,6 @@
 import MediaProvider from "@/app/media/MediaProvider";
 import MediaComponent from "@/components/Media/MediaComponent";
-import ImageProvider from "@/context/ImageProvider";
+import ImageProvider from "@/context/cms/ImageProvider";
 
 const FileManager = () => {
   return (

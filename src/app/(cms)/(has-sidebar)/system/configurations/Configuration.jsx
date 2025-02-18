@@ -138,6 +138,7 @@ const ConfigurationComponent = () => {
                     value={inputSearch}
                     onChange={(e) => setInputSearch(e.target.value)}
                     placeholder="Ngôn ngữ cần tìm"
+                    autoComplete="off"
                   />
                 </div>
                 {filteredData

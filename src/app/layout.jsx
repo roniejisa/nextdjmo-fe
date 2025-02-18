@@ -3,7 +3,7 @@ import NotifyProvider from "@/context/NotifyProvider";
 import "./globals.scss";
 import LoadingProvider from "@/packages/translation/LoadingProvider";
 import ProgressTransition from "@/packages/translation/Loading/ProgressTransition";
-import AccountProvider from "@/context/AccountProvider";
+import AccountProvider from "@/context/client/AccountProvider";
 
 const interItalicFont = localFont({
   src: "./fonts/Inter/Inter-Italic-VariableFont_opsz,wght.ttf",

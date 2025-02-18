@@ -104,7 +104,7 @@ const events = [
 function getNextEvent() {
   const today = new Date();
   const sortedEvents = events
-    .map((event) => {
+    ?.map((event) => {
       // Convert event dates và xử lý năm
       const eventStartDate = new Date(event.event_date);
       const eventEndDate = new Date(event.end_date);

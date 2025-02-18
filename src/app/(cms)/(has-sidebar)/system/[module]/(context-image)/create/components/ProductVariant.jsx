@@ -3,6 +3,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
 import { makeId } from "@/utils/client/util";
+import {
+  generateCombinations,
+  generateKey,
+  sortData,
+} from "@/utils/client/variant";
+import MinusIcon from "@/components/Icon/svg/MinusIcon";
+import PlusIcon from "@/components/Icon/svg/PlusIcon";
+import DragIcon from "@/components/Icon/svg/DragIcon";
+import TrashIcon from "@/components/Icon/svg/TrashIcon";
+import CloseIcon from "@/components/Icon/svg/Close";
 /**
  * 1. Ấn vào nút thêm chưa có dữ liệu thì phải nhập
  *
@@ -11,101 +21,7 @@ import { makeId } from "@/utils/client/util";
  *
  *
  */
-const generateCombinations = (attributes) => {
-  // Khởi tạo danh sách combinations ban đầu
-  let combinations = [{}];
 
-  attributes.forEach((attribute, indexAttr) => {
-    const { name, values } = attribute;
-    const newCombinations = [];
-    // Nói chung là đã giá trị đầu tiên bắt buộc phải có 1 cái là ít nhất 1 giá trị đã
-    // Nếu không có giá trị cho thuộc tính, giữ lại các combination hiện có và thêm giá trị trống cho thuộc tính đó
-    if (indexAttr == 0 && values.length <= 1) {
-      combinations.forEach((combo) => {
-        newCombinations.push({
-          id: values[0]?.id,
-          ...combo,
-          [name]: values[0].value,
-        });
-      });
-    } else if (
-      values.length === 0 ||
-      values.every((objValue) => !objValue.value)
-    ) {
-      combinations.forEach((combo) => {
-        newCombinations.push({
-          id: indexAttr == 0 ? combo?.id : "",
-          ...combo,
-          [name]: "",
-        });
-      });
-    } else {
-      // Có giá trị đầu tiên thì cứ lấy đi lấy lại cái đầu tiên là xong
-
-      // Tạo combinations mới nếu thuộc tính có giá trị
-      values
-        .filter((value) => value.value)
-        .forEach((value) => {
-          combinations.forEach((combo) => {
-            // Chỗ này kiểm tra nếu id đã tồn tại thì lấy id cũ
-            newCombinations.push({
-              id: indexAttr == 0 ? value?.id : "",
-              ...combo,
-              [name]: value.value,
-            });
-          });
-        });
-    }
-    combinations = newCombinations; // Cập nhật combinations
-  });
-
-  return combinations;
-};
-
-const sortData = (data) => {
-  // Tạo một Map để nhóm dữ liệu theo number
-  const grouped = new Map();
-
-  // Nhóm dữ liệu theo number
-  data.forEach((item) => {
-    const value = Object.values(item)[0]; // Lấy giá trị đầu tiên trong đối tượng (ví dụ: "đỏ", "đen", "x")
-
-    if (!grouped.has(value)) {
-      grouped.set(value, []); // Nếu chưa có, tạo một mảng mới cho giá trị đó
-    }
-    grouped.get(value).push(item); // Thêm đối tượng vào nhóm có giá trị tương ứng
-  });
-
-  // Sắp xếp kết quả theo number và value trong mỗi nhóm
-  const result = [];
-  [...grouped.keys()] // Lấy danh sách keys (number)
-    .sort((a, b) => a - b) // Sắp xếp theo number
-    .forEach((number) => {
-      const group = grouped.get(number);
-      // Kiểm tra và sắp xếp theo value nếu value là chuỗi
-      group.sort((a, b) => {
-        if (a.value && b.value) {
-          return a.value.localeCompare(b.value); // Sắp xếp theo value nếu có giá trị
-        }
-        return 0; // Nếu không có giá trị valid, không thay đổi thứ tự
-      });
-      result.push(...group); // Thêm các phần tử vào kết quả
-    });
-
-  return result;
-};
-
-const generateKey = (item) => {
-  const arrayData = Object.entries(item)
-    .map((entry) => {
-      if (!["price", "sku", "stock", "image"].includes(entry[0])) {
-        return entry;
-      }
-      return null;
-    })
-    .filter((entry) => entry !== null);
-  return arrayData.map((entry) => entry.join(":")).join("|");
-};
 const ProductVariant = ({ field, defaultValue }) => {
   const [hasVariant, setHasVariant] = useState(false);
   const [activeVariant, setActiveVariant] = useState(
@@ -120,7 +36,10 @@ const ProductVariant = ({ field, defaultValue }) => {
   const oldValue = useRef(null);
   const inputAddAttributeRef = useRef(null);
   const [showSuggestion, setShowSuggestion] = useState(false);
-  const suggestionRef = useRef(null);
+  const [productAttributes, setProductAttributes] = useState(
+    field.data_product_attributes || []
+  );
+
   useEffect(() => {
     if (data.length > 0) {
       const all = {
@@ -137,30 +56,27 @@ const ProductVariant = ({ field, defaultValue }) => {
   // Add Event
   const showProductAttributeAvailable = (e) => {
     setShowSuggestion(true);
-  };
-  const handleClickOutside = (event) => {
+
     // Kiểm tra nếu click bên ngoài dropdown
-    if (
-      showSuggestion &&
-      suggestionRef.current &&
-      !event.target.contains(suggestionRef.current)
-    ) {
-      setShowSuggestion(false);
-    }
+    setProductAttributes((prev) => {
+      let newList = field.data_product_attributes.filter(
+        (item) =>
+          !listAttribute.some(
+            (attr) => attr.name.toLowerCase() === item.name.toLowerCase()
+          )
+      );
+
+      newList = newList.filter((item) => {
+        return item.name.toLowerCase().includes(attribute.toLowerCase());
+      });
+
+      return [...newList];
+    });
   };
 
-  useEffect(() => {
-    if (showSuggestion) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showSuggestion]);
-
+  const hiddenProductAttributeAvailable = (e) => {
+    setShowSuggestion(false);
+  };
   const addAttribute = () => {
     // Cần kiểm tra xem attribute này đã tồn tại chưa
     if (attribute.trim() === "" || /^\d/.test(attribute.trim()))
@@ -226,8 +142,20 @@ const ProductVariant = ({ field, defaultValue }) => {
         });
         return newListData;
       });
+
+      setProductAttributes(() => {
+        const newProductAttributes = field.data_product_attributes.filter(
+          (item) => {
+            return !listAttribute.some(
+              (attr) => attr.name.toLowerCase() === item.name.toLowerCase()
+            );
+          }
+        );
+        return [...newProductAttributes];
+      });
     } else {
       setData([]);
+      setProductAttributes(field.data_product_attributes);
     }
 
     firstAttributeLength.current = listAttribute.reduce((acc, item, index) => {
@@ -440,6 +368,24 @@ const ProductVariant = ({ field, defaultValue }) => {
       return [...prev];
     });
   };
+
+  const handleChangeValueAttribute = (e) => {
+    const value = e.target.value;
+    setProductAttributes((prev) => {
+      let newList = field.data_product_attributes.filter(
+        (item) =>
+          !listAttribute.some(
+            (attr) => attr.name.toLowerCase() === item.name.toLowerCase()
+          )
+      );
+      newList = newList.filter((item) =>
+        item.name.toLowerCase().includes(value.toLowerCase())
+      );
+      return [...newList];
+    });
+    if (/^\d/.test(value)) return;
+    setAttribute(value);
+  };
   return (
     <>
       <textarea name={field.name} hidden ref={textareaRef}></textarea>
@@ -447,46 +393,20 @@ const ProductVariant = ({ field, defaultValue }) => {
         <>
           <label
             htmlFor={field.name}
-            className="border border-double flex items-center justify-center cusor-pointer gap-2 p-2 cursor-pointer w-fit mb-2"
-            style={{
-              color: hasVariant ? "red" : "green",
-            }}
+            className={`border border-double flex items-center transition-all duration-300 justify-center rounded-md cusor-pointer gap-2 p-2 cursor-pointer w-fit mb-2 ${
+              hasVariant
+                ? "border-red-100 bg-red-100 text-red-500 hover:bg-red-200 hover:text-red-600"
+                : "border-green-100 bg-green-100 text-green-500 hover:bg-green-200 hover:text-green-600"
+            }`}
           >
             {hasVariant ? (
               <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M5 12l14 0" />
-                </svg>
+                <MinusIcon />
                 Hủy phân loại
               </>
             ) : (
               <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                  <path d="M12 5l0 14" />
-                  <path d="M5 12l14 0" />
-                </svg>
+                <PlusIcon />
                 Thêm phân loại
               </>
             )}
@@ -507,19 +427,18 @@ const ProductVariant = ({ field, defaultValue }) => {
               <input
                 type="text"
                 data-name="attribute"
+                autoComplete="off"
                 className="w-full outline-outline outline-4 transition border rounded-md p-2"
                 value={attribute}
-                onChange={(e) => setAttribute(e.target.value)}
+                onChange={handleChangeValueAttribute}
                 placeholder="Thuộc tính"
                 ref={inputAddAttributeRef}
-                onMouseDown={showProductAttributeAvailable}
+                onFocus={showProductAttributeAvailable}
+                onBlur={hiddenProductAttributeAvailable}
               />
-              {field.data_product_attributes.length > 0 && showSuggestion && (
-                <div
-                  className="absolute top-10 left-0 w-full bg-white z-10"
-                  ref={suggestionRef}
-                >
-                  {field.data_product_attributes.map((item, index) => (
+              {productAttributes.length > 0 && showSuggestion && (
+                <div className="absolute top-12 left-0 w-full bg-white z-10 rounded-md border shadow-lg">
+                  {productAttributes.map((item, index) => (
                     <div
                       key={index}
                       className="p-2 hover:bg-gray-200 cursor-pointer"
@@ -527,6 +446,18 @@ const ProductVariant = ({ field, defaultValue }) => {
                         e.stopPropagation();
                         setAttribute(item.name);
                         setShowSuggestion(false);
+                        setProductAttributes((prev) => {
+                          let newList = field.data_product_attributes.filter(
+                            (item, indexAttribute) => indexAttribute != index
+                          );
+                          newList = newList.filter(
+                            (item) =>
+                              !listAttribute.some(
+                                (attr) => attr.name == item.name
+                              )
+                          );
+                          return [...newList];
+                        });
                       }}
                     >
                       {item.name}
@@ -551,27 +482,14 @@ const ProductVariant = ({ field, defaultValue }) => {
                   onClick={(e) => deleteAttribute(index)}
                   className="absolute top-2 right-2"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                    <path d="M18 6l-12 12" />
-                    <path d="M6 6l12 12" />
-                  </svg>
+                  <CloseIcon />
                 </button>
                 <input
                   type="text"
                   className="w-full outline-outline outline-4 transition border rounded-md p-2"
                   value={item.name}
                   onChange={(e) => changeNameAttribute(e, index)}
+                  autoComplete="off"
                 />
                 {/* Bắt đầu giá trị ở đây */}
                 <div className="flex flex-wrap py-2 -my-2 -mx-4">
@@ -589,6 +507,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                         onChange={(e) =>
                           handleChangeValue(e, index, indexValue)
                         }
+                        autoComplete="off"
                       />
                       <button
                         draggable="true"
@@ -597,28 +516,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                         tabIndex="-1"
                         type="button"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-4 h-4"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M18 9l3 3l-3 3" />
-                          <path d="M15 12h6" />
-                          <path d="M6 9l-3 3l3 3" />
-                          <path d="M3 12h6" />
-                          <path d="M9 18l3 3l3 -3" />
-                          <path d="M12 15v6" />
-                          <path d="M15 6l-3 -3l-3 3" />
-                          <path d="M12 3v6" />
-                        </svg>
+                        <DragIcon className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => deleteAttributeValue(index, indexValue)}
@@ -626,18 +524,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                         type="button"
                         tabIndex="-1"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="24"
-                          height="24"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                          className="w-4 h-4"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M20 6a1 1 0 0 1 .117 1.993l-.117 .007h-.081l-.919 11a3 3 0 0 1 -2.824 2.995l-.176 .005h-8c-1.598 0 -2.904 -1.249 -2.992 -2.75l-.005 -.167l-.923 -11.083h-.08a1 1 0 0 1 -.117 -1.993l.117 -.007h16zm-9.489 5.14a1 1 0 0 0 -1.218 1.567l1.292 1.293l-1.292 1.293l-.083 .094a1 1 0 0 0 1.497 1.32l1.293 -1.292l1.293 1.292l.094 .083a1 1 0 0 0 1.32 -1.497l-1.292 -1.293l1.292 -1.293l.083 -.094a1 1 0 0 0 -1.497 -1.32l-1.293 1.292l-1.293 -1.292l-.094 -.083z" />
-                          <path d="M14 2a2 2 0 0 1 2 2a1 1 0 0 1 -1.993 .117l-.007 -.117h-4l-.007 .117a1 1 0 0 1 -1.993 -.117a2 2 0 0 1 1.85 -1.995l.15 -.005h4z" />
-                        </svg>
+                        <TrashIcon className="w-4 h-4" />
                       </button>
                     </div>
                   ))}
@@ -744,6 +631,7 @@ const ProductVariant = ({ field, defaultValue }) => {
                           className="w-full outline-outline outline-4 transition border rounded-md p-2"
                           onChange={(e) => changeData(e, index, "price")}
                           placeholder="Nhập giá"
+                          autoComplete="off"
                         />
                       </td>
                       <td className="border p-2">
@@ -753,11 +641,13 @@ const ProductVariant = ({ field, defaultValue }) => {
                           className="w-full outline-outline outline-4 transition border rounded-md p-2"
                           onChange={(e) => changeData(e, index, "stock")}
                           placeholder="Nhập giá"
+                          autoComplete="off"
                         />
                       </td>
                       <td className="border p-2">
                         <input
                           type="text"
+                          autoComplete="off"
                           value={item?.sku}
                           className="w-full outline-outline outline-4 transition border rounded-md p-2"
                           onChange={(e) => changeData(e, index, "sku")}
@@ -779,6 +669,7 @@ const ProductVariant = ({ field, defaultValue }) => {
               type="text"
               data-name="price"
               placeholder="Giá"
+              autoComplete="off"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={handleChangePrice}
             />
@@ -789,6 +680,7 @@ const ProductVariant = ({ field, defaultValue }) => {
               type="text"
               data-name="sku"
               placeholder="Sku"
+              autoComplete="off"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={handleChangeSku}
             />
@@ -799,6 +691,7 @@ const ProductVariant = ({ field, defaultValue }) => {
               type="text"
               data-name="stock"
               placeholder="Số lượng"
+              autoComplete="off"
               className="w-full outline-outline outline-4 transition border rounded-md p-2"
               onChange={changeStock}
             />

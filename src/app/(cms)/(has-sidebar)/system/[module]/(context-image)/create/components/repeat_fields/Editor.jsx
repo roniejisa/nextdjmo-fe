@@ -1,7 +1,7 @@
 "use client";
 import React, { useContext, useEffect, useRef } from "react";
 import "quill/dist/quill.snow.css";
-import { GalleryContext } from "@/context/ImageProvider";
+import { GalleryContext } from "@/context/cms/ImageProvider";
 const Editor = ({ field, defaultValue, oldData, updateData, itemData }) => {
   const editorRef = useRef(null);
   const quillCurrentRef = useRef(null);

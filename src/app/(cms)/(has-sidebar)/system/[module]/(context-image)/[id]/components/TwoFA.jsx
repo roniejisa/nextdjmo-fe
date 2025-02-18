@@ -1,6 +1,6 @@
 "use client";
 
-import { AllContext } from "@/context/AllProvider";
+import { AllContext } from "@/context/cms/AllProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext, useState } from "react";
@@ -22,6 +22,7 @@ const TwoFA = ({ field, defaultValue, item, profile }) => {
     component: (
       <input
         className="py-2 px-4"
+        autoComplete="off"
         type="password"
         name="password"
         placeholder="Nhập mật khẩu của tài khoản"
@@ -63,6 +64,7 @@ const TwoFA = ({ field, defaultValue, item, profile }) => {
     component: (
       <input
         className="py-2 px-4"
+        autoComplete="off"
         type="text"
         name="code"
         placeholder="Nhập mã OTP để xác nhận bật"
@@ -93,6 +95,7 @@ const TwoFA = ({ field, defaultValue, item, profile }) => {
       <input
         type="text"
         name="code"
+        autoComplete="off"
         placeholder="Mã OTP 2FA"
         className="py-2 px-4"
       />

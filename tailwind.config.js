@@ -16,15 +16,30 @@ module.exports = {
       '2xl': '1400px',
     },
     extend: {
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        }
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
         main: "var(--main)",
         outline: "var(--outline)",
         danger: "var(--danger)",
+        link: "var(--link)",
+        active: "var(--active)",
+        "active-dark": "var(--active-dark)",
+        "active-light": "var(--active-light)",
+        "text-active": "var(--text-active)",
       },
       backgroundImage: {
         'background-sidebar-admin': 'linear-gradient(to top, #fbf8dd, #f7e4ed, #d6def9, #ffffff 60%)',
+      },
+      boxShadow: {
+        "3d": "4px 4px 4px 3px rgba(0,0,0,.3)",
+        "3d-hover": "4px 4px 4px 1px rgba(0,0,0,.5)",
       },
     },
   },

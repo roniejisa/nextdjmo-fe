@@ -3,7 +3,8 @@ import React from "react";
 import { showImageUrl } from "@/utils/client/util";
 import { httpClient } from "@/utils/http";
 import ImageCustom from "@/components/Maintain/Image";
-import HeaderClient from "./HeaderClient";
+import HeaderClient from "@/components/Header/HeaderClient";
+import RightMenu from "./RightMenu";
 
 export const getLogo = async () => {
   try {
@@ -30,21 +31,9 @@ const Header = async () => {
   const logo = await getLogo();
   const leftMenus = await getMenuHeader();
   return (
-    <HeaderClient className="flex justify-between transition-all duration-200 h-[60px] lg:h-[100px] fixed z-[9999] w-full lg:pt-10">
-      <LinkCustom
-        href={"/"}
-        className="flex-[0_0_calc(100%/3)] pl-4 lg:flex-[0_0_calc(100%/5-80px)] lg:pl-10 flex items-center justify-start"
-      >
-        <ImageCustom
-          src={showImageUrl(logo?.data)}
-          width={100}
-          height={40}
-          className="object-contain h-full w-10 lg:w-[100px]"
-          alt="Trang chủ"
-        />
-      </LinkCustom>
-      <div className="lg:hidden pr-4 text-white lg:flex-[0_0_calc(100%/5*2)] flex-[0_0_calc(100%/3)] justify-end flex items-center">
-        <label className="cursor-pointer py-2 pl-2" htmlFor="show-menu">
+    <HeaderClient className="relative flex justify-between h-[100px] transition bg-background">
+      <div className="lg:hidden flex items-center pl-4 flex-[0_0_calc(100%/3)]">
+        <label className="cursor-pointer py-2 pr-2" htmlFor="show-menu">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -65,12 +54,25 @@ const Header = async () => {
           </svg>
         </label>
         <label
-          className="overlay fixed -right-full top-0 bottom-0 w-1/3 bg-black opacity-30 z-[9999] cursor-pointer"
+          className="overlay fixed -right-full top-0 bottom-0 w-1/3 opacity-30 z-[9999] cursor-pointer"
           htmlFor="show-menu"
         ></label>
       </div>
+      <LinkCustom
+        href={"/"}
+        className="flex-[0_0_calc(100%/3)] flex justify-center lg:justify-start lg:flex-[0_0_calc(100%/12*2)] lg:pl-10 outline-none select-none"
+      >
+        <ImageCustom
+          src={showImageUrl(logo?.data)}
+          width={100}
+          height={40}
+          className="object-contain h-full p-2"
+          alt="Trang chủ"
+        />
+      </LinkCustom>
+
       <input type="checkbox" id="show-menu" hidden />
-      <ul className="lg:flex z-[9999] w-2/3 lg:w-full lg:justify-end border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full items-center flex-1 lg:pr-10 fixed lg:static">
+      <ul className="lg:flex z-[9999] lg:bg-transparent w-2/3 lg:w-full border-r lg:border-r-0 lg:px-0 h-screen lg:h-auto -left-full justify-center items-center flex-1 fixed lg:static">
         <li className="border-b lg:hidden">
           <LinkCustom href={"/"} className="h-20 block">
             <ImageCustom
@@ -82,27 +84,27 @@ const Header = async () => {
             />
           </LinkCustom>
         </li>
-        {leftMenus.map((menu, index) => (
+        {leftMenus?.map((menu, index) => (
           <li
             key={index}
-            className="group px-4 border-b lg:border-b-0 bg-slate-100 lg:bg-transparent"
+            className="group px-4 border-b lg:border-b-0 lg:bg-transparent"
           >
             {!menu.childs ? (
               <LinkCustom
                 href={menu.link}
-                className="py-2 lg:ml-10 block font-medium"
+                className="py-2 lg:mr-10 block font-medium text-xl text-link"
               >
                 {menu.name}
               </LinkCustom>
             ) : (
               <>
                 <div>
-                  <span className="py-2 block lg:mr-10 font-medium">
+                  <span className="py-2 block lg:mr-10 font-medium text-xl text-link">
                     {menu.name}
                   </span>
                 </div>
-                <div className="lg:absolute pl-6 lg:px-10 lg:py-4 w-full left-0 top-[calc(100%+1px)] lg:opacity-0 lg:invisible lg:group-hover:visible group-hover:opacity-100 lg:bg-white lg:before:content-[''] lg:before:absolute lg:before:top-[-35px] lg:before:w-[200px] lg:before:h-[50px] lg:before:bg-transparent max-h-[100vh] lg:min-h-[150px] z-10">
-                  {menu.childs.map((subMenu, indexSub) => (
+                <div className="lg:absolute delay-500 transition-all duration-300 group-hover:delay-0 pl-6 lg:px-10 lg:py-4 w-full left-0 top-full lg:opacity-0 lg:invisible lg:group-hover:visible group-hover:opacity-100 lg:bg-white lg:before:content-[''] max-h-[100vh] lg:min-h-[150px] z-10">
+                  {menu.childs?.map((subMenu, indexSub) => (
                     <ul key={indexSub}>
                       <li>
                         <LinkCustom
@@ -138,6 +140,9 @@ const Header = async () => {
           </svg>
         </label>
       </ul>
+      <div className="flex-[0_0_calc(100%/3)] lg:flex-[0_0_calc(100%/12*2)] flex items-center justify-end">
+        <RightMenu />
+      </div>
     </HeaderClient>
   );
 };

@@ -7,19 +7,19 @@ import { useState } from "react";
 const status = {
   order: {
     label: "Đặt hàng",
-    className: "bg-red-500 text-white px-2 py-1 rounded-md",
+    className: "bg-red-100 text-red-500 px-2 py-1 border border-red-100 rounded-md outline-none",
   },
   delivery: {
     label: "Đang giao",
-    className: "bg-blue-500 text-white px-2 py-1 rounded-md",
+    className: "bg-blue-100 text-blue-500 px-2 py-1 border border-blue-100 rounded-md outline-none",
   },
   done: {
     label: "Giao thành công",
-    className: "bg-green-500 text-white px-2 py-1 rounded-md",
+    className: "bg-green-100 text-green-500 px-2 py-1 border border-green-100 rounded-md outline-none",
   },
   cancel: {
     label: "Hủy đơn",
-    className: "bg-black text-white px-2 py-1 rounded-md",
+    className: "bg-gray-100 text-gray-500 text-white px-2 py-1 border border-gray-100 rounded-md outline-none",
   },
 };
 

@@ -1,8 +1,9 @@
 import { httpClient } from "@/utils/http";
 import React from "react";
-import ProductProvider from "@/context/ProductProvider";
+import ProductProvider from "@/context/client/ProductProvider";
 import ProductClient from "./component/ProductClient";
 import { redirect } from "next/navigation";
+import TabProduct from "./component/TabProduct";
 
 const getProduct = async (slug) => {
   const response = await httpClient(
@@ -18,6 +19,7 @@ const Product = async ({ params }) => {
   return (
     <ProductProvider product={product}>
       <ProductClient />
+      <TabProduct />
     </ProductProvider>
   );
 };

@@ -76,6 +76,7 @@ const FormLogin = ({ msg, redirect }) => {
             <input
               name="code"
               placeholder="Nhập mã OTP"
+              autoComplete="off"
               onChange={(e) => setValue(e.target.value)}
               value={value}
               type="text"
@@ -99,6 +100,7 @@ const FormLogin = ({ msg, redirect }) => {
             <input
               name="username"
               placeholder="Tài khoản hoặc email"
+              autoComplete="off"
               type="text"
               defaultValue={oldData.username}
               className="w-full py-4 outline-[#2a85ff] bg-[#f5f5f5] focus:bg-white font-bold px-3 rounded-2xl"
@@ -113,6 +115,7 @@ const FormLogin = ({ msg, redirect }) => {
               className="w-full py-4 outline-[#2a85ff] bg-[#f5f5f5] focus:bg-white font-bold px-3 rounded-2xl"
               name="password"
               placeholder="Mật khẩu"
+              autoComplete="off"
               type="password"
               defaultValue={oldData.password}
             />

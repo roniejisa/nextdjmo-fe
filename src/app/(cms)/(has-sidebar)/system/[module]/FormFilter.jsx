@@ -3,7 +3,7 @@ import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
 import Text from "./searchs/Text";
-import { ModuleContext } from "@/context/ModuleProvider";
+import { ModuleContext } from "@/context/cms/ModuleProvider";
 
 const component = {
   text: Text,
@@ -40,7 +40,7 @@ const FormFilter = () => {
   };
   return (
     <>
-      <button onClick={(e) => setShowFilter(true)} className="border rounded-md w-[42px] flex justify-center items-center hover:bg-outline hover:border-outline transition-all hover:text-white">
+      <button onClick={(e) => setShowFilter(true)} className="border py-2 rounded-md w-[42px] flex justify-center items-center hover:bg-outline hover:border-outline transition-all hover:text-white">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -112,6 +112,7 @@ const FormFilter = () => {
                     return [...newFields, obj];
                   });
                 }}
+                className="w-full p-2 border rounded-md"
               >
                 <option value="">-- Chọn bộ lọc --</option>
                 {Array.from(fields).length > 0 &&
@@ -123,7 +124,7 @@ const FormFilter = () => {
                     );
                   })}
               </select>
-              <form action={searchForm}>
+              <form action={searchForm} className="w-full flex flex-col gap-2 py-4">
                 {searchFields
                   .filter((item) => item.search_type || item.type == "text")
                   .map((item, index) => {

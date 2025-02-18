@@ -27,6 +27,7 @@ const Email = ({ field, defaultValue }) => {
         value={value}
         onChange={handleChange}
         className="w-full outline-outline outline-4 transition border rounded-md p-2"
+        autoComplete="off"
       />
       <TrueOrFalseIcon isValid={isValid} />
     </div>

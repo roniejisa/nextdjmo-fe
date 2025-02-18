@@ -32,33 +32,53 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
     // Không cần xử lý refresh token nữa vì khi chạy qua middleware thì nó đã tự động lấy lại rồi
     const data = await response.json();
     // Xử lý lấy token ở ngay sau đây 
-    if (data.status == 401 && !isRefresh) {
-      const refreshToken = cookies().get('refreshToken')?.value
-      if (refreshToken) {
-        const response = await fetch(process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/refresh-token", {
-          method: "POST",
-          headers: {
-            'X-API-KEY': "123456",
-          },
-          body: JSON.stringify({ refreshToken })
-        });
-        const data = await response.json();
-        if (data.status == 200) {
-          cookies().set({ name: "token", value: data.data.accessToken, httpOnly: true, secure: true, path: "/", sameSite: "strict" });
-          cookies().set({ name: "refreshToken", value: data.data.refreshToken, httpOnly: true, secure: true, path: "/", sameSite: "strict" });
-          return await httpClient(url, {
-            ...customHeaders,
-            'Authorization': `Bearer ${data.data.accessToken}`
-          }, body, method, hasPrefixHeader, true);
-        } else return clearTokensAndRedirect()
+    if (data.status == 401) {
+      if (!isRefresh) {
+        const refreshToken = cookies().get('refreshToken')?.value
+        if (refreshToken) {
+          const response = await fetch(process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/refresh-token", {
+            method: "POST",
+            headers: {
+              'X-API-KEY': "123456",
+            },
+            body: JSON.stringify({ refreshToken })
+          });
+          const data = await response.json();
+          if (data.status == 200) {
+            cookies().set({ name: "token", value: data.data.accessToken, httpOnly: true, secure: true, path: "/", sameSite: "strict" });
+            cookies().set({ name: "refreshToken", value: data.data.refreshToken, httpOnly: true, secure: true, path: "/", sameSite: "strict" });
+            return await httpClient(url, {
+              ...customHeaders,
+              'Authorization': `Bearer ${data.data.accessToken}`
+            }, body, method, hasPrefixHeader, true);
+          } else return clearTokensAndRedirect()
+        }
+      }
+      return {
+        ...data,
+        searchParams,
+        message: msg
       }
     }
+
     return data
   } catch (e) {
-    console.log(e)
-    // return handleLoginRedirect(msg, searchParams)
+    return {
+      status: 400,
+      message: msg,
+      errorMessage: e.message,
+      searchParams
+    }
   }
 };
+
+function clearTokensAndRedirect() {
+  cookies().delete('token');
+  cookies().delete('refreshToken');
+  cookies().set('msg', 'Vui lòng đăng nhập!');
+  return redirect('/dang-nhap');
+}
+
 
 function serverError() {
   cookies().delete('token');
@@ -67,12 +87,6 @@ function serverError() {
   return redirect('/dang-nhap');
 }
 
-function clearTokensAndRedirect() {
-  cookies().delete('token');
-  cookies().delete('refreshToken');
-  cookies().set('msg', 'Vui lòng đăng nhập!');
-  return redirect('/dang-nhap');
-}
 
 function handleLoginRedirect(msg = "Vui lòng đăng nhập!", searchParams) {
   cookies().set('msg', msg);

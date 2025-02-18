@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import Group from "./Group";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
@@ -43,6 +42,7 @@ const Link = ({ field, defaultValue }) => {
     <div className="flex gap-2">
       <input
         type="text"
+        autoComplete="off"
         name={field.name}
         placeholder={field.placeholder}
         value={value}

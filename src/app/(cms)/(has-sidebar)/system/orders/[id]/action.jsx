@@ -10,8 +10,23 @@ export const changeOrderStatus = async (body) => {
     {
       Authorization: `Bearer ${token}`,
     },
-    body
-  ,"POST");
-  
-  return response
+    body,
+    "POST"
+  );
+
+  return response;
+};
+
+export const addActivityForOrder = async (body) => {
+  const token = await getToken();
+  const response = await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "orders/add-activity-for-order",
+    {
+      Authorization: `Bearer ${token}`,
+    },
+    body,
+    "POST"
+  );
+
+  return response;
 };

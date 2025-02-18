@@ -38,7 +38,7 @@ const Group = ({ children, field: { label }, item }) => {
         </div>
       </div>
       <div className="px-2 flex-1">
-        <div className="border rounded-md p-4 shadow-sm">{children}</div>
+        <div className="shadow-sm">{children}</div>
       </div>
     </div>
   );

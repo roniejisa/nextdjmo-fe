@@ -1,5 +1,5 @@
 "use client";
-import { GalleryContext } from "@/context/ImageProvider";
+import { GalleryContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 
@@ -39,8 +39,8 @@ const ImageComponent = ({ defaultValue, item, field }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
-    <div className="relative">
-      <div className="group w-[200px] h-[200px] before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-black before:opacity-0 before:transition-opacity before:duration-300 before:ease-in-out hover:before:opacity-50 hover:text-white">
+    <div className="relative rounded-md">
+      <div className="group w-[200px] h-[200px] before:content-[''] rounded-md before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-black before:opacity-0 before:transition-opacity before:z-10 before:rounded-md before:duration-300 before:ease-in-out hover:before:opacity-70 hover:text-white">
         <ImageCustom
           ref={imageRef}
           src={
@@ -51,12 +51,13 @@ const ImageComponent = ({ defaultValue, item, field }) => {
           }
           height={0}
           width={0}
-          className="absolute border top-0 left-0 object-contain px-4"
+          className="absolute border top-0 left-0 object-contain px-4 rounded-md"
           style={{ width: "100%", height: "100%" }}
           alt={item["name"] || item["username"]}
         />
         <input
           type="text"
+          autoComplete="off"
           ref={inputRef}
           name={field.name}
           defaultValue={defaultValue || ""}
@@ -64,7 +65,7 @@ const ImageComponent = ({ defaultValue, item, field }) => {
         />
         <button
           type="button"
-          className="group-hover:opacity-100 py-4 px-6 group-hover:border group-hover:border-white rounded-[99px] opacity-0 absolute transition top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hover:bg-white hover:text-black"
+          className="group-hover:opacity-100 z-20 py-4 px-6 group-hover:border rounded-md group-hover:border-white opacity-0 absolute transition-all duration-300 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hover:bg-white hover:text-black"
           onClick={handleShowUpload}
         >
           Chọn ảnh

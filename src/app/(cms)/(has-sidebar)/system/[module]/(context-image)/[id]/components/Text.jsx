@@ -12,6 +12,7 @@ const Text = ({ defaultValue, field, oldData }) => {
     <input
       defaultValue={defaultValue || oldData[field.name] || ""}
       name={field.name}
+      autoComplete="off"
       placeholder={field.placeholder}
       className="w-full outline-outline outline-4 transition border rounded-md p-2"
     />

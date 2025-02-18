@@ -79,12 +79,16 @@ const RecursiveSelect = ({ options, field, ...props }) => {
 const SelectParent = ({ field }) => {
   const [list, setList] = useState([]);
   const getListData = async () => {
-    const data = await getData(field.module);
+    const data = await getData(field.module, [
+      field.module_id,
+      field.module_parent_id,
+      field.module_label,
+    ]);
     if (data.status == 200) {
       const list = buildHierarchy(data.data.items, {
         field_id: field.module_id,
         field_label: field.module_label,
-        field_parent_id: field.name,
+        field_parent_id: field.module_parent_id,
       });
       setList(list);
     }

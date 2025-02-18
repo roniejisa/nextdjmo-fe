@@ -118,11 +118,11 @@ const Repeat = ({ field, defaultValue, item }) => {
         defaultValue={defaultValue || ""}
       ></textarea>
       <div className="flex-1">
-        <div onDragEnd={dragEnd} className="flex flex-wrap -mx-2">
+        <div onDragEnd={dragEnd} className="flex flex-wrap -my-2 -mx-2">
           {data.map((itemData) => (
             <div
               key={itemData.id}
-              className="mb-1 flex flex-col p-2 flex-[0_0_calc(100%/2)] px-2 relative gap-2 rounded-md item-group"
+              className="flex flex-col p-2 flex-[0_0_calc(100%/2)] px-2 relative gap-2 rounded-md item-group"
               onDragOver={(e) => dragOver(e, itemData.id)}
             >
               <div className="border rounded-md p-2">
