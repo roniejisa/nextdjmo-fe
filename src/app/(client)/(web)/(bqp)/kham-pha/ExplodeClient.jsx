@@ -64,7 +64,6 @@ const ExplodeClient = () => {
   }, []);
 
   const activeTab = (key) => {
-    console.log(tab == key, tab, key);
     if (tab === key) {
       return "opacity-100";
     } else {

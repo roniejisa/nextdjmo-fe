@@ -123,33 +123,22 @@ const SlideProvider = ({
     }
   };
 
+  const eventTransitionEnd = (e) => {
+    let checkFirstOrLast = false;
+    if (indexRef.current == 0) {
+      indexRef.current = items.length - 2;
+      checkFirstOrLast = true;
+    } else if (indexRef.current == items.length - 1) {
+      indexRef.current = 1;
+      checkFirstOrLast = true;
+    }
+    if (checkFirstOrLast) {
+      slideRef.current.style.transition = "";
+    }
+    checkFirstOrLast && changeSlide(indexRef.current);
+  };
   useEffect(() => {
     dispatchEventForComponent(indexRef.current);
-    const eventTransitionEnd = (e) => {
-      let checkFirstOrLast = false;
-      if (indexRef.current == 0) {
-        indexRef.current = items.length - 2;
-        checkFirstOrLast = true;
-      } else if (indexRef.current == items.length - 1) {
-        indexRef.current = 1;
-        checkFirstOrLast = true;
-      }
-      if (checkFirstOrLast) {
-        slideRef.current.style.transition = "";
-      }
-      checkFirstOrLast && changeSlide(indexRef.current);
-    };
-    if (slideRef.current) {
-      slideRef.current.addEventListener("transitionend", eventTransitionEnd);
-
-      return () => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        slideRef.current.removeEventListener(
-          "transitionend",
-          eventTransitionEnd
-        );
-      };
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => {
@@ -267,6 +256,7 @@ const SlideProvider = ({
               className={`flex`}
               onMouseDown={handleMouseDown}
               onTouchStart={handleMouseDown}
+              onTransitionEnd={eventTransitionEnd}
               style={{
                 maxHeight: `calc(${height})`,
               }}

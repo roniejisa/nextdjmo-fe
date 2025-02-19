@@ -18,36 +18,16 @@ const Home = async () => {
   const { slides } = await getDataHome();
   return (
     <>
-      <div className="px-10 py-10">
-        <div className="lg:flex flex-wrap -mx-2">
-          <div className="flex-[0_0_75%] lg:max-w-[75%] px-2 mb-4 lg:mb-0">
+      <div className="mb-10">
+        <div className="lg:flex flex-wrap">
+          <div className="flex-1 lg:max-w-[100%] mb-4 lg:mb-0">
             <SlideProvider
-              className="rounded-lg"
               slides={slides}
               component={SlideComponent}
-              height="500px"
+              height="800px"
               autoPlay={true}
               ms={300}
             />
-          </div>
-          <div className="flex-[0_0_25%] flex flex-wrap lg:flex-col px-2 gap-4">
-            {slides?.map((item, index) => {
-              return (
-                <div key={index} className="bg-black rounded-lg md:flex-1 h-[200px] lg:h-auto w-full">
-                  <LinkCustom
-                    href={item?.url}
-                    className="flex justify-center items-center relative rounded-lg w-full h-full"
-                  >
-                    <ImageCustom
-                      className="rounded-lg object-cover"
-                      src={showImageUrl(item?.image)}
-                      alt={item?.name}
-                      fill={true}
-                    />
-                  </LinkCustom>
-                </div>
-              );
-            })}
           </div>
         </div>
       </div>
