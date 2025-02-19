@@ -121,7 +121,7 @@ const ConfigurationComponent = () => {
           </li>
         ))}
       </ul>
-      <div className="flex-[0_0_80%] px-4">
+      <div className="flex-[0_0_80%] px-4 pb-4">
         <div
           className={`flex flex-col flex-wrap ${
             tabCurrent == "language" ? "" : "hidden"
@@ -132,14 +132,27 @@ const ConfigurationComponent = () => {
           ) : (
             <div>
               <div>
-                <div className="flex">
+                <div className="flex mb-2">
                   <input
                     type="text"
+                    className="p-2"
                     value={inputSearch}
                     onChange={(e) => setInputSearch(e.target.value)}
                     placeholder="Ngôn ngữ cần tìm"
                     autoComplete="off"
                   />
+                </div>
+                <div className="flex">
+                  <label className="flex flex-[0_0_300px] gap-2">
+                    <div></div>
+                    <div className="flex-[0_0_220px]">
+                      <b>Ngôn ngữ</b>
+                    </div>
+                    <div>
+                      <b>Code</b>
+                    </div>
+                  </label>
+                  <div></div>
                 </div>
                 {filteredData
                   .sort((a, b) => {
@@ -153,8 +166,8 @@ const ConfigurationComponent = () => {
                   })
                   .map((item) => {
                     return (
-                      <div className="flex" key={item._id}>
-                        <label className="flex flex-[0_0_300px]">
+                      <div className="flex mt-1" key={item._id}>
+                        <label className="flex flex-[0_0_300px] gap-2 cursor-pointer">
                           <div>
                             <input
                               type="checkbox"
@@ -169,15 +182,15 @@ const ConfigurationComponent = () => {
                               }
                             />
                           </div>
-                          <div className="flex-[0_0_260px]">{item.name}</div>
+                          <div className="flex-[0_0_220px]">{item.name}</div>
                           <div>{item.code}</div>
                         </label>
                         <div>
                           {defaultLanguage == item.code ? (
-                            <div>Mặc định</div>
+                            <div className="p-1 text-red-500 pointer-events-none">Mặc định</div>
                           ) : (
                             <button
-                              className="border"
+                              className="border p-1 rounded-sm"
                               onClick={() => {
                                 handleChangeLanguage(true, item, "active");
                               }}
@@ -195,17 +208,10 @@ const ConfigurationComponent = () => {
         </div>
         <div
           className={`flex flex-col flex-wrap ${
-            tabCurrent == "authentication" ? "" : "hidden"
-          }`}
-        >
-          <h3 className="text-3xl font-bold mb-3">Xác thực</h3>
-        </div>
-        <div
-          className={`flex flex-col flex-wrap ${
             tabCurrent == "notification" ? "" : "hidden"
           }`}
         >
-          <h3 className="text-3xl font-bold mb-3">Thống báo</h3>
+          <h3 className="text-3xl font-bold mb-3">Thông báo</h3>
         </div>
       </div>
     </div>
@@ -220,11 +226,7 @@ const allTab = [
     value: "Ngôn ngữ",
   },
   {
-    name: "authentication",
-    value: "Xác thực",
-  },
-  {
     name: "notification",
-    value: "Thống báo",
+    value: "Thông báo",
   },
 ];

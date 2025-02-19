@@ -161,7 +161,7 @@ export const allMenu = [
     add: "links/create",
   },
   {
-    id: 9,
+    id: 13,
     name: "Banner",
     link: "slides",
     icon: "slide",

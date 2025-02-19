@@ -44,7 +44,7 @@ export const SocketProvider = ({ children }) => {
     },
 
     ping: () => {
-      if(!socketRef.current) return
+      if (!socketRef.current) return;
       socketRef.current.send(
         encryptData({
           type: "pong",
@@ -89,7 +89,7 @@ export const SocketProvider = ({ children }) => {
     };
 
     socketRef.current.sendEncode = (obj) => {
-      if(typeof socketRef.current.send != "function") return
+      if (typeof socketRef.current.send != "function") return;
       socketRef.current.send(encryptData(obj));
     };
   };

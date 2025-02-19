@@ -190,4 +190,4 @@ const Sidebar = ({ profile }) => {
   );
 };
 
-export default Sidebar;
+export default Sidebar

@@ -10,7 +10,7 @@ const AdminLayout = async (data) => {
   const profile = await getProfile();
   const storeParams = await params;
   return (
-    // <SocketProvider>
+    <SocketProvider>
       <AllProvider>
         <main className="grid lg:grid-cols-[280px_1fr] gap-4 lg:h-[100vh-16px*2] lg:p-4 h-screen p-0">
           <Sidebar storeParams={storeParams} profile={profile} />
@@ -20,7 +20,7 @@ const AdminLayout = async (data) => {
         </main>
         <PreviewProvider />
       </AllProvider>
-    // </SocketProvider>
+    </SocketProvider>
   );
 };
 
