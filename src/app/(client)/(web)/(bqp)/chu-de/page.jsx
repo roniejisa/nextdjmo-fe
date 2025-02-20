@@ -1,6 +1,8 @@
 const Catelog = () => {
   return (
-    <div>page</div>
+    <div>
+      
+    </div>
   )
 }
 

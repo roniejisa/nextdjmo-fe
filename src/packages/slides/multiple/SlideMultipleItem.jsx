@@ -5,16 +5,15 @@ import { formatTime, showImageUrl } from "@/utils/client/util";
 import React from "react";
 
 const SlideMultipleItem = ({ item, onClick }) => {
-  console.log();
   const date = new Date(item.date);
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
   return (
-    <div className="shadow-[2px_2px_2px_1px] shadow-active-light rounded-md relative">
+    <div className="border border-[#5b5c68] hover:border-[#6f8090] rounded-md relative">
       <LinkCustom
         className="relative block h-[250px] bg-white rounded-tl-md rounded-tr-md"
-        href={"/san-pham/" + item.slug}
+        href={"/tin-tuc/" + item.slug}
         onClick={onClick}
       >
         <ImageCustom src={showImageUrl(item.image)} fill={true} />
@@ -27,7 +26,7 @@ const SlideMultipleItem = ({ item, onClick }) => {
           T{month}, {year}
         </p>
       </div>
-      <div className="p-4">
+      <div className="p-4 bg-[#413b41] rounded-br-md rounded-bl-md">
         <h3 className="font-medium transition duration-300 text-2xl text-active hover:text-active-light">
           <LinkCustom href={"/tin-tuc/" + item.slug}>{item.name}</LinkCustom>
         </h3>

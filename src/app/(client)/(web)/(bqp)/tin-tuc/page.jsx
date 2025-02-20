@@ -1,9 +1,15 @@
-import LinkCustom from "@/packages/translation/Link";
+import { httpClient } from "@/utils/http";
+import NewsClient from "./News";
 
-const News = () => {
+export const getNews = async (page = 1, limit = 10) => {
+  const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + `news?page=${page}&limit=${limit}`)
+  return response
+}
+const News = async () => {
+  const {data} = await getNews()
   return (
-    <div>
-      
+    <div className="">
+        <NewsClient items={data}/>
     </div>
   );
 };

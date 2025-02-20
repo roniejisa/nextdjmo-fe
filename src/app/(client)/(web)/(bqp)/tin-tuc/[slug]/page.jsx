@@ -1,10 +1,15 @@
+import NewsClient from "./NewsClient";
+
 const News = async ({ params }) => {
   const { slug } = await params;
-  return <div className="px-10">
-    <div>
-      <h3>1234</h3>
+  console.log(slug)
+  return (
+    <div className="px-10">
+      <div>
+        <NewsClient />
+      </div>
     </div>
-  </div>
+  );
 };
 
 export default News;

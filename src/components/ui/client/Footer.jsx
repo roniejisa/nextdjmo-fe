@@ -26,7 +26,7 @@ const Footer = async () => {
   const { copyright, hotline, address } = configs.data;
   const logo = await getLogo();
   return (
-    <footer className="pt-8 bg-[#251c14] text-black">
+    <footer className="pt-8 bg-[#494546] text-black">
       <div className="flex flex-wrap justify-center items-center px-4 lg:px-10 lg:gap-[80px]">
         <div className="flex flex-col text-white text-right">
           <span className="block text-2xl">Liên hệ</span>
