@@ -23,7 +23,7 @@ const FormFilter = () => {
       ...Object.fromEntries(searchParams),
       ...Object.fromEntries(form),
     });
-    router.push(pathname + "?" + newSeachParams.toString());
+    router.push(pathname + "?" + newSeachParams.toString(),true);
   };
 
   useEffect(() => {

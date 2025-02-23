@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Skeleton from "./Skeleton";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const SkeletonWithChildren = ({
   children,
@@ -12,6 +12,7 @@ const SkeletonWithChildren = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -19,7 +20,8 @@ const SkeletonWithChildren = ({
     return () => {
       clearTimeout(timer);
     };
-  }, [delay]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -29,8 +31,8 @@ const SkeletonWithChildren = ({
     return () => {
       clearTimeout(timer);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, searchParams]);
   return <>{loading ? skeletonComponent : children}</>;
 };
 

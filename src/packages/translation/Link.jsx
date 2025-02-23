@@ -5,7 +5,7 @@ import useRouterCustom from "./Navigation";
 import { useContext } from "react";
 import { LoadingContext } from "./LoadingProvider";
 
-const LinkCustom = ({ children, href, isRefresh = true, ...props }) => {
+const LinkCustom = ({ children, href, isRefresh = false, ...props }) => {
   const router = useRouterCustom();
   const { currentPathname } = useContext(LoadingContext);
   const changePage = (e) => {

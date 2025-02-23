@@ -45,7 +45,7 @@ const FormLogin = ({ msg, redirect }) => {
       if (response.status == 200) {
         notify.changeNotify("success", response.message);
         if (redirect) {
-          router.push(redirect, true);
+          router.push(redirect);
         } else {
           router.push("/system");
         }

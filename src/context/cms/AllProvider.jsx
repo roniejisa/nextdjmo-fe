@@ -25,7 +25,6 @@ const AllProvider = ({ children, profile }) => {
   }, [showModalQuestion]);
 
   useEffect(() => {
-    console.log(profile)
     if (profile) {
       setSessionId(profile.user._id);
       connectSocket();

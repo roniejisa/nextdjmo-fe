@@ -136,9 +136,8 @@ export async function middleware(request) {
 
     // Nếu đường khác thì next cmnl ở đây đi 
     // Skip middleware for specific paths
-    if (method != 'GET' || pathname.startsWith('/api/')) {
+    if (method != 'GET' || pathname.startsWith('/api/') || pathname.endsWith('.ico') || pathname.endsWith('.svg') || pathname.endsWith(".png") || pathname.endsWith(".jpg")) {
         const response = NextResponse.next()
-        response.headers.set('Cache-Control', 'no-store, must-revalidate');
         return response
     }
 
@@ -181,7 +180,8 @@ export async function middleware(request) {
     // Các trang bắt buộc đăng nhập
 
     // Luôn phải kiểm tra 2 trường hợp 1 là nếu có cần bảo về
-    const isRedirectLogin = (requireRoutes.length === 0 && !isAuthenticated) || (!isAuthenticated && requireRoutes.filter(router => pathname.startsWith(router)).length > 0)
+    // const isRedirectLogin = (requireRoutes.length === 0 && !isAuthenticated) || (!isAuthenticated && requireRoutes.filter(router => pathname.startsWith(router)).length > 0)
+    const isRedirectLogin = !isAuthenticated && !accessToken && !refreshToken;
     if (isRedirectLogin) {
         // Nếu chưa xác thực, chuyển hướng đến trang đăng nhập
         const response = NextResponse.redirect(new URL(URL_LOGIN, request.url))

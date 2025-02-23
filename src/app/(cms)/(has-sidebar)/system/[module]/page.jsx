@@ -121,6 +121,9 @@ const Module = async ({ params, searchParams }) => {
                       <Skeleton height="20px"></Skeleton>
                     </div>
                   ))}
+                  <div className="flex-1 py-1 px-2 flex items-center">
+                    <Skeleton height="20px"></Skeleton>
+                  </div>
                 </div>
               ))}
             >
