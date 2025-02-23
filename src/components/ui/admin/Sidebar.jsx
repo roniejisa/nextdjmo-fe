@@ -5,11 +5,10 @@ import SidebarProfile from "./SidebarProfile";
 import useRouterCustom from "@/packages/translation/Navigation";
 import React from "react";
 import { iconSVG } from "@/components/Icon/svg/constants";
-import { allMenu } from "./constants/AllMenu";
 const IconKnow = () => {
   return <></>;
 };
-const Sidebar = ({ profile }) => {
+const Sidebar = ({ profile, menus: allMenu }) => {
   const router = useRouterCustom();
   const pathname = usePathname();
   if (!profile) {

@@ -19,6 +19,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
         <LinkCustom
           className={`[&[disabled]]:opacity-50 [&[disabled]]:cursor-not-allowed [&[disabled]]:pointer-events-none hover:bg-gray-300 transition px-3 py-2 rounded-md`}
           disabled={page <= 1}
+          isRefresh={true}
           href={
             process.env.NEXT_PUBLIC_ADMIN_URL +
             `${module}?${createSearchParamString(page - 1)}`
@@ -52,6 +53,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
                 className={`mx-1 transition hover:bg-gray-300 px-3 py-2 rounded-lg ${
                   index + 1 == page ? "text-outline pointer-events-none" : ""
                 }`}
+                isRefresh={true}
                 key={index}
                 href={
                   process.env.NEXT_PUBLIC_ADMIN_URL +
@@ -68,6 +70,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
         })}
 
         <LinkCustom
+          isRefresh={true}
           href={
             process.env.NEXT_PUBLIC_ADMIN_URL +
             `${module}?${createSearchParamString(page + 1)}`

@@ -77,7 +77,7 @@ const Permission = ({ field, defaultValue }) => {
   return (
     <div className="permission-field">
       <textarea name={field.name} hidden ref={permissionRef}></textarea>
-      {field.data.map((group) => (
+      {field.data.filter(permission => permission?.active != "inactive" && permission?.name != "").map((group) => (
         <div key={group.group}>
           <div>
             <table className="border">
@@ -94,7 +94,7 @@ const Permission = ({ field, defaultValue }) => {
               </thead>
               <tbody>
                 {group.permissions && group.permissions.length ? (
-                  group.permissions.map((permission) => (
+                  group.permissions.filter(permission => permission?.active != "inactive").map((permission) => (
                     <tr
                       key={group.group + "." + permission.name}
                       data-permission={permission.name}
