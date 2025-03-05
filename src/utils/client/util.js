@@ -95,11 +95,11 @@ export const showImageUrl = (imageData, optimal = true) => {
       typeof imageData?.file_info === "string"
         ? JSON.parse(imageData?.file_info.replaceAll("'", '"'))
         : parsed;
-  }
-  if (typeof parsed.avif != "undefined") {
-    imageData.url = parsed.avif;
-  } else if (typeof parsed.webp != "undefined") {
-    imageData.url = parsed.webp;
+    if (typeof parsed.avif != "undefined") {
+      imageData.url = parsed.avif;
+    } else if (typeof parsed.webp != "undefined") {
+      imageData.url = parsed.webp;
+    }
   }
   if (parsed?.url) {
     return parsed.url.startsWith("/")
