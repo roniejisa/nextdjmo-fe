@@ -5,7 +5,9 @@ import { cookies } from "next/headers";
 import ImageCustom from "@/components/Maintain/Image";
 import Logo from "@/components/Icon/Logo";
 // import BackButton from "@/components/BackButton/BackButton";
-
+export const metadata = {
+  title:"Đăng nhập"
+}
 const LoginPage = async ({ searchParams }) => {
   const msg = cookies().get("msg")?.value;
   const storeSeachParams = await searchParams;

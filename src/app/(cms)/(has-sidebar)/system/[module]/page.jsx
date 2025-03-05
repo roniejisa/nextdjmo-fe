@@ -39,7 +39,8 @@ const Module = async ({ params, searchParams }) => {
   const { module } = await params;
   const { limit, page, ...propSearchParams } = await searchParams;
   const user = await getProfile();
-  const { data } = await getDataModule(module, limit, page, propSearchParams);
+  const response = await getDataModule(module, limit, page, propSearchParams);
+  const data = response?.data ?? {};
   if (Object.keys(data).length === 0) {
     return redirect("/403");
   }

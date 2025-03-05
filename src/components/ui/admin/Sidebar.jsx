@@ -28,8 +28,8 @@ const Sidebar = ({ profile, menus: allMenu }) => {
       })
     ) {
       return hasChild
-        ? "bg-[#2a85ff1a] text-outline rounded-md active font-medium"
-        : "text-outline rounded-md font-medium";
+        ? "bg-[#2a85ff1a] text-outline active font-medium"
+        : "text-outline font-medium";
     } else {
       return "";
     }
@@ -114,7 +114,7 @@ const Sidebar = ({ profile, menus: allMenu }) => {
                           })
                           .map((itemChild) => (
                             <li
-                              className={`flex justify-between group hover:bg-active-light hover:text-outline transition items-center ${checkActiveMenu(
+                              className={`flex justify-between group hover:bg-active-light hover:text-outline rounded-md transition items-center ${checkActiveMenu(
                                 itemChild.link
                               )}`}
                               key={itemChild.id}

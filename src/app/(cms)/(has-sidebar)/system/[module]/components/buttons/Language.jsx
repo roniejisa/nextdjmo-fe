@@ -20,7 +20,7 @@ const Language = ({ module, moduleMain }) => {
             ...Object.fromEntries(searchParams),
             language: e.target.value,
           });
-          router.push(`${module}?${newSeachParams.toString()}`);
+          router.push(`${module}?${newSeachParams.toString()}`,true);
         }}
       >
         {moduleMain.langs.map((item) => (

@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, createContext, useRef } from "react";
+import { useEffect, createContext, useRef, useState } from "react";
 import { encryptData, decryptData } from "@/utils/socket/utils";
 
 export const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
+  const [socketOn, setSocketOn] = useState(false);
   const socketRef = useRef(null);
   const sessionIdRef = useRef(null);
   const onlineRef = useRef(0);
@@ -31,6 +32,7 @@ export const SocketProvider = ({ children }) => {
     socketRef.current = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URL);
     socketRef.current.onopen = () => {
       // console.log("Đã kết nối");
+      setSocketOn(true);
       alertConnectSocket();
     };
 
@@ -49,13 +51,15 @@ export const SocketProvider = ({ children }) => {
     socketRef.current.onclose = () => {
       // console.log("Disconnected");
       socketRef.current = null;
+      setSocketOn(false);
       // Thử kết nối lại sau 3 giây
     };
 
     socketRef.current.onerror = (error) => {
-      // console.error("WebSocket Error", error);
+      console.error("WebSocket Error", error);
+      setSocketOn(false);
       // Kết nối lại khi gặp lỗi
-      setTimeout(connectSocket, 10000);
+      // setTimeout(connectSocket, 10000);
     };
 
     socketRef.current.sendEncode = (obj) => {
@@ -142,7 +146,7 @@ export const SocketProvider = ({ children }) => {
       }}
     >
       {children}
-      <div
+      {socketOn && <div
         className="fixed z-[999] bottom-0 right-10 rounded-md rounded-bl-none rounded-br-none border-b-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
         onClick={handleSend}
       >
@@ -150,7 +154,7 @@ export const SocketProvider = ({ children }) => {
         <span className="ml-2" ref={onlineRef}>
           0
         </span>
-      </div>
+      </div>}
     </SocketContext.Provider>
   );
 };

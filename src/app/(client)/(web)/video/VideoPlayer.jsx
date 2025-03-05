@@ -2,8 +2,8 @@
 import "plyr/dist/plyr.css"; // Đảm bảo bạn đã import CSS của Plyr
 import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
-import Plyr from "plyr"; // Plyr.js
-
+import dynamic from "next/dynamic";
+const Plyr = dynamic(() => import("plyr"), { ssr: false });
 // Hàm chuẩn hóa IV (đảm bảo IV có độ dài 16 byte)
 function normalizeIV(iv) {
   const requiredLength = 16; // Đảm bảo IV luôn có độ dài 16 byte
