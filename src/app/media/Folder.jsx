@@ -148,7 +148,7 @@ const Folder = () => {
   return (
     <>
       {folders && folders.length > 0 && (
-        <div className="">
+        <div className="select-none">
           <h3 className="mb-3 text-xl px-4 font-medium">Thư mục</h3>
           <div className="grid grid-cols-4 gap-4 p-4">
             {folders?.map((folder, index) => (

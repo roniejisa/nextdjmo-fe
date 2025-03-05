@@ -408,10 +408,10 @@ const MediaList = () => {
       <Folder />
       {medias && medias.length > 0 && (
         <div>
-          <h3 className="mb-3 text-xl px-4 font-medium">Tệp tin</h3>
+          <h3 className="text-xl px-4 font-medium select-none">Tệp tin</h3>
           <section
             ref={mediaItemRef}
-            className="grid grid-cols-[repeat(auto-fill,minmax(calc(100%/12),1fr))] p-4 select-none bg-white gap-4 max-h-[calc(100%-140px)] overflow-auto file-selector"
+            className="grid grid-cols-[repeat(auto-fill,minmax(calc(100%/12),1fr))] px-4 py-10 select-none bg-white gap-4 max-h-[calc(100%-140px)] overflow-auto file-selector"
             onMouseDown={handleMouseDown}
           >
             {medias?.map((media, index) => {
