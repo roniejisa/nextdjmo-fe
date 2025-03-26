@@ -1,6 +1,5 @@
 "use client";
 import ImageCustom from "@/components/Maintain/Image";
-import PreviewProvider from "@/packages/previews/PreviewProvider";
 import { showImageUrl } from "@/utils/client/util";
 import { useEffect, useRef } from "react";
 

@@ -8,8 +8,6 @@ import { SocketContext } from "@/context/SocketProvider";
 
 const Chat = () => {
   const {
-    messages,
-    setMessages,
     messageRef,
     setEditorHeight,
     heightChat,

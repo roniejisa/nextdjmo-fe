@@ -1,0 +1,29 @@
+.default-browser{
+    
+    &::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    // /* Track */
+    &::-webkit-scrollbar-track {
+        background: #f4f4f4;
+    }
+
+    // /* Handle */
+    &::-webkit-scrollbar-thumb {
+        background: #ececec;
+        border-radius: 5px;
+    }
+
+    // /* Handle on hover */
+    &::-webkit-scrollbar-thumb:hover {
+        background: #c1c1c1;
+    }
+
+    // /* width */
+    // &:hover {
+    //     &::-webkit-scrollbar-thumb{
+    //         background: #c1c1c1;
+    //     }
+    // }
+}

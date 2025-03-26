@@ -88,27 +88,27 @@ export const showImageUrl = (imageData, optimal = true) => {
       : baseUrl + imageData.url.replace(/\\/g, "/");
   }
   // Thử parse `url` như JSON
-  // try {
-  let parsed = JSON.parse(imageData);
-  if (parsed.file_info && optimal) {
-    parsed =
-      typeof imageData?.file_info === "string"
-        ? JSON.parse(imageData?.file_info.replaceAll("'", '"'))
-        : parsed;
-    if (typeof parsed.avif != "undefined") {
-      imageData.url = parsed.avif;
-    } else if (typeof parsed.webp != "undefined") {
-      imageData.url = parsed.webp;
+  try {
+    let parsed = JSON.parse(imageData);
+    if (parsed.file_info && optimal) {
+      parsed =
+        typeof imageData?.file_info === "string"
+          ? JSON.parse(imageData?.file_info.replaceAll("'", '"'))
+          : parsed;
+      if (typeof parsed.avif != "undefined") {
+        imageData.url = parsed.avif;
+      } else if (typeof parsed.webp != "undefined") {
+        imageData.url = parsed.webp;
+      }
     }
+    if (parsed?.url) {
+      return parsed.url.startsWith("/")
+        ? baseUrl + parsed.url.slice(1).replace(/\\/g, "/")
+        : baseUrl + parsed.url.replace(/\\/g, "/");
+    }
+  } catch {
+    // Bỏ qua lỗi nếu JSON không hợp lệ
   }
-  if (parsed?.url) {
-    return parsed.url.startsWith("/")
-      ? baseUrl + parsed.url.slice(1).replace(/\\/g, "/")
-      : baseUrl + parsed.url.replace(/\\/g, "/");
-  }
-  // } catch {
-  // Bỏ qua lỗi nếu JSON không hợp lệ
-  // }
 
   // Trả về mặc định nếu không khớp điều kiện nào
   return "/next.svg";

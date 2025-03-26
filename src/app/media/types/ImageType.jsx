@@ -29,7 +29,7 @@ const ImageType = ({ media }) => {
           attribute: {
             onClick: () =>
               setEditorImage({
-                url: showImageUrl(media),
+                url: showImageUrl(media, false),
                 filename,
                 fileInfo,
                 extention,

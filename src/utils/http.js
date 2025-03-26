@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const httpClient = async (url, customHeaders = {}, body = {}, method = "GET", hasPrefixHeader = true, isRefresh = false, searchParams, msg = "Vui lòng đăng nhập!") => {
-  try {
+  // try {
     const options = {
       cache: "no-cache",
       headers: {
@@ -62,14 +62,14 @@ export const httpClient = async (url, customHeaders = {}, body = {}, method = "G
     }
 
     return data
-  } catch (e) {
-    return {
-      status: 400,
-      message: msg,
-      errorMessage: e.message,
-      searchParams
-    }
-  }
+  // } catch (e) {
+  //   return {
+  //     status: 400,
+  //     message: msg,
+  //     errorMessage: e.message,
+  //     searchParams
+  //   }
+  // }
 };
 
 function clearTokensAndRedirect() {

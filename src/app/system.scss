@@ -9,6 +9,7 @@ textarea {
   --text: #434656;
   --text-sub: #a7aabd;
   --main: #ffffff;
+  --light: #e6f1ff;
   --outline: #2a85ff;
   --active: #2a85ff;
   --active-light: #e4f0fd;
@@ -136,4 +137,66 @@ svg:has(#tui-image-editor-svg-default-icons){
   z-index: 0;
   height: 0;
   width: 0;
+}
+
+.markdown-content pre {
+  white-space: pre-wrap; /* Cho phép xuống dòng nếu cần */
+  word-break: break-word; /* Cắt từ khi quá dài */
+}
+
+.markdown-content {
+  font-size: 16px;
+}
+
+.fade-in-text {
+  opacity: 0;
+  animation: fadeInText 0.8s ease forwards;
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.markdown-content {
+  line-height: 1.5;
+  font-size: 16px;
+  color: #111;
+}
+
+.markdown-content h1 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.markdown-content h2 {
+  font-size: 1.4rem;
+  margin-top: 1.2rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.markdown-content p,
+.markdown-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-content strong {
+  font-weight: 600;
 }
