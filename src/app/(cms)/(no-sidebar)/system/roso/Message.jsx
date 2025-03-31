@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  memo,
+} from "react";
 import { useMessage } from "@/hooks/useMessage";
 import { marked } from "marked";
 import hljs from "highlight.js";
@@ -11,7 +17,8 @@ import TypingEffect from "./TypeEffect";
 const DownloadTools = dynamic(() => import("@/components/DownloadTools"), {
   ssr: false,
 });
-const MessageItem = ({ message }) => {
+
+const MessageItem = memo(function MessageItem({ message }) {
   const { submitFormQuestion, setMessages } = useMessage();
   // Tạo một ref để tham chiếu tới container chứa HTML của message
   const containerRef = useRef(null);
@@ -117,9 +124,10 @@ const MessageItem = ({ message }) => {
   }
   let htmlContent = message?.content;
   if (message && !message.isQuestion && message.content) {
-    const cleanMarkdown = unwrapMarkdownCodeBlock(message.content);
-    htmlContent = marked(cleanMarkdown);
+    // const cleanMarkdown = unwrapMarkdownCodeBlock(message.content);
+    htmlContent = marked(message.content);
   }
+  console.log(htmlContent);
   return (
     <div
       className={
@@ -139,7 +147,7 @@ const MessageItem = ({ message }) => {
           />
         </div>
         {!message.isQuestion && (
-          <div className="flex justify-end">
+          <div className="flex gap-2 mt-2">
             <button>Chỉnh sửa</button>
             <button
               onClick={async () => {
@@ -163,33 +171,25 @@ const MessageItem = ({ message }) => {
       )}
     </div>
   );
-};
+});
 
 const Message = () => {
   const {
     messageRef,
     messages,
-    editorHeight,
-    tempText,
-    isStreaming,
+    tempRef,
     tempTextRef,
+    editorHeight,
+    backToBotRef,
   } = useMessage();
   const pageRef = useRef(1);
   const observerRef = useRef(null);
   const isLoadingMore = useRef(false);
-  const [isScroll, setIsScroll] = useState(false);
-
-  // Sau khi có tin nhắn mới, nếu người dùng đang gần cuối thì tự động cuộn xuống
   useLayoutEffect(() => {
-    const container = messageRef.current;
-    if (!container) return;
-    if (!isScroll) {
-      container.scrollTop = container.scrollHeight;
-    }
     tempTextRef.current = null;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    tempRef.current.innerHTML = "";
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
-
   // --- 4. Sử dụng Intersection Observer để load tin cũ khi cuộn lên đầu ---
   useEffect(() => {
     const container = messageRef.current;
@@ -225,9 +225,9 @@ const Message = () => {
         minHeight: `calc(100vh - ${editorHeight}px - 48px)`,
         maxHeight: `calc(100vh - ${editorHeight}px - 48px)`,
       }}
+      ref={messageRef}
     >
       <div
-        ref={messageRef}
         className="flex flex-col gap-2 lg:max-w-[70%] m-auto text-sm pt-4 px-4 all-message" //whitespace-pre-line chỉ được dùng khi không dùng marks
       >
         {/* Một phần tử nhỏ ở đầu làm trigger cho Observer */}
@@ -235,19 +235,33 @@ const Message = () => {
         {messages.map((item, index) => {
           return <MessageItem key={index} message={item} />;
         })}
-        {isStreaming &&
-          (!tempText ? (
-            <div
-              class="text-2xl font-bold bg-gradient-to-r from-red-500 via-green-500 to-blue-500 
-            bg-[length:300%_100%] bg-clip-text text-transparent animate-gradient-x"
-            >
-              Đang xử lý
-            </div>
-          ) : (
-            <div className="markdown-content">
-              <TypingEffect text={tempText?.content ?? ""} speed={0} />
-            </div>
-          ))}
+        <TypingEffect />
+        <button
+          ref={backToBotRef}
+          onClick={() => {
+            messageRef.current.scrollTo({
+              top: messageRef.current.scrollHeight,
+              behavior: "smooth",
+            });
+          }}
+          className="cursor-pointer opacity-0 transition-all duration-300 sticky z-10 rounded-full bg-clip-padding border text-token-text-secondary border-token-border-light left-1/2 -translate-x-1/2 bg-white w-8 h-8 flex items-center justify-center bottom-5"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="icon-md text-token-text-primary"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M12 21C11.7348 21 11.4804 20.8946 11.2929 20.7071L4.29289 13.7071C3.90237 13.3166 3.90237 12.6834 4.29289 12.2929C4.68342 11.9024 5.31658 11.9024 5.70711 12.2929L11 17.5858V4C11 3.44772 11.4477 3 12 3C12.5523 3 13 3.44772 13 4V17.5858L18.2929 12.2929C18.6834 11.9024 19.3166 11.9024 19.7071 12.2929C20.0976 12.6834 20.0976 13.3166 19.7071 13.7071L12.7071 20.7071C12.5196 20.8946 12.2652 21 12 21Z"
+              fill="currentColor"
+            ></path>
+          </svg>
+        </button>
       </div>
     </div>
   );

@@ -6,8 +6,13 @@ import styles from "./Chat.module.scss";
 import { useMessage } from "@/hooks/useMessage";
 
 const Chat = () => {
-  const { setEditorHeight, heightChat, isStreaming, submitFormQuestion, editorRef } =
-    useMessage();
+  const {
+    setEditorHeight,
+    heightChat,
+    isStreaming,
+    submitFormQuestion,
+    editorRef,
+  } = useMessage();
   const [value, setValue] = useState("");
   const boxEditorRef = useRef(null);
   const buttonRef = useRef(null);
@@ -26,9 +31,9 @@ const Chat = () => {
 
   useEffect(() => {
     if (value.length > 0) {
-      setEditorHeight(heightChat + boxEditorRef.current.clientHeight - 52);
+      setEditorHeight(boxEditorRef.current.clientHeight + "10px");
     } else {
-      setEditorHeight(heightChat);
+      setEditorHeight(boxEditorRef.current.offsetHeight);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
@@ -42,11 +47,17 @@ const Chat = () => {
       var imageUrl = window.URL.createObjectURL(file);
       listImage.push(imageUrl);
       const imageEl = document.createElement("img");
-      imageEl.width = "80";
-      imageEl.height = "80";
       imageEl.src = imageUrl;
+      Object.assign(imageEl.style,{
+        width:"56px",
+        height:"56px",
+        objectFit:"cover",
+        borderRadius:"10px",
+        flexShrink: 0
+      })
       boxFileRef.current.append(imageEl);
     }
+    setEditorHeight(boxEditorRef.current.offsetHeight)
   };
 
   return (
@@ -61,7 +72,7 @@ const Chat = () => {
             <div className="group relative flex flex-col w-full">
               <label
                 htmlFor="file-upload"
-                className="flex justify-start mb-2"
+                className="flex justify-start mb-2 overflow-auto gap-2"
                 ref={boxFileRef}
               ></label>
               <div className="flex w-full flex-col gap-1.5 p-1.5 transition-colors contain-inline-size bg-white border rounded-md">

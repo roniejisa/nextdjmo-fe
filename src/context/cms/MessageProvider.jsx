@@ -1,12 +1,16 @@
 "use client";
 import { getToken } from "@/utils/server/utils";
-import { createContext, useState, useRef } from "react";
+import { marked } from "marked";
+import { createContext, useState, useRef, useEffect } from "react";
+import hljs from "highlight.js";
+import "highlight.js/styles/vs2015.min.css";
+import DOMPurify from "dompurify";
 
 export const MessageContext = createContext();
 const MessageProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const messageRef = useRef(null);
-  const heightChat = 52;
+  const heightChat = 62;
   const [editorHeight, setEditorHeight] = useState(heightChat);
   const waitingRef = useRef(false);
   const [formValue, setFormValue] = useState("");
@@ -15,6 +19,8 @@ const MessageProvider = ({ children }) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const tempTextRef = useRef(null);
   const editorRef = useRef(null); // Ref to focus back after sending
+  const tempRef = useRef(null);
+  const backToBotRef = useRef(null);
 
   const submitFormQuestion = async (
     form,
@@ -51,36 +57,87 @@ const MessageProvider = ({ children }) => {
     setFormValue(Object.fromEntries(form));
     // Giả sử đây là hàm xử lý từng chunk SSE:
     const handleStreamChunk = (parsedData) => {
-      setTempText((obj) => {
-        let newObj = { ...obj };
-        if (obj && !obj.isQuestion) {
-          newObj = {
-            ...obj,
-            content: obj.content + parsedData.text,
-          };
-        } else if (parsedData?.image) {
-          newObj = {
-            content: `<div class="preview-img"><img src="${parsedData?.image}" style="max-height:500px;width:auto"></div>`,
-            isQuestion: false,
-            form,
-          };
-        } else {
-          // Nếu chưa có message AI, tạo mới message AI
-          newObj = {
-            content: parsedData.text,
-            isQuestion: false,
-            form,
-          };
-        }
-        tempTextRef.current = newObj;
-        return newObj;
+      // Scroll xuống cuối trước
+      window.scrollTo(tempTextRef);
+      let newObj;
+      const obj = tempTextRef.current;
+
+      if (typeof tempTextRef.current === "object") {
+        newObj = tempTextRef.current;
+      } else {
+        tempRef.current.innerHTML = "";
+      }
+
+      if (obj && !obj.isQuestion) {
+        newObj = {
+          ...obj,
+          content: obj.content + parsedData.text,
+        };
+      } else if (parsedData?.image) {
+        newObj = {
+          content: `<div class="preview-img"><img src="${parsedData?.image}" style="max-height:500px;width:auto"></div>`,
+          isQuestion: false,
+          form,
+        };
+      } else {
+        newObj = {
+          content: parsedData.text,
+          isQuestion: false,
+          form,
+        };
+      }
+
+      tempTextRef.current = newObj;
+
+      // ✅ Gộp phần chưa gõ xong trong queue để in ra ngay lập tức
+      const unfinished = textQueue.join("");
+      currentRawText += unfinished;
+
+      // ✅ Render toàn bộ nội dung đã có
+      const fullHTML = DOMPurify.sanitize(marked.parse(currentRawText));
+      tempRef.current.innerHTML = fullHTML;
+
+      tempRef.current.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block);
       });
+
+      // ✅ Reset queue: chỉ gõ từ từ phần mới
+      textQueue = Array.from(parsedData.text);
+
+      // ✅ Tiếp tục typing
+      if (!isTyping) typeNextChar();
     };
 
+    const typeNextChar = () => {
+      if (!tempRef.current || !waitingRef.current || textQueue.length === 0) {
+        isTyping = false;
+        return;
+      }
+
+      isTyping = true;
+
+      // Gỡ từng ký tự để thêm dần
+      const char = textQueue.shift();
+      currentRawText += char;
+
+      // Re-render với phần mới cập nhật
+      const html = DOMPurify.sanitize(marked.parse(currentRawText));
+      tempRef.current.innerHTML = html;
+
+      tempRef.current.querySelectorAll("pre code").forEach((block) => {
+        hljs.highlightElement(block);
+      });
+
+      setTimeout(typeNextChar, 20); // tốc độ typing
+      // ✅ Scroll xuống cuối sau mỗi chunk
+      // messageRef.current.scrollTo({
+      //   top: messageRef.current.scrollHeight,
+      //   behavior: "smooth",
+      // });
+    };
     // Khi stream kết thúc
     const finishStream = () => {
       setMessages((prev) => [...prev, tempTextRef.current]);
-      setTempText(null);
       setIsStreaming(false);
     };
 
@@ -109,7 +166,10 @@ const MessageProvider = ({ children }) => {
     const decoder = new TextDecoder();
 
     let sseBuffer = "";
-
+    tempRef.current.innerHTML = `Suy luận!`;
+    let currentRawText = ""; // Phần đã hiển thị
+    let textQueue = []; // Hàng đợi ký tự đang gõ
+    let isTyping = false;
     function readChunk() {
       reader.read().then(({ done, value }) => {
         if (done || !waitingRef.current) {
@@ -142,14 +202,40 @@ const MessageProvider = ({ children }) => {
           });
         });
         readChunk();
+        checkScroll();
       });
-      setTimeout(() => {
-        messageRef.current.scrollTop = messageRef.current.scrollHeight;
-      }, 100);
     }
 
     readChunk();
   };
+
+  const checkScroll = () => {
+    if (!messageRef.current || !backToBotRef.current) return;
+    const scrollTop = messageRef.current.scrollTop;
+    const windowHeight = messageRef.current.offsetHeight;
+    const fullHeight = messageRef.current.scrollHeight;
+
+    const distanceFromBottom = fullHeight - (scrollTop + windowHeight);
+
+    if (distanceFromBottom > 100) {
+      backToBotRef.current.classList.remove("opacity-0");
+      backToBotRef.current.classList.add("opacity-100");
+    } else {
+      backToBotRef.current.classList.remove("opacity-100");
+      backToBotRef.current.classList.add("opacity-0");
+    }
+  };
+  useEffect(() => {
+    messageRef.current.addEventListener("scroll", checkScroll);
+    checkScroll(); // gọi 1 lần để set đúng trạng thái ban đầu
+
+    return () => {
+      if (messageRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        messageRef?.current.removeEventListener("scroll", checkScroll);
+      }
+    };
+  }, []);
 
   return (
     <MessageContext.Provider
@@ -166,12 +252,13 @@ const MessageProvider = ({ children }) => {
         setFileTransfers,
         messageRef,
         tempText,
-        setTempText,
         isStreaming,
         setIsStreaming,
         tempTextRef,
         submitFormQuestion,
         editorRef,
+        tempRef,
+        backToBotRef,
       }}
     >
       {children}

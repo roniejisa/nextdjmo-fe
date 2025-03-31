@@ -42,76 +42,76 @@ const page = () => {
   }, []);
   return (
     <div>
-      <div class="content content--highlight content--intro">
-        <p class="text-large">
+      <div className="content content--highlight content--intro">
+        <p className="text-large">
           As data conglomerates reveled in the opulence of cognitive wealth, a
           silent underclass manifested, condemned to the digital periphery.
         </p>
       </div>
-      <div class="wrap">
-        <div class="content content--sticky content--half bg-1">
-          <img class="content__img content__img--small" src="images/img.jpg" />
-          <h2 class="content__title">
+      <div className="wrap">
+        <div className="content content--sticky content--half bg-1">
+          <img className="content__img content__img--small" src="images/img.jpg" />
+          <h2 className="content__title">
             <i>The</i> Algorithm
           </h2>
-          <p class="content__text content__text--narrow text-meta">
+          <p className="content__text content__text--narrow text-meta">
             The algorithm's workings are shrouded in complexity.
           </p>
         </div>
-        <div class="content content--sticky content--half bg-2">
-          <img class="content__img content__img--small" src="images/img.jpg" />
-          <h2 class="content__title">
+        <div className="content content--sticky content--half bg-2">
+          <img className="content__img content__img--small" src="images/img.jpg" />
+          <h2 className="content__title">
             <i>The</i> Dogma
           </h2>
-          <p class="content__text content__text--narrow text-meta">
+          <p className="content__text content__text--narrow text-meta">
             Enshrining the principles of conformity and reinforcing the status
             quo.
           </p>
         </div>
-        <div class="content content--sticky content--half bg-3">
-          <img class="content__img content__img--small" src="images/img.jpg" />
-          <h2 class="content__title">
+        <div className="content content--sticky content--half bg-3">
+          <img className="content__img content__img--small" src="images/img.jpg" />
+          <h2 className="content__title">
             <i>The</i> Architects
           </h2>
-          <p class="content__text content__text--narrow text-meta">
+          <p className="content__text content__text--narrow text-meta">
             The elusive entities, lacking human form, operate in the shadows.
           </p>
         </div>
-        <div class="content content--sticky content--half bg-4">
-          <img class="content__img content__img--small" src="images/img.jpg" />
-          <h2 class="content__title">
+        <div className="content content--sticky content--half bg-4">
+          <img className="content__img content__img--small" src="images/img.jpg" />
+          <h2 className="content__title">
             <i>The</i> Wasteland
           </h2>
-          <p class="content__text content__text--narrow text-meta">
+          <p className="content__text content__text--narrow text-meta">
             This overlooked realm, a consequence of algorithmic judgments.
           </p>
         </div>
-        <div class="content content--sticky content--half bg-5">
-          <img class="content__img content__img--small" src="images/img.jpg" />
-          <h2 class="content__title">
+        <div className="content content--sticky content--half bg-5">
+          <img className="content__img content__img--small" src="images/img.jpg" />
+          <h2 className="content__title">
             <i>The</i> Narrative
           </h2>
-          <p class="content__text content__text--narrow text-meta">
+          <p className="content__text content__text--narrow text-meta">
             The collective story sculpted by the architects.
           </p>
         </div>
-        <div class="content content--sticky content--half bg-6">
-          <img class="content__img content__img--small" src="images/img.jpg" />
-          <h2 class="content__title">
+        <div className="content content--sticky content--half bg-6">
+          <img className="content__img content__img--small" src="images/img.jpg" />
+          <h2 className="content__title">
             <i>The</i> Opulence
           </h2>
-          <p class="content__text content__text--narrow text-meta">
+          <p className="content__text content__text--narrow text-meta">
             The cognitive elite's wealth in the algorithmic society.
           </p>
         </div>
       </div>
-      <div class="content content--highlight content--outro">
-        <p class="text-large">
+      <div className="content content--highlight content--outro">
+        <p className="text-large">
           Lost in perpetual dependency, inhabitants of the Synthetic Era found
           solace in cryptic simulations, where pain ebbed and cognitive loads
           momentarily lightened.
         </p>
-        <img class="content__img spacer" src="images/img.jpg" />
+        <img className="content__img spacer" src="images/img.jpg" />
       </div>
     </div>
   );

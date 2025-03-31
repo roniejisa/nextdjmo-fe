@@ -180,8 +180,8 @@ export async function middleware(request) {
     // Các trang bắt buộc đăng nhập
 
     // Luôn phải kiểm tra 2 trường hợp 1 là nếu có cần bảo về
-    // const isRedirectLogin = (requireRoutes.length === 0 && !isAuthenticated) || (!isAuthenticated && requireRoutes.filter(router => pathname.startsWith(router)).length > 0)
-    const isRedirectLogin = !isAuthenticated && !accessToken && !refreshToken;
+    const isRedirectLogin = (requireRoutes.length === 0 && !isAuthenticated) || (!isAuthenticated && requireRoutes.filter(router => pathname.startsWith(router)).length > 0)
+    // const isRedirectLogin = !isAuthenticated && !accessToken && !refreshToken;
     if (isRedirectLogin) {
         // Nếu chưa xác thực, chuyển hướng đến trang đăng nhập
         const response = NextResponse.redirect(new URL(URL_LOGIN, request.url))

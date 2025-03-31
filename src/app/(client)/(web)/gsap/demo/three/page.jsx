@@ -42,100 +42,100 @@ const page = () => {
   }, []);
   return (
     <div>
-      <div class="content content--highlight content--intro">
-        <p class="text-large">
+      <div className="content content--highlight content--intro">
+        <p className="text-large">
           As data conglomerates reveled in the opulence of cognitive wealth, a
           silent underclass manifested, condemned to the digital periphery.
         </p>
       </div>
-      <div class="wrap">
-        <div class="content content--sticky content--grid content--perspective">
-          <div class="content__inner bg-1">
+      <div className="wrap">
+        <div className="content content--sticky content--grid content--perspective">
+          <div className="content__inner bg-1">
             <img
-              class="content__img content__img--large content__img--left"
+              className="content__img content__img--large content__img--left"
               src="images/image.jpg"
             />
-            <h2 class="content__title">
+            <h2 className="content__title">
               <i>The</i> Algorithm
             </h2>
-            <p class="content__text content__text--left text-meta">
+            <p className="content__text content__text--left text-meta">
               The algorithm's workings are shrouded in complexity, and its
               decision-making processes are inscrutable to the general populace.
             </p>
           </div>
         </div>
-        <div class="content content--sticky content--grid content--perspective">
-          <div class="content__inner bg-2">
+        <div className="content content--sticky content--grid content--perspective">
+          <div className="content__inner bg-2">
             <img
-              class="content__img content__img--large content__img--left"
+              className="content__img content__img--large content__img--left"
               src="images/image.jpg"
             />
-            <h2 class="content__title">
+            <h2 className="content__title">
               <i>The</i> Dogma
             </h2>
-            <p class="content__text content__text--left text-meta">
+            <p className="content__text content__text--left text-meta">
               The digital gospel etched into the very code of the algorithmic
               society, served as the bedrock of the cognitive regime.
             </p>
           </div>
         </div>
-        <div class="content content--sticky content--grid content--perspective">
-          <div class="content__inner bg-3">
+        <div className="content content--sticky content--grid content--perspective">
+          <div className="content__inner bg-3">
             <img
-              class="content__img content__img--large content__img--left"
+              className="content__img content__img--large content__img--left"
               src="images/image.jpg"
             />
-            <h2 class="content__title">
+            <h2 className="content__title">
               <i>The</i> Architects
             </h2>
-            <p class="content__text content__text--left text-meta">
+            <p className="content__text content__text--left text-meta">
               The elusive entities, lacking human form, operate in the shadows,
               skillfully shaping societal norms through the complex interplay of
               algorithms and Dogmas.
             </p>
           </div>
         </div>
-        <div class="content content--sticky content--grid content--perspective">
-          <div class="content__inner bg-4">
+        <div className="content content--sticky content--grid content--perspective">
+          <div className="content__inner bg-4">
             <img
-              class="content__img content__img--large content__img--left"
+              className="content__img content__img--large content__img--left"
               src="images/1image.jpg"
             />
-            <h2 class="content__title">
+            <h2 className="content__title">
               <i>The</i> Wasteland
             </h2>
-            <p class="content__text content__text--left text-meta">
+            <p className="content__text content__text--left text-meta">
               This overlooked realm, a consequence of algorithmic judgments, is
               a haunting landscape filled with the echoes of untold stories and
               uncharted thoughts.
             </p>
           </div>
         </div>
-        <div class="content content--sticky content--grid content--perspective">
-          <div class="content__inner bg-5">
+        <div className="content content--sticky content--grid content--perspective">
+          <div className="content__inner bg-5">
             <img
-              class="content__img content__img--large content__img--left"
+              className="content__img content__img--large content__img--left"
               src="images/1image.jpg"
             />
-            <h2 class="content__title">
+            <h2 className="content__title">
               <i>The</i> Narrative
             </h2>
-            <p class="content__text content__text--left text-meta">
+            <p className="content__text content__text--left text-meta">
               "The Narrative" unfolds as the omnipresent thread weaving through
               the fabric of the algorithmic society.
             </p>
           </div>
         </div>
-        <div class="content content--sticky content--grid content--perspective">
-          <div class="content__inner bg-6">
+        <div className="content content--sticky content--grid content--perspective">
+          <div className="content__inner bg-6">
             <img
-              class="content__img content__img--large content__img--left"
+              className="content__img content__img--large content__img--left"
               src="images/1image.jpg"
             />
-            <h2 class="content__title">
+            <h2 className="content__title">
               <i>The</i> Opulence
             </h2>
-            <p class="content__text content__text--left text-meta">
+            <p className="content__text content__text--left text-meta">
               "The Opulence" epitomizes the cognitive elite's wealth in the
               algorithmic society, where opulent thoughts and experiences shape
               the societal narrative.
@@ -143,13 +143,13 @@ const page = () => {
           </div>
         </div>
       </div>
-      <div class="content content--highlight content--outro">
-        <p class="text-large">
+      <div className="content content--highlight content--outro">
+        <p className="text-large">
           Lost in perpetual dependency, inhabitants of the Synthetic Era found
           solace in cryptic simulations, where pain ebbed and cognitive loads
           momentarily lightened.
         </p>
-        <img class="content__img spacer" src="images/image.jpg" />
+        <img className="content__img spacer" src="images/image.jpg" />
       </div>
     </div>
   );
