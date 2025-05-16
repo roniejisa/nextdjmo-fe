@@ -18,18 +18,28 @@ const fields = {
   ],
   type: [
     " ",
-    "3D character design, Pixar style, CGI, soft lighting, childlike charm",
+    "Pixar 3D animation style",
+    "oil painting style"
   ],
+  format: [
+    "format 9:16 vertical",
+    "format 16:9 landscape"
+  ]
 };
 
 const fields_label = {
   prompt: ["Trai đẹp"],
-  type: ["Bình thường", "3D"],
+  type: ["Bình thường", "3D", "Sơn dầu"],
+  format: [
+    "9:16",
+    "16:9"
+  ]
 };
 
 const fieldLabels = {
   prompt: "Prompt - Nội dung",
   type: "Outfit - Trang phục (Trên người)",
+  format: "Tỉ lệ"
 };
 
 export default function PromptTemplateApp() {
@@ -58,7 +68,7 @@ export default function PromptTemplateApp() {
       })
     );
 
-    const prompt = `${finalValues.prompt} ${finalValues.type}, vertical composition, portrait orientation, 9:16 aspect ratio`;
+    const prompt = `${finalValues.prompt}, ${finalValues.type}, ${finalValues.format}`;
 
     setResult(prompt);
     setCopied(false);

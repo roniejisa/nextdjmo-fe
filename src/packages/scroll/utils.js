@@ -328,7 +328,6 @@ export const scroll = (contentElements, type = "one") => {
       five(contentElements);
       break;
     case "six":
-        console.log(123)
       six(contentElements);
       break;
     case "seven":

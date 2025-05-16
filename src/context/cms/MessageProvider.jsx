@@ -10,12 +10,10 @@ export const MessageContext = createContext();
 const MessageProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const messageRef = useRef(null);
-  const heightChat = 62;
+  const heightChat = 62 + 16 * 2;
   const [editorHeight, setEditorHeight] = useState(heightChat);
   const waitingRef = useRef(false);
   const [formValue, setFormValue] = useState("");
-  const [fileTransfers, setFileTransfers] = useState(false);
-  const [tempText, setTempText] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const tempTextRef = useRef(null);
   const editorRef = useRef(null); // Ref to focus back after sending
@@ -30,8 +28,9 @@ const MessageProvider = ({ children }) => {
     if (waitingRef.current) {
       waitingRef.current = false;
       setIsStreaming(false);
+      return;
     }
-
+    tempRef.current.innerHTML = `Đang suy luận!`;
     const token = await getToken();
     let data = "";
     if (isAgain) {
@@ -140,7 +139,7 @@ const MessageProvider = ({ children }) => {
       setMessages((prev) => [...prev, tempTextRef.current]);
       setIsStreaming(false);
     };
-
+    
     const response = await fetch(
       process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
       {
@@ -166,7 +165,7 @@ const MessageProvider = ({ children }) => {
     const decoder = new TextDecoder();
 
     let sseBuffer = "";
-    tempRef.current.innerHTML = `Suy luận!`;
+    
     let currentRawText = ""; // Phần đã hiển thị
     let textQueue = []; // Hàng đợi ký tự đang gõ
     let isTyping = false;
@@ -249,9 +248,7 @@ const MessageProvider = ({ children }) => {
         formValue,
         setFormValue,
         fileTransfers,
-        setFileTransfers,
         messageRef,
-        tempText,
         isStreaming,
         setIsStreaming,
         tempTextRef,

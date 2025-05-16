@@ -2,7 +2,7 @@
 import { useContext, useState } from "react";
 import { AllContext } from "@/context/cms/AllProvider";
 
-const Group = ({ children, field: { label, hasCreateQuick, name } }) => {
+const Group = ({ children, field: { label, hasCreateQuick, name, className } }) => {
   const { modalQuick, setModalQuick } = useContext(AllContext);
   const handleCreate = () => {
     setModalQuick({
@@ -12,7 +12,7 @@ const Group = ({ children, field: { label, hasCreateQuick, name } }) => {
   };
 
   return (
-    <div className="mt-4">
+    <div className={`mt-4 ${className}`}>
       {hasCreateQuick ? (
         <div className="flex items-center mb-2">
           <label className="block">{label}</label>

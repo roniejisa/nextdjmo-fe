@@ -1,138 +1,223 @@
 "use client";
 
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  memo,
-} from "react";
-import { useMessage } from "@/hooks/useMessage";
+import React, { useEffect, useRef, memo, useContext, useState, useLayoutEffect } from "react";
 import { marked } from "marked";
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.min.css";
+
 import dynamic from "next/dynamic";
 import TypingEffect from "./TypeEffect";
+import { RosoContext } from "@/context/cms/RosoProvider";
+import { useChatStore } from "@/stories/roso/ChatStore";
+import { useUIStore } from "@/stories/roso/uiStore";
 
+// Component DownloadTools của bạn
 const DownloadTools = dynamic(() => import("@/components/DownloadTools"), {
   ssr: false,
 });
 
 const MessageItem = memo(function MessageItem({ message }) {
-  const { submitFormQuestion, setMessages } = useMessage();
-  // Tạo một ref để tham chiếu tới container chứa HTML của message
+  const { submitFormQuestion } = useContext(RosoContext);
+  const setMessages = useChatStore.getState().setMessages;
+  const messages = useChatStore((s) => s.messages);
+
   const containerRef = useRef(null);
   const printRef = useRef(null);
 
-  // Sử dụng useEffect để gọi highlight.js sau khi message được render
+  // Hàm tạo header bar với 3 nút điều khiển và tên language
+  const addHeaderBar = (preElement, block) => {
+    // Nếu đã tạo header rồi thì tránh tạo lại
+    if (preElement.querySelector(".code-header-bar")) return;
+
+    // Tạo header bar container
+    const headerBar = document.createElement("div");
+    headerBar.className = "code-header-bar";
+    Object.assign(headerBar.style, {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      backgroundColor: "#f5f5f5",
+      padding: "4px 8px",
+      fontSize: "12px",
+      borderTopLeftRadius: "4px",
+      borderTopRightRadius: "4px",
+      borderBottom: "1px solid #ddd",
+    });
+
+    // Lấy tên language từ class "language-xxx"
+    const languageMatch = block.className.match(/language-([\w-]+)/);
+    const language = languageMatch ? languageMatch[1].toUpperCase() : "CODE";
+    const langLabel = document.createElement("span");
+    langLabel.textContent = language;
+    langLabel.style.fontWeight = "bold";
+
+    // Container cho các nút ở bên phải
+    const buttonContainer = document.createElement("div");
+
+    // Nút Expand/Collapse
+    const expandButton = document.createElement("button");
+    expandButton.textContent = "Collapse";
+    expandButton.style.marginRight = "4px";
+    Object.assign(expandButton.style, {
+      backgroundColor: "#e91e63",
+      color: "#fff",
+      border: "none",
+      borderRadius: "4px",
+      padding: "2px 6px",
+      cursor: "pointer",
+      fontSize: "12px",
+    });
+    let isCollapsed = false;
+    expandButton.addEventListener("click", () => {
+      isCollapsed = !isCollapsed;
+      expandButton.textContent = isCollapsed ? "Expand" : "Collapse";
+      if (isCollapsed) {
+        preElement.style.maxHeight = "50px";
+        preElement.style.overflow = "hidden";
+      } else {
+        preElement.style.maxHeight = "";
+        preElement.style.overflow = "";
+      }
+    });
+
+    // Nút Wrap/Unwrap
+    const wrapButton = document.createElement("button");
+    wrapButton.textContent = "Wrap";
+    wrapButton.style.marginRight = "4px";
+    Object.assign(wrapButton.style, {
+      backgroundColor: "#009688",
+      color: "#fff",
+      border: "none",
+      borderRadius: "4px",
+      padding: "2px 6px",
+      cursor: "pointer",
+      fontSize: "12px",
+    });
+    let isWrapped = false; // Mặc định: không wrap
+    wrapButton.addEventListener("click", () => {
+      isWrapped = !isWrapped;
+      wrapButton.textContent = isWrapped ? "Unwrap" : "Wrap";
+      if (isWrapped) {
+        preElement.style.whiteSpace = "pre-wrap"; // hiển thị xuống dòng
+        preElement.style.wordBreak = "break-all";
+      } else {
+        preElement.style.whiteSpace = "pre"; // giữ in one-line, với scrollbar nếu dài
+        preElement.style.wordBreak = "normal";
+      }
+    });
+
+    // Nút Copy
+    const copyButton = document.createElement("button");
+    copyButton.textContent = "Copy";
+    Object.assign(copyButton.style, {
+      backgroundColor: "#007bff",
+      color: "#fff",
+      border: "none",
+      borderRadius: "4px",
+      padding: "2px 6px",
+      cursor: "pointer",
+      fontSize: "12px",
+    });
+    copyButton.addEventListener("click", () => {
+      navigator.clipboard.writeText(block.innerText).then(() => {
+        copyButton.textContent = "Copied!";
+        setTimeout(() => (copyButton.textContent = "Copy"), 2000);
+      });
+    });
+
+    // Ghép các nút vào container nút
+    buttonContainer.appendChild(expandButton);
+    buttonContainer.appendChild(wrapButton);
+    buttonContainer.appendChild(copyButton);
+
+    // Ghép header bar: bên trái là label, bên phải là nút
+    headerBar.appendChild(langLabel);
+    headerBar.appendChild(buttonContainer);
+
+    // Chèn header bar vào pre element, ở trên cùng
+    // Lưu ý: Nếu <pre> đã có con (trong đó có code), chèn header bar làm con đầu tiên.
+    preElement.insertBefore(headerBar, preElement.firstChild);
+  };
+
+  // Xử lý highlight code, và chèn header bar
   useEffect(() => {
     if (containerRef.current) {
       setTimeout(() => {
+        // Xử lý download của ảnh (giữ nguyên logic cũ)
         containerRef.current
           .querySelectorAll(".preview-img img")
           .forEach((block) => {
-            // Lấy thẻ <pre> chứa code block
             const preElement = block.parentElement;
-            preElement.style.position = "relative"; // Đảm bảo vị trí cho nút absolute
-            const copyButton = document.createElement("button");
-            copyButton.innerText = "Download";
-            copyButton.style.position = "absolute";
-            copyButton.style.top = "10px";
-            copyButton.style.right = "10px";
-            copyButton.style.padding = "5px 10px";
-            copyButton.style.backgroundColor = "#007bff";
-            copyButton.style.color = "#fff";
-            copyButton.style.border = "none";
-            copyButton.style.borderRadius = "4px";
-            copyButton.style.cursor = "pointer";
-
-            // Sự kiện khi nhấn nút copy
-            copyButton.addEventListener("click", async () => {
-              const url = block.src;
-              if (url) {
-                try {
-                  const response = await fetch(url, { mode: "cors" });
-                  const blob = await response.blob();
-                  const objectUrl = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = objectUrl;
-                  a.download = url.split("/").pop();
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(objectUrl);
-                } catch (error) {
-                  console.error("Lỗi khi tải file:", error);
+            if (!preElement) return;
+            if (!preElement.querySelector(".btn-download")) {
+              const downloadButton = document.createElement("button");
+              downloadButton.innerText = "Download";
+              downloadButton.className = "btn-download";
+              Object.assign(downloadButton.style, {
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                padding: "5px 10px",
+                backgroundColor: "#007bff",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              });
+              downloadButton.addEventListener("click", async () => {
+                const url = block.src;
+                if (url) {
+                  try {
+                    const response = await fetch(url, { mode: "cors" });
+                    const blob = await response.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = objectUrl;
+                    a.download = url.split("/").pop();
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(objectUrl);
+                  } catch (error) {
+                    console.error("Lỗi khi tải file:", error);
+                  }
                 }
-              }
-            });
-            // Thêm nút copy vào pre block
-            preElement.appendChild(copyButton);
+              });
+              preElement.style.position = "relative";
+              preElement.appendChild(downloadButton);
+            }
           });
+
+        // Xử lý code block
+        containerRef.current.querySelectorAll("pre code").forEach((block) => {
+          const lang = block.className || "";
+          if (lang.includes("language-markdown")) return; // Bỏ qua markdown
+          if (lang.includes("language-")) {
+            // Highlight code
+            hljs.highlightElement(block);
+            // Lấy element <pre> chứa code
+            const preElement = block.parentElement;
+            if (preElement) {
+              // Thêm header bar chứa tên language và các nút
+              addHeaderBar(preElement, block);
+            }
+          }
+        });
       }, 300);
-
-      function addCopyButton(block) {
-        const preElement = block.parentElement;
-        if (!preElement) return;
-
-        // Kiểm tra đã có nút chưa tránh bị lặp
-        if (preElement.querySelector(".btn-copy")) return;
-
-        const copyButton = document.createElement("button");
-        copyButton.innerText = "Copy";
-        copyButton.className = "btn-copy";
-        Object.assign(copyButton.style, {
-          position: "absolute",
-          top: "10px",
-          right: "10px",
-          padding: "5px 10px",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          cursor: "pointer",
-        });
-
-        copyButton.addEventListener("click", () => {
-          navigator.clipboard.writeText(block.innerText).then(() => {
-            copyButton.innerText = "Copied!";
-            setTimeout(() => (copyButton.innerText = "Copy"), 2000);
-          });
-        });
-
-        preElement.style.position = "relative";
-        preElement.appendChild(copyButton);
-      }
-
-      containerRef.current.querySelectorAll("pre code").forEach((block) => {
-        const lang = block.className || "";
-
-        if (lang.includes("language-markdown")) return; // 🚫 Bỏ qua markdown
-
-        if (lang.includes("language-")) {
-          hljs.highlightElement(block);
-          addCopyButton(block);
-        }
-      });
     }
-  }, [message]); // Chạy mỗi khi message thay đổi
+  }, [message]);
 
-  // Chuyển đổi raw markdown thành HTML
-  function unwrapMarkdownCodeBlock(text) {
-    const match = text.match(/```(?:markdown)?\s*([\s\S]*?)\s*```/i);
-    return match ? match[1].trim() : text;
-  }
+  // Chuyển markdown => HTML
   let htmlContent = message?.content;
   if (message && !message.isQuestion && message.content) {
-    // const cleanMarkdown = unwrapMarkdownCodeBlock(message.content);
     htmlContent = marked(message.content);
   }
-  console.log(htmlContent);
+
   return (
     <div
       className={
         message?.isQuestion
-          ? "lg:max-w-[70%] ml-auto bg-light p-4 rounded-lg text-white"
+          ? "lg:max-w-[70%] ml-auto bg-light p-4 rounded-lg text-black"
           : ""
       }
     >
@@ -143,18 +228,21 @@ const MessageItem = memo(function MessageItem({ message }) {
             className={`markdown-content ${
               message.isQuestion ? "whitespace-pre-line" : ""
             }`}
+            style={{
+              maxWidth: "100%",
+              overflowX: "auto",
+            }}
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
         </div>
         {!message.isQuestion && (
           <div className="flex gap-2 mt-2">
-            <button>Chỉnh sửa</button>
+            <button className="text-red-500 hover:text-red-600 transition-all">Chỉnh sửa</button>
             <button
+              className="text-red-500 hover:text-red-600 transition-all"
               onClick={async () => {
-                setMessages((prev) => {
-                  // Kiểm tra câu trả lời giống nhau thì xóa
-                  return prev.filter((data) => data != message);
-                });
+                const newMessages = messages.filter((data) => data !== message);
+                setMessages(newMessages);
                 await submitFormQuestion(message.form, false, true);
               }}
             >
@@ -164,31 +252,25 @@ const MessageItem = memo(function MessageItem({ message }) {
         )}
       </div>
       {!message?.isQuestion && (
-        <DownloadTools
-          rawMarkdown={message.content}
-          printTargetRef={printRef}
-        />
+        <DownloadTools rawMarkdown={message.content} printTargetRef={printRef} />
       )}
     </div>
   );
 });
 
+
 const Message = () => {
-  const {
-    messageRef,
-    messages,
-    tempRef,
-    tempTextRef,
-    editorHeight,
-    backToBotRef,
-  } = useMessage();
+  const { messageRef, tempRef, tempTextRef, backToBotRef } =
+    useContext(RosoContext);
+  const messages = useChatStore((s) => s.messages);
+  const editorHeight = useUIStore((s) => s.editorHeight);
   const pageRef = useRef(1);
   const observerRef = useRef(null);
   const isLoadingMore = useRef(false);
   useLayoutEffect(() => {
     tempTextRef.current = null;
     tempRef.current.innerHTML = "";
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
   // --- 4. Sử dụng Intersection Observer để load tin cũ khi cuộn lên đầu ---
   useEffect(() => {
@@ -218,12 +300,13 @@ const Message = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <div
       className="overflow-auto"
       style={{
-        minHeight: `calc(100vh - ${editorHeight}px - 48px)`,
-        maxHeight: `calc(100vh - ${editorHeight}px - 48px)`,
+        minHeight: `calc(100vh - ${editorHeight}px)`,
+        maxHeight: `calc(100vh - ${editorHeight}px)`,
       }}
       ref={messageRef}
     >

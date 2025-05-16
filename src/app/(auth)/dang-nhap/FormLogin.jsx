@@ -2,7 +2,6 @@
 
 import { confirm2FA, handleLogin } from "./action";
 import { useContext, useEffect, useRef, useState, useTransition } from "react";
-import InputTypeOne from "@/components/Input/InputTypeOne";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { LoginContext } from "../providers/LoginProvider";

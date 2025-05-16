@@ -2,8 +2,64 @@
 
 import html2pdf from "html2pdf.js";
 import { saveAs } from "file-saver";
-import htmlDocx from "html-docx-js/dist/html-docx";
 import { marked } from "marked";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+
+const mapTailwindStyleToDocx = (el) => {
+  const style = {};
+
+  if (el.classList.contains("font-bold")) {
+    style.bold = true;
+  }
+  if (el.classList.contains("italic")) {
+    style.italics = true;
+  }
+  if (el.classList.contains("underline")) {
+    style.underline = {};
+  }
+  if (el.classList.contains("text-red-500")) {
+    style.color = "FF0000";
+  }
+  if (el.classList.contains("text-blue-500")) {
+    style.color = "3B82F6";
+  }
+  if (el.classList.contains("text-lg")) {
+    style.size = 28;
+  }
+  if (el.classList.contains("text-xl")) {
+    style.size = 32;
+  }
+
+  return style;
+};
+
+// Parse 1 DOM node → Paragraph
+const parseElementToParagraph = (el) => {
+  if (!el || el.nodeType !== 1) return null;
+
+  const tag = el.tagName.toLowerCase();
+  const children = Array.from(el.childNodes);
+  const runs = [];
+
+  for (const child of children) {
+    if (child.nodeType === 3) {
+      // Text
+      runs.push(new TextRun({ text: child.textContent || "" }));
+    } else if (child.nodeType === 1) {
+      const childEl = child;
+      const style = mapTailwindStyleToDocx(childEl);
+      runs.push(new TextRun({ text: childEl.textContent || "", ...style }));
+    }
+  }
+
+  const paragraphStyle = {};
+  if (el.classList.contains("text-center")) {
+    paragraphStyle.alignment = AlignmentType.CENTER;
+  }
+
+  return new Paragraph({ children: runs, ...paragraphStyle });
+};
+
 
 const DownloadTools = ({
   rawMarkdown,
@@ -106,7 +162,25 @@ const DownloadTools = ({
       });
   };
 
-  const handleDownloadDocx = () => {
+  const handleDownloadDocx = async () => {
+    if (!printTargetRef?.current) return;
+  
+    const elements = Array.from(printTargetRef.current.children);
+  
+    const paragraphs = elements
+      .map(parseElementToParagraph)
+      .filter(Boolean);
+  
+    const doc = new Document({
+      sections: [{ children: paragraphs }],
+    });
+  
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `${extractTitle()}.docx`);
+  };
+  
+
+  const handlePrint = () => {
     if (!printTargetRef?.current) return;
     const baseStyle = `
     <style>
@@ -115,14 +189,6 @@ const DownloadTools = ({
         p { margin-bottom: 12px; }
     </style>
     `;
-    const html = `<html><head><meta charset="utf-8">${baseStyle}</head><body>${printTargetRef.current.innerHTML}</body></html>`;
-    const converted = htmlDocx.asBlob(html);
-    saveAs(converted, `${extractTitle()}.docx`);
-  };
-
-  const handlePrint = () => {
-    if (!printTargetRef?.current) return;
-
     const printWindow = window.open("", "_blank");
     printWindow.document.write(
       `<html><head><title>In tài liệu</title>${baseStyle}</head><body>`
@@ -138,20 +204,20 @@ const DownloadTools = ({
   };
 
   return (
-    <div className="flex gap-2 mt-3 flex-wrap">
-      <button onClick={handleDownloadPDF} className="btn">
+    <div className="flex gap-4 mt-3 flex-wrap group">
+      <button onClick={handleDownloadPDF} className="bg-red-500 transition-all duration-300 hover:shadow-md group-hover:bg-red-600 active:translate-y-[1px] text-white p-2 rounded-md">
         PDF
       </button>
-      <button onClick={handleDownloadDocx} className="btn">
+      <button onClick={handleDownloadDocx} className="bg-blue-500 transition-all duration-300 hover:shadow-md group-hover:bg-blue-600 active:translate-y-[1px] text-white p-2 rounded-md">
         DOCX
       </button>
-      <button onClick={handleDownloadTXT} className="btn">
+      <button onClick={handleDownloadTXT} className="bg-green-500 transition-all duration-300 hover:shadow-md group-hover:bg-green-600 active:translate-y-[1px] text-white p-2 rounded-md">
         TXT
       </button>
-      <button onClick={handleDownloadMD} className="btn">
+      <button onClick={handleDownloadMD} className="bg-purple-500 transition-all duration-300 hover:shadow-md group-hover:bg-purple-600 active:translate-y-[1px] text-white p-2 rounded-md">
         Markdown
       </button>
-      <button onClick={handlePrint} className="btn">
+      <button onClick={handlePrint} className="bg-gray-500 transition-all duration-300 hover:shadow-md group-hover:bg-black text-white active:translate-y-[1px] p-2 rounded-md">
         In
       </button>
     </div>

@@ -26,6 +26,7 @@ import Select from "./components/Select";
 import Category from "./components/Category";
 import Tag from "./components/Tag";
 import Rating from "./components/Rating";
+import Selectors from "./components/Selectors";
 
 export const components = {
     text: Text,
@@ -55,5 +56,6 @@ export const components = {
     select: Select,
     category: Category,
     tag:Tag,
-    rating: Rating
+    rating: Rating,
+    selectors: Selectors
 };

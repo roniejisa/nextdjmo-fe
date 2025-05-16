@@ -15,6 +15,7 @@ const CodeEditor = ({ field, defaultValue }) => {
         ref={textareaRef}
         defaultValue={defaultValue}
         name={field.name}
+        hidden={true}
       ></textarea>
       <MonacoEditorCustom
         onChange={(e) => setValue(e)}

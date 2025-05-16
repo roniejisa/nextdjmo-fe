@@ -1,7 +1,7 @@
 import style from "./Header.module.scss";
 const Header = ({ models }) => {
   return (
-    <div className={`fixed px-4 top-4 ${style.overlaySelected}`}>
+    <div className={`fixed ml-4 px-4 top-4 ${style.overlaySelected}`}>
       <select
         id="model"
         defaultValue={models.find((item) => item?.default == 1)?.name}

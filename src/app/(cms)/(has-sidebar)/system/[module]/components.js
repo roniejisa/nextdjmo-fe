@@ -21,6 +21,7 @@ import Language from "./components/Language";
 import Tag from "./components/Tag";
 import ImageList from "./components/ImageList";
 import Rating from "./components/Rating";
+import Selectors from "./components/Selectors";
 
 export const components = {
   text: Text,
@@ -40,7 +41,8 @@ export const components = {
   language:Language,
   tag:Tag,
   list_image:ImageList,
-  rating:Rating
+  rating:Rating,
+  selectors: Selectors
 };
 
 export const componentActions = {

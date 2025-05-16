@@ -6,14 +6,19 @@ import Footer from "@/components/ui/client/Footer";
 import GoogleSignIn from "@/components/Google/GoogleSignIn";
 
 const getPageData = async (slug) => {
-  const response = await httpClient(
-    process.env.NEXT_PUBLIC_ENDPOINT_URL + `page/${slug}`
-  );
-  return response.data;
+  try {
+    const response = await httpClient(
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + `page/${slug}`
+    );
+    return response.data;
+  } catch (e) {
+    return false;
+  }
 };
 const Page = async ({ params }) => {
   const { slug } = await params;
   const page = await getPageData(slug);
+  console.log(page);
   if (!page) return redirect("/404");
 
   let dataContent;

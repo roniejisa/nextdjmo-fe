@@ -25,6 +25,7 @@ import CodeEditor from "./components/CodeEditor";
 import Select from "./components/Select";
 import Category from "./components/Category";
 import Tag from "./components/Tag";
+import Selectors from "./components/Selectors";
 
 export const components = {
     text: Text,
@@ -54,4 +55,5 @@ export const components = {
     select: Select,
     category: Category,
     tag:Tag,
+    selectors:Selectors
 }

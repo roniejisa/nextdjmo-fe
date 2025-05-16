@@ -1,10 +1,10 @@
 "use client";
 
-import React, { memo } from "react";
-import { useMessage } from "@/hooks/useMessage";
+import React, { memo, useContext } from "react";
+import { RosoContext } from "@/context/cms/RosoProvider";
 
 const TypingEffect = memo(function TypingEffect({}) {
-  const { tempRef } = useMessage();
+  const { tempRef } = useContext(RosoContext);
   return <div ref={tempRef} className="markdown-content pb-20" />;
 });
 

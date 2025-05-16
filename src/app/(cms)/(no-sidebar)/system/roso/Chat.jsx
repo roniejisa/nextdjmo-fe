@@ -1,18 +1,16 @@
 "use client";
 
 import CustomEditor from "@/components/EditorCustom/EditorCustom";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useLayoutEffect, useRef, useState } from "react";
 import styles from "./Chat.module.scss";
-import { useMessage } from "@/hooks/useMessage";
+import { RosoContext } from "@/context/cms/RosoProvider";
+import { useUIStore } from "@/stories/roso/uiStore";
+import { useChatStore } from "@/stories/roso/ChatStore";
 
 const Chat = () => {
-  const {
-    setEditorHeight,
-    heightChat,
-    isStreaming,
-    submitFormQuestion,
-    editorRef,
-  } = useMessage();
+  const { submitFormQuestion, editorRef } = useContext(RosoContext);
+  const isStreaming = useChatStore((s) => s.isStreaming);
+  const setEditorHeight = useUIStore.getState().setEditorHeight;
   const [value, setValue] = useState("");
   const boxEditorRef = useRef(null);
   const buttonRef = useRef(null);
@@ -29,12 +27,8 @@ const Chat = () => {
     buttonRef.current.click();
   };
 
-  useEffect(() => {
-    if (value.length > 0) {
-      setEditorHeight(boxEditorRef.current.clientHeight + "10px");
-    } else {
-      setEditorHeight(boxEditorRef.current.offsetHeight);
-    }
+  useLayoutEffect(() => {
+    setEditorHeight(boxEditorRef.current.clientHeight + 16 * 2);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
@@ -48,16 +42,16 @@ const Chat = () => {
       listImage.push(imageUrl);
       const imageEl = document.createElement("img");
       imageEl.src = imageUrl;
-      Object.assign(imageEl.style,{
-        width:"56px",
-        height:"56px",
-        objectFit:"cover",
-        borderRadius:"10px",
-        flexShrink: 0
-      })
+      Object.assign(imageEl.style, {
+        width: "56px",
+        height: "56px",
+        objectFit: "cover",
+        borderRadius: "10px",
+        flexShrink: 0,
+      });
       boxFileRef.current.append(imageEl);
     }
-    setEditorHeight(boxEditorRef.current.offsetHeight)
+    setEditorHeight(boxEditorRef.current.offsetHeight);
   };
 
   return (
@@ -68,7 +62,7 @@ const Chat = () => {
           className="w-full lg:max-w-[70%] mx-auto rounded-md"
           action={submitFormQuestion}
         >
-          <div className="relative flex h-full max-w-full flex-1 flex-col">
+          <div className="sticky flex h-full max-w-full flex-col bottom-4">
             <div className="group relative flex flex-col w-full">
               <label
                 htmlFor="file-upload"

@@ -1,110 +1,33 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React, {
-  useEffect,
   useRef,
+  useCallback,
   forwardRef,
   useImperativeHandle,
+  useState,
 } from "react";
-import styles from "./CustomEditor.module.scss"; // Đảm bảo file CSS module này tồn tại
+import styles from "./CustomEditor.module.scss";
+import debounce from "lodash/debounce";
 
 const CustomEditor = forwardRef(function CustomEditor(
-  { placeholder = "Question for me?", sendContent, submitForm, className = "" },
+  { placeholder = "Question for me?", sendContent, submitForm, className = "", },
   ref
 ) {
   const editorRef = useRef(null);
-  const isPasting = useRef(false);
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        clearData() {
-          editorRef.current.innerHTML = "";
-          sendContent(editorRef.current.innerText.trim());
-        },
-        getData() {
-          return editorRef.current.innerText;
-        },
-        focus() {
-          editorRef.current.focus();
-        },
-      };
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+  const [content, setContent] = useState("");
+
+  // Debounce sendContent để hạn chế việc gọi liên tục
+  const debouncedSendContent = useCallback(
+    debounce((text) => {
+      sendContent(text);
+    }, 300),
+    [sendContent]
   );
-
-  // Xử lý sự kiện nhấn phím
-  const handleKeyDown = (e) => {
-    if (!e.shiftKey && e.code === "Enter") {
-      e.preventDefault(); // Ngăn chặn hành động mặc định
-      submitForm();
-      return false;
-    }
-    // Xóa '<br>' đi
-
-    // Vô hiệu hóa các phím tắt như Ctrl+B, Ctrl+I, v.v.
-    if (e.ctrlKey || e.metaKey) {
-      const key = e.key.toLowerCase();
-      const disabledKeys = ["b", "i", "u", "s", "k"];
-      if (disabledKeys.includes(key)) {
-        e.preventDefault();
-        // Tùy chọn: Thêm thông báo cho người dùng nếu cần
-      }
-    }
-    sendContent(getText());
-  };
-
-  const handleKeyUp = (e) => {
-    sendContent(getText());
-  };
-
-  // Xử lý sự kiện dán nội dung
-  const handlePaste = (e) => {
-    e.preventDefault(); // Ngăn chặn hành động dán mặc định
-    isPasting.current = true;
-    const clipboardData = e.clipboardData || window.clipboardData;
-    let text = clipboardData.getData("text");
-    const items = clipboardData.items; // Lấy dữ liệu từ clipboard
-
-    for (const item of items) {
-      console.log(item.type)
-      if (item.type.startsWith("image/")) { // Kiểm tra xem có phải hình ảnh không
-          const blob = item.getAsFile(); // Chuyển dữ liệu thành file
-          const imgURL = URL.createObjectURL(blob); // Tạo URL để hiển thị
-
-          // Tạo thẻ img và hiển thị ảnh
-          const img = document.createElement("img");
-          img.src = imgURL;
-          img.style.maxWidth = "300px"; // Giới hạn kích thước ảnh
-          document.body.appendChild(img);
-      }
-  }
-    // Thay thế tab bằng 4 khoảng trắng
-    // text = text.replace(/\t/g, "    ");
-
-    // Chèn văn bản thuần tự vào vị trí con trỏ
-    if (document.execCommand) {
-      document.execCommand("insertText", false, text);
-    } else {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-
-      const textNode = document.createTextNode(text);
-
-      range.insertNode(textNode);
-      // Di chuyển con trỏ sau đoạn văn bản đã chèn
-      range.setStartAfter(textNode);
-      range.setEndAfter(textNode);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-    sendContent(getText());
-  };
 
   const getText = () => {
     const editor = editorRef.current;
+    if (!editor) return "";
     const text = editor.innerText.trim();
     if (editor.innerHTML === "<br>" || text.length === 0) {
       editor.innerHTML = "";
@@ -112,12 +35,97 @@ const CustomEditor = forwardRef(function CustomEditor(
     return editor.innerText.trim();
   };
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      clearData() {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = "";
+          debouncedSendContent("");
+        }
+      },
+      getData() {
+        return getText();
+      },
+      focus() {
+        editorRef.current && editorRef.current.focus();
+      },
+    }),
+    [debouncedSendContent]
+  );
+
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (!e.shiftKey && e.code === "Enter") {
+        e.preventDefault();
+        submitForm();
+        return;
+      }
+      if (e.ctrlKey || e.metaKey) {
+        const key = e.key.toLowerCase();
+        if (["b", "i", "u", "s", "k"].includes(key)) {
+          e.preventDefault();
+        }
+      }
+    },
+    [submitForm]
+  );
+
+  const handleKeyUp = useCallback(() => {
+    const text = getText();
+    setContent(text);
+    debouncedSendContent(text);
+  }, [debouncedSendContent]);
+
+  const handlePaste = useCallback(
+    (e) => {
+      e.preventDefault();
+      const clipboardData = e.clipboardData || window.clipboardData;
+      let text = clipboardData.getData("text");
+
+      // Xử lý hình ảnh
+      for (const item of clipboardData.items) {
+        if (item.type.startsWith("image/")) {
+          const blob = item.getAsFile();
+          const imgURL = URL.createObjectURL(blob);
+          // Chèn ảnh vào editor thay vì document.body
+          if (document.execCommand) {
+            document.execCommand(
+              "insertHTML",
+              false,
+              `<img src="${imgURL}" style="max-width:300px;" />`
+            );
+          }
+        }
+      }
+      // Chèn văn bản (nếu có)
+      if (document.execCommand) {
+        document.execCommand("insertText", false, text);
+      } else {
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        const textNode = document.createTextNode(text);
+        range.insertNode(textNode);
+        range.setStartAfter(textNode);
+        range.setEndAfter(textNode);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+      const updatedText = getText();
+      setContent(updatedText);
+      debouncedSendContent(updatedText);
+    },
+    [debouncedSendContent]
+  );
+
   return (
     <div className="relative">
       <div
         ref={editorRef}
         contentEditable="true"
-        className={` ${className || styles.editor}`}
+        className={className || styles.editor}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
         onPaste={handlePaste}
@@ -125,7 +133,7 @@ const CustomEditor = forwardRef(function CustomEditor(
         aria-multiline="true"
         aria-label={placeholder}
         data-placeholder={placeholder}
-        suppressContentEditableWarning={true} // Bỏ qua cảnh báo của React về contentEditable
+        suppressContentEditableWarning
       ></div>
     </div>
   );

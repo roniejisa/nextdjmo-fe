@@ -1,0 +1,105 @@
+:root {
+  --background: #f6f9ff;
+  --foreground: #434656;
+  --text: #434656;
+  --text-sub: #a7aabd;
+  --main: #ffffff;
+  --light: #e6f1ff;
+  --outline: #2a85ff;
+  --active: #2a85ff;
+  --active-light: #e4f0fd;
+  --danger: #f3456d;
+  --color-table: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  font-family: "Segoe UI", sans-serif;
+}
+table th {
+  background-color: #f5f5f5;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+}
+table td {
+  padding: 12px;
+  border-top: 1px solid #eaeaea;
+  color: #555;
+}
+table tr:hover {
+  background-color: #f9f9f9;
+}
+
+
+.markdown-content {
+  line-height: 1.5;
+  font-size: 1rem;
+  color: #111;
+}
+
+.markdown-content h1 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.markdown-content h2 {
+  font-size: 1.4rem;
+  margin-top: 1.2rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.markdown-content p,
+.markdown-content li {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+}
+
+code,
+li code,
+p code {
+  background-color: #f5f5f5;
+  color: #d63384;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.95em;
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+pre:has(code){
+  margin: 1em 0;
+}
+@media print {
+  pre code {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+  }
+}

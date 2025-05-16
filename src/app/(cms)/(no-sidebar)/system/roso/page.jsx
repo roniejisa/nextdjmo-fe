@@ -5,8 +5,8 @@ import Message from "./Message";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 import Header from "./Header";
-import "@/app/system.scss";
-
+import "./chat.css"
+import RosoProvider from "@/context/cms/RosoProvider";
 export const getModels = async () => {
   const token = await getToken();
   const response = httpClient(
@@ -21,8 +21,8 @@ export const getModels = async () => {
 const ChatPage = async () => {
   const models = await getModels();
   return (
-    <MessageProvider>
-      <div className="grid grid-cols-8">
+    <RosoProvider>
+      <div className="grid grid-cols-8 min-h-screen">
         <History className="col-span-1 border-r p-4" />
         <div className="col-span-7">
           <Header models={models?.data} />
@@ -30,7 +30,7 @@ const ChatPage = async () => {
           <Chat />
         </div>
       </div>
-    </MessageProvider>
+    </RosoProvider>
   );
 };
 
