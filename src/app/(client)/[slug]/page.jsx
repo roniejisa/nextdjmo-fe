@@ -18,7 +18,6 @@ const getPageData = async (slug) => {
 const Page = async ({ params }) => {
   const { slug } = await params;
   const page = await getPageData(slug);
-  console.log(page);
   if (!page) return redirect("/404");
 
   let dataContent;

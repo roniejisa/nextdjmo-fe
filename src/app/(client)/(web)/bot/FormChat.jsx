@@ -6,7 +6,6 @@ const FormChat = ({ setTriggerEnter, setAction }) => {
   const [chatInput, setChatInput] = useState("");
   const handleSendMessage = (e) => {
     e.preventDefault()
-    console.log(chatInput)
     if (chatInput.trim().toLowerCase() === "hello") {
       setTriggerEnter(true); // Avatar sẽ vào khung
     }

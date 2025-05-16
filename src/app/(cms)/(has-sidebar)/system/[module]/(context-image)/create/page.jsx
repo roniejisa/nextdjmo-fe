@@ -3,6 +3,8 @@ import FormCreate from "./FormCreate";
 import { httpClient } from "@/utils/http";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
+import { getDataModule } from "../../actions";
 
 const moduleDetail = async (module, language) => {
   const storeCookie = await cookies();
@@ -18,11 +20,27 @@ const moduleDetail = async (module, language) => {
   );
 };
 
-export async function generateMetadata({ params }) {
+const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
+  return await getDataModule(module, limit, page, searchParams);
+});
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export async function generateMetadata({ params, searchParams }) {
+  const { module } = await params;
+  const { data } = await cacheGetDataModule(
+    module,
+    undefined,
+    undefined,
+    searchParams
+  );
+  if (Object.keys(data).length === 0) redirect("/403");
+  let { module: moduleMain } = data;
   return {
-    title: "...",
+    title: moduleMain.name,
   };
 }
+
 const createForm = async ({ params, searchParams }) => {
   const { module } = await params;
 

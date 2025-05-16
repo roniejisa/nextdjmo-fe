@@ -124,16 +124,15 @@ const Repeat = ({ field, oldData }) => {
             {itemData.fields.map((itemField, index) => {
               const Component = components[itemField.type];
               return (
-                <div key={index}>
-                  <Component
-                    field={itemField}
-                    defaultValue={itemData.data[itemField.name]}
-                    onChange={(e) => updateData(e, itemData.id, itemField)}
-                    itemData={itemData}
-                    oldData={oldData}
-                    updateData={updateData}
-                  />
-                </div>
+                <Component
+                  key={index}
+                  field={itemField}
+                  defaultValue={itemData.data[itemField.name]}
+                  onChange={(e) => updateData(e, itemData.id, itemField)}
+                  itemData={itemData}
+                  oldData={oldData}
+                  updateData={updateData}
+                />
               );
             })}
             <div className="absolute top-2 right-2 flex gap-2">

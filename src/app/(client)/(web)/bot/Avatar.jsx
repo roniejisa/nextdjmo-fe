@@ -371,7 +371,6 @@ const AvatarCanvas = ({
           gltf.animations.forEach((clip, index) => {
             const clipName = action; // Gắn tên action làm key
             const actionClip = mixerRef.current.clipAction(clip);
-            console.log(clipName, action);
 
             actionsRef.current[clipName] = actionClip;
             actionsListRef.current.push(actionClip);

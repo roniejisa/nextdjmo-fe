@@ -12,7 +12,6 @@ import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 import Language from "./components/buttons/Language";
 import { componentActions, components } from "./components";
-console.log(components)
 import TabModule from "./Tab";
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {

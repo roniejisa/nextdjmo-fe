@@ -22,7 +22,6 @@ const page = () => {
       // Update ScrollTrigger each time the user scrolls
       lenis.on("scroll", () => {
         ScrollTrigger.update();
-        console.log("hehe");
       });
 
       // Define a function to run at each animation frame

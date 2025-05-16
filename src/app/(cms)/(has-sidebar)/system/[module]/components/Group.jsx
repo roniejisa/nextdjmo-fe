@@ -12,7 +12,7 @@ const Group = ({ children, field: { label, hasCreateQuick, name, className } }) 
   };
 
   return (
-    <div className={`mt-4 ${className}`}>
+    <div className={`mt-4 ${className ?? ""}`}>
       {hasCreateQuick ? (
         <div className="flex items-center mb-2">
           <label className="block">{label}</label>

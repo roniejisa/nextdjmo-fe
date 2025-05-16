@@ -19,7 +19,6 @@ export default function Selectors({ defaultValue, field, oldData }) {
 
   // This effect updates the hidden textarea whenever values change
   useEffect(() => {
-    console.log(values);
     if (textareaRef.current && Object.keys(values).length > 0) {
       textareaRef.current.value = JSON.stringify(values);
     }
@@ -322,14 +321,14 @@ export default function Selectors({ defaultValue, field, oldData }) {
               >
                 <button
                   type="button"
-                  className="flex-1 h-10 flex items-center justify-center bg-emerald-100 text-emerald-600 rounded-md hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
+                  className="flex-1 h-10 max-h-10 flex items-center justify-center bg-emerald-100 text-emerald-600 rounded-md hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
                   onClick={() => addSelector(key)}
                 >
                   +
                 </button>
                 <button
                   type="button"
-                  className="flex-1 h-10 flex items-center justify-center bg-amber-100 text-amber-600 rounded-md hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-colors"
+                  className="flex-1 h-10 max-h-10 flex items-center justify-center bg-amber-100 text-amber-600 rounded-md hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-colors"
                   onClick={() => {
                     const selectorsCount = Object.keys(
                       data.selectors || {}

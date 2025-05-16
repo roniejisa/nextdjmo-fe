@@ -62,7 +62,6 @@ const FormAddOrder = () => {
             "Vui lòng đăng nhập",
             `redirect=${pathname}`
           );
-          console.log(data);
           if (data.status == 200) {
             setUpdateCart(true);
             product.variants = product.variants.map((variant) => {
