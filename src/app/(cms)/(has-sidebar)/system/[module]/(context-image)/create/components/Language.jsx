@@ -15,7 +15,7 @@ const Language = ({ field, module }) => {
     router.push(
       process.env.NEXT_PUBLIC_ADMIN_URL +
         `${module}/create?language=${e.target.value}`
-    );
+    ,true);
   };
 
   useEffect(() => {}, []);

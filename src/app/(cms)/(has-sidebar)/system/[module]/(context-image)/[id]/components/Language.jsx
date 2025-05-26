@@ -15,7 +15,7 @@ const Language = ({ field, module, item }) => {
     router.push(
       process.env.NEXT_PUBLIC_ADMIN_URL +
         `${module}/${item._id}?language=${e.target.value}`
-    );
+    ,true);
   };
 
   return (
