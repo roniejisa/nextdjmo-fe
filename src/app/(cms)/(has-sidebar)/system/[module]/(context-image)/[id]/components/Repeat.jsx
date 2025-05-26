@@ -35,10 +35,10 @@ const Repeat = ({ field, oldData }) => {
   }, [data]);
 
   useEffect(() => {
-    if (oldData[field.name]) {
+    if (oldData && oldData?.[field.name]) {
       let jsonData;
       try {
-        jsonData = JSON.parse(oldData[field.name]);
+        jsonData = JSON.parse(oldData?.[field.name] ?? "");
       } catch (e) {
         jsonData = [];
       }
@@ -112,7 +112,7 @@ const Repeat = ({ field, oldData }) => {
         name={field.name}
         ref={textareaRef}
         hidden
-        defaultValue={oldData[field.name] || ""}
+        defaultValue={oldData?.[field.name] ?? ""}
       ></textarea>
       <div onDragEnd={dragEnd}>
         {data.map((itemData) => (

@@ -90,7 +90,7 @@ const FormUpdate = ({
             return (
               <Group key={field.name} field={field}>
                 <Component
-                  defaultValue={oldData[field.name]}
+                  defaultValue={oldData?.[field.name]}
                   oldData={oldData}
                   item={item}
                   module={module}
@@ -111,7 +111,7 @@ const FormUpdate = ({
               <Group key={field.name} field={field}>
                 <Component
                   key={field.name}
-                  defaultValue={oldData[field.name]}
+                  defaultValue={oldData?.[field.name]}
                   oldData={oldData}
                   item={item}
                   module={module}
@@ -133,7 +133,7 @@ const FormUpdate = ({
             <Group key={field.name} field={field}>
               <Component
                 key={field.name}
-                defaultValue={oldData[field.name]}
+                defaultValue={oldData?.[field.name] ?? ""}
                 oldData={oldData}
                 item={item}
                 profile={profile}

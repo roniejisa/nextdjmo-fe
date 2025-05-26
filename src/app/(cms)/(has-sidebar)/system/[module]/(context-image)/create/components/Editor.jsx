@@ -85,8 +85,8 @@ const Editor = ({ field, defaultValue, oldData }) => {
         },
       });
 
-      if (oldData && oldData[field.name]) {
-        quillCurrentRef.current.root.innerHTML = oldData[field.name];
+      if (oldData && oldData?.[field.name]) {
+        quillCurrentRef.current.root.innerHTML = oldData?.[field.name] ?? "";
       } else if (defaultValue) {
         quillCurrentRef.current.root.innerHTML = defaultValue || "";
       }
@@ -114,7 +114,7 @@ const Editor = ({ field, defaultValue, oldData }) => {
         name={field.name}
         ref={textareaRef}
         hidden
-        defaultValue={oldData[field.name] || defaultValue || ""}
+        defaultValue={oldData?.[field.name] ?? defaultValue ?? ""}
       ></textarea>
       <div ref={editorRef} style={{ height: "400px" }}></div>
     </>

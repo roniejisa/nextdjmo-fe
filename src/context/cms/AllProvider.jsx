@@ -4,6 +4,7 @@ import QuickCreate from "@/app/(cms)/(has-sidebar)/system/[module]/(context-imag
 import QuestionModal from "@/components/Modal/QuestionModal";
 import { createContext, useContext, useEffect, useState } from "react";
 import { SocketContext } from "../SocketProvider";
+import ImageProvider from "./ImageProvider";
 
 export const AllContext = createContext();
 const AllProvider = ({ children, profile }) => {
@@ -44,9 +45,11 @@ const AllProvider = ({ children, profile }) => {
         setUpdateField,
       }}
     >
-      {children}
-      <QuestionModal />
-      <QuickCreate />
+      <ImageProvider>
+        {children}
+        <QuestionModal />
+        <QuickCreate />
+      </ImageProvider>
     </AllContext.Provider>
   );
 };

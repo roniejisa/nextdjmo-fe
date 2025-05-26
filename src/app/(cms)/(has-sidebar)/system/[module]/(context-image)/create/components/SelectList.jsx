@@ -32,8 +32,8 @@ const SelectList = ({ field, oldData, defaultValue }) => {
   }, []);
 
   useEffect(() => {
-    if (list.length > 0 && oldData[field.name] !== undefined) {
-      setValue(String(oldData[field.name]));
+    if (list.length > 0 && oldData?.[field.name]) {
+      setValue(String(oldData?.[field.name]) ?? "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [list]);

@@ -84,7 +84,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
               <Group key={field.name} field={field}>
                 <Component
                   field={field}
-                  defaultValue={oldData[field.name] || ""}
+                  defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
                   oldData={oldData}
                 />
@@ -100,7 +100,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
               <Group key={field.name} field={field}>
                 <Component
                   field={field}
-                  defaultValue={oldData[field.name] || ""}
+                  defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
                   oldData={oldData}
                 />
@@ -118,7 +118,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
               <Group key={field.name} field={field}>
                 <Component
                   field={field}
-                  defaultValue={oldData[field.name] || ""}
+                  defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
                   oldData={oldData}
                 />

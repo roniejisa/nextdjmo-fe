@@ -130,7 +130,7 @@ const HeaderTable = () => {
   };
 
   return (
-    <div className="flex w-full items-center gap-4 mt-10 mb-4">
+    <div className="flex w-full items-center gap-4 mb-4">
       {nameSearch && (
         <select
           className="max-w-[100px] py-2"

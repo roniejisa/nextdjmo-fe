@@ -92,7 +92,7 @@ export const changePaymentStatus = async (value, _id) => {
 };
 
 export const deleteItems = async (module, ids) => {
-  const token = getToken();
+  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + module,
     {
@@ -107,7 +107,7 @@ export const deleteItems = async (module, ids) => {
 };
 
 export const copyItem = async (module, _id) => {
-  const token = getToken();
+  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + module + "/" + _id,
     {
@@ -121,7 +121,7 @@ export const copyItem = async (module, _id) => {
 
 
 export const changeFieldBool = async (module, field, id, value) => {
-  const token = getToken();
+  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + module + "/change-field-bool",
     {

@@ -104,8 +104,8 @@ const Editor = ({ field, defaultValue, oldData, updateData, itemData }) => {
   }, []);
 
   useEffect(() => {
-    if (oldData && oldData[field.name]) {
-      quillCurrentRef.current.root.innerHTML = oldData[field.name];
+    if (oldData && oldData?.[field.name]) {
+      quillCurrentRef.current.root.innerHTML = oldData?.[field.name];
     } else if (defaultValue) {
       quillCurrentRef.current.root.innerHTML = defaultValue || "";
     }

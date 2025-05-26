@@ -15,3 +15,18 @@ export const getDataStatistic = async (type, time, startTime, endTime) => {
   );
   return response;
 };
+
+export const getCountModule = async (item) => {
+  const token = await getToken();
+  try {
+    const data = await httpClient(
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + item.module + "s/count",
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+    return data.data;
+  } catch (e) {
+    return 0;
+  }
+};

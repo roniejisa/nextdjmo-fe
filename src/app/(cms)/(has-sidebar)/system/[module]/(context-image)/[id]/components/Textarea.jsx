@@ -10,7 +10,7 @@ const Textarea = ({ defaultValue, field, oldData }) => {
   }, [defaultValue]);
   return (
     <textarea
-      defaultValue={defaultValue || oldData[field.name] || ""}
+      defaultValue={defaultValue ?? oldData?.[field.name] ?? ""}
       name={field.name}
       placeholder={field.placeholder}
       className="w-full outline-outline outline-4 transition border rounded-md p-2"

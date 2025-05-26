@@ -5,12 +5,20 @@ import { SocketContext } from "@/context/SocketProvider";
 import { iconSVG } from "@/components/Icon/svg/constants";
 import LinkCustom from "@/packages/translation/Link";
 import CountUp from "@/components/CountUp/CountUp";
+import { getCountModule } from "./action";
 const ItemCount = ({ item, ...props }) => {
   const { socketRef, addTypes, types, sessionIdRef } =
     useContext(SocketContext);
   const [count, setCount] = useState(0);
   const IconComponent = iconSVG[item.icon];
+  
+
   useEffect(() => {
+    getCountModule(item).then(data => {
+      console.log(data)
+      setCount(data)
+    })
+
     setInterval(() => {
       if (socketRef.current && sessionIdRef.current) {
         socketRef.current.sendEncode({

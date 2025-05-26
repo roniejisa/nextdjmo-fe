@@ -11,6 +11,7 @@ import Link from "./Link";
 import Product from "./Product";
 import Setting from "./Setting";
 import Slide from "./Slide";
+import Spider from "./Spider";
 import Video from "./Video";
 
 export const iconSVG = {
@@ -28,4 +29,5 @@ export const iconSVG = {
   album: Album,
   video: Video,
   blog: Blog,
+  spider: Spider
 };

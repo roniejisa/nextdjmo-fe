@@ -13,6 +13,7 @@ import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
 import Language from "./components/buttons/Language";
 import { componentActions, components } from "./components";
 import TabModule from "./Tab";
+import StartTable from "./StartTable";
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
   return await getDataModule(module, limit, page, searchParams);
@@ -93,6 +94,7 @@ const Module = async ({ params, searchParams }) => {
               )}
           </div>
         </div>
+        <StartTable module={moduleMain}/>
         <HeaderTable />
         <div className="w-[calc(100vw-16px*4)] lg:w-[calc(100vw-16px*4-280px-16px*2)] overflow-x-auto">
           <div className="min-w-[1000px] my-table">

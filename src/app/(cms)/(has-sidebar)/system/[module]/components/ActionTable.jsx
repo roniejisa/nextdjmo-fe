@@ -37,7 +37,7 @@ const ActionTable = () => {
       });
       selectAllRef.current.checked = false;
       setShowModalQuestion(false);
-      router.push(urlCurrent, true);
+      router.refresh(urlCurrent);
     }
   };
 

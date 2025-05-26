@@ -333,6 +333,7 @@ const AvatarCanvas = ({
       }
       window.removeEventListener("resize", handleResize);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modelUrl]);
 
   // useEffect thứ hai: theo dõi prop 'action' để chuyển đổi animation khi prop thay đổi
@@ -393,7 +394,7 @@ const AvatarCanvas = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [action]);
 
-  // Hàm di chuyển model vào (có animation)
+// Hàm di chuyển model vào (có animation)
   const moveModelIn = () => {
     if (!modelRef.current) return;
 
@@ -467,6 +468,7 @@ const AvatarCanvas = ({
     if (triggerEnter) {
       moveModelIn();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [triggerEnter]);
 
   // JSX trả về: thẻ div làm container, có ref để gắn canvas của Three.js

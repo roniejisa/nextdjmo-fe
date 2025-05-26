@@ -39,8 +39,8 @@ const Editor = ({ defaultValue, item, field, oldData }) => {
   }, []);
 
   useEffect(() => {
-    if (oldData && oldData[field.name]) {
-      textareaRef.current.value = oldData[field.name];
+    if (oldData && oldData?.[field.name]) {
+      textareaRef.current.value = oldData?.[field.name] ?? ""; 
     } else if (item && item[field.name]) {
       textareaRef.current.value = item[field.name];
     } else if (defaultValue) {
@@ -57,7 +57,7 @@ const Editor = ({ defaultValue, item, field, oldData }) => {
       <textarea
         name={field.name}
         defaultValue={
-          oldData[field.name] ?? item[field.name] ?? defaultValue ?? ""
+          oldData?.[field.name] ?? item?.[field.name] ?? defaultValue ?? ""
         }
         ref={textareaRef}
         hidden

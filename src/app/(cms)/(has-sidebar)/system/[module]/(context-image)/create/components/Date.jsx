@@ -16,8 +16,8 @@ const DateComponent = ({ field, defaultValue, oldData }) => {
   );
 
   useEffect(() => {
-    if (oldData && oldData[field.name]) {
-      const date = new Date(oldData[field.name]);
+    if (oldData && oldData?.[field.name]) {
+      const date = new Date(oldData?.[field.name] ?? "");
       setSelectedDay(date.getDate());
       setSelectedMonth(date.getMonth() + 1);
       setSelectedYear(date.getFullYear());
