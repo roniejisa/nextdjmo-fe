@@ -30,11 +30,15 @@ const AllProvider = ({ children, profile }) => {
       setSessionId(profile.user._id);
       connectSocket();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
   return (
     <AllContext.Provider
       value={{
+        socketRef,
+        typeRef,
+        addTypes,
+        sessionIdRef,
         showModalQuestion,
         setShowModalQuestion,
         modalOptions,

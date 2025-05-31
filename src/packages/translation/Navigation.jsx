@@ -1,15 +1,29 @@
-import { LoadingContext } from ".//LoadingProvider";
+"use client"
+import { LoadingContext } from "./LoadingProvider";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
 
 const useRouterCustom = () => {
   const router = useRouter();
-  const { setTransition, setIsRefresh, currentPathname } =
+  const { setTransition, currentUrl, currentPathname } =
     useContext(LoadingContext);
-  const push = async (path, isRefresh = false) => {
-    if (currentPathname === path && !isRefresh) return;
+
+  // Helper function để tạo full URL
+  const createFullUrl = (path) => {
+    // Nếu path đã có query params, return nguyên
+    if (path.includes('?')) return path;
+    
+    // Nếu chỉ có pathname, return pathname
+    return path;
+  };
+
+  const push = async (path) => {
+    const fullPath = createFullUrl(path);
+    
+    // Kiểm tra nếu URL hoàn toàn giống nhau (bao gồm cả query params)
+    if (currentUrl === fullPath) return;
+    
     setTransition(true);
-    setIsRefresh(isRefresh);
     router.push(path);
   };
 
@@ -23,23 +37,60 @@ const useRouterCustom = () => {
     router.forward();
   };
 
-  const refresh = async () => {
+  const refresh = async (duration = 500) => {
+    setTransition(true);
     router.refresh();
+    // Tắt loading sau thời gian chỉ định
+    setTimeout(() => {
+      setTransition(false);
+    }, duration);
   };
 
-  const replace = async (path, isRefresh = false) => {
+  const replace = async (path) => {
+    const fullPath = createFullUrl(path);
+    
+    if (currentUrl === fullPath) return;
+    
     setTransition(true);
-    setIsRefresh(isRefresh);
-    router.push(path);
+    router.replace(path);
   };
 
-  const prefetch = async (path, isRefresh = false) => {
-    setTransition(true);
-    setIsRefresh(isRefresh);
+  const prefetch = async (path) => {
+    // Prefetch không cần loading
     router.prefetch(path);
   };
 
-  return { push, back, forward, refresh, replace, prefetch };
+  // Helper methods để làm việc với query params
+  const pushWithQuery = async (pathname, queryParams = {}) => {
+    const searchParams = new URLSearchParams(queryParams);
+    const fullPath = searchParams.toString() 
+      ? `${pathname}?${searchParams.toString()}` 
+      : pathname;
+    
+    await push(fullPath);
+  };
+
+  const replaceWithQuery = async (pathname, queryParams = {}) => {
+    const searchParams = new URLSearchParams(queryParams);
+    const fullPath = searchParams.toString() 
+      ? `${pathname}?${searchParams.toString()}` 
+      : pathname;
+    
+    await replace(fullPath);
+  };
+
+  return { 
+    push, 
+    back, 
+    forward, 
+    refresh, 
+    replace, 
+    prefetch,
+    pushWithQuery,
+    replaceWithQuery,
+    currentUrl,
+    currentPathname
+  };
 };
 
 export default useRouterCustom;

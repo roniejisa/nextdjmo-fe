@@ -36,7 +36,7 @@ const CommentProvider = ({ children, type, id }) => {
       const response = await submitReview(body);
       if (response.status == 401) {
         notify.changeNotify("error", response.message);
-        return router.push("/dang-nhap?redirect=" + pathname);
+        return router.pushWithQuery("/dang-nhap", { redirect: pathname });
       } else if (response.status == 200) {
         formRef.current.reset();
         notify.changeNotify("success", response.message);

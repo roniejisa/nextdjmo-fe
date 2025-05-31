@@ -10,7 +10,9 @@ export const SocketProvider = ({ children }) => {
   const onlineRef = useRef(0);
   const typeRef = useRef({
     "update-count": (data) => {
-      onlineRef.current.innerHTML = data.count;
+      if (onlineRef.current) {
+        onlineRef.current.innerHTML = data.count;
+      }
     },
 
     ping: () => {
@@ -37,22 +39,29 @@ export const SocketProvider = ({ children }) => {
     };
 
     socketRef.current.onmessage = (event) => {
-      const { type, data } = JSON.parse(decryptData(event.data));
-      if (
-        typeRef.current &&
-        type &&
-        typeof typeRef.current === "object" &&
-        typeof typeRef.current[type] == "function"
-      ) {
-        typeRef.current[type](data);
+      try {
+        const { type, data } = JSON.parse(decryptData(event.data));
+        if (
+          typeRef.current &&
+          type &&
+          typeof typeRef.current === "object" &&
+          typeof typeRef.current[type] == "function"
+        ) {
+          typeRef.current[type](data);
+        }
+      } catch (error) {
+        console.error("Parse message error:", error);
       }
     };
 
     socketRef.current.onclose = () => {
-      // console.log("Disconnected");
       socketRef.current = null;
       setSocketOn(false);
-      // Thử kết nối lại sau 3 giây
+      // Có thể thêm exponential backoff retry
+
+      setTimeout(() => {
+        if (sessionIdRef.current) connectSocket();
+      }, 3000);
     };
 
     socketRef.current.onerror = (error) => {
@@ -146,15 +155,17 @@ export const SocketProvider = ({ children }) => {
       }}
     >
       {children}
-      {socketOn && <div
-        className="fixed z-[999] bottom-0 right-10 rounded-md rounded-bl-none rounded-br-none border-b-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
-        onClick={handleSend}
-      >
-        Online:{" "}
-        <span className="ml-2" ref={onlineRef}>
-          0
-        </span>
-      </div>}
+      {socketOn && (
+        <div
+          className="fixed z-[999] bottom-0 right-10 rounded-md rounded-bl-none rounded-br-none border-b-0 bg-white border border-blue-700 flex justify-center p-4 cursor-pointer"
+          onClick={handleSend}
+        >
+          Online:{" "}
+          <span className="ml-2" ref={onlineRef}>
+            0
+          </span>
+        </div>
+      )}
     </SocketContext.Provider>
   );
 };

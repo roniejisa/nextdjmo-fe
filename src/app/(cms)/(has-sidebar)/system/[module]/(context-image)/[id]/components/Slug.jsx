@@ -4,14 +4,19 @@ import { checkSlug } from "./action";
 import { toSlug } from "@/utils/client/util";
 import { useNotify } from "@/context/NotifyProvider";
 
-const Slug = ({ field, defaultValue, item }) => {
+const Slug = ({ field, defaultValue, oldData, item, language }) => {
   const slugRef = useRef(null);
   const notify = useNotify();
   const timer = useRef(null);
   const checkChangeInputSlug = async (e) => {
     clearTimeout(timer.current);
     timer.current = setTimeout(async () => {
-      const data = await checkSlug(field.module, toSlug(e.target.value), item._id);
+      const data = await checkSlug(
+        field.module,
+        toSlug(e.target.value),
+        item._id,
+        language
+      );
       if (data.status === 200) {
         slugRef.current.value = toSlug(e.target.value);
         notify.changeNotify("success", data.message);
@@ -21,6 +26,13 @@ const Slug = ({ field, defaultValue, item }) => {
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    if(slugRef.current){
+      slugRef.current.value = defaultValue ?? oldData?.[field.name] ?? "";
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [defaultValue, oldData]);
 
   return (
     <input

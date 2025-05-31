@@ -20,7 +20,8 @@ const TabType = ({ data, name }) => {
       newSeachParams.set(name, tab);
     }
     setSelected(tab);
-    router.push(pathname + "?" + newSeachParams.toString(), true);
+    const paramsObject = Object.fromEntries(newSeachParams)
+    router.pushWithQuery(pathname, paramsObject);
   };
   return (
     <div className="flex justify-between">

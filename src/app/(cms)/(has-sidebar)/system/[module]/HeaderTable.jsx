@@ -48,9 +48,11 @@ const HeaderTable = () => {
   });
 
   const handleSubmit = async (form) => {
-    const stringSearchParams = createStringURL(searchParams, form);
-    router.push(pathname + stringSearchParams, true);
-    router.refresh()
+    const stringSearchParams = createStringURL(searchParams, form, {
+      page:1,
+    });
+    router.push(pathname + stringSearchParams);
+    router.refresh();
   };
 
   const downloadFileExcel = async () => {
@@ -122,9 +124,10 @@ const HeaderTable = () => {
   const handleChangeFilter = (e) => {
     const stringSearchParams = createStringURL(searchParams, [
       [nameSearch, ""],
-    ]);
-    router.push(pathname + stringSearchParams, true);
-
+    ], {
+      page:1
+    });
+    router.push(pathname + stringSearchParams);
     setNameSearch(e.target.value);
     inputSearchRef.current.value = "";
   };

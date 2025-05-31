@@ -30,14 +30,13 @@ const ActionTable = () => {
       response.message
     );
     if (response.status == 200) {
-      // const urlCurrent = window.location.pathname + window.location.search;
       // Reset lại ngay
       setSelectIds((prev) => {
         return [];
       });
       selectAllRef.current.checked = false;
       setShowModalQuestion(false);
-      router.refresh();
+      router.refresh(500);
     }
   };
 

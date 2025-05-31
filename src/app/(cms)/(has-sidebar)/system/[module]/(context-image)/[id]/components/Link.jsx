@@ -3,21 +3,16 @@ import { useEffect, useState } from "react";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
-const groupPrefix = {
-  products: "tac-pham/",
-  authors: "tac-gia/",
-};
-
 const Link = ({ field, defaultValue, item }) => {
   const [value, setValue] = useState(defaultValue || "");
-  const [group, setGroup] = useState("");
+  const [module, setModule] = useState("");
   const [list, setList] = useState([]);
 
-  const getGroupLink = async () => {
+  const getModuleLink = async () => {
     const token = await getToken();
 
     const data = await httpClient(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + `${group}?fields=_id,name,slug`,
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}?fields=_id,name,slug`,
       {
         Authorization: `Bearer ${token}`,
       }
@@ -27,24 +22,27 @@ const Link = ({ field, defaultValue, item }) => {
     }
   };
   useEffect(() => {
-    if (group) {
-      getGroupLink();
+    if (module) {
+      getModuleLink();
     } else {
       setList([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [group]);
+  }, [module]);
 
   useEffect(() => {
     if (item[field.related]) {
-      setGroup(item[field.related]);
+      setModule(item[field.related]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChangeLink = (e) => {
     const slug = list.find((item) => item._id === e.target.value).slug;
-    setValue(`${groupPrefix[group]}${slug}`);
+    const dataModule = field.find((item) => item.value == module);
+    if (dataModule && dataModule?.prefix) {
+      setValue(`${dataModule?.prefix}${slug}`);
+    }
   };
   return (
     <div className="flex gap-2">
@@ -59,8 +57,8 @@ const Link = ({ field, defaultValue, item }) => {
       />
       <select
         name="model"
-        onChange={(e) => setGroup(e.target.value)}
-        defaultValue={group}
+        onChange={(e) => setModule(e.target.value)}
+        defaultValue={module}
       >
         <option value="">-- Chọn danh sách --</option>
         <option value="products">Tác phẩm</option>

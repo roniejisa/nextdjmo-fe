@@ -1,7 +1,8 @@
 "use client";
+
 import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const Tag = ({ value, field }) => {
   const router = useRouterCustom();
@@ -15,15 +16,62 @@ const Tag = ({ value, field }) => {
     }
   });
   const [isInitialRender, setIsInitialRender] = useState(true);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef(null);
+
+  const handleShowDropdown = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const scrollY = window.scrollY;
+      const scrollX = window.scrollX;
+      
+      setDropdownPosition({
+        top: rect.bottom + scrollY + 8, // 8px gap
+        left: rect.left + scrollX
+      });
+    }
+    setShowDropdown(true);
+  };
+
+  const handleHideDropdown = () => {
+    setShowDropdown(false);
+  };
 
   const handleChooseTag = (label) => {
     setSelected((prev) => {
-      if (prev == label) {
+      if (prev === label) {
         return null;
       }
       return label;
     });
+    setShowDropdown(false); // Đóng dropdown sau khi chọn
   };
+
+  // Đóng dropdown khi click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (buttonRef.current && !buttonRef.current.contains(event.target)) {
+        const dropdown = document.getElementById(`dropdown-tag-${field.name}`);
+        if (dropdown && !dropdown.contains(event.target)) {
+          setShowDropdown(false);
+        }
+      }
+    };
+
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('scroll', handleHideDropdown);
+      window.addEventListener('resize', handleHideDropdown);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('scroll', handleHideDropdown);
+      window.removeEventListener('resize', handleHideDropdown);
+    };
+  }, [showDropdown, field.name]);
+
   useEffect(() => {
     if (isInitialRender) {
       setIsInitialRender(false);
@@ -32,65 +80,97 @@ const Tag = ({ value, field }) => {
     let newSeachParams = new URLSearchParams({
       ...Object.fromEntries(searchParams),
     });
-    let url;
     if (selected) {
       newSeachParams.set(field.name, selected);
     } else {
       newSeachParams.delete(field.name);
     }
-    url = `${pathname}${
-      newSeachParams.toString() ? "?" + newSeachParams.toString() : ""
-    }`;
-    router.push(url, true);
+    const paramsObject = Object.fromEntries(newSeachParams);
+    router.pushWithQuery(pathname, paramsObject);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
+
   if (value && Array.isArray(value) && value.length > 0) {
     let indexFirst = value.findIndex((item) => item === selected);
     if (indexFirst === -1) {
       indexFirst = 0;
     }
     const firstTag = value[indexFirst];
+    const remainingItems = value.filter((item) => item !== firstTag);
+
     return (
       <div className="flex flex-wrap gap-2">
+        {/* First tag */}
         <span
-          className={`border border-outline transition ${
+          className={`border border-outline px-3 py-2 transition-all duration-200 cursor-pointer rounded-lg text-sm font-medium ${
             selected === firstTag
-              ? "bg-outline text-white"
-              : "text-outline hover:bg-outline hover:text-white"
-          } p-1 cursor-pointer rounded-lg`}
+              ? "bg-outline text-white shadow-md"
+              : "text-outline hover:bg-outline hover:text-white hover:shadow-md"
+          }`}
           onClick={() => handleChooseTag(firstTag)}
         >
           {firstTag}
         </span>
-        {value.length - 1 > 0 ? (
-          <div className="border border-outline text-outline p-1 rounded-lg group relative">
-            +{value.length - 1}
-            <div className="absolute top-[calc(100%+10px)] shadow-md group-hover:opacity-100 group-hover:visible group-hover:delay-0 delay-300 transition-all opacity-0 invisible right-0 flex gap-2 flex-wrap w-[300px] bg-white p-4 rounded-md z-[888]">
-              {value
-                .filter((item) => item !== firstTag)
-                .map((item, index) => (
-                  <span
-                    key={index}
-                    className={`border border-outline transition ${
-                      selected === item
-                        ? "bg-outline text-white"
-                        : "text-outline hover:bg-outline hover:text-white"
-                    } p-1 cursor-pointer rounded-lg `}
-                    onClick={() => handleChooseTag(item)}
-                  >
-                    {item}
-                  </span>
-                ))}
+
+        {/* More button with dropdown */}
+        {remainingItems.length > 0 && (
+          <>
+            <div
+              ref={buttonRef}
+              className="border border-outline text-outline px-3 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-gray-50 transition-all duration-200"
+              onMouseEnter={handleShowDropdown}
+              onMouseLeave={handleHideDropdown}
+              onClick={handleShowDropdown}
+            >
+              +{remainingItems.length}
             </div>
-          </div>
-        ) : (
-          <></>
+
+            {/* Fixed Dropdown Portal */}
+            {showDropdown && (
+              <div
+                id={`dropdown-tag-${field.name}`}
+                className="fixed z-[9999] transition-all duration-200"
+                style={{
+                  top: `${dropdownPosition.top}px`,
+                  left: `${dropdownPosition.left}px`
+                }}
+                onMouseEnter={() => setShowDropdown(true)}
+                onMouseLeave={handleHideDropdown}
+              >
+                {/* Arrow pointing up */}
+                <div className="absolute -top-2 left-4 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+
+                {/* Dropdown content */}
+                <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-3 min-w-[280px] max-w-[350px]">
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+                    {remainingItems.map((item, index) => (
+                      <span
+                        key={index}
+                        className={`border border-outline px-3 py-2 transition-all duration-200 rounded-lg cursor-pointer text-sm font-medium ${
+                          selected === item
+                            ? "bg-outline text-white shadow-md"
+                            : "text-outline hover:bg-outline hover:text-white hover:shadow-md"
+                        }`}
+                        onClick={() => handleChooseTag(item)}
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     );
   } else {
-    return <div>Không có {field.label}</div>;
+    return (
+      <div className="text-gray-500 text-sm italic">
+        Không có {field.label}
+      </div>
+    );
   }
 };
 
-export default Tag
+export default Tag;

@@ -13,7 +13,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
   const router = useRouterCustom();
   const [oldData, setOldData] = useState({});
   const [isPending, startTransition] = useTransition(false);
-  const isMultiple = moduleStore.language ?? false;
+  const isStoreLanguage = moduleStore.language ?? false;
   const language = searchParams.language;
 
   const handleSubmit = async (form) => {
@@ -21,13 +21,16 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
       const formData = Object.fromEntries(form);
       const data = await handleCreate(module, formData, language);
       if (data.status == 201) {
-        if (isMultiple)
-          router.push(
-            process.env.NEXT_PUBLIC_ADMIN_URL +
-              `${data.data._id}?language=${language}`
+        if (isStoreLanguage) {
+          router.pushWithQuery(
+            process.env.NEXT_PUBLIC_ADMIN_URL + data?.data?._id,
+            {
+              language: language,
+            }
           );
-        router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
-        router.refresh();
+        } else {
+          router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
+        }
         await notify.changeNotify("success", data.message);
         return;
       } else {
@@ -87,6 +90,8 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
                   defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
                   oldData={oldData}
+                  language={language}
+                  isMultipleLanguage={isStoreLanguage}
                 />
               </Group>
             );

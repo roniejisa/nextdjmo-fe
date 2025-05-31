@@ -14,7 +14,8 @@ const TabModule = ({ tab }) => {
       Object.fromEntries(searchParams)
     );
     newSeachParams.set("module", tab);
-    router.push(`${pathname}?${newSeachParams.toString()}`, true);
+    const paramsObject = Object.fromEntries(newSeachParams)
+    router.pushWithQuery(pathname,paramsObject)
   };
   return (
     <div className="ml-10 flex gap-4">

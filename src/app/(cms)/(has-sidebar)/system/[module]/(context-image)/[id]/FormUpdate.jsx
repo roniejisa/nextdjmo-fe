@@ -21,7 +21,7 @@ const FormUpdate = ({
   const [oldData, setOldData] = useState({
     ...item,
   });
-  const isMultiple = moduleStore.language ?? false;
+  const isMultipleLanguage = moduleStore.language ?? false;
   const language = searchParams.language;
   const submitAction = async (form) => {
     startTransition(async () => {
@@ -29,7 +29,6 @@ const FormUpdate = ({
       const data = await handleUpdate(module, item._id, formData, language);
       if (data.status == 200) {
         router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
-        router.refresh(); // Làm mới dữ liệu sau khi chuyển route
         notify.changeNotify("success", data.message);
         return;
       } else {
@@ -95,6 +94,8 @@ const FormUpdate = ({
                   item={item}
                   module={module}
                   profile={profile}
+                  isMultipleLanguage={isMultipleLanguage}
+                  language={language}
                   field={field}
                 />
               </Group>

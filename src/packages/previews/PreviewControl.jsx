@@ -17,7 +17,7 @@ const PreviewControl = () => {
 
       // Reset lại hiệu ứng fade sau một khoảng thời gian (500ms để match với thời gian transition)
       const timer = setTimeout(() => {
-        let url = showImageUrl(images[groupIndexShowRef.current][previewIndex]);
+        let url = showImageUrl(images?.[groupIndexShowRef.current]?.[previewIndex]);
         url = url.replace(/\\/g, "/");
         imageRef.current.style.backgroundImage = `url(${url})`;
         setFadeIn(true);

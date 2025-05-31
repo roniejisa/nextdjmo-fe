@@ -15,8 +15,9 @@ export const getDataParent = async (module, item, field) => {
       one: field.module_label,
       two: field.module_id,
       field: field.name,
-    }
-  ,'post');
+    },
+    "post"
+  );
 };
 export const selectList = async (module, item, field) => {
   const token = await getToken();
@@ -31,19 +32,19 @@ export const selectList = async (module, item, field) => {
       two: field.module_id,
       field: field.name,
     },
-    'post'
+    "post"
   );
 };
 
-export const checkSlug = async (module, slug, id) => {
+export const checkSlug = async (module, slug, id, language) => {
   const token = await getToken();
   return httpClient(
     `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/check-slug`,
     {
       Authorization: `Bearer ${token}`,
     },
-    { module, slug, id },
-    'post'
+    { module, slug, id, language },
+    "post"
   );
 };
 
@@ -54,7 +55,7 @@ export const checkKey = async (module, key, id) => {
     {
       Authorization: `Bearer ${token}`,
     },
-    { module, key, id }
-    ,'post'
+    { module, key, id },
+    "post"
   );
 };

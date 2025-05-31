@@ -18,12 +18,12 @@ const FormFilter = () => {
   const router = useRouterCustom();
   const modalRef = useRef(null);
   const searchForm = async (form) => {
-
     const newSeachParams = new URLSearchParams({
       ...Object.fromEntries(searchParams),
       ...Object.fromEntries(form),
     });
-    router.push(pathname + "?" + newSeachParams.toString(),true);
+    newSeachParams.set("page",1)
+    router.push(pathname + "?" + newSeachParams.toString());
   };
 
   useEffect(() => {

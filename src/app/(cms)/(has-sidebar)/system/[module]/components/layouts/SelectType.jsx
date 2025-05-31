@@ -20,7 +20,8 @@ const SelectType = ({ data, name }) => {
       newSeachParams.set(name, value);
     }
     setSelected(value);
-    router.push(pathname + "?" + newSeachParams.toString(), true);
+    const paramsObject = Object.fromEntries(newSeachParams);
+    router.pushWithQuery(pathname, paramsObject);
   };
   return (
     <div className="flex justify-between">

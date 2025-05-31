@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
+
 const Home = async () => {
-  return <></>;
+  redirect("/system")
 };
 
 export default Home;

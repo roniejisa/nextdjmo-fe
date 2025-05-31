@@ -4,13 +4,13 @@ import { checkSlug } from "./action";
 import { toSlug } from "@/utils/client/util";
 import { useNotify } from "@/context/NotifyProvider";
 
-const Slug = ({ field, defaultValue }) => {
+const Slug = ({ field, defaultValue, language }) => {
   const slugRef = useRef(null);
   const notify = useNotify();
   const checkChangeInputSlug = async (e) => {
     slugRef.current.value = toSlug(e.target.value);
     if(!slugRef.current.value) return
-    const data = await checkSlug(field.module, slugRef.current.value);
+    const data = await checkSlug(field.module, slugRef.current.value, language);
     if (data.status === 200) {
       notify.changeNotify("success", data.message);
     } else {

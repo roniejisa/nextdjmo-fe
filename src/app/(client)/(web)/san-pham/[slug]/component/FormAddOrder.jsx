@@ -76,7 +76,9 @@ const FormAddOrder = () => {
             });
             return notify.changeNotify("success", data.message);
           } else if (data.status == 401) {
-            router.push("/dang-nhap?" + data.searchParams);
+            const params = new URLSearchParams(data.searchParams);
+            const paramsObject = Object.fromEntries(params);
+            router.pushWithQuery("/dang-nhap", paramsObject);
             return notify.changeNotify("error", data.message);
           }
           return notify.changeNotify("error", data.message);

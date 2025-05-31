@@ -1,44 +1,47 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback } from "react";
 
 export const LoadingContext = createContext();
+
 const LoadingProvider = ({ children, fallback }) => {
   const [transition, setTransition] = useState(false);
-  const [isRefresh, setIsRefresh] = useState(false);
-  const [currentPathname, setCurrentPathname] = useState(null);
+  const [currentUrl, setCurrentUrl] = useState(null);
+  
   const pathname = usePathname();
-  useEffect(() => {
-    setCurrentPathname((prev) => {
-      if (prev !== pathname) {
-        setTransition(false);
-        return pathname;
-      }
-      return prev;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  const searchParams = useSearchParams();
 
+  // Tạo URL đầy đủ bao gồm cả pathname và searchParams
+  const fullUrl = useCallback(() => {
+    const params = searchParams.toString();
+    return params ? `${pathname}?${params}` : pathname;
+  }, [pathname, searchParams]);
+
+  // Theo dõi thay đổi URL (bao gồm cả pathname và searchParams)
   useEffect(() => {
-    if (isRefresh) {
-      setTimeout(() => {
+    const newUrl = fullUrl();
+    setCurrentUrl((prevUrl) => {
+      if (prevUrl !== newUrl && prevUrl !== null) {
+        // URL đã thay đổi, tắt loading
         setTransition(false);
-        setIsRefresh(false);
-      }, 1000);
-    }
-  }, [isRefresh]);
+        return newUrl;
+      }
+      // Lần đầu tiên hoặc URL không thay đổi
+      return newUrl;
+    });
+  }, [fullUrl]);
+
   return (
     <LoadingContext.Provider
       value={{
         transition,
         setTransition,
-        currentPathname,
-        setCurrentPathname,
-        setIsRefresh,
+        currentUrl,
+        currentPathname: pathname,
       }}
     >
       {children}
-      {fallback}
+      {transition && fallback}
     </LoadingContext.Provider>
   );
 };

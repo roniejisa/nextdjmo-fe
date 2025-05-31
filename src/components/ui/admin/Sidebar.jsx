@@ -14,6 +14,7 @@ const Sidebar = ({ profile, menus: allMenu }) => {
   if (!profile) {
     return <></>;
   }
+
   const checkActiveMenu = (link, hasChild = false) => {
     if (link === "") {
       if (pathname === process.env.NEXT_PUBLIC_ADMIN_URL.slice(0, -1) + link) {
@@ -21,12 +22,31 @@ const Sidebar = ({ profile, menus: allMenu }) => {
       }
       return "";
     }
+
+    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL;
     const listLink = link.split("|");
-    if (
-      listLink.some((link) => {
-        return pathname.startsWith(process.env.NEXT_PUBLIC_ADMIN_URL + link);
-      })
-    ) {
+
+    // Sort links by length (longest first) to check more specific paths first
+    const sortedLinks = listLink.sort((a, b) => b.length - a.length);
+
+    const isActive = sortedLinks.some((link) => {
+      const fullLink = adminUrl + link;
+
+      // Exact match
+      if (pathname === fullLink) {
+        return true;
+      }
+
+      // Check if pathname starts with the link followed by '/' or query params
+      // This prevents /system/internal-news from matching /system/internal-news-categories
+      return (
+        pathname.startsWith(fullLink + "/") ||
+        pathname.startsWith(fullLink + "?") ||
+        pathname.startsWith(fullLink + "#")
+      );
+    });
+
+    if (isActive) {
       return hasChild
         ? "bg-[#2a85ff1a] text-outline active font-medium"
         : "text-outline font-medium";
@@ -36,11 +56,15 @@ const Sidebar = ({ profile, menus: allMenu }) => {
   };
 
   const checkActiveMenuChild = (link) => {
-    if (pathname.startsWith(process.env.NEXT_PUBLIC_ADMIN_URL + link)) {
-      return "before:bg-outline";
-    } else {
-      return "before:bg-gray-200";
-    }
+    const fullLink = process.env.NEXT_PUBLIC_ADMIN_URL + link;
+
+    const isActive =
+      pathname === fullLink ||
+      pathname.startsWith(fullLink + "/") ||
+      pathname.startsWith(fullLink + "?") ||
+      pathname.startsWith(fullLink + "#");
+
+    return isActive ? "before:bg-outline" : "before:bg-gray-200";
   };
   if (!profile || !profile.permissions) return router.push("/");
   const { permissions } = profile;

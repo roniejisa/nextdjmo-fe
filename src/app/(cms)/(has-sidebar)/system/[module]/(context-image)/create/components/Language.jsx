@@ -12,10 +12,12 @@ const Language = ({ field, module }) => {
   );
   const changeLanguage = async (e) => {
     setLanguage(e.target.value);
-    router.push(
-      process.env.NEXT_PUBLIC_ADMIN_URL +
-        `${module}/create?language=${e.target.value}`
-    ,true);
+    router.pushWithQuery(
+      process.env.NEXT_PUBLIC_ADMIN_URL + `${module}/create`,
+      {
+        language: e.target.value,
+      }
+    );
   };
 
   useEffect(() => {}, []);

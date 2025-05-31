@@ -72,7 +72,7 @@ const RenderCommentChilds = ({ comment, onShow }) => {
     body.id = id;
     const response = await submitReview(body);
     if (response.status == 401) {
-      router.push("/dang-nhap?redirect=" + pathname);
+      router.pushWithQuery("/dang-nhap", { redirect: pathname });
       notify.changeNotify("error", response.message);
     } else if (response.status == 200) {
       notify.changeNotify("success", response.message);
@@ -321,7 +321,7 @@ const CommentContent = () => {
     body.id = id;
     const response = await submitReview(body);
     if (response.status == 401) {
-      router.push("/dang-nhap?redirect=" + pathname);
+      router.pushWithQuery("/dang-nhap", { redirect: pathname });
       notify.changeNotify("error", response.message);
     } else if (response.status == 200) {
       notify.changeNotify("success", response.message);

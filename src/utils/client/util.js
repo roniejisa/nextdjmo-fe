@@ -173,16 +173,24 @@ export function debounce(func, delay = 500) {
   };
 }
 
-export const createStringURL = (searchParams, data) => {
-  let newSearchParams = new URLSearchParams(searchParams);
-  for (const [key, value] of [...data]) {
-    if (value == "") {
-      newSearchParams.delete(key);
-    } else {
-      newSearchParams.set(key, value);
+export const createStringURL = (searchParams, data, defaultParams = { page: 1, limit: 20 }) => {
+    let newSearchParams = new URLSearchParams(searchParams);
+    
+    // Xử lý data từ form
+    for (const [key, value] of [...data]) {
+        if (value == "") {
+            newSearchParams.delete(key);
+        } else {
+            newSearchParams.set(key, value);
+        }
     }
-  }
-  return newSearchParams.toString() ? `?${newSearchParams.toString()}` : "";
+    
+    // Thêm các tham số mặc định
+    for (const [key, value] of Object.entries(defaultParams)) {
+        newSearchParams.set(key, value);
+    }
+    
+    return newSearchParams.toString() ? `?${newSearchParams.toString()}` : "";
 };
 
 export function formatTime(date, type = "default") {

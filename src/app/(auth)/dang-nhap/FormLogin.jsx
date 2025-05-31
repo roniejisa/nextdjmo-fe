@@ -24,7 +24,7 @@ const FormLogin = ({ msg, redirect }) => {
           customerRef.current = response.data.customer_id;
           setShowModalOTP(true);
         } else if (redirect) {
-          router.push(redirect, true);
+          router.push(redirect);
         } else {
           router.push("/system");
         }
