@@ -1,6 +1,6 @@
 import ImageCustom from "@/components/Maintain/Image";
 import { ProductContext } from "@/context/client/ProductProvider";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 const ImagePreview = () => {

@@ -1,7 +1,7 @@
 "use client";
 import ImageCustom from "@/components/Maintain/Image";
 import LinkCustom from "@/packages/translation/Link";
-import { formatTime, showImageUrl } from "@/utils/client/util";
+import { formatTime, showImageUrl } from "@/utils/client";
 import React from "react";
 
 const SlideMultipleItem = ({ item, onClick }) => {

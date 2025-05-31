@@ -1,7 +1,7 @@
 "use client";
 
 import TrueOrFalseIcon from "@/components/Icon/TrueOrFalseIcon";
-import { isValidEmail } from "@/utils/client/validate";
+import { isValidEmail } from "@/utils/client";
 import { useState } from "react";
 
 const Email = ({ field, defaultValue }) => {

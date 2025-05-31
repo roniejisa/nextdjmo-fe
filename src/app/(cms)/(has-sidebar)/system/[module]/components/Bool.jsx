@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import style from "./Bool.module.scss";
 import { changeFieldBool } from "../actions";
 import { useNotify } from "@/context/NotifyProvider";

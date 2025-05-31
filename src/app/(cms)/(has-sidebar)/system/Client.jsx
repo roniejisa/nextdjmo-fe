@@ -1,7 +1,7 @@
 "use client";
 import ItemCount from "@/components/ui/admin/statistics/ItemCount";
 import OrderChart from "@/components/ui/admin/statistics/OrderChart";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import { useEffect, useState } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import HistoryTab from "./HistoryTab";

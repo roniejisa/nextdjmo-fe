@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { SocketContext } from "@/context/SocketProvider";
 import { useMessage } from "@/hooks/useMessage";
-import { formatTime } from "@/utils/client/util";
+import { formatTime } from "@/utils/client";
 import ImageCustom from "@/components/Maintain/Image";
 
 // Component render 1 tin nhắn

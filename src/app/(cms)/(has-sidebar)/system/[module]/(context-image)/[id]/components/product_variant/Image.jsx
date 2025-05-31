@@ -1,7 +1,7 @@
 "use client";
 import { GalleryContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import ImageCustom from "@/components/Maintain/Image";
 
 const ImageComponent = ({

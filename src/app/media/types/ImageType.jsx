@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { convertSize, showImageUrl } from "@/utils/client/util";
+import { convertSize, showImageUrl } from "@/utils/client";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
 import Image from "next/image";

@@ -1,4 +1,4 @@
-import { convertSize, showImageUrl } from "@/utils/client/util";
+import { convertSize, showImageUrl } from "@/utils/client";
 import React, { useEffect, useRef } from "react";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";

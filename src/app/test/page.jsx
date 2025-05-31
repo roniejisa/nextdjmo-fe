@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadFileResumable } from "@/utils/client/util";
+import { uploadFileResumable } from "@/utils/client";
 
 const page = () => {
   const handleUploadFile = async (e) => {

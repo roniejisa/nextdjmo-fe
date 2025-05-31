@@ -3,7 +3,7 @@
 import MouseEffect from "@/components/Mouse/MouseEffect";
 import PreviewItem from "@/packages/previews/PreviewItem";
 import { PreviewContext } from "@/packages/previews/PreviewProvider";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import Image from "next/image";
 import { useContext } from "react";
 

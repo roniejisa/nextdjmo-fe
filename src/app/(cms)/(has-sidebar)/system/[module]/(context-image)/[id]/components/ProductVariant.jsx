@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import ImageComponent from "./product_variant/Image";
-import { makeId } from "@/utils/client/util";
+import { makeId } from "@/utils/client";
 import {
   generateCombinations,
   generateKey,
   sortData,
-} from "@/utils/client/variant";
+} from "@/utils/client";
 import MinusIcon from "@/components/Icon/svg/MinusIcon";
 import PlusIcon from "@/components/Icon/svg/PlusIcon";
 import TrashIcon from "@/components/Icon/svg/TrashIcon";

@@ -2,7 +2,7 @@
 
 import { ClientContext } from "@/context/client/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import { useContext, useRef, useTransition } from "react";
 import { deleteItemInDraftOrder, updateItemInDraftOrder } from "./action";
 import { useNotify } from "@/context/NotifyProvider";

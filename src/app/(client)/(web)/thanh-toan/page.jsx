@@ -2,7 +2,7 @@
 
 import { ClientContext } from "@/context/client/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import { useContext } from "react";
 import FormOrder from "./FormOrder";
 import ImageCustom from "@/components/Maintain/Image";

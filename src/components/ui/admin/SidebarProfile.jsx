@@ -1,6 +1,6 @@
 import LinkCustom from "@/packages/translation/Link";
 import MenuProfile from "./MenuProfile";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import ImageCustom from "@/components/Maintain/Image";
 
 const SidebarProfile = ({profile}) => {

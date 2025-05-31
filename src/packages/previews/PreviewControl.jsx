@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useEffect, useRef, useState } from "react";
 import { PreviewContext } from "./PreviewProvider";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import ImageCustom from "@/components/Maintain/Image";
 
 const PreviewControl = () => {

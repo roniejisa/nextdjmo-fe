@@ -1,6 +1,6 @@
 "use client";
 
-import { isValidPhone } from "@/utils/client/validate";
+import { isValidPhone } from "@/utils/client";
 import { useRef, useState } from "react";
 
 const Phone = ({ field, defaultValue }) => {

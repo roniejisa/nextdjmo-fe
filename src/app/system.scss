@@ -1,8 +1,11 @@
+/* Base form styles - giữ nguyên structure */
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
   @apply w-full outline-outline outline-4 transition border rounded-md;
 }
+
+/* CSS Variables - chỉ thêm một số biến mới, giữ nguyên cũ */
 :root {
   --background: #f6f9ff;
   --foreground: #434656;
@@ -15,6 +18,11 @@ textarea {
   --active-light: #e4f0fd;
   --danger: #f3456d;
   --color-table: #e5e7eb;
+  /* Thêm một số biến mới */
+  --shadow-light: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --border-radius: 8px;
+  --transition: all 0.2s ease-in-out;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,67 +32,92 @@ textarea {
   }
 }
 
-
-
+/* Checkbox/Radio - giữ nguyên */
 input[type="checkbox"]:checked,
 input[type="radio"]:checked {
   accent-color: var(--outline);
   border: 1px solid var(--outline);
 }
 
+/* Body - giữ nguyên */
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-inter);
 }
 
+/* Cải thiện table styles - giữ nguyên cấu trúc .my-table .my-columns */
 .my-table {
-  .my-columns {
+  /* Thêm styling cho container */
+  background: var(--main);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  border: 1px solid var(--color-table);
+}
+
+.my-table .my-columns {
+  transition: var(--transition);
+
+  > div {
+    border-bottom: 1px solid var(--color-table);
+    /* Cải thiện padding */
+    padding: 12px 8px;
+    transition: var(--transition);
+  }
+
+  /* Header row - giữ nguyên logic */
+  &:nth-child(1) {
+    background: var(--light);
+    font-weight: bold;
+
     > div {
-      border-bottom: 1px solid var(--color-table);
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.875rem;
     }
-    &:nth-child(1) {
-      font-weight: bold;
-    }
-    &:last-of-type {
-      > div {
-        border-bottom: none;
-      }
-    }
+  }
+
+  /* Data rows - thêm hover effect nhẹ */
+  &:not(:nth-child(1)):hover {
+    background-color: rgba(42, 133, 255, 0.02);
+  }
+
+  /* Last row - giữ nguyên */
+  &:last-of-type > div {
+    border-bottom: none;
   }
 }
 
-/* Thanh cuộn ngang và dọc */
+/* Scrollbar - giữ nguyên nhưng cải thiện màu sắc */
 ::-webkit-scrollbar {
-  width: 10px; /* Độ rộng thanh cuộn dọc */
-  height: 10px; /* Độ cao thanh cuộn ngang */
+  width: 10px;
+  height: 10px;
 }
 
-/* Đường dẫn cuộn (background của thanh cuộn) */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Màu nền track */
-  border-radius: 1rem; /* Bo góc */
+  background: #f1f1f1;
+  border-radius: 1rem;
 }
 
-/* Thanh cuộn chính */
 ::-webkit-scrollbar-thumb {
-  background: #888; /* Màu của thanh cuộn */
-  border-radius: 1rem; /* Bo góc */
+  background: #c1c1c1;
+  border-radius: 1rem;
+  transition: background 0.2s ease;
 }
 
-/* Hover vào thanh cuộn */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; /* Đổi màu khi hover */
+  background: #a1a1a1;
 }
 
-/* Thanh cuộn khi disabled hoặc không hoạt động */
 ::-webkit-scrollbar-thumb:disabled {
-  background: #ccc; /* Màu khi không hoạt động */
+  background: #ccc;
 }
 
+/* Menu sidebar - giữ nguyên hoàn toàn */
 .menu-sidebar {
   .menu-sub {
-    li{
+    li {
       padding-left: 32px;
     }
     overflow: hidden;
@@ -93,7 +126,7 @@ body {
   }
   &:has(input:checked) {
     label {
-      span+svg {
+      span + svg {
         transform: rotate(-180deg);
       }
     }
@@ -103,6 +136,7 @@ body {
   }
 }
 
+/* Permission field - giữ nguyên */
 .permission-field {
   label {
     display: block;
@@ -123,31 +157,35 @@ body {
   }
 }
 
+/* Icons - giữ nguyên */
 .fill-neutral {
   stroke: white;
   fill: white;
 }
 
-.tui-image-editor-container{
+/* Image editor - giữ nguyên */
+.tui-image-editor-container {
   height: calc(100vh - 40px * 2 - 56px) !important;
 }
 
-svg:has(#tui-image-editor-svg-default-icons){
+svg:has(#tui-image-editor-svg-default-icons) {
   position: fixed;
   z-index: 0;
   height: 0;
   width: 0;
 }
 
+/* Markdown - giữ nguyên */
 .markdown-content pre {
-  white-space: pre-wrap; /* Cho phép xuống dòng nếu cần */
-  word-break: break-word; /* Cắt từ khi quá dài */
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .markdown-content {
   font-size: 16px;
 }
 
+/* Animation - giữ nguyên */
 .fade-in-text {
   opacity: 0;
   animation: fadeInText 0.8s ease forwards;
@@ -162,4 +200,11 @@ svg:has(#tui-image-editor-svg-default-icons){
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Cải thiện spacing cho action buttons */
+.my-table .my-columns > div:last-child {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
 }

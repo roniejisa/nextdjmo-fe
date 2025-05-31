@@ -3,7 +3,7 @@ import ImageCustom from "@/components/Maintain/Image";
 import { ClientContext } from "@/context/client/ClientProvider";
 import LinkCustom from "@/packages/translation/Link";
 import useRouterCustom from "@/packages/translation/Navigation";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import { useContext, useRef, useState } from "react";
 
 const RightMenu = () => {

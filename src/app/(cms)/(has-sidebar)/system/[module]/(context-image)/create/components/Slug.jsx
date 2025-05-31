@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { checkSlug } from "./action";
-import { toSlug } from "@/utils/client/util";
+import { toSlug } from "@/utils/client";
 import { useNotify } from "@/context/NotifyProvider";
 
 const Slug = ({ field, defaultValue, language }) => {

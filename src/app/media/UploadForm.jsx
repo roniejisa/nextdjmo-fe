@@ -4,7 +4,7 @@ import {
   CHUNK_SIZE,
   convertSize,
   uploadFileResumable,
-} from "@/utils/client/util";
+} from "@/utils/client";
 import { useContext, useRef, useState, useTransition } from "react";
 import { MediaContext, useMedia } from "./MediaProvider";
 import { useNotify } from "@/context/NotifyProvider";

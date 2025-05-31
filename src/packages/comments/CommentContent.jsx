@@ -6,7 +6,7 @@ import StarIcon from "./StarIcon";
 import { getDataComment, submitReview } from "./action";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import ImageCustom from "@/components/Maintain/Image";
-import { formatTimeComment, showImageUrl } from "@/utils/client/util";
+import { formatTimeComment, showImageUrl } from "@/utils/client";
 import Send from "@/components/Icon/svg/Send";
 import useRouterCustom from "../translation/Navigation";
 import { useNotify } from "@/context/NotifyProvider";

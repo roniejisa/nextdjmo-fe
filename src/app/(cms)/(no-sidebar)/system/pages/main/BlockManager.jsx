@@ -3,7 +3,7 @@
 import { useContext, useEffect } from "react";
 import { BuilderContext } from "../providers/BuilderProvider";
 import { httpClient } from "@/utils/http";
-import { makeId, showImageUrl, toSlug } from "@/utils/client/util";
+import { makeId, showImageUrl, toSlug } from "@/utils/client";
 
 const addLabelForBlock = (name, icon) => {
   return `<div>

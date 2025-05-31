@@ -3,7 +3,7 @@
 import { useContext, useEffect, useState } from "react";
 import Variant from "./Variant";
 import { ProductContext } from "@/context/client/ProductProvider";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import FormAddOrder from "./FormAddOrder";
 import ImageCustom from "@/components/Maintain/Image";
 import ImagePreview from "./ImagePreview";

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import { getProfile } from "../../[module]/actions";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import Form from "./Form";
 import OrderProvider from "@/context/cms/OrderProvider";
 import OrderStatus from "./components/OrderStatus";

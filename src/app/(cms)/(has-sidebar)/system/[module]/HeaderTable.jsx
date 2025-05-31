@@ -11,7 +11,7 @@ import SearchIcon from "@/components/Icon/svg/Search";
 import { useNotify } from "@/context/NotifyProvider";
 import Upload from "@/components/Icon/svg/Upload";
 import TooltipText from "@/components/Tooltip/Text";
-import { createStringURL } from "@/utils/client/util";
+import { createQueryString } from "@/utils/client";
 
 const HeaderTable = () => {
   const { module, user, selectIds, fields } = useContext(ModuleContext);
@@ -48,7 +48,7 @@ const HeaderTable = () => {
   });
 
   const handleSubmit = async (form) => {
-    const stringSearchParams = createStringURL(searchParams, form, {
+    const stringSearchParams = createQueryString(searchParams, form, {
       page:1,
     });
     router.push(pathname + stringSearchParams);
@@ -122,7 +122,7 @@ const HeaderTable = () => {
   };
 
   const handleChangeFilter = (e) => {
-    const stringSearchParams = createStringURL(searchParams, [
+    const stringSearchParams = createQueryString(searchParams, [
       [nameSearch, ""],
     ], {
       page:1

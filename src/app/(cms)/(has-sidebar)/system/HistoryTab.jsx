@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { getDataHistory } from "./action";
 import ImageCustom from "@/components/Maintain/Image";
-import { showImageUrl } from "@/utils/client/util";
-import { cfl } from "@/utils/client/text";
+import { showImageUrl } from "@/utils/client";
+import { cfl } from "@/utils/client";
 
 const HistoryTab = () => {
   const [email, setEmail] = useState("");

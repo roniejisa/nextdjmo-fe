@@ -1,7 +1,7 @@
 "use client";
 
 import ImageCustom from "@/components/Maintain/Image";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 
 const ImageList = ({ value, item }) => {
   let listImage = [];

@@ -1,7 +1,7 @@
 "use client";
 import { useRef } from "react";
 import { checkKey } from "./action";
-import { toSlug } from "@/utils/client/util";
+import { toSlug } from "@/utils/client";
 import { useNotify } from "@/context/NotifyProvider";
 
 const Key = ({ field, defaultValue }) => {

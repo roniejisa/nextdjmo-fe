@@ -1,6 +1,6 @@
 "use client";
 import ImageCustom from "@/components/Maintain/Image";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import { useEffect, useRef } from "react";
 
 const ImageComponent = ({ value, item, field }) => {

@@ -1,6 +1,6 @@
 import LinkCustom from "@/packages/translation/Link";
 import { getLogo } from "./Header";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import FormReceive from "./FormReceive";
 import { httpClient } from "@/utils/http";
 import ImageCustom from "@/components/Maintain/Image";

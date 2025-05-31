@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React, { useRef } from "react";
-import { convertSize, showImageUrl } from "@/utils/client/util";
+import { convertSize, showImageUrl } from "@/utils/client";
 import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
 import File from "@/components/Icon/svg/File";

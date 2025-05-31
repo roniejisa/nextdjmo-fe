@@ -1,7 +1,7 @@
 import LinkCustom from "@/packages/translation/Link";
 import React from "react";
 import RightMenu from "./RightMenu";
-import { showImageUrl } from "@/utils/client/util";
+import { showImageUrl } from "@/utils/client";
 import { httpClient } from "@/utils/http";
 import ImageCustom from "@/components/Maintain/Image";
 import HeaderClient from "@/components/Header/HeaderClient";
