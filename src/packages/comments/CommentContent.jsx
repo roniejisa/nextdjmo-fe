@@ -3,28 +3,174 @@
 import { useContext, useEffect, useRef, useState, useTransition } from "react";
 import { CommentContext } from "./CommentProvider";
 import StarIcon from "./StarIcon";
-import { getDataComment, submitReview } from "./action";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import ImageCustom from "@/components/Maintain/Image";
-import { formatTimeComment, showImageUrl } from "@/utils/client";
+import { formatTimeComment, showImageUrl } from "@/utils/client/util";
 import Send from "@/components/Icon/svg/Send";
-import useRouterCustom from "../translation/Navigation";
-import { useNotify } from "@/context/NotifyProvider";
-import { usePathname } from "next/navigation";
+import { useCommentActions } from "./hooks/useCommentActions";
+import { useCommentState } from "./hooks/useCommentState";
+import { ReactionButton } from "./ReactionButton";
+import "./comment.scss"
+// Component UI chung cho comment
+const CommentItem = ({
+  comment,
+  isRoot = false,
+  onToggleReplication,
+  onSubmitReply,
+  showVerticalLine = false,
+}) => {
+  const [reactions, setReactions] = useState({});
+  const handleReaction = (commentId, reactionType) => {
+    setReactions((prev) => ({
+      ...prev,
+      [commentId]: reactionType,
+    }));
+  };
 
-const RenderCommentChilds = ({ comment, onShow }) => {
-  const { showModel, setShowModel, type, id } = useContext(CommentContext);
-  const [commentData, setCommentData] = useState(comment);
-  const [commentsChilds, setCommentsChilds] = useState(
-    comment?.childs?.items || []
+  return (
+    <div className="flex gap-2 relative">
+      {/* Avatar và đường kẻ dọc */}
+      <div className="relative">
+        <span className="relative w-8 h-8 block">
+          <ImageCustom
+            src={showImageUrl(comment?.customer?.avatar)}
+            alt={comment?.customer?.last_name}
+            fill={true}
+            className="rounded-full"
+          />
+        </span>
+        {showVerticalLine && (
+          <div className="w-[2px] bg-gray-200 h-[calc(100%-32px)] absolute top-[32px] left-1/2 -translate-x-1/2"></div>
+        )}
+      </div>
+
+      {/* Nội dung comment */}
+      <div className="relative">
+        <div className="bg-gray-100 p-2 rounded-xl mb-2">
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="font-medium">{comment?.customer?.last_name}</span>
+            {isRoot && <StarIcon percent={comment.rating * 20} size="16" />}
+          </div>
+          <div>{comment.content}</div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex text-sm gap-4">
+          <span>{formatTimeComment(comment.comment_at)}</span>
+          <ReactionButton
+            onReaction={(reaction) => handleReaction(comment._id, reaction)}
+            currentReaction={comment?.userReaction} // reaction hiện tại của user
+            reactionCount={comment?.reactionCount} // tổng số reactions
+          />
+          <button onClick={() => onToggleReplication(comment._id)}>
+            Phản hồi
+          </button>
+        </div>
+      </div>
+    </div>
   );
-  const [isPending, startTransition] = useTransition();
-  const [total, setTotal] = useState(comment?.childs?.total || 0);
-  const [page, setPage] = useState(1);
-  const router = useRouterCustom();
-  const notify = useNotify();
-  const pathname = usePathname();
-  const [focusComment, setFocusComment] = useState(null);
+};
+
+// Component form trả lời chung
+const ReplyForm = ({ comment, onSubmit, placeholder }) => {
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault(); // Ngăn xuống dòng
+      // Trigger form submit
+      e.target.closest("form").requestSubmit();
+    }
+    // Shift+Enter sẽ tự động xuống dòng (behavior mặc định)
+  };
+
+  return (
+    <div className="pt-2 pl-10 relative before:w-6 before:h-[calc(100%/2+4px)] before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0">
+      <form
+        action={async (form) => {
+          const body = Object.fromEntries(form);
+          body.comment_id = comment._id;
+          onSubmit(body);
+        }}
+        className="flex items-center bg-gray-100 p-2 rounded-xl"
+      >
+        <textarea
+          id={comment._id}
+          name="content"
+          className="w-full bg-transparent outline-none appearance-none resize-none"
+          placeholder={placeholder || `Trả lời ${comment?.customer?.last_name}`}
+          onKeyDown={handleKeyDown}
+        />
+        <button className="text-active">
+          <Send />
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// Component loading chung
+const LoadingSection = () => (
+  <>
+    <div className="mb-2">
+      <Skeleton width="30%" className="mb-2" height="24px" />
+      <Skeleton width="70%" className="mb-2" height="50px" />
+    </div>
+    <div>
+      <Skeleton width="30%" className="mb-2" height="24px" />
+      <Skeleton width="70%" className="mb-2" height="50px" />
+    </div>
+  </>
+);
+
+// Component hiển thị comment con đã được tối ưu
+const RenderCommentChilds = ({ comment, onShow }) => {
+  const { loadComments } = useCommentActions();
+  const {
+    comments: commentsChilds,
+    setComments: setCommentsChilds,
+    total,
+    page,
+    setPage,
+    focusComment,
+    isPending,
+    startTransition,
+    toggleReplication,
+    addNewComments,
+  } = useCommentState(
+    comment?.childs?.items || [],
+    comment?.childs?.total || 0
+  );
+
+  const [commentData, setCommentData] = useState(comment);
+  const { handleSubmitReply } = useCommentActions();
+
+  // Focus effect
+  useEffect(() => {
+    if (focusComment) {
+      const element = document.getElementById(`${focusComment}`);
+      element?.focus();
+    }
+  }, [focusComment]);
+
+  // Load more comments effect
+  useEffect(() => {
+    if (page <= 1) return;
+
+    const getComment = async () => {
+      const response = await loadComments({
+        comment_id: commentData._id,
+        page,
+      });
+
+      if (response.status === 200) {
+        addNewComments(response.data.comments, response.data.total);
+      }
+    };
+
+    startTransition(async () => {
+      await getComment();
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page]);
 
   const handleShowCommentChild = () => {
     onShow(comment._id);
@@ -34,192 +180,58 @@ const RenderCommentChilds = ({ comment, onShow }) => {
     });
   };
 
-  const handleShowReplication = (comment_id) => {
-    setCommentsChilds((prev) => {
-      return prev.map((commentItem) => {
-        if (commentItem._id === comment_id) {
-          return {
-            ...commentItem,
-            showReplication: !commentItem.showReplication,
-          };
-        }
-        return commentItem;
-      });
-    });
-
-    commentsChilds.forEach((comment) => {
-      if (comment._id === comment_id) {
-        if (!comment.showReplication) {
-          setFocusComment(comment_id);
-        } else {
-          setFocusComment(null);
-        }
-      }
-    });
+  const shouldShowVerticalLine = (index) => {
+    return index < commentsChilds.length - 1 || total > commentsChilds?.length;
   };
 
-  useEffect(() => {
-    if (focusComment) {
-      const item = document.getElementById(`${focusComment}`);
-      if (item) {
-        item.focus();
-      }
-    }
-  }, [focusComment]);
+  const getCommentClasses = (index) => {
+    const baseClasses =
+      "pl-10 relative pt-2 before:w-6 before:h-6 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0";
+    const lineClasses =
+      "after:w-[2px] after:h-full after:content-[''] after:top-0 after:left-[15px] after:absolute after:bg-gray-200";
 
-  const handleSubmitReplication = async (body) => {
-    body.type = type;
-    body.id = id;
-    const response = await submitReview(body);
-    if (response.status == 401) {
-      router.pushWithQuery("/dang-nhap", { redirect: pathname });
-      notify.changeNotify("error", response.message);
-    } else if (response.status == 200) {
-      notify.changeNotify("success", response.message);
-    }
+    return `${baseClasses} ${shouldShowVerticalLine(index) ? lineClasses : ""}`;
   };
 
-  const showChild = (comment_id) => {
-    setCommentsChilds((prev) => {
-      return prev.map((comment) => {
-        if (comment._id === comment_id) {
-          return {
-            ...comment,
-            showChild: true,
-          };
-        }
-        return comment;
-      });
-    });
-  };
-
-  useEffect(() => {
-    if (page <= 1) return;
-    const getComment = async () => {
-      const response = await getDataComment({
-        comment_id: commentData._id,
-        type,
-        id,
-        page,
-      });
-      if (response.status == 200) {
-        setTotal(response.data.total);
-        setCommentsChilds((prev) => {
-          const newComments = response.data.comments.filter((item) => {
-            return !prev.some((comment) => {
-              return comment._id === item._id;
-            });
-          });
-          return [...prev, ...newComments];
-        });
-      }
-    };
-    startTransition(async () => {
-      await getComment();
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
   return (
     <div>
       {commentData.showComment ? (
         <>
-          {commentsChilds?.map((comment, index) => {
-            return (
-              <div
-                key={comment._id}
-                className={`pl-10 relative pt-2 before:w-6 before:h-6 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0 ${
-                  index < commentsChilds.length - 1 ||
-                  total > commentsChilds?.length
-                    ? "after:w-[2px] after:h-full after:content-[''] after:top-0 after:left-[15px] after:absolute after:bg-gray-200"
-                    : ""
-                } `}
-              >
-                <div className="">
-                  <div className="flex gap-2 relative">
-                    <div className="relative">
-                      <span className="relative w-8 h-8 block">
-                        <ImageCustom
-                          src={showImageUrl(comment?.customer?.avatar)}
-                          alt={comment?.customer?.last_name}
-                          fill={true}
-                          className="rounded-full"
-                        />
-                      </span>
-                      {(comment?.childs?.total > 0 ||
-                        comment?.showReplication) && (
-                        <div className="w-[2px] bg-gray-200 h-[calc(100%-32px)] absolute top-[32px] left-1/2 -translate-x-1/2"></div>
-                      )}
-                    </div>
-                    <div className={`relative`}>
-                      <div className="bg-gray-100 p-2 rounded-xl mb-2">
-                        <div className="flex items-center flex-wrap gap-2">
-                          <span className="font-medium">
-                            {comment?.customer?.last_name}
-                          </span>
-                        </div>
-                        <div>{comment.content}</div>
-                      </div>
-                      <div className="">
-                        <div className="flex text-sm gap-4">
-                          <span>{formatTimeComment(comment.comment_at)}</span>
-                          <button>Thích</button>
-                          <button
-                            onClick={() => handleShowReplication(comment._id)}
-                          >
-                            Phản hồi
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          {commentsChilds?.map((childComment, index) => (
+            <div key={childComment._id} className={getCommentClasses(index)}>
+              <CommentItem
+                comment={childComment}
+                onToggleReplication={toggleReplication}
+                onSubmitReply={handleSubmitReply}
+                showVerticalLine={
+                  childComment?.childs?.total > 0 ||
+                  childComment?.showReplication
+                }
+              />
 
-                {comment?.childs.total > 0 ? (
-                  <div className="relative">
-                    {comment?.showReplication && (
-                      <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
-                    )}
-                    <RenderCommentChilds comment={comment} onShow={showChild} />
-                  </div>
-                ) : (
-                  ""
-                )}
-                {comment?.showReplication && (
-                  <div className="pt-2 pl-10 relative before:w-6 before:h-[calc(100%/2+4px)] before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0">
-                    <form
-                      action={async (form) => {
-                        const body = Object.fromEntries(form);
-                        body.comment_id = comment._id;
-                        handleSubmitReplication(body);
-                      }}
-                      className="flex items-center bg-gray-100 p-2 rounded-xl"
-                    >
-                      <textarea
-                        id={comment._id}
-                        name="content"
-                        className="w-full bg-transparent outline-none appearance-none resize-none"
-                        placeholder={`Trả lời ${comment?.customer?.last_name}`}
-                      ></textarea>
-                      <button className="text-active">
-                        <Send />
-                      </button>
-                    </form>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              {/* Render comment con của comment con (đệ quy) */}
+              {childComment?.childs.total > 0 && (
+                <div className="relative">
+                  {childComment?.showReplication && (
+                    <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
+                  )}
+                  <RenderCommentChilds comment={childComment} onShow={onShow} />
+                </div>
+              )}
+
+              {/* Form trả lời */}
+              {childComment?.showReplication && (
+                <ReplyForm
+                  comment={childComment}
+                  onSubmit={handleSubmitReply}
+                />
+              )}
+            </div>
+          ))}
+
+          {/* Loading hoặc load more */}
           {isPending ? (
-            <>
-              <div className="mb-2">
-                <Skeleton width="30%" className="mb-2" height="24px" />
-                <Skeleton width="70%" className="mb-2" height="50px" />
-              </div>
-              <div>
-                <Skeleton width="30%" className="mb-2" height="24px" />
-                <Skeleton width="70%" className="mb-2" height="50px" />
-              </div>
-            </>
+            <LoadingSection />
           ) : (
             total > commentsChilds?.length && (
               <button
@@ -246,104 +258,51 @@ const RenderCommentChilds = ({ comment, onShow }) => {
     </div>
   );
 };
-const CommentContent = () => {
-  const { showModel, setShowModel, type, id } = useContext(CommentContext);
-  const [isPending, startTransition] = useTransition();
-  const [comments, setComments] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const router = useRouterCustom();
-  const notify = useNotify();
-  const pathname = usePathname();
-  const [focusComment, setFocusComment] = useState(null);
 
+// Component chính đã được tối ưu
+const CommentContent = () => {
+  const { setShowModel } = useContext(CommentContext);
+  const { loadComments, handleSubmitReply } = useCommentActions();
+  const {
+    comments,
+    total,
+    page,
+    setPage,
+    focusComment,
+    isPending,
+    startTransition,
+    toggleReplication,
+    showChild,
+    addNewComments,
+  } = useCommentState();
+
+  // Load comments effect
   useEffect(() => {
     const getComment = async () => {
-      const response = await getDataComment({
-        type,
-        id,
-        page,
-      });
+      const response = await loadComments({ page });
 
-      if (response.status == 200) {
-        setTotal(response.data.total);
-        setComments((prev) => {
-          const newComments = response.data.comments.filter((item) => {
-            return !prev.some((comment) => {
-              return comment._id === item._id;
-            });
-          });
-          return [...prev, ...newComments];
-        });
+      if (response.status === 200) {
+        addNewComments(response.data.comments, response.data.total);
       }
     };
+
     startTransition(async () => {
       await getComment();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const handleShowReplication = (comment_id) => {
-    setComments((prev) => {
-      return prev.map((comment) => {
-        if (comment._id === comment_id) {
-          return {
-            ...comment,
-            showReplication: !comment.showReplication,
-          };
-        }
-        return comment;
-      });
-    });
-
-    comments.forEach((comment) => {
-      if (comment._id === comment_id) {
-        if (!comment.showReplication) {
-          setFocusComment(comment_id);
-        } else {
-          setFocusComment(null);
-        }
-      }
-    });
-  };
-
+  // Focus effect
   useEffect(() => {
     if (focusComment) {
-      const item = document.getElementById(`${focusComment}`);
-      if (item) {
-        item.focus();
-      }
+      const element = document.getElementById(`${focusComment}`);
+      element?.focus();
     }
   }, [focusComment]);
 
-  const handleSubmitReplication = async (body) => {
-    body.type = type;
-    body.id = id;
-    const response = await submitReview(body);
-    if (response.status == 401) {
-      router.pushWithQuery("/dang-nhap", { redirect: pathname });
-      notify.changeNotify("error", response.message);
-    } else if (response.status == 200) {
-      notify.changeNotify("success", response.message);
-    }
-  };
-
-  const showChild = (comment_id) => {
-    setComments((prev) => {
-      return prev.map((comment) => {
-        if (comment._id === comment_id) {
-          return {
-            ...comment,
-            showChild: true,
-          };
-        }
-        return comment;
-      });
-    });
-  };
-
   return (
-    <div className="p-4">
+    <div className="p-4 text-orange-400">
+      {/* Header */}
       <div className="flex justify-between">
         <h3 className="text-2xl">Bình luận sản phẩm</h3>
         <div>
@@ -355,101 +314,48 @@ const CommentContent = () => {
           </button>
         </div>
       </div>
+
+      {/* Danh sách comment chính */}
       <div className="flex flex-col gap-2">
-        {comments?.map((comment) => {
-          return (
-            <div key={comment._id}>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <span className="relative block w-8 h-8">
-                    <ImageCustom
-                      src={showImageUrl(comment?.customer?.avatar)}
-                      alt={comment?.customer?.last_name}
-                      fill={true}
-                      className="rounded-full"
-                    />
-                  </span>
-                  {(comment?.childs?.total > 0 || comment?.showReplication) && (
-                    <div className="w-[2px] bg-gray-200 h-[calc(100%-32px)] absolute top-[32px] left-1/2 -translate-x-1/2"></div>
-                  )}
-                </div>
-                <div className={`relative : ""}`}>
-                  <div className="bg-gray-100 p-2 rounded-xl mb-2 ">
-                    <div className="flex items-center flex-wrap gap-2">
-                      <span className="font-medium">
-                        {comment?.customer?.last_name}
-                      </span>
-                      <StarIcon percent={comment.rating * 20} size="16" />
-                    </div>
-                    <div>{comment.content}</div>
-                  </div>
-                  <div className="action">
-                    <div className="flex text-sm gap-4">
-                      <span>{formatTimeComment(comment.comment_at)}</span>
-                      <button>Thích</button>
-                      <button
-                        onClick={() => handleShowReplication(comment._id)}
-                      >
-                        Phản hồi
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="relative">
-                {comment?.showReplication && (
-                  <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
-                )}
-                {comment?.childs?.total > 0 ? (
-                  <RenderCommentChilds comment={comment} onShow={showChild} />
-                ) : (
-                  ""
-                )}
-              </div>
+        {comments?.map((comment) => (
+          <div key={comment._id}>
+            {/* Comment chính */}
+            <CommentItem
+              comment={comment}
+              isRoot={true}
+              onToggleReplication={toggleReplication}
+              onSubmitReply={handleSubmitReply}
+              showVerticalLine={
+                comment?.childs?.total > 0 || comment?.showReplication
+              }
+            />
+
+            {/* Comment con và đường kẻ dọc */}
+            <div className="relative">
               {comment?.showReplication && (
-                <div className="pt-2 pl-10 relative before:w-6 before:h-[calc(100%/2+4px)] before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0">
-                  <form
-                    action={async (form) => {
-                      const body = Object.fromEntries(form);
-                      body.comment_id = comment._id;
-                      handleSubmitReplication(body);
-                    }}
-                    className="bg-gray-100 p-2 flex items-center rounded-xl"
-                  >
-                    <textarea
-                      id={comment._id}
-                      name="content"
-                      className="w-full bg-transparent outline-none appearance-none resize-none"
-                      placeholder={`Trả lời ${comment?.customer?.last_name}`}
-                    ></textarea>
-                    <button className="text-active">
-                      <Send />
-                    </button>
-                  </form>
-                </div>
+                <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
+              )}
+              {comment?.childs?.total > 0 && (
+                <RenderCommentChilds comment={comment} onShow={showChild} />
               )}
             </div>
-          );
-        })}
-        {isPending ? (
-          <>
-            <div className="mb-2">
-              <Skeleton width="30%" className="mb-2" height="24px" />
-              <Skeleton width="70%" className="mb-2" height="50px" />
-            </div>
-            <div>
-              <Skeleton width="30%" className="mb-2" height="24px" />
-              <Skeleton width="70%" className="mb-2" height="50px" />
-            </div>
-          </>
-        ) : (
-          <>
-            {total > comments?.length && (
-              <div>
-                <button onClick={() => setPage(page + 1)}>Tải thêm</button>
-              </div>
+
+            {/* Form trả lời comment chính */}
+            {comment?.showReplication && (
+              <ReplyForm comment={comment} onSubmit={handleSubmitReply} />
             )}
-          </>
+          </div>
+        ))}
+
+        {/* Loading hoặc load more */}
+        {isPending ? (
+          <LoadingSection />
+        ) : (
+          total > comments?.length && (
+            <div>
+              <button onClick={() => setPage(page + 1)}>Tải thêm</button>
+            </div>
+          )
         )}
       </div>
     </div>

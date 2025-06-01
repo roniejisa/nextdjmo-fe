@@ -148,9 +148,7 @@ const RecursiveCategory = ({ options, field, value, ...props }) => {
 
   // Giữ nguyên logic handleShowChildren
   const handleShowChildren = (e) => {
-    console.log(e.target);
     const catalogChild = e.target.parentElement?.nextElementSibling;
-    console.log(catalogChild);
     if (catalogChild?.classList.contains("hidden")) {
       e.target.innerHTML = "-";
       catalogChild?.classList.remove("hidden");

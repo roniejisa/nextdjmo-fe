@@ -29,7 +29,7 @@ export async function generateMetadata({ params, searchParams }) {
     undefined,
     searchParams
   );
-  if (Object.keys(data).length === 0) redirect("/403");
+  if (data && Object.keys(data).length === 0) redirect("/403");
   let { module: moduleMain } = data;
   return {
     title: moduleMain.name,

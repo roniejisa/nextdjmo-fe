@@ -17,7 +17,8 @@ export {
   capitalizePreserve,
   capitalizeWords,
   cfl,
-  toTitleCase
+  toTitleCase,
+  formatKey
 } from './string/format';
 
 export { 
@@ -66,3 +67,4 @@ export {
   generateKey,
   sortData
 } from './product/variant'
+

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { httpClient } from './utils/http'
+
 // =============================================================================
 // CONSTANTS & CONFIGURATION
 // =============================================================================
@@ -7,6 +8,7 @@ const CONFIG = {
     AUTH_BASE_URL: process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth',
     API_KEY: process.env.API_KEY || '123456',
     LOGIN_URL: '/dang-nhap',
+    LOGOUT_PATHS: ['/logout', '/dang-xuat', '/auth/logout'],
     DEFAULT_LANG: 'vi',
     SUPPORTED_LANGUAGES: ['en', 'vi'],
     CACHE_TTL: parseInt(process.env.NEXT_PUBLIC_MINUTE_TOKEN_EXPIRES || '30') * 60 * 1000, // Convert to milliseconds
@@ -88,6 +90,37 @@ class SecureCache {
         this.rateLimitMap.clear()
     }
 
+    // Clear cache by token
+    async clearTokenCache(token) {
+        if (!token) return
+        
+        try {
+            const hashedToken = await SecurityUtils.hashToken(token)
+            const cacheKey = `profile_${hashedToken}`
+            this.delete(cacheKey)
+            
+            // Clear all profile caches to be safe
+            for (const [key] of this.cache.entries()) {
+                if (key.startsWith('profile_')) {
+                    this.delete(key)
+                }
+            }
+        } catch (error) {
+            console.error('Error clearing token cache:', error)
+            // Fallback: clear all auth caches
+            this.clearAllAuthCache()
+        }
+    }
+
+    // Clear all auth cache
+    clearAllAuthCache() {
+        for (const [key] of this.cache.entries()) {
+            if (key.startsWith('profile_')) {
+                this.delete(key)
+            }
+        }
+    }
+
     // Clean expired entries periodically
     cleanup() {
         const now = Date.now()
@@ -113,28 +146,46 @@ class SecureCache {
 const secureCache = new SecureCache()
 
 // Cleanup cache every 10 minutes
-setInterval(() => {
-    secureCache.cleanup()
-}, 10 * 60 * 1000)
+if (typeof setInterval !== 'undefined') {
+    setInterval(() => {
+        secureCache.cleanup()
+    }, 10 * 60 * 1000)
+}
 
 // =============================================================================
 // SECURITY UTILITIES
 // =============================================================================
 class SecurityUtils {
     static generateSecureId(length = CONFIG.SESSION_ID_LENGTH) {
-        // Use Web Crypto API instead of Node.js crypto
-        const array = new Uint8Array(length)
-        crypto.getRandomValues(array)
-        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+        try {
+            // Use Web Crypto API
+            const array = new Uint8Array(length)
+            crypto.getRandomValues(array)
+            return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+        } catch (error) {
+            // Fallback to Math.random if crypto is not available
+            return Math.random().toString(36).substring(2, 2 + length)
+        }
     }
 
     static async hashToken(token) {
-        // Use Web Crypto API for hashing
-        const encoder = new TextEncoder()
-        const data = encoder.encode(token)
-        const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-        const hashArray = Array.from(new Uint8Array(hashBuffer))
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+        try {
+            // Use Web Crypto API for hashing
+            const encoder = new TextEncoder()
+            const data = encoder.encode(token)
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+            const hashArray = Array.from(new Uint8Array(hashBuffer))
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+        } catch (error) {
+            // Fallback to simple hash if crypto is not available
+            let hash = 0
+            for (let i = 0; i < token.length; i++) {
+                const char = token.charCodeAt(i)
+                hash = ((hash << 5) - hash) + char
+                hash = hash & hash // Convert to 32bit integer
+            }
+            return Math.abs(hash).toString(16)
+        }
     }
 
     static sanitizeInput(input) {
@@ -148,17 +199,22 @@ class SecurityUtils {
     }
 
     static async getClientIdentifier(request) {
-        // Create identifier for rate limiting (use IP + User-Agent hash)
-        const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
-        const userAgent = request.headers.get('user-agent') || 'unknown'
-        const combined = ip + userAgent
-        
-        // Use Web Crypto API for hashing
-        const encoder = new TextEncoder()
-        const data = encoder.encode(combined)
-        const hashBuffer = await crypto.subtle.digest('SHA-1', data) // Using SHA-1 for shorter hash
-        const hashArray = Array.from(new Uint8Array(hashBuffer))
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16)
+        try {
+            // Create identifier for rate limiting (use IP + User-Agent hash)
+            const ip = request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+            const userAgent = request.headers.get('user-agent') || 'unknown'
+            const combined = ip + userAgent
+            
+            // Use Web Crypto API for hashing
+            const encoder = new TextEncoder()
+            const data = encoder.encode(combined)
+            const hashBuffer = await crypto.subtle.digest('SHA-1', data)
+            const hashArray = Array.from(new Uint8Array(hashBuffer))
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').substring(0, 16)
+        } catch (error) {
+            // Fallback hash
+            return 'fallback_' + Math.random().toString(36).substring(2, 10)
+        }
     }
 
     static createSecureCookieOptions(httpOnly = true) {
@@ -179,10 +235,9 @@ class AuthHttpClient {
     static async request(endpoint, method = 'GET', body = null, headers = {}, isRefresh = true) {
         try {
             const startTime = Date.now()
-            
             const response = await httpClient(`${CONFIG.AUTH_BASE_URL}/${endpoint}`, {
                 'Content-Type': 'application/json',
-                'X-API-Key': CONFIG.API_KEY,
+                'X-API-KEY': CONFIG.API_KEY,
                 'X-Request-ID': SecurityUtils.generateSecureId(8),
                 ...headers,
             }, body || {}, method, true, isRefresh)
@@ -213,21 +268,25 @@ class AuthenticationService {
     static async validateToken(token) {
         if (!token) return null
 
-        const hashedToken = await SecurityUtils.hashToken(token)
-        const cacheKey = `profile_${hashedToken}`
-        let cachedProfile = secureCache.get(cacheKey)
-        
-        if (cachedProfile) {
-            return cachedProfile
-        }
+        try {
+            const hashedToken = await SecurityUtils.hashToken(token)
+            const cacheKey = `profile_${hashedToken}`
+            let cachedProfile = secureCache.get(cacheKey)
+            
+            if (cachedProfile) {
+                return cachedProfile
+            }
 
-        const profile = await AuthHttpClient.request('profile', 'GET', null, {
-            'Authorization': `Bearer ${token}`
-        })
+            const profile = await AuthHttpClient.request('profile', 'GET', null, {
+                'Authorization': `Bearer ${token}`
+            })
 
-        if (profile && profile.status === 200 && profile.data) {
-            secureCache.set(cacheKey, profile)
-            return profile
+            if (profile && profile.status === 200 && profile.data) {
+                secureCache.set(cacheKey, profile)
+                return profile
+            }
+        } catch (error) {
+            console.error('Token validation error:', error)
         }
 
         return null
@@ -249,6 +308,24 @@ class AuthenticationService {
         }
 
         return null
+    }
+
+    static async logout(token) {
+        try {
+            if (token) {
+                // Clear cache before logout
+                await secureCache.clearTokenCache(token)
+            }
+            
+            // Clear all auth cache to ensure clean state
+            secureCache.clearAllAuthCache()
+            
+            console.log('Auth cache cleared for logout')
+        } catch (error) {
+            console.error('Logout cache clear error:', error)
+            // Still clear all auth cache as fallback
+            secureCache.clearAllAuthCache()
+        }
     }
 
     static async authenticate(request, providedToken = null, providedRefreshToken = null, isRefresh = false, isOauth = false) {
@@ -302,6 +379,14 @@ class ResponseBuilder {
         response.cookies.delete('token')
         response.cookies.delete('refreshToken')
         response.cookies.delete('logged')
+        response.cookies.delete('ssId')
+        
+        // Force browser not to cache response
+        response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+        response.headers.set('Pragma', 'no-cache')
+        response.headers.set('Expires', '0')
+        response.headers.set('Clear-Site-Data', '"cache", "cookies", "storage"')
+        
         return response
     }
 
@@ -364,6 +449,23 @@ class ResponseBuilder {
 
         return response
     }
+
+    static createLogoutResponse(request) {
+        const response = NextResponse.redirect(new URL(CONFIG.LOGIN_URL, request.url))
+        
+        // Delete all auth cookies
+        this.deleteTokens(response)
+        
+        // Add logout message
+        response.cookies.set('msg', "Đã đăng xuất thành công!", { 
+            httpOnly: false, 
+            sameSite: 'Strict',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 5 // 5 seconds
+        })
+
+        return response
+    }
 }
 
 // =============================================================================
@@ -392,6 +494,35 @@ class SocialAuthHandler {
     }
 }
 
+class LogoutHandler {
+    static isLogoutRequest(request) {
+        const pathname = request.nextUrl.pathname
+        const url = request.nextUrl
+        
+        // Check if it's a logout path
+        const isLogoutPath = CONFIG.LOGOUT_PATHS.some(path => 
+            pathname === path || pathname.endsWith(path)
+        )
+        
+        // Check if logout parameter exists
+        const hasLogoutParam = url.searchParams.has('logout') || url.searchParams.has('signout')
+        
+        return isLogoutPath || hasLogoutParam
+    }
+
+    static async handleLogoutRequest(request) {
+        const token = request.cookies.get('token')?.value
+        
+        if (token) {
+            // Clear auth cache
+            await AuthenticationService.logout(token)
+        }
+        
+        // Create logout response
+        return ResponseBuilder.createLogoutResponse(request)
+    }
+}
+
 // =============================================================================
 // MAIN MIDDLEWARE FUNCTION
 // =============================================================================
@@ -408,11 +539,10 @@ export async function middleware(request) {
             return new NextResponse('Bad Request', { status: 400 })
         }
 
-        // Rate limiting
-        // const clientId = await SecurityUtils.getClientIdentifier(request)
-        // if (!secureCache.checkRateLimit(clientId)) {
-        //     return new NextResponse('Too Many Requests', { status: 429 })
-        // }
+        // Handle logout requests first (before other checks)
+        if (LogoutHandler.isLogoutRequest(request)) {
+            return await LogoutHandler.handleLogoutRequest(request)
+        }
 
         // Skip middleware for certain paths and methods
         if (method !== 'GET' || SKIP_MIDDLEWARE_PATHS.some(path => pathname.includes(path))) {
@@ -501,6 +631,7 @@ export async function middleware(request) {
     } catch (error) {
         console.error('Middleware error:', {
             error: error.message,
+            stack: error.stack,
             pathname: request.nextUrl.pathname,
             method: request.method,
             timestamp: new Date().toISOString()

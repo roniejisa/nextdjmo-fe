@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, createContext, useRef, useState } from "react";
 import { encryptData, decryptData } from "@/utils/socket/utils";
-
+const TIMEOUT = 999999
 export const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const [socketOn, setSocketOn] = useState(false);
@@ -29,56 +29,61 @@ export const SocketProvider = ({ children }) => {
   });
 
   const connectSocket = () => {
-    if (socketRef.current || !sessionIdRef.current)
-      return console.log("Thiếu thông tin người dùng!");
-    socketRef.current = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URL);
-    socketRef.current.onopen = () => {
-      // console.log("Đã kết nối");
-      setSocketOn(true);
-      alertConnectSocket();
-    };
+    if (
+      (!socketRef.current ||
+        socketRef.current.readyState === WebSocket.CLOSED) &&
+      sessionIdRef.current
+    ) {
+      socketRef.current = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URL);
+      // ... rest of your socket setup
+      socketRef.current.onopen = () => {
+        // console.log("Đã kết nối");
+        setSocketOn(true);
+        alertConnectSocket();
+      };
 
-    socketRef.current.onmessage = (event) => {
-      try {
-        const { type, data } = JSON.parse(decryptData(event.data));
-        if (
-          typeRef.current &&
-          type &&
-          typeof typeRef.current === "object" &&
-          typeof typeRef.current[type] == "function"
-        ) {
-          typeRef.current[type](data);
+      socketRef.current.onmessage = (event) => {
+        try {
+          const { type, data } = JSON.parse(decryptData(event.data));
+          if (
+            typeRef.current &&
+            type &&
+            typeof typeRef.current === "object" &&
+            typeof typeRef.current[type] == "function"
+          ) {
+            typeRef.current[type](data);
+          }
+        } catch (error) {
+          console.error("Parse message error:", error);
         }
-      } catch (error) {
-        console.error("Parse message error:", error);
-      }
-    };
+      };
 
-    socketRef.current.onclose = () => {
-      socketRef.current = null;
-      setSocketOn(false);
-      // Có thể thêm exponential backoff retry
+      socketRef.current.onclose = () => {
+        socketRef.current = null;
+        setSocketOn(false);
+        // Có thể thêm exponential backoff retry
 
-      setTimeout(() => {
-        if (sessionIdRef.current) connectSocket();
-      }, 3000);
-    };
+        setTimeout(() => {
+          if (sessionIdRef.current) connectSocket();
+        }, TIMEOUT);
+      };
 
-    socketRef.current.onerror = (error) => {
-      console.error("WebSocket Error", error);
-      setSocketOn(false);
-      // Kết nối lại khi gặp lỗi
-      // setTimeout(connectSocket, 10000);
-    };
+      socketRef.current.onerror = (error) => {
+        console.error("WebSocket Error", error);
+        setSocketOn(false);
+        // Kết nối lại khi gặp lỗi
+        // setTimeout(connectSocket, 10000);
+      };
 
-    socketRef.current.sendEncode = (obj) => {
-      try {
-        if (typeof socketRef.current.send != "function") return;
-        socketRef.current.send(encryptData(obj));
-      } catch (error) {
-        console.log(error);
-      }
-    };
+      socketRef.current.sendEncode = (obj) => {
+        try {
+          if (typeof socketRef.current.send != "function") return;
+          socketRef.current.send(encryptData(obj));
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
   };
 
   const alertConnectSocket = () => {

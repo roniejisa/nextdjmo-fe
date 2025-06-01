@@ -1,0 +1,210 @@
+.reaction-icon {
+  position: relative;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  margin: 8px;
+}
+
+.reaction-icon:active {
+  transform: scale(1.1) translateY(-2px);
+  transition: all 0.15s ease-out;
+}
+
+.reaction-icon.selected {
+  animation: selectedBounce 1s ease-in-out;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.4) 0%,
+    transparent 70%
+  );
+  transform: scale(1.2);
+}
+
+.reaction-icon[data-type="like"]:hover,
+.reaction-icon:hover [data-type="like"],
+[data-type="like"]:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(24, 119, 242, 0.6);
+  background: radial-gradient(
+    circle,
+    rgba(24, 119, 242, 0.2) 0%,
+    transparent 70%
+  );
+  animation: heartPulse 0.8s infinite;
+}
+
+.reaction-icon[data-type="love"]:hover,
+.reaction-icon:hover [data-type="love"],
+[data-type="love"]:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(243, 62, 88, 0.6);
+  background: radial-gradient(
+    circle,
+    rgba(243, 62, 88, 0.2) 0%,
+    transparent 70%
+  );
+  animation: heartPulse 0.8s infinite;
+}
+
+.reaction-icon[data-type="laugh"]:hover,
+.reaction-icon:hover [data-type="laugh"],
+[data-type="laugh"]:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(247, 177, 37, 0.6);
+  background: radial-gradient(
+    circle,
+    rgba(247, 177, 37, 0.2) 0%,
+    transparent 70%
+  );
+  animation: laughShake 0.4s infinite;
+}
+
+.reaction-icon[data-type="wow"]:hover,
+.reaction-icon:hover [data-type="wow"],
+[data-type="wow"]:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(247, 177, 37, 0.6);
+  background: radial-gradient(
+    circle,
+    rgba(247, 177, 37, 0.2) 0%,
+    transparent 70%
+  );
+  animation: wowPulse 1.5s infinite;
+}
+
+.reaction-icon[data-type="sad"]:hover,
+.reaction-icon:hover [data-type="sad"],
+[data-type="sad"]:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(247, 177, 37, 0.4);
+  background: radial-gradient(
+    circle,
+    rgba(100, 150, 255, 0.2) 0%,
+    transparent 70%
+  );
+  animation: sadDrop 2s infinite;
+}
+
+.reaction-icon[data-type="angry"]:hover,
+.reaction-icon:hover [data-type="angry"],
+[data-type="angry"]:hover {
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(231, 76, 60, 0.7);
+  background: radial-gradient(
+    circle,
+    rgba(231, 76, 60, 0.3) 0%,
+    transparent 70%
+  );
+  animation: angerShake 0.2s infinite;
+}
+
+@keyframes selectedBounce {
+  0%,
+  100% {
+    transform: scale(1.2);
+  }
+  25% {
+    transform: scale(1.4) translateY(-10px) rotate(10deg);
+  }
+  50% {
+    transform: scale(1.3) translateY(-5px) rotate(-5deg);
+  }
+  75% {
+    transform: scale(1.35) translateY(-8px) rotate(3deg);
+  }
+}
+
+@keyframes heartPulse {
+  0%,
+  100% {
+    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  }
+  50% {
+    transform: scale(1.5) translateY(-12px) rotate(8deg);
+  }
+}
+
+@keyframes laughShake {
+  0%,
+  100% {
+    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  }
+  25% {
+    transform: scale(1.4) translateY(-8px) rotate(12deg);
+  }
+  75% {
+    transform: scale(1.4) translateY(-8px) rotate(4deg);
+  }
+}
+
+@keyframes wowPulse {
+  0%,
+  100% {
+    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  }
+  50% {
+    transform: scale(1.45) translateY(-10px) rotate(8deg);
+  }
+}
+
+@keyframes sadDrop {
+  0%,
+  100% {
+    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  }
+  50% {
+    transform: scale(1.4) translateY(-6px) rotate(8deg);
+  }
+}
+
+@keyframes angerShake {
+  0%,
+  100% {
+    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  }
+  25% {
+    transform: scale(1.4) translateY(-8px) rotate(10deg);
+  }
+  50% {
+    transform: scale(1.4) translateY(-8px) rotate(6deg);
+  }
+  75% {
+    transform: scale(1.4) translateY(-8px) rotate(12deg);
+  }
+}
+
+.reaction-tooltip {
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1000;
+}
+
+.reaction-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.reaction-icon:hover .reaction-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-5px);
+}

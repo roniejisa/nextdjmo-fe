@@ -36,7 +36,6 @@ export const httpClient = async (
       method,
       nextOptions,
     });
-
     const response = await fetch(requestUrl, requestOptions);
     const data = await response.json();
 

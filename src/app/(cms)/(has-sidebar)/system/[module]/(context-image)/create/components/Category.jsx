@@ -59,7 +59,7 @@ const ToggleButton = ({ hasChildren, onClick }) => {
                  transition-colors duration-200 text-gray-600 hover:text-gray-800
                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
     >
-      <span className="text-sm font-medium">+</span>
+      +
     </button>
   );
 };

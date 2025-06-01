@@ -15,7 +15,6 @@ const ItemCount = ({ item, ...props }) => {
 
   useEffect(() => {
     getCountModule(item).then(data => {
-      console.log(data)
       setCount(data)
     })
 

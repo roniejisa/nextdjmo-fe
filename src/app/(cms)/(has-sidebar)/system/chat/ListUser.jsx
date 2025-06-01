@@ -15,7 +15,7 @@ const ListUser = ({ ...props }) => {
       });
     }
     addTypes("update-chat-room", (data) => {
-      console.log(data);
+      // console.log(data);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

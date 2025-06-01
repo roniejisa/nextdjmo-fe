@@ -4,7 +4,6 @@ import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 
 const Link = ({ field, defaultValue }) => {
-  console.log(field?.data)
   const [value, setValue] = useState(defaultValue || "");
   const [module, setModule] = useState("");
   const [list, setList] = useState([]);

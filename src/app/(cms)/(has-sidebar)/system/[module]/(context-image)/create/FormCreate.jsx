@@ -23,7 +23,7 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
       if (data.status == 201) {
         if (isStoreLanguage) {
           router.pushWithQuery(
-            process.env.NEXT_PUBLIC_ADMIN_URL + data?.data?._id,
+            process.env.NEXT_PUBLIC_ADMIN_URL + module+ "/" + data?.data?._id,
             {
               language: language,
             }

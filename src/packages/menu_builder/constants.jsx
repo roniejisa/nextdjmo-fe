@@ -1,0 +1,165 @@
+// Các loại field có thể thêm
+export const fieldTypes = [
+  // Text inputs
+  {
+    value: "text",
+    label: "Text",
+    icon: "Type",
+    placeholder: "Nhập text...",
+    description: "Trường nhập văn bản đơn giản",
+  },
+  {
+    value: "email",
+    label: "Email",
+    icon: "Mail",
+    placeholder: "example@email.com",
+    description: "Trường nhập email với validation",
+  },
+  {
+    value: "password",
+    label: "Password",
+    icon: "Lock",
+    placeholder: "••••••••",
+    description: "Trường nhập mật khẩu ẩn ký tự",
+  },
+  {
+    value: "url",
+    label: "URL",
+    icon: "Link",
+    placeholder: "https://...",
+    description: "Trường nhập đường dẫn URL",
+  },
+  {
+    value: "tel",
+    label: "Số điện thoại",
+    icon: "Phone",
+    placeholder: "+84 123 456 789",
+    description: "Trường nhập số điện thoại",
+  },
+
+  // Text area
+  {
+    value: "textarea",
+    label: "Textarea",
+    icon: "AlignLeft",
+    placeholder: "Nhập nội dung...",
+    description: "Trường nhập văn bản nhiều dòng",
+  },
+
+  // Media
+  {
+    value: "image",
+    label: "Hình ảnh",
+    icon: "Image",
+    placeholder: "URL hình ảnh...",
+    description: "Trường nhập URL hình ảnh với preview",
+  },
+  {
+    value: "file",
+    label: "File Upload",
+    icon: "Upload",
+    placeholder: "",
+    description: "Trường upload file (chưa implement)",
+  },
+
+  // Number and date inputs
+  {
+    value: "number",
+    label: "Số",
+    icon: "Hash",
+    placeholder: "0",
+    description: "Trường nhập số",
+  },
+  {
+    value: "date",
+    label: "Ngày",
+    icon: "Calendar",
+    placeholder: "",
+    description: "Trường chọn ngày",
+  },
+  {
+    value: "time",
+    label: "Thời gian",
+    icon: "Clock",
+    placeholder: "",
+    description: "Trường chọn thời gian (chưa implement)",
+  },
+  {
+    value: "datetime-local",
+    label: "Ngày & Giờ",
+    icon: "CalendarClock",
+    placeholder: "",
+    description: "Trường chọn ngày và giờ (chưa implement)",
+  },
+  {
+    value: "range",
+    label: "Slider",
+    icon: "Minus",
+    placeholder: "",
+    description: "Thanh trượt chọn giá trị (chưa implement)",
+  },
+  {
+    value: "select",
+    label: "Dropdown",
+    icon: "ChevronDown",
+    placeholder: "",
+    description: "Menu dropdown với các tùy chọn",
+    requiresOptions: true,
+  },
+  {
+    value: "checkbox",
+    label: "Checkbox",
+    icon: "Circle",
+    placeholder: "",
+    description: "Ô kiểm đánh dấu true/false",
+  },
+  {
+    value: "radio",
+    label: "Radio Button",
+    icon: "Circle",
+    placeholder: "",
+    description: "Nút radio chọn một trong nhiều (chưa implement)",
+    requiresOptions: true,
+  },
+
+  // Special inputs
+  {
+    value: "color",
+    label: "Color Picker",
+    icon: "Palette",
+    placeholder: "",
+    description: "Trường chọn màu (chưa implement)",
+  },
+
+  // Complex field types
+  {
+    value: "repeat",
+    label: "Repeat Group",
+    icon: "Repeat",
+    placeholder: "",
+    description: "Nhóm trường có thể lặp lại nhiều lần",
+    requiresFields: true,
+    isComplex: true,
+  },
+];
+
+export const defaultMenuSchema = [
+  {
+    key: "title",
+    label: "Tiêu đề",
+    type: "text",
+    required: true,
+    placeholder: "Nhập tiêu đề menu",
+    icon: "Type",
+    defaultValue: "",
+  },
+  {
+    key: "url",
+    label: "Link URL",
+    type: "url",
+    required: true,
+    placeholder: "Nhập URL (vd: /about, https://example.com)",
+    icon: "Link",
+    defaultValue: "",
+  },
+];

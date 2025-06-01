@@ -32,11 +32,13 @@ const CommentProvider = ({ children, type, id }) => {
   const handleSubmitFormReview = async (form) => {
     startTransition(async () => {
       const body = Object.fromEntries(form);
-      (body.type = type), (body.id = id);
+      (body.type = type), (body._id = id);
       const response = await submitReview(body);
       if (response.status == 401) {
         notify.changeNotify("error", response.message);
-        return router.pushWithQuery("/dang-nhap", { redirect: pathname });
+        return router.pushWithQuery("/dang-nhap", {
+          redirect: pathname,
+        });
       } else if (response.status == 200) {
         formRef.current.reset();
         notify.changeNotify("success", response.message);
