@@ -11,17 +11,17 @@ const FormLogin = ({ msg, redirect }) => {
   const router = useRouterCustom();
   const [isPending, startTransition] = useTransition();
   const [oldData, setOldData] = useState({});
-  const {showModalOTP, setShowModalOTP} = useContext(LoginContext)
-  const [value, setValue] = useState("")
+  const { showModalOTP, setShowModalOTP } = useContext(LoginContext);
+  const [value, setValue] = useState("");
   const customerRef = useRef(null);
   const submitAction = async (form) => {
     startTransition(async () => {
       const formData = Object.fromEntries(form);
-      const response = await handleLogin(formData);
-      if (response.status == 200) {
-        notify.changeNotify("success", response.message);
-        if (response.data && response.data.customer_id) {
-          customerRef.current = response.data.customer_id;
+      const { status, data, message } = await handleLogin(formData);
+      if (status == 200) {
+        notify.changeNotify("success", message);
+        if (data && data.customer_id) {
+          customerRef.current = data.customer_id;
           setShowModalOTP(true);
         } else if (redirect) {
           router.push(redirect);

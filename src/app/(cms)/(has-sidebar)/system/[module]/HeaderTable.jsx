@@ -29,7 +29,7 @@ const SearchInput = ({ searchField, searchParams, inputRef, onSubmit }) => {
   if (!searchField) return null;
 
   return (
-    <form action={onSubmit} className="relative flex-1 max-w-lg">
+    <form action={onSubmit} className="relative flex-1 w-full">
       <input
         type="text"
         ref={inputRef}
@@ -253,6 +253,7 @@ const HeaderTable = () => {
         searchParams={searchParams}
         inputRef={inputSearchRef}
         onSubmit={handleSubmit}
+        className="w-full"
       />
 
       <FormFilter />

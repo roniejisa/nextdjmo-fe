@@ -18,7 +18,7 @@ export const STYLES = {
   select: "appearance-none cursor-pointer",
   label: "block text-sm font-semibold text-gray-800 mb-2",
   subLabel: "block text-xs font-medium text-gray-600 mb-1",
-  inputWithIcon: "pl-10",
+  inputWithIcon: "pl-4",
   textarea: "resize-vertical min-h-[100px]",
   checkbox:
     "w-5 h-5 rounded-lg border-2 border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 group-hover:border-blue-400",

@@ -46,7 +46,7 @@ const MenuForm = ({
     >
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200">
+        <div className="px-6 py-4 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-900">
               {getModalTitle()}
@@ -63,7 +63,7 @@ const MenuForm = ({
 
         {/* Form Content */}
         <form onSubmit={handleSubmit}>
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          <div className="p-6 overflow-y-auto max-h-[calc(90vh-144px)]">
             <div className="space-y-6">
               {/* Kiểm tra nếu thêm menu mới thì thêm phần loại */}
               {!parentId && (
@@ -78,8 +78,10 @@ const MenuForm = ({
                     </label>
                     <select
                       value={formData.type}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        console.log(e.target.value)
                         onFormDataChange({ ...formData, type: e.target.value })
+                      }
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -101,7 +103,7 @@ const MenuForm = ({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50">
+          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
             <div className="flex items-center justify-end gap-3">
               <button
                 type="button"

@@ -2,27 +2,12 @@ import { ChevronDown, Link } from "lucide-react";
 import React from "react";
 import RepeatField, { FieldLabel, STYLES } from "./FormField/RepeatField";
 import ImageField from "./ImageField";
-import * as lucideReact from "lucide-react";
+import { formatKey } from "@/utils/client";
 
 // ========================= BASE COMPONENTS =========================
 
 const InputWithIcon = ({ icon: Icon, children, iconPosition = "left" }) => {
-  const IconComponent =
-    (typeof Icon == "string" ? Icon : lucideReact?.[Icon]) ?? lucideReact.Type;
-  return (
-    <div className="relative">
-      {children}
-      {IconComponent && (
-        <IconComponent
-          className={`absolute ${
-            iconPosition === "left" ? "left-3" : "right-3"
-          } top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 ${
-            iconPosition === "right" ? "pointer-events-none" : ""
-          }`}
-        />
-      )}
-    </div>
-  );
+  return <>{children}</>;
 };
 
 const BaseInput = ({
@@ -152,7 +137,11 @@ const renderSimpleField = (field, formData, updateFormData) => {
     url: () => {
       return (
         <InputWithIcon icon={"Link"}>
-          <BaseInput type="text" {...commonProps} hasIcon />
+          <BaseInput type="text" {...commonProps} onBlur={e => {
+            updateFormData(field.key, formatKey(e.target.value,{ 
+                                                  preserveSlash: true, 
+                                                  preserveCase: false 
+                                                },"-"))}} hasIcon />
         </InputWithIcon>
       );
     },

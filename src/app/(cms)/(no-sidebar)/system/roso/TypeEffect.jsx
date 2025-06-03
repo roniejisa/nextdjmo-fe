@@ -5,7 +5,7 @@ import { RosoContext } from "@/context/cms/RosoProvider";
 
 const TypingEffect = memo(function TypingEffect({}) {
   const { tempRef } = useContext(RosoContext);
-  return <div ref={tempRef} className="markdown-content pb-20" />;
+  return <div ref={tempRef} className="markdown-content" />;
 });
 
 export default TypingEffect;

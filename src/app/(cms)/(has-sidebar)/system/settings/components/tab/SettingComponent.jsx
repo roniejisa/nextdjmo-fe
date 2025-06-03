@@ -16,7 +16,8 @@ import Textarea from "../Textarea";
 import { listTab } from "@/app/(cms)/(has-sidebar)/constants/tab";
 import Group from "../Group";
 
-const components = {
+// Component mapping object
+const FIELD_COMPONENTS = {
   text: Text,
   email: Email,
   image: ImageComponent,
@@ -31,87 +32,171 @@ const components = {
   date: DateComponent,
   textarea: Textarea,
 };
-const SettingComponent = ({ data }) => {
-  const [tabCurrent, setTabCurrent] = useState(listTab[0].name);
 
-  const allTab = listTab.map((tab, index) => {
-    return {
-      ...tab,
-      items: data.items.filter((item) => item.tab == tab.name),
-    };
-  });
+// Tab Navigation Component
+const TabNavigation = ({ tabs, activeTab, onTabChange }) => (
+  <nav className="w-full lg:w-80 lg:sticky lg:top-16 lg:self-start lg:h-screen lg:max-h-[calc(100vh-4rem)]">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="p-6 border-b border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-900">Cấu hình</h2>
+        <p className="text-sm text-gray-500 mt-1">Quản lý thiết lập hệ thống</p>
+      </div>
+      
+      <div className="p-2">
+        <ul className="space-y-1">
+          {tabs.map((tab, index) => (
+            <li key={index}>
+              <button
+                type="button"
+                onClick={() => onTabChange(tab.name)}
+                className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-200 flex items-center justify-between group ${
+                  activeTab === tab.name
+                    ? "bg-blue-50 text-blue-700 font-medium shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <span className="flex-1">{tab.value}</span>
+                {tab.items.length > 0 && (
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      activeTab === tab.name
+                        ? "bg-blue-100 text-blue-600"
+                        : "bg-gray-100 text-gray-500 group-hover:bg-gray-200"
+                    }`}
+                  >
+                    {tab.items.length}
+                  </span>
+                )}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </nav>
+);
+
+// Settings Item Component
+const SettingsItem = ({ item, index }) => {
+  const Component = FIELD_COMPONENTS[item.field_type];
+  
+  if (!Component) {
+    console.warn(`Component not found for field type: ${item.field_type}`);
+    return null;
+  }
+
+  const fieldProps = {
+    label: item.name,
+    name: item._id,
+    placeholder: item.placeholder,
+  };
 
   return (
-    <div className="flex flex-wrap -mx-4">
-      <ul className="flex flex-col flex-[0_0_20%] pl-4 sticky top-[68px] self-start h-[calc(100vh-68px-16px*2)] border-r">
-        {allTab.map((item, index) => (
-          <li
-            key={index}
-            className="border-b py-2 cursor-pointer"
-            onClick={() => {
-              setTabCurrent(item.name);
-            }}
-          >
-            <span
-              className={`transition hover:opacity-100 ${
-                tabCurrent == item.name ? "font-bold text-outline opacity-100" : "opacity-50"
-              }`}
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+      <Group field={fieldProps} item={item}>
+        <Component
+          field={fieldProps}
+          item={item}
+          defaultValue={item.data}
+        />
+      </Group>
+    </div>
+  );
+};
+
+// Tab Content Component
+const TabContent = ({ tab, activeTab }) => {
+  if (activeTab !== tab.name) return null;
+
+  const sortedItems = tab.items
+    .slice()
+    .sort((a, b) => {
+      const sortA = Number(a.sort) || 1;
+      const sortB = Number(b.sort) || 1;
+      return sortB - sortA;
+    });
+
+  return (
+    <div className="space-y-6">
+      {/* Tab Header */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{tab.value}</h1>
+        <p className="text-gray-600">
+          {tab.items.length > 0 
+            ? `${tab.items.length} cấu hình có sẵn`
+            : "Chưa có cấu hình nào được thiết lập"
+          }
+        </p>
+      </div>
+
+      {/* Settings Items */}
+      {sortedItems.length > 0 ? (
+        <div className="grid gap-6">
+          {sortedItems.map((item, index) => (
+            <SettingsItem key={item._id || index} item={item} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div className="bg-gray-50 rounded-xl p-12 text-center border-2 border-dashed border-gray-200">
+          <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <svg
+              className="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {item.value}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="flex-1 px-4">
-        {allTab.map((tab, index) => {
-          return (
-            <div
-              key={index}
-              className={`flex flex-col flex-wrap ${
-                tabCurrent == tab.name ? "" : "hidden"
-              }`}
-            >
-              {tab.items.length ? (
-                tab.items
-                  .sort((a, b) => {
-                    b.sort = Number(b.sort) ?? 1;
-                    a.sort = Number(a.sort) ?? 1;
-                    return b.sort - a.sort;
-                  })
-                  .map((item, index) => {
-                    const Component = components[item.field_type];
-                    return (
-                      <div
-                        key={index}
-                        className={`py-2 px-2`}
-                      >
-                        <Group
-                          field={{
-                            label: item.name,
-                            name: item._id,
-                            placeholder: item.placeholder,
-                          }}
-                          item={item}
-                        >
-                          <Component
-                            field={{
-                              label: item.name,
-                              name: item._id,
-                              placeholder: item.placeholder,
-                            }}
-                            item={item}
-                            defaultValue={item.data}
-                          />
-                        </Group>
-                      </div>
-                    );
-                  })
-              ) : (
-                <div className="py-4 px-4">Chưa có cấu hình nào</div>
-              )}
-            </div>
-          );
-        })}
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+              />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Chưa có cấu hình nào
+          </h3>
+          <p className="text-gray-500">
+            Hiện tại chưa có cấu hình nào được thiết lập cho tab này.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Main Settings Component
+const SettingComponent = ({ data }) => {
+  const [activeTab, setActiveTab] = useState(listTab[0]?.name);
+
+  // Prepare tabs with filtered items
+  const processedTabs = listTab.map((tab) => ({
+    ...tab,
+    items: data.items.filter((item) => item.tab === tab.name),
+  }));
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 lg:p-8">
+      <div className="mx-auto">
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Tab Navigation */}
+          <TabNavigation
+            tabs={processedTabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            {processedTabs.map((tab, index) => (
+              <TabContent
+                key={tab.name}
+                tab={tab}
+                activeTab={activeTab}
+              />
+            ))}
+          </main>
+        </div>
       </div>
     </div>
   );

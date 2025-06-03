@@ -2,31 +2,49 @@
 
 import { httpClient } from "@/utils/http";
 import { cookies, headers } from "next/headers";
-var jwt = require("jsonwebtoken");
 export const handleLogin = async (payload) => {
   const headersList = await headers();
   const objectHeader = Object.fromEntries(headersList);
-  try {
-    const obj = await httpClient(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/login",
-      {
-        "User-Agent": objectHeader["user-agent"],
-        "X-API-KEY": "123456",
-      },
-      payload,
-      "POST"
-    );
-    setCookieAuth(obj);
+  const { status, data, message } = await httpClient(
+    process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/login",
+    {
+      "User-Agent": objectHeader["user-agent"],
+      "X-API-KEY": "123456",
+    },
+    payload,
+    "POST"
+  );
+  if (status == 200) {
+    const { accessToken, refreshToken } = data;
+    console.log(accessToken, refreshToken)
+    cookies().set({
+      name: "token",
+      value: accessToken,
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      sameSite: "strict",
+    });
+    cookies().set({
+      name: "refreshToken",
+      value: refreshToken,
+      httpOnly: true,
+      secure: true,
+      path: "/",
+      sameSite: "strict",
+      expires: null,
+    });
 
     return {
-      data: obj.data,
-      status: obj.status,
-      message: obj.message,
+      status,
+      message,
+      data,
     };
-  } catch (err) {
+  } else {
     return {
-      status: 500,
-      message: err.message,
+      status,
+      data,
+      message,
     };
   }
 };
@@ -64,26 +82,9 @@ const setCookieAuth = (obj) => {
       // Dữ liệu fake để sau khi hoàn thành authenticate
       // cookies().set({ name: "token", value: jwt.sign({ name: undefined }, 'hehehe'), httpOnly: true, secure: true });
       // cookies().set({ name: "refreshToken", value: jwt.sign({ name: undefined }, 'hehehe'), httpOnly: true, secure: true });
-
       // Dữ liệu real
-      cookies().set({
-        name: "token",
-        value: accessToken,
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "strict",
-      });
-      cookies().set({
-        name: "refreshToken",
-        value: refreshToken,
-        httpOnly: true,
-        secure: true,
-        path: "/",
-        sameSite: "strict",
-      });
     }
   } catch (e) {
-    console.log("LỖI")
+    console.log("LỖI");
   }
 };

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-const heightChat = 62 + 16 * 2;
+const heightChat = 162;
 
 export const useUIStore = create((set) => ({
   editorHeight: heightChat,

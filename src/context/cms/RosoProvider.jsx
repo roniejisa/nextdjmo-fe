@@ -1,7 +1,7 @@
 "use client";
 import { getToken } from "@/utils/server/utils";
 import { marked } from "marked";
-import { createContext, useState, useRef, useEffect } from "react";
+import { createContext, useRef, useEffect } from "react";
 import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.min.css";
 import DOMPurify from "dompurify";
@@ -14,12 +14,59 @@ const RosoProvider = ({ children }) => {
   const setFormValue = chatStore.setFormValue;
   const addMessage = chatStore.addMessage;
 
+  const abortControllerRef = useRef(null);
   const messageRef = useRef(null);
   const waitingRef = useRef(false);
   const tempTextRef = useRef(null);
   const editorRef = useRef(null); // Ref to focus back after sending
   const tempRef = useRef(null);
   const backToBotRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup khi component unmount
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
+  // Thêm vào RosoProvider, ngay sau submitFormQuestion
+  const stopStream = () => {
+    console.log("Stopping stream...");
+
+    // Abort request thực sự
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    if (waitingRef.current) {
+      waitingRef.current = false;
+      setIsStreaming(false);
+
+      // Chỉ thêm message nếu có nội dung hợp lệ
+      if (
+        tempTextRef.current &&
+        tempTextRef.current.content &&
+        tempTextRef.current.content.trim().length > 0
+      ) {
+        const stoppedMessage = {
+          ...tempTextRef.current,
+          isStopped: true,
+        };
+        console.log(123);
+        useChatStore.getState().addMessage(stoppedMessage);
+      }
+
+      // Clear temp content
+      if (tempRef.current) {
+        tempRef.current.innerHTML = "";
+      }
+
+      // Reset temp text
+      tempTextRef.current = null;
+    }
+  };
 
   const submitFormQuestion = async (
     form,
@@ -38,12 +85,12 @@ const RosoProvider = ({ children }) => {
     } else {
       data = editorRef.current.getData();
       if (data.length === 0) return;
-      // SET MESSAGE O DAY
       addMessage({
         content: data,
         isQuestion: true,
       });
     }
+
     waitingRef.current = true;
     setIsStreaming(true);
 
@@ -51,57 +98,255 @@ const RosoProvider = ({ children }) => {
     editorRef.current.clearData();
     editorRef.current.focus();
     setFormValue(Object.fromEntries(form));
-    // Giả sử đây là hàm xử lý từng chunk SSE:
+
+    // ✅ Khởi tạo message object và state
+    let accumulatedMessage = {
+      content: "",
+      isQuestion: false,
+      form,
+      images: [],
+      isGeneratingImage: false,
+    };
+
+    tempTextRef.current = accumulatedMessage;
+
+    let currentRawText = "";
+    let textQueue = [];
+    let isTyping = false;
+
+    // ✅ Hiển thị loading state ban đầu
+    const showLoadingState = () => {
+      if (!tempRef.current) return;
+      tempRef.current.innerHTML = `
+    <div class="loading-container" style="padding: 16px; display: flex; align-items: center; gap: 8px; color: #666;">
+      <div class="spinner" style="
+        width: 16px; 
+        height: 16px; 
+        border: 2px solid #e0e0e0;
+        border-top: 2px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <span>Đang suy luận...</span>
+    </div>
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+  `;
+    };
+
+    // ✅ Hiển thị trạng thái tạo ảnh
+    const showImageGenerating = () => {
+      return `
+    <div class="image-generating" style="
+      padding: 12px 16px;
+      margin: 8px 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    ">
+      <div class="image-spinner" style="
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      "></div>
+      <span style="font-weight: 500;">🎨 Đang tạo hình ảnh...</span>
+    </div>
+  `;
+    };
+
+    // ✅ Render ảnh đẹp với error handling
+    const renderImage = (imageUrl, index) => {
+      console.log("Rendering image:", imageUrl, "Index:", index);
+      return `
+    <div class="image-container" style="
+      margin: 16px 0;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      background: #f8f9fa;
+      position: relative;
+    ">
+      <img 
+        src="${imageUrl}" 
+        alt="Generated image ${index + 1}"
+        style="
+          width: 100%;
+          max-height: 500px;
+          object-fit: cover;
+          display: block;
+          transition: transform 0.3s ease;
+          opacity: 1;
+        "
+        onload="console.log('Image loaded successfully:', '${imageUrl}'); this.style.opacity='1';"
+        onerror="console.error('Image load error:', '${imageUrl}'); this.parentElement.innerHTML='<div style=\\"padding: 20px; text-align: center; color: #666;\\"><span style=\\"font-size: 48px;\\">🖼️</span><br><span>Không thể tải hình ảnh: ${imageUrl}</span></div>';"
+        onmouseover="this.style.transform='scale(1.02)'"
+        onmouseout="this.style.transform='scale(1)'"
+      />
+      <div class="image-overlay" style="
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        color: white;
+        padding: 16px;
+        font-size: 14px;
+      ">
+        <span>🎨 Hình ảnh được tạo bởi AI</span>
+      </div>
+    </div>
+  `;
+    };
+
+    // ✅ Render toàn bộ content - ĐÂY LÀ PHẦN QUAN TRỌNG NHẤT
+    const renderCurrentContent = () => {
+      if (!tempRef.current) {
+        console.error("tempRef.current is null");
+        return;
+      }
+
+      let fullContent = "";
+
+      // Render text content với typing effect
+      if (currentRawText.trim()) {
+        // Kiểm tra xem có DOMPurify và marked không
+        let processedText = currentRawText;
+
+        try {
+          if (
+            typeof marked !== "undefined" &&
+            typeof DOMPurify !== "undefined"
+          ) {
+            processedText = DOMPurify.sanitize(marked.parse(currentRawText));
+          } else if (typeof marked !== "undefined") {
+            processedText = marked.parse(currentRawText);
+          } else {
+            // Fallback: chuyển đổi markdown cơ bản
+            processedText = currentRawText
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              .replace(/\*(.*?)\*/g, "<em>$1</em>")
+              .replace(/\n/g, "<br>");
+          }
+        } catch (error) {
+          console.error("Error processing markdown:", error);
+          processedText = currentRawText.replace(/\n/g, "<br>");
+        }
+
+        fullContent += `<div class="text-content">${processedText}</div>`;
+      }
+
+      // Hiển thị trạng thái tạo ảnh nếu đang tạo
+      if (accumulatedMessage.isGeneratingImage) {
+        fullContent += showImageGenerating();
+        console.log("Showing image generating state");
+      }
+
+      // Render images đã hoàn thành
+      if (accumulatedMessage.images && accumulatedMessage.images.length > 0) {
+        console.log("Rendering images:", accumulatedMessage.images);
+        accumulatedMessage.images.forEach((img, index) => {
+          fullContent += renderImage(img, index);
+        });
+      } else {
+        console.log("No images to render");
+      }
+
+      // Cập nhật DOM
+      console.log("Setting innerHTML with content length:", fullContent.length);
+      tempRef.current.innerHTML = fullContent;
+
+      // Debug: in ra nội dung HTML
+      if (accumulatedMessage.images && accumulatedMessage.images.length > 0) {
+        console.log("Final HTML content:", fullContent);
+      }
+
+      // Highlight code blocks nếu có hljs
+      try {
+        if (typeof hljs !== "undefined") {
+          tempRef.current.querySelectorAll("pre code").forEach((block) => {
+            hljs.highlightElement(block);
+          });
+        }
+      } catch (error) {
+        console.error("Error highlighting code:", error);
+      }
+    };
+
     const handleStreamChunk = (parsedData) => {
-      // Scroll xuống cuối trước
-      window.scrollTo(tempTextRef);
-      let newObj;
-      const obj = tempTextRef.current;
+      console.log("Received chunk:", parsedData);
 
-      if (typeof tempTextRef.current === "object") {
-        newObj = tempTextRef.current;
-      } else {
-        tempRef.current.innerHTML = "";
+      // Scroll đến vị trí tempTextRef
+      if (typeof window !== "undefined" && tempTextRef.current) {
+        try {
+          // Kiểm tra xem scrollTo có tồn tại không
+          if (typeof window.scrollTo === "function") {
+            const element = tempRef.current;
+            if (element) {
+              element.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+          }
+        } catch (error) {
+          console.error("Scroll error:", error);
+        }
       }
 
-      if (obj && !obj.isQuestion) {
-        newObj = {
-          ...obj,
-          content: obj.content + parsedData.text,
-        };
-      } else if (parsedData?.image) {
-        newObj = {
-          content: `<div class="preview-img"><img src="${parsedData?.image}" style="max-height:500px;width:auto"></div>`,
-          isQuestion: false,
-          form,
-        };
-      } else {
-        newObj = {
-          content: parsedData.text,
-          isQuestion: false,
-          form,
-        };
+      // Xử lý text trước
+      if (parsedData?.text) {
+        // Thêm text vào content
+        accumulatedMessage.content += parsedData.text;
+
+        // Xử lý typing effect
+        const unfinished = textQueue.join("");
+        currentRawText += unfinished;
+        textQueue = Array.from(parsedData.text);
+
+        // Kiểm tra nếu text mention về việc tạo ảnh, bật trạng thái generating
+        if (parsedData.text.includes("Tôi sẽ tạo một hình ảnh")) {
+          accumulatedMessage.isGeneratingImage = true;
+        }
+
+        if (!isTyping) typeNextChar();
       }
 
-      tempTextRef.current = newObj;
+      // Xử lý image - ƯU TIÊN CAO NHẤT
+      if (parsedData?.image) {
+        console.log("Processing image:", parsedData.image);
 
-      // ✅ Gộp phần chưa gõ xong trong queue để in ra ngay lập tức
-      const unfinished = textQueue.join("");
-      currentRawText += unfinished;
+        // Fix URL path: thay thế tất cả backslash thành forward slash
+        const fixedImageUrl = parsedData.image
+          .replace(/\\\\/g, "/")
+          .replace(/\\/g, "/");
+        console.log("Fixed image URL:", fixedImageUrl);
 
-      // ✅ Render toàn bộ nội dung đã có
-      const fullHTML = DOMPurify.sanitize(marked.parse(currentRawText));
-      tempRef.current.innerHTML = fullHTML;
+        // Khởi tạo mảng images nếu chưa có
+        if (!accumulatedMessage.images) {
+          accumulatedMessage.images = [];
+        }
 
-      tempRef.current.querySelectorAll("pre code").forEach((block) => {
-        hljs.highlightElement(block);
-      });
+        // Thêm image vào mảng
+        accumulatedMessage.images.push(fixedImageUrl);
 
-      // ✅ Reset queue: chỉ gõ từ từ phần mới
-      textQueue = Array.from(parsedData.text);
+        // Tắt trạng thái generating vì đã có ảnh
+        accumulatedMessage.isGeneratingImage = false;
 
-      // ✅ Tiếp tục typing
-      if (!isTyping) typeNextChar();
+        // Render ngay lập tức để hiển thị ảnh
+        renderCurrentContent();
+
+        console.log("Current images array:", accumulatedMessage.images);
+      }
+
+      tempTextRef.current = { ...accumulatedMessage };
     };
 
     const typeNextChar = () => {
@@ -111,98 +356,132 @@ const RosoProvider = ({ children }) => {
       }
 
       isTyping = true;
-
-      // Gỡ từng ký tự để thêm dần
       const char = textQueue.shift();
       currentRawText += char;
 
-      // Re-render với phần mới cập nhật
-      const html = DOMPurify.sanitize(marked.parse(currentRawText));
-      tempRef.current.innerHTML = html;
+      renderCurrentContent();
 
-      tempRef.current.querySelectorAll("pre code").forEach((block) => {
-        hljs.highlightElement(block);
-      });
-
-      setTimeout(typeNextChar, 20); // tốc độ typing
-      // ✅ Scroll xuống cuối sau mỗi chunk
-      // messageRef.current.scrollTo({
-      //   top: messageRef.current.scrollHeight,
-      //   behavior: "smooth",
-      // });
+      setTimeout(typeNextChar, 20);
     };
-    // Khi stream kết thúc
+
     const finishStream = () => {
-      useChatStore.getState().addMessage(tempTextRef.current);
+      // Tắt tất cả loading states
+      accumulatedMessage.isGeneratingImage = false;
+
+      // ✅ SỬA LỖI: Chỉ lưu text content vào message, KHÔNG thêm HTML
+      let finalContent = currentRawText + textQueue.join("");
+
+      const finalMessage = {
+        ...accumulatedMessage,
+        content: finalContent, // ✅ CHỈ LƯU TEXT CONTENT, KHÔNG CÓ HTML
+        // ✅ Images sẽ được render riêng bởi component hiển thị message
+      };
+
+      console.log("Final message content length:", finalContent.length);
+      console.log(
+        "Final message images count:",
+        finalMessage.images?.length || 0
+      );
+
+      // Render lần cuối với tempRef (để hiển thị trong quá trình stream)
+      renderCurrentContent();
+
+      // ✅ Thêm message vào store với content CHỈ chứa text
+      useChatStore.getState().addMessage(finalMessage);
       setIsStreaming(false);
+      waitingRef.current = false;
     };
 
-    const response = await fetch(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
-      {
-        method: "POST",
-        headers: {
-          "X-API-KEY": 123456,
-          Authorization: `Bearer ${token}`,
-        },
-        body: form,
-      }
-    );
+    try {
+      abortControllerRef.current = new AbortController();
 
-    // const checkData = await response.json();
-    // try {
-    //   if (checkData.status === 401 && !isRefresh) {
-    //     if (updateToken()) {
-    //       return await submitFormQuestion(form, true);
-    //     }
-    //   }
-    // } catch (e) {}
+      // ✅ Hiển thị loading ngay từ đầu
+      showLoadingState();
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    let sseBuffer = "";
-    tempRef.current.innerHTML = `Suy luận!`;
-    let currentRawText = ""; // Phần đã hiển thị
-    let textQueue = []; // Hàng đợi ký tự đang gõ
-    let isTyping = false;
-    function readChunk() {
-      reader.read().then(({ done, value }) => {
-        if (done || !waitingRef.current) {
-          finishStream();
-          setIsStreaming(false);
-          waitingRef.current = false;
-          return true;
+      const response = await fetch(
+        process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
+        {
+          method: "POST",
+          headers: {
+            "X-API-KEY": 123456,
+            Authorization: `Bearer ${token}`,
+          },
+          body: form,
+          signal: abortControllerRef.current.signal,
         }
+      );
 
-        sseBuffer += decoder.decode(value);
-        let events = sseBuffer.split("\n\n");
-        // Phần cuối có thể chưa đủ data, giữ lại
-        sseBuffer = events.pop();
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-        events.forEach((event) => {
-          // Lấy các dòng bắt đầu bằng "data: "
-          const lines = event
-            .split("\n")
-            .filter((line) => line.startsWith("data: "));
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let sseBuffer = "";
 
-          lines.forEach((line) => {
-            const jsonStr = line.substring("data: ".length).trim();
-            try {
-              const parsedData = JSON.parse(jsonStr);
-              // Xác định index của message cuối cùng trong state
-              handleStreamChunk(parsedData);
-            } catch (err) {
-              console.error("JSON parse error:", err, "Line:", jsonStr);
+      function readChunk() {
+        reader
+          .read()
+          .then(({ done, value }) => {
+            if (done || !waitingRef.current) {
+              finishStream();
+              return;
             }
-          });
-        });
-        readChunk();
-        checkScroll();
-      });
-    }
 
-    readChunk();
+            sseBuffer += decoder.decode(value);
+            let events = sseBuffer.split("\n\n");
+            sseBuffer = events.pop();
+
+            events.forEach((event) => {
+              const lines = event
+                .split("\n")
+                .filter((line) => line.startsWith("data: "));
+
+              lines.forEach((line) => {
+                const jsonStr = line.substring("data: ".length).trim();
+                if (jsonStr === "[DONE]") return;
+
+                try {
+                  const parsedData = JSON.parse(jsonStr);
+                  handleStreamChunk(parsedData);
+                } catch (err) {
+                  console.error("JSON parse error:", err, "Line:", jsonStr);
+                }
+              });
+            });
+
+            readChunk();
+
+            // Kiểm tra scroll function
+            if (typeof checkScroll === "function") {
+              checkScroll();
+            }
+          })
+          .catch((error) => {
+            // Kiểm tra nếu là abort error thì không log
+            if (error.name === "AbortError") {
+              console.log("Stream was aborted");
+              return;
+            }
+            console.error("Stream reading error:", error);
+            finishStream();
+          });
+      }
+
+      readChunk();
+    } catch (error) {
+      console.error("Request error:", error);
+      if (tempRef.current) {
+        tempRef.current.innerHTML = `
+      <div style="padding: 16px; color: #e74c3c; background: #fdf2f2; border-radius: 8px; border-left: 4px solid #e74c3c;">
+        <strong>❌ Lỗi kết nối</strong><br>
+        Không thể kết nối đến server. Vui lòng thử lại sau.
+      </div>
+    `;
+      }
+      setIsStreaming(false);
+      waitingRef.current = false;
+    }
   };
 
   const checkScroll = () => {
@@ -222,8 +501,10 @@ const RosoProvider = ({ children }) => {
     }
   };
   useEffect(() => {
-    messageRef.current.addEventListener("scroll", checkScroll);
-    checkScroll(); // gọi 1 lần để set đúng trạng thái ban đầu
+    if (messageRef.current) {
+      messageRef.current.addEventListener("scroll", checkScroll);
+      checkScroll(); // gọi 1 lần để set đúng trạng thái ban đầu
+    }
 
     return () => {
       if (messageRef.current) {
@@ -243,6 +524,8 @@ const RosoProvider = ({ children }) => {
         tempRef,
         backToBotRef,
         submitFormQuestion,
+        stopStream,
+        abortControllerRef
       }}
     >
       {children}

@@ -24,7 +24,7 @@ const ChatPage = async () => {
     <RosoProvider>
       <div className="grid grid-cols-8 min-h-screen">
         <History className="col-span-1 border-r p-4" />
-        <div className="col-span-7">
+        <div className="col-span-7 relative">
           <Header models={models?.data} />
           <Message />
           <Chat />

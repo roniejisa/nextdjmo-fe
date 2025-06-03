@@ -83,7 +83,7 @@ const SchemaConfiguration = ({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
+      <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
           <Settings className="w-5 h-5 text-gray-600" />
           Schema Configuration
@@ -112,7 +112,7 @@ const SchemaConfiguration = ({
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="text"
-                placeholder="Key (vd: description)"
+                placeholder="Key (ex: image)"
                 value={newField.key}
                 onChange={(e) =>
                   setNewField({ ...newField, key: e.target.value })
@@ -121,7 +121,7 @@ const SchemaConfiguration = ({
               />
               <input
                 type="text"
-                placeholder="Label (vd: Mô tả)"
+                placeholder="Label (vd: Ảnh)"
                 value={newField.label}
                 onChange={(e) =>
                   setNewField({ ...newField, label: e.target.value })

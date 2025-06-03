@@ -292,11 +292,11 @@ const MenuTypeManager = ({
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {menuTypes.map((menuType) => (
                 <div
                   key={menuType._id}
-                  className={`border rounded-lg p-4 cursor-pointer transition-all ${
+                  className={`border relative rounded-lg p-4 cursor-pointer transition-all ${
                     currentMenuType === menuType.key
                       ? "border-blue-500 bg-blue-50"
                       : "border-gray-200 hover:border-gray-300"
@@ -305,11 +305,8 @@ const MenuTypeManager = ({
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="font-medium text-gray-900 flex items-center gap-2">
+                      <h3 className="font-medium inline-block text-gray-900">
                         {menuType.name}{" "}
-                        <span className="bg-green-200 text-green-600 block p-1">
-                          {menuType.key}
-                        </span>
                       </h3>
                       <p className="text-sm text-gray-500 mt-1">
                         {menuType.description}
@@ -323,7 +320,7 @@ const MenuTypeManager = ({
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 ml-2">
+                    <div className="flex items-center gap-1 ml-2 absolute top-4 right-4">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

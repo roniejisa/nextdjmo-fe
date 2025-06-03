@@ -13,8 +13,53 @@ const HTTP_STATUS = {
 const DEFAULT_OPTIONS = { cache: "no-cache" };
 const DEFAULT_ERROR_MESSAGE = "SERVER ERROR!";
 
+// Global refresh state management
+let isRefreshing = false;
+let refreshPromise = null;
+let failedQueue = [];
+
 /**
- * Enhanced HTTP client with automatic token refresh and error handling
+ * Process queued requests after token refresh
+ */
+const processQueue = (error, tokens = null) => {
+  failedQueue.forEach(({ resolve, reject, config }) => {
+    if (error) {
+      reject(error);
+    } else {
+      // Retry the original request with new tokens
+      resolve(retryWithNewToken(config, tokens.accessToken));
+    }
+  });
+  
+  failedQueue = [];
+  isRefreshing = false;
+  refreshPromise = null;
+};
+
+/**
+ * Retry request with new access token
+ */
+const retryWithNewToken = async (config, accessToken) => {
+  const { url, customHeaders, body, method, hasPrefixHeader, searchParams, msg, nextOptions } = config;
+  
+  return await httpClient(
+    url,
+    {
+      ...customHeaders,
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body,
+    method,
+    hasPrefixHeader,
+    true, // isRefresh = true to prevent infinite loop
+    searchParams,
+    msg,
+    nextOptions
+  );
+};
+
+/**
+ * Enhanced HTTP client with automatic token refresh and request queueing
  */
 export const httpClient = async (
   url,
@@ -36,18 +81,18 @@ export const httpClient = async (
       method,
       nextOptions,
     });
+    
     const response = await fetch(requestUrl, requestOptions);
     const data = await response.json();
 
-    // Handle unauthorized response
-    if (data.status === HTTP_STATUS.UNAUTHORIZED) {
-      return await handleUnauthorizedResponse({
+    // Handle unauthorized response with queue management
+    if (data.status === HTTP_STATUS.UNAUTHORIZED && !isRefresh) {
+      return await handleUnauthorizedWithQueue({
         url: requestUrl,
         customHeaders,
         body,
         method,
         hasPrefixHeader,
-        isRefresh,
         searchParams,
         msg,
         nextOptions,
@@ -59,6 +104,52 @@ export const httpClient = async (
     return createErrorResponse(error, url, searchParams, msg);
   }
 };
+
+/**
+ * Handle unauthorized response with request queueing
+ */
+async function handleUnauthorizedWithQueue(config) {
+  const refreshToken = cookies().get("refreshToken")?.value;
+  
+  if (!refreshToken) {
+    return clearTokensAndRedirect();
+  }
+
+  // If already refreshing, queue this request
+  if (isRefreshing) {
+    return new Promise((resolve, reject) => {
+      failedQueue.push({ resolve, reject, config });
+    });
+  }
+
+  // Start refresh process
+  isRefreshing = true;
+  
+  try {
+    // Use shared refresh promise to prevent multiple refresh calls
+    if (!refreshPromise) {
+      refreshPromise = refreshAccessToken(refreshToken);
+    }
+    
+    const newTokens = await refreshPromise;
+    
+    if (!newTokens) {
+      processQueue(new Error('Token refresh failed'), null);
+      return clearTokensAndRedirect();
+    }
+
+    // Process all queued requests
+    processQueue(null, newTokens);
+    
+    // Execute the original request with new token
+    return await retryWithNewToken(config, newTokens.accessToken);
+    
+  } catch (error) {
+    console.error("Token refresh failed:", error);
+    processQueue(error, null);
+    return clearTokensAndRedirect();
+  }
+}
 
 /**
  * Build complete request URL with query parameters for GET requests
@@ -87,6 +178,14 @@ function buildRequestOptions({
     ...nextOptions,
   };
 
+  // Add authorization header from cookies if not provided
+  if (!options.headers.Authorization) {
+    const token = cookies().get("token")?.value;
+    if (token) {
+      options.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+
   // Add prefix header if required
   if (hasPrefixHeader) {
     options.headers[process.env.NEXT_PUBLIC_PREFIX_HEADER_KEY] =
@@ -105,112 +204,76 @@ function buildRequestOptions({
 }
 
 /**
- * Handle unauthorized response with token refresh logic
- */
-async function handleUnauthorizedResponse({
-  url,
-  customHeaders,
-  body,
-  method,
-  hasPrefixHeader,
-  isRefresh,
-  searchParams,
-  msg,
-  nextOptions,
-}) {
-  // If this is already a refresh attempt, return error response
-  if (isRefresh) {
-    return createUnauthorizedResponse(searchParams, msg);
-  }
-
-  const refreshToken = cookies().get("refreshToken")?.value;
-  
-  if (!refreshToken) {
-    return createUnauthorizedResponse(searchParams, msg);
-  }
-
-  try {
-    const newTokens = await refreshAccessToken(refreshToken);
-    
-    if (!newTokens) {
-      return clearTokensAndRedirect();
-    }
-
-    // Retry original request with new access token
-    return await httpClient(
-      url,
-      {
-        ...customHeaders,
-        Authorization: `Bearer ${newTokens.accessToken}`,
-      },
-      body,
-      method,
-      hasPrefixHeader,
-      true, // isRefresh = true
-      searchParams,
-      msg,
-      nextOptions
-    );
-  } catch (error) {
-    console.error("Token refresh failed:", error);
-    return clearTokensAndRedirect();
-  }
-}
-
-/**
- * Refresh access token using refresh token
+ * Refresh access token using refresh token with improved error handling
  */
 async function refreshAccessToken(refreshToken) {
   try {
+    console.log("🔄 Starting token refresh...");
+    
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_ENDPOINT_URL}auth/refresh-token`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-API-KEY": "123456",
+          [process.env.NEXT_PUBLIC_PREFIX_HEADER_KEY]: process.env.NEXT_PUBLIC_PREFIX_HEADER_VALUE,
         },
         body: JSON.stringify({ refreshToken }),
+        cache: "no-cache", // Prevent caching refresh requests
       }
     );
 
     const data = await response.json();
 
     if (data.status === HTTP_STATUS.OK && data.data) {
-      // Update cookies with new tokens
-      updateTokenCookies(data.data.accessToken, data.data.refreshToken);
+      console.log("✅ Token refresh successful");
+      
+      // Update cookies with new tokens IMMEDIATELY
+      await updateTokenCookies(data.data.accessToken, data.data.refreshToken);
+      
       return data.data;
     }
 
+    console.error("❌ Token refresh failed:", data);
     return null;
   } catch (error) {
-    console.error("Refresh token request failed:", error);
+    console.error("❌ Refresh token request failed:", error);
     return null;
   }
 }
 
 /**
- * Update authentication cookies with new tokens
+ * Update authentication cookies with new tokens (async for immediate update)
  */
-function updateTokenCookies(accessToken, refreshToken) {
+async function updateTokenCookies(accessToken, refreshToken) {
   const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     path: "/",
     sameSite: "strict",
+    maxAge: 60 * 60 * 24 * 7, // 7 days
   };
 
-  cookies().set({
-    name: "token",
-    value: accessToken,
-    ...cookieOptions,
-  });
+  try {
+    // Set both cookies
+    cookies().set({
+      name: "token",
+      value: accessToken,
+      ...cookieOptions,
+      maxAge: 60 * 15, // Access token expires in 15 minutes
+    });
 
-  cookies().set({
-    name: "refreshToken",
-    value: refreshToken,
-    ...cookieOptions,
-  });
+    cookies().set({
+      name: "refreshToken",
+      value: refreshToken,
+      ...cookieOptions,
+    });
+    
+    console.log("🍪 Cookies updated successfully");
+  } catch (error) {
+    console.error("❌ Failed to update cookies:", error);
+    throw error;
+  }
 }
 
 /**
@@ -228,22 +291,25 @@ function createErrorResponse(error, url, searchParams, message) {
 }
 
 /**
- * Create unauthorized response
- */
-function createUnauthorizedResponse(searchParams, message) {
-  return {
-    status: HTTP_STATUS.UNAUTHORIZED,
-    searchParams,
-    message,
-  };
-}
-
-/**
  * Clear authentication tokens and redirect to login page
  */
 function clearTokensAndRedirect() {
+  console.log("🚪 Clearing tokens and redirecting to login");
+  
   cookies().delete("token");
   cookies().delete("refreshToken");
-  cookies().set("msg", "Vui lòng đăng nhập!");
+  cookies().set("msg", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+  
   return redirect("/dang-nhap");
 }
+
+/**
+ * Utility function to manually trigger token refresh (useful for testing)
+ */
+export const forceTokenRefresh = async () => {
+  const refreshToken = cookies().get("refreshToken")?.value;
+  if (refreshToken) {
+    return await refreshAccessToken(refreshToken);
+  }
+  return null;
+};

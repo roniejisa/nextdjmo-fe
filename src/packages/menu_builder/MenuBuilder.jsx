@@ -65,10 +65,10 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
 
   // Thay thế useEffect đầu tiên trong component MenuBuilder
   const reloadData = (data = []) => {
-    data = data ? data : items;
-    if (items && items.length > 0) {
-      // Xử lý menuTypes từ items
-      const processedMenuTypes = items.map((item) => {
+    data = Array.isArray(data) && data.length > 0 ? data : items;
+    if (data && data.length > 0) {
+      // Xử lý menuTypes từ data
+      const processedMenuTypes = data.map((item) => {
         let schema;
         try {
           // Nếu có schema thì parse, không thì dùng default
@@ -94,7 +94,7 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
 
       // Xử lý allMenus từ data của từng item
       const processedAllMenus = {};
-      items.forEach((item) => {
+      data.forEach((item) => {
         try {
           // Parse data JSON string thành array
           const menuData = item.data ? JSON.parse(item.data) : [];
@@ -114,6 +114,7 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
   };
   useEffect(() => {
     reloadData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]); // Chỉ depend vào items
 
   // UseEffect thứ 2 cũng cần sửa một chút để xử lý schema
@@ -224,12 +225,12 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
             setMenuTypes(data.menuTypes);
             setAllMenus(data.allMenus);
             setFormData(initializeFormData(menuSchema));
-            alert("Đã import dữ liệu thành công!");
+            notify.changeNotify("success","Đã import dữ liệu thành công!");
           } else {
-            alert("File không đúng định dạng!");
+            notify.changeNotify("error","File không đúng định dạng!");
           }
         } catch (error) {
-          alert("Có lỗi xảy ra khi đọc file!");
+          notify.changeNotify("error","Có lỗi xảy ra khi đọc file!");
         }
       };
       reader.readAsText(file);
@@ -291,6 +292,7 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
     const error = validateForm();
     if (!error) return;
     const updateItems = (items) => {
+      console.log(formData)
       return items.map((item) => {
         if (item._id === editingItem._id) {
           return {
@@ -307,7 +309,6 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
         return item;
       });
     };
-
     setMenuItems(updateItems(menuItems));
     setEditingItem(null);
     setShowForm(false);
@@ -323,6 +324,10 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
     menuSchema.forEach((field) => {
       editFormData[field.key] = item[field.key] || field.defaultValue || "";
     });
+
+    if(item?.['type'] && level == 0){
+      editFormData['type'] = item?.['type']
+    }
     setFormData(editFormData);
     setShowForm(true);
     setParentId(level);
@@ -486,7 +491,7 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
           <>
             <div className="grid grid-cols-12 gap-6">
               {/* Schema Configuration */}
-              <div className="col-span-4">
+              <div className="col-span-12 lg:col-span-4">
                 <SchemaConfiguration
                   menuSchema={menuSchema}
                   onUpdateSchema={updateSchemaField}
@@ -497,7 +502,7 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
               </div>
 
               {/* Menu Management */}
-              <div className="col-span-8">
+              <div className="col-span-12 lg:col-span-8">
                 <MenuManagement
                   menuItems={menuItems}
                   menuSchema={menuSchema}

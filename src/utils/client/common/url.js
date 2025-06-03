@@ -3,17 +3,22 @@
  * @param {URLSearchParams} searchParams - Search params hiện tại
  * @param {FormData|Object} data - Data từ form hoặc object
  * @param {Object} defaultParams - Params mặc định (default: {page: 1, limit: 20})
+ * @param {Bool} returnUrlSearchParam - Trả về dữ liệu URLSearchParams
  * @returns {string} - Query string (vd: "?page=1&limit=20&search=test")
  */
 export const createQueryString = (
   searchParams,
   data,
-  defaultParams = { page: 1, limit: 20 }
+  defaultParams = { page: 1, limit: 20 },
+  returnUrlSearchParam = false
 ) => {
   let newSearchParams = new URLSearchParams(searchParams);
 
   // Xử lý data từ form hoặc object
-  const entries = data instanceof FormData ? [...data] : Object.entries(data);
+  let entries = data
+  if(!Array.isArray(entries)){
+    entries = data instanceof FormData ? [...data] : Object.entries(data);
+  }
 
   for (const [key, value] of entries) {
     // Kiểm tra key hợp lệ (không phải số hoặc ký tự lạ)
@@ -56,7 +61,7 @@ export const createQueryString = (
       newSearchParams.set(key, String(value));
     }
   }
-
+  if (returnUrlSearchParam) return newSearchParams
   const result = newSearchParams.toString();
   return result ? `?${result}` : "";
 };
