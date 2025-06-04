@@ -17,15 +17,20 @@ const Sidebar = ({ profile, menus: allMenu }) => {
   );
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Early returns for invalid states
-  if (!profile || !profile.permissions) {
-    router.push("/");
-    return null;
-  }
-
   const { permissions } = profile;
   const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL;
 
+  // Thêm useEffect để handle redirect
+  useEffect(() => {
+    if (!profile || !profile.permissions) {
+      router.push("/");
+    }
+  }, [profile, router]);
+
+  // Sửa early return logic
+  if (!profile || !profile.permissions) {
+    return null; // Chỉ return null, không gọi router.push trực tiếp
+  }
   // Close mobile sidebar when route changes
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -162,7 +167,12 @@ const Sidebar = ({ profile, menus: allMenu }) => {
 };
 
 // Sidebar Container Component
-const SidebarContainer = ({ children, isCollapsed, isMobileOpen, isHydrated }) => {
+const SidebarContainer = ({
+  children,
+  isCollapsed,
+  isMobileOpen,
+  isHydrated,
+}) => {
   return (
     <aside
       className={`

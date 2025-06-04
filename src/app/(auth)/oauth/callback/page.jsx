@@ -1,7 +1,6 @@
 import CallbackOAuth from "./CallbackOAuth";
-const CallbackPage = async ({ params }) => {
-  const storeParams = await params;
-  return <CallbackOAuth params={storeParams} />;
+const CallbackPage = async ({ searchParams }) => {
+  return <CallbackOAuth searchParams={searchParams} />;
 };
 
 export default CallbackPage;

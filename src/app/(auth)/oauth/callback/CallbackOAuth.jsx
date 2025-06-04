@@ -1,11 +1,12 @@
 "use client";
 import { useEffect } from "react";
-const CallbackOAuth = ({ params }) => {
+import { handleSaveToken } from "./action";
+const CallbackOAuth = ({ searchParams }) => {
   const saveToken = async () => {
-    const token = params.token;
-    const refreshToken = params.refreshToken;
-    const created = params.created;
-    const redirect = params.redirect;
+    const token = searchParams.token;
+    const refreshToken = searchParams.refreshToken;
+    const created = searchParams.created;
+    const redirect = searchParams.redirect;
     const data = await handleSaveToken(token, refreshToken);
     const channel = new BroadcastChannel("login-channel");
     if (data) {

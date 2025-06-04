@@ -49,12 +49,10 @@ export const getProfile = async () => {
         {
           Authorization: `Bearer ${token}`,
         },
-        {},
-        "GET",
-        false
+        {}
       );
       return response.data;
-    } catch (e) { }
+    } catch (e) {}
   }
   return null;
 };
@@ -119,7 +117,6 @@ export const copyItem = async (module, _id) => {
   return response;
 };
 
-
 export const changeFieldBool = async (module, field, id, value) => {
   const token = await getToken();
   const response = await httpClient(
@@ -130,7 +127,7 @@ export const changeFieldBool = async (module, field, id, value) => {
     {
       field,
       value,
-      id
+      id,
     },
     "POST"
   );

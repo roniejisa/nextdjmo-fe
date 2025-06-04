@@ -20,7 +20,7 @@ export const getCountModule = async (item) => {
   const token = await getToken();
   try {
     const data = await httpClient(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + item.module + "s/count",
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + item.module + "/count",
       {
         Authorization: `Bearer ${token}`,
       }

@@ -15,7 +15,7 @@ export const postCreateFolder = async (body) => {
   );
 };
 
-export const fetchPosts = async (limit = 10, page = 1, obj = {}) => {
+export const fetchFiles = async (limit = 10, page = 1, obj = {}) => {
   const token = await getToken();
   limit = limit ?? 10;
   page = page ?? 1;

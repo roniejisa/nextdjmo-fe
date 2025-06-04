@@ -1,4 +1,3 @@
-import { httpClient } from "@/utils/http";
 import { deleteFile } from "./action";
 
 export const mediaOptions = (id, fn) => {

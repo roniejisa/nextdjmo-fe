@@ -16,7 +16,6 @@ export const handleLogin = async (payload) => {
   );
   if (status == 200) {
     const { accessToken, refreshToken } = data;
-    console.log(accessToken, refreshToken)
     cookies().set({
       name: "token",
       value: accessToken,

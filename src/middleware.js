@@ -1,835 +1,292 @@
-import { NextResponse } from "next/server";
-import { httpClient } from "./utils/http";
+import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
-// =============================================================================
-// CONSTANTS & CONFIGURATION
-// =============================================================================
-const CONFIG = {
-  AUTH_BASE_URL: process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth",
-  API_KEY: process.env.API_KEY || "123456",
-  LOGIN_URL: "/dang-nhap",
-  LOGOUT_PATHS: ["/logout", "/dang-xuat", "/auth/logout"],
-  DEFAULT_LANG: "vi",
-  SUPPORTED_LANGUAGES: ["en", "vi"],
-  CACHE_TTL:
-    parseInt(process.env.NEXT_PUBLIC_MINUTE_TOKEN_EXPIRES || "30") * 60 * 1000, // Convert to milliseconds
-  SESSION_ID_LENGTH: 16,
-  MAX_CACHE_SIZE: 1000,
-  RATE_LIMIT: {
-    MAX_REQUESTS: 100,
-    WINDOW_MS: 15 * 60 * 1000, // 15 minutes
-  },
-};
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth'
+const API_KEY = process.env.API_KEY || '123456'
+const URL_LOGIN = '/dang-nhap'
+const defaultLang = 'vi'
+const languages = ['en', 'vi']
 
-const PROTECTED_ROUTES = ["/system"];
-const SKIP_MIDDLEWARE_PATHS = [
-  "/api/",
-  ".ico",
-  ".svg",
-  ".png",
-  ".jpg",
-  ".css",
-  ".js",
-  "_next/",
-];
-
-// =============================================================================
-// ENHANCED SECURE CACHE
-// =============================================================================
-class SecureCache {
-  constructor(maxSize = CONFIG.MAX_CACHE_SIZE) {
-    this.cache = new Map();
-    this.maxSize = maxSize;
-    this.rateLimitMap = new Map();
-  }
-
-  // Enhanced cache setting with metadata
-  set(key, value, ttl = CONFIG.CACHE_TTL) {
-    // Implement LRU eviction if cache is full
-    if (this.cache.size >= this.maxSize) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
-    }
-
-    this.cache.set(key, {
-      data: value,
-      expires: Date.now() + ttl,
-      createdAt: Date.now(),
-      version: Date.now(), // Add version for cache invalidation
-    });
-  }
-
-  get(key) {
-    const item = this.cache.get(key);
-    if (!item) return null;
-
-    if (Date.now() > item.expires) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    // Update access time for LRU
-    item.lastAccessed = Date.now();
-    return item.data;
-  }
-
-  // Enhanced token cache clearing
-  async clearTokenCache(token) {
-    if (!token) return;
-
-    try {
-      const hashedToken = await SecurityUtils.hashToken(token);
-      const cacheKey = `profile_${hashedToken}`;
-      this.delete(cacheKey);
-
-      // Clear all profile caches that might be related
-      const keysToDelete = [];
-      for (const [key, value] of this.cache.entries()) {
-        if (key.startsWith("profile_")) {
-          // Check if this cache entry is old or potentially stale
-          const age = Date.now() - value.createdAt;
-          if (age > 60000) {
-            // Older than 1 minute
-            keysToDelete.push(key);
-          }
-        }
-      }
-
-      keysToDelete.forEach((key) => this.delete(key));
-    } catch (error) {
-      console.error("Error clearing token cache:", error);
-      this.clearAllAuthCache();
-    }
-  }
-
-  // Clear all auth cache
-  clearAllAuthCache() {
-    const keysToDelete = [];
-    for (const [key] of this.cache.entries()) {
-      if (key.startsWith("profile_")) {
-        keysToDelete.push(key);
-      }
-    }
-    keysToDelete.forEach((key) => this.delete(key));
-  }
-
-  // NEW: Force clear cache by user ID
-  clearCacheByUserId(userId) {
-    if (!userId) return;
-
-    const keysToDelete = [];
-    for (const [key, value] of this.cache.entries()) {
-      if (
-        key.startsWith("profile_") &&
-        value.data &&
-        value.data.data &&
-        value.data.data._id === userId
-      ) {
-        keysToDelete.push(key);
-      }
-    }
-    keysToDelete.forEach((key) => this.delete(key));
-  }
-
-  // Rest of the methods remain the same...
-  delete(key) {
-    this.cache.delete(key);
-  }
-
-  clear() {
-    this.cache.clear();
-    this.rateLimitMap.clear();
-  }
-
-  cleanup() {
-    const now = Date.now();
-    const keysToDelete = [];
-
-    for (const [key, item] of this.cache.entries()) {
-      if (now > item.expires) {
-        keysToDelete.push(key);
-      }
-    }
-
-    keysToDelete.forEach((key) => this.cache.delete(key));
-
-    // Clean rate limit map
-    const windowStart = now - CONFIG.RATE_LIMIT.WINDOW_MS;
-    for (const [key, requests] of this.rateLimitMap.entries()) {
-      const validRequests = requests.filter((time) => time > windowStart);
-      if (validRequests.length === 0) {
-        this.rateLimitMap.delete(key);
-      } else {
-        this.rateLimitMap.set(key, validRequests);
-      }
-    }
-  }
-
-  checkRateLimit(identifier) {
-    const now = Date.now();
-    const windowStart = now - CONFIG.RATE_LIMIT.WINDOW_MS;
-
-    if (!this.rateLimitMap.has(identifier)) {
-      this.rateLimitMap.set(identifier, []);
-    }
-
-    const requests = this.rateLimitMap.get(identifier);
-    const validRequests = requests.filter((time) => time > windowStart);
-
-    if (validRequests.length >= CONFIG.RATE_LIMIT.MAX_REQUESTS) {
-      return false;
-    }
-
-    validRequests.push(now);
-    this.rateLimitMap.set(identifier, validRequests);
-    return true;
-  }
+function deleteTokens(response) {
+    response.cookies.delete('token')
+    response.cookies.delete('refreshToken')
+    response.cookies.delete('logged')
+    return response
 }
 
-const secureCache = new SecureCache();
+// Sửa lỗi trong hàm authenticate
+async function authenticate(request, token = null, refreshToken = null, isRefresh = false, isOauth = false) {
+    const method = request.method
+    const isSocial = isOauth && token ? true : false
+    
+    token = token ? token : request.cookies.get('token')?.value
+    refreshToken = refreshToken ? refreshToken : request.cookies.get('refreshToken')?.value
 
-// Cleanup cache every 10 minutes
-if (typeof setInterval !== "undefined") {
-  setInterval(() => {
-    secureCache.cleanup();
-  }, 10 * 60 * 1000);
-}
-
-// =============================================================================
-// SECURITY UTILITIES
-// =============================================================================
-class SecurityUtils {
-  static generateSecureId(length = CONFIG.SESSION_ID_LENGTH) {
-    try {
-      // Use Web Crypto API
-      const array = new Uint8Array(length);
-      crypto.getRandomValues(array);
-      return Array.from(array, (byte) =>
-        byte.toString(16).padStart(2, "0")
-      ).join("");
-    } catch (error) {
-      // Fallback to Math.random if crypto is not available
-      return Math.random()
-        .toString(36)
-        .substring(2, 2 + length);
-    }
-  }
-
-  static async hashToken(token) {
-    try {
-      // Use Web Crypto API for hashing
-      const encoder = new TextEncoder();
-      const data = encoder.encode(token);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-    } catch (error) {
-      // Fallback to simple hash if crypto is not available
-      let hash = 0;
-      for (let i = 0; i < token.length; i++) {
-        const char = token.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash; // Convert to 32bit integer
-      }
-      return Math.abs(hash).toString(16);
-    }
-  }
-
-  static sanitizeInput(input) {
-    if (typeof input !== "string") return input;
-    return input.replace(/[<>'"]/g, "").trim();
-  }
-
-  static isValidPath(pathname) {
-    // Basic path traversal protection
-    return !pathname.includes("../") && !pathname.includes("..\\");
-  }
-
-  static async getClientIdentifier(request) {
-    try {
-      // Create identifier for rate limiting (use IP + User-Agent hash)
-      const ip =
-        request.ip || request.headers.get("x-forwarded-for") || "unknown";
-      const userAgent = request.headers.get("user-agent") || "unknown";
-      const combined = ip + userAgent;
-
-      // Use Web Crypto API for hashing
-      const encoder = new TextEncoder();
-      const data = encoder.encode(combined);
-      const hashBuffer = await crypto.subtle.digest("SHA-1", data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("")
-        .substring(0, 16);
-    } catch (error) {
-      // Fallback hash
-      return "fallback_" + Math.random().toString(36).substring(2, 10);
-    }
-  }
-
-  static createSecureCookieOptions(httpOnly = true) {
-    return {
-      httpOnly,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    };
-  }
-}
-
-// =============================================================================
-// HTTP CLIENT WRAPPER
-// =============================================================================
-class AuthHttpClient {
-  static async request(
-    endpoint,
-    method = "GET",
-    body = null,
-    headers = {},
-    isRefresh = true
-  ) {
-    try {
-      const startTime = Date.now();
-      const response = await httpClient(
-        `${CONFIG.AUTH_BASE_URL}/${endpoint}`,
-        {
-          "Content-Type": "application/json",
-          "X-API-KEY": CONFIG.API_KEY,
-          "X-Request-ID": SecurityUtils.generateSecureId(8),
-          ...headers,
-        },
-        body || {},
-        method,
-        true,
-        isRefresh
-      );
-
-      // Log slow requests
-      const duration = Date.now() - startTime;
-      if (duration > 5000) {
-        console.warn(`Slow auth request: ${endpoint} took ${duration}ms`);
-      }
-
-      return response;
-    } catch (error) {
-      console.error(`Auth request failed [${endpoint}]:`, {
-        error: error.message,
-        endpoint,
-        method,
-        timestamp: new Date().toISOString(),
-      });
-      return { status: 500, error: "Internal server error" };
-    }
-  }
-}
-
-// =============================================================================
-// AUTHENTICATION SERVICE
-// =============================================================================
-// =============================================================================
-// AUTHENTICATION SERVICE - FIXED VERSION
-// =============================================================================
-class AuthenticationService {
-  static async validateToken(token, forceRefresh = false) {
-    if (!token) return null;
-
-    try {
-      const hashedToken = await SecurityUtils.hashToken(token);
-      const cacheKey = `profile_${hashedToken}`;
-
-      // Skip cache if forceRefresh is true (for new login)
-      let cachedProfile = forceRefresh ? null : secureCache.get(cacheKey);
-
-      if (cachedProfile && !forceRefresh) {
-        return cachedProfile;
-      }
-
-      const profile = await AuthHttpClient.request("profile", "GET", null, {
-        Authorization: `Bearer ${token}`,
-      });
-
-      if (profile && profile.status === 200 && profile.data) {
-        // Clear old cache entries for this user before setting new one
-        await this.clearUserTokenCache(profile.data._id);
-
-        // Set new cache with timestamp
-        const cacheData = {
-          ...profile,
-          cachedAt: Date.now(),
-          tokenHash: hashedToken,
-        };
-        secureCache.set(cacheKey, cacheData);
-        return cacheData;
-      }
-    } catch (error) {
-      console.error("Token validation error:", error);
-    }
-
-    return null;
-  }
-
-  static async refreshAccessToken(refreshToken) {
-    if (!refreshToken) return null;
-
-    try {
-      const refreshData = await AuthHttpClient.request(
-        "refresh-token",
-        "POST",
-        {
-          refreshToken: SecurityUtils.sanitizeInput(refreshToken),
-        },
-        {},
-        true
-      );
-
-      if (refreshData && refreshData.status === 200 && refreshData.data) {
-        // Clear cache when refreshing token
-        await this.clearAllUserCache();
-        return refreshData.data;
-      }
-    } catch (error) {
-      console.error("Token refresh failed:", error);
-    }
-
-    return null;
-  }
-
-  // NEW: Clear cache for specific user
-  static async clearUserTokenCache(userId) {
-    if (!userId) return;
-
-    try {
-      for (const [key, value] of secureCache.cache.entries()) {
-        if (
-          key.startsWith("profile_") &&
-          value.data &&
-          value.data.data &&
-          value.data.data._id === userId
-        ) {
-          secureCache.delete(key);
-        }
-      }
-    } catch (error) {
-      console.error("Error clearing user token cache:", error);
-    }
-  }
-
-  // NEW: Clear all user cache
-  static async clearAllUserCache() {
-    try {
-      for (const [key] of secureCache.cache.entries()) {
-        if (key.startsWith("profile_")) {
-          secureCache.delete(key);
-        }
-      }
-    } catch (error) {
-      console.error("Error clearing all user cache:", error);
-    }
-  }
-
-  static async logout(token) {
-    try {
-      if (token) {
-        // Clear cache before logout
-        await secureCache.clearTokenCache(token);
-      }
-
-      // Clear all auth cache to ensure clean state
-      await this.clearAllUserCache();
-
-      console.log("Auth cache cleared for logout");
-    } catch (error) {
-      console.error("Logout cache clear error:", error);
-      // Still clear all auth cache as fallback
-      await this.clearAllUserCache();
-    }
-  }
-
-  static async authenticate(
-    request,
-    providedToken = null,
-    providedRefreshToken = null,
-    isRefresh = false,
-    isOauth = false
-  ) {
-    const method = request.method;
-    const pathname = request.nextUrl.pathname;
-    const isSocial = isOauth && providedToken;
-
-    // Get tokens from cookies or parameters
-    const token = providedToken || request.cookies.get("token")?.value;
-    const refreshToken =
-      providedRefreshToken || request.cookies.get("refreshToken")?.value;
-
-    // For social auth or new login, force refresh cache
-    const forceRefresh =
-      isSocial || pathname.includes("login") || providedToken;
-
-    // Validate current token
+    // Kiểm tra token hiện tại
     if (token) {
-      const profile = await this.validateToken(token, forceRefresh);
-
-      if (profile && profile.data) {
-        return {
-          isAuthenticated: true,
-          user: profile.data,
-          accessToken: token,
-          refreshToken,
-          isSocial,
-        };
-      }
+        try {
+            const response = await fetch(AUTH_BASE_URL + '/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-API-KEY': API_KEY,
+                    'Content-Type': 'application/json'
+                }
+            })
+            
+            // Kiểm tra status code trước khi parse JSON
+            if (response.ok) {
+                const profile = await response.json()
+                if (profile && profile.status === 200 && profile.data) {
+                    return { 
+                        isAuthenticated: true, 
+                        user: profile.data, 
+                        accessToken: token, 
+                        refreshToken, 
+                        isSocial 
+                    }
+                }
+            } else if (response.status === 401) {
+                console.log('Token expired or invalid, status:', response.status)
+                // Token hết hạn, không log error mà để logic refresh token xử lý
+            } else {
+                console.log('Profile fetch failed with status:', response.status)
+            }
+        } catch (error) {
+            console.error('Profile fetch error:', error)
+        }
     }
 
-    // Attempt token refresh for GET requests
+    // Nếu token không hợp lệ hoặc hết hạn, thử làm mới
     if (refreshToken && !isRefresh && method === "GET") {
-      const newTokens = await this.refreshAccessToken(refreshToken);
+        try {
+            const refreshResponse = await fetch(AUTH_BASE_URL + '/refresh-token', {
+                headers: {
+                    "X-API-KEY": API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify({ refreshToken })
+            })
 
-      if (newTokens && newTokens.accessToken) {
-        return await this.authenticate(
-          request,
-          newTokens.accessToken,
-          newTokens.refreshToken,
-          true,
-          isOauth
-        );
-      }
+            // Kiểm tra status code của refresh token
+            if (refreshResponse.ok) {
+                const refreshData = await refreshResponse.json()
+                
+                if (refreshData && refreshData.status === 200 && refreshData.data) {
+                    const { accessToken, refreshToken: newRefreshToken } = refreshData.data
+                    console.log('Token refreshed successfully')
+                    
+                    // Gọi lại authenticate với token mới để verify
+                    return await authenticate(request, accessToken, newRefreshToken, true, isOauth)
+                } else {
+                    console.log('Refresh token response invalid:', refreshData?.status)
+                }
+            } else if (refreshResponse.status === 401) {
+                console.log('Refresh token expired or invalid')
+                // Refresh token cũng hết hạn
+            } else {
+                console.log('Refresh token failed with status:', refreshResponse.status)
+            }
+        } catch (error) {
+            console.error('Refresh token error:', error)
+        }
     }
 
-    return { isAuthenticated: false, isSocial };
-  }
+    return { isAuthenticated: false, isSocial, shouldClearTokens: true }
 }
 
-// =============================================================================
-// RESPONSE BUILDER
-// =============================================================================
-class ResponseBuilder {
-  static deleteTokens(response) {
-    response.cookies.delete("token");
-    response.cookies.delete("refreshToken");
-    response.cookies.delete("logged");
-    response.cookies.delete("ssId");
-
-    // Force browser not to cache response
-    response.headers.set(
-      "Cache-Control",
-      "no-store, no-cache, must-revalidate, proxy-revalidate"
-    );
-    response.headers.set("Pragma", "no-cache");
-    response.headers.set("Expires", "0");
-    response.headers.set("Clear-Site-Data", '"cache", "cookies", "storage"');
-
-    return response;
-  }
-
-  static createResponse(
-    user,
-    accessToken,
-    refreshToken,
-    request,
-    isAuthenticated,
-    isSocial,
-    newCustomer
-  ) {
-    const headers = new Headers();
-
-    // Add security headers
-    headers.set("X-Content-Type-Options", "nosniff");
-    headers.set("X-Frame-Options", "DENY");
-    headers.set("X-XSS-Protection", "1; mode=block");
-    headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-    headers.set("Cache-Control", "no-store, must-revalidate");
-
-    if (user) {
-      headers.set("user", encodeURIComponent(JSON.stringify(user)));
-    }
-
-    let response;
+function setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens = false) {
+    const headers = new Headers()
+    if (user) headers.set('user', encodeURIComponent(JSON.stringify(user)))
+    let response
 
     if (isSocial) {
-      if (!isAuthenticated) {
-        response = NextResponse.redirect(
-          new URL(CONFIG.LOGIN_URL, request.url)
-        );
-        response.cookies.set("msg", "Đăng nhập không thành công!", {
-          httpOnly: false,
-          sameSite: "Strict",
-          secure: process.env.NODE_ENV === "production",
-        });
-      } else {
-        const redirectUrl = newCustomer ? "/account/profile" : "/";
-        response = NextResponse.redirect(new URL(redirectUrl, request.url));
-      }
+        if (!isAuthenticated) {
+            response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
+            response.cookies.set('msg', "Đăng nhập không thành công!", { httpOnly: false, sameSite: 'Strict' })
+        } else {
+            response = NextResponse.redirect(new URL(newCustomer ? '/account/profile' : '/', request.url))
+        }
     } else {
-      response = NextResponse.next({
-        request: { headers },
-      });
+        response = NextResponse.next({
+            request: {
+                headers: headers
+            }
+        })
     }
 
-    // Set secure cookies
-    if (accessToken && isAuthenticated) {
-      response.cookies.set(
-        "token",
-        accessToken,
-        SecurityUtils.createSecureCookieOptions()
-      );
+    // Xóa tokens nếu cần
+    if (shouldClearTokens) {
+        deleteTokens(response)
+    } else {
+        // Set tokens nếu authenticated
+        if (accessToken && isAuthenticated) {
+            response.cookies.set('token', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                path: "/",
+                sameSite: "strict",
+                maxAge: 60 * 60 * 24 // 24 hours
+            })
+        }
+
+        if (refreshToken && isAuthenticated) {
+            response.cookies.set('refreshToken', refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                path: "/",
+                sameSite: "strict",
+                maxAge: 60 * 60 * 24 * 30 // 30 days
+            })
+        }
+
+        if (isAuthenticated) {
+            response.cookies.set('logged', "OK", {
+                httpOnly: false,
+                secure: process.env.NODE_ENV === 'production',
+                path: "/",
+                sameSite: "strict"
+            })
+        }
     }
 
-    if (refreshToken && isAuthenticated) {
-      response.cookies.set(
-        "refreshToken",
-        refreshToken,
-        SecurityUtils.createSecureCookieOptions()
-      );
-    }
-
-    if (isAuthenticated) {
-      response.cookies.set(
-        "logged",
-        "OK",
-        SecurityUtils.createSecureCookieOptions(false)
-      );
-    }
-
-    // Session ID for tracking
-    const existingSessionId = request.cookies.get("ssId")?.value;
-    const sessionId = existingSessionId || SecurityUtils.generateSecureId();
-    response.cookies.set(
-      "ssId",
-      sessionId,
-      SecurityUtils.createSecureCookieOptions()
-    );
-
-    // Set all security headers
-    for (const [key, value] of headers.entries()) {
-      response.headers.set(key, value);
-    }
-
-    return response;
-  }
-
-  static createLogoutResponse(request) {
-    const response = NextResponse.redirect(
-      new URL(CONFIG.LOGIN_URL, request.url)
-    );
-
-    // Delete all auth cookies
-    this.deleteTokens(response);
-
-    // Add logout message
-    response.cookies.set("msg", "Đã đăng xuất thành công!", {
-      httpOnly: false,
-      sameSite: "Strict",
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 5, // 5 seconds
-    });
-
-    return response;
-  }
+    // Tạo cookie riêng để làm phần đã xem
+    const cookieStore = cookies()
+    const ssId = cookieStore.has('ssId') ? cookieStore.get('ssId').value : makeid(12)
+    response.cookies.set('ssId', ssId, { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        path: "/", 
+        sameSite: "strict" 
+    })
+    
+    response.headers.set('Cache-Control', 'no-store, must-revalidate')
+    return response
 }
 
-// =============================================================================
-// LANGUAGE & UTILITY FUNCTIONS
-// =============================================================================
-class LanguageService {
-  static getLanguage(request) {
-    const pathname = request.nextUrl.pathname;
-    const pathLang = pathname.split("/")[1];
-    return CONFIG.SUPPORTED_LANGUAGES.includes(pathLang)
-      ? pathLang
-      : CONFIG.DEFAULT_LANG;
-  }
+function getLanguage(request) {
+    const url = request.nextUrl
+    const pathname = url.pathname
+    const language = languages.find(language => language === pathname.split("/")[1]) ?? defaultLang
+    return language
 }
 
-class SocialAuthHandler {
-  static extractParams(url) {
-    const socialToken = url.searchParams.get("token")
-      ? SecurityUtils.sanitizeInput(url.searchParams.get("token"))
-      : null;
-    const socialRefreshToken = url.searchParams.get("refreshToken")
-      ? SecurityUtils.sanitizeInput(url.searchParams.get("refreshToken"))
-      : null;
-    const newCustomer = url.searchParams.get("created");
+export async function middleware(request) {
+    const url = request.nextUrl
+    const requireRoutes = ["/system"]
+    const pathname = url.pathname
+    const method = request.method
+
+    // Skip middleware for specific paths
+    if (method !== 'GET' || pathname.startsWith('/api/')) {
+        const response = NextResponse.next()
+        response.headers.set('Cache-Control', 'no-store, must-revalidate')
+        return response
+    }
+
+    let socialAuth = {}
+    if (pathname === "/") {
+        socialAuth = extractSocialAuthParams(url)
+    }
+
+    const { socialToken, socialRefreshToken, isOauth, newCustomer } = socialAuth
+    
+    try {
+        const authResult = await authenticate(request, socialToken, socialRefreshToken, false, isOauth)
+        const { isAuthenticated, accessToken, refreshToken, user, isSocial, shouldClearTokens } = authResult
+
+        // Xử lý trang login
+        if (pathname === URL_LOGIN) {
+            if (isAuthenticated === true) {
+                const response = NextResponse.redirect(new URL('/', request.url))
+                response.headers.set('Cache-Control', 'no-store, must-revalidate')
+                return response
+            }
+
+            const response = NextResponse.next()
+            const cookieStore = cookies()
+            const ref = cookieStore.has('ref') ? cookieStore.get('ref').value : url.searchParams.get('ref') || null
+            if (ref) {
+                response.cookies.set('ref', ref, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    path: "/",
+                    sameSite: "strict",
+                    maxAge: 60 * 60 * 24 * 30
+                })
+            }
+
+            response.headers.set('Cache-Control', 'no-store, must-revalidate')
+            deleteTokens(response)
+            return response
+        }
+
+        // Kiểm tra các trang bắt buộc đăng nhập
+        const isRedirectLogin = (!isAuthenticated && requireRoutes.some(router => pathname.startsWith(router)))
+            
+        if (isRedirectLogin) {
+            const response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
+            response.headers.set('Cache-Control', 'no-store, must-revalidate')
+            deleteTokens(response)
+            return response
+        }
+
+        // Set language và response
+        const language = getLanguage(request)
+        const response = setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens)
+        
+        response.cookies.set("lang", language, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: "/",
+            sameSite: "strict"
+        })
+        
+        return response
+        
+    } catch (error) {
+        console.error('Middleware authentication error:', error)
+        
+        const response = NextResponse.next()
+        response.headers.set('Cache-Control', 'no-store, must-revalidate')
+        deleteTokens(response)
+        
+        const isProtectedRoute = requireRoutes.some(router => pathname.startsWith(router))
+        if (isProtectedRoute) {
+            return NextResponse.redirect(new URL(URL_LOGIN, request.url))
+        }
+        
+        return response
+    }
+}
+
+function makeid(length) {
+    let result = ''
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const charactersLength = characters.length
+    let counter = 0
+    while (counter < length) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength))
+        counter += 1
+    }
+    return result
+}
+
+function extractSocialAuthParams(url) {
+    const socialToken = url.searchParams.get('token') || null
+    const socialRefreshToken = url.searchParams.get('refreshToken') || null
+    const newCustomer = url.searchParams.get('created') || null
 
     return {
-      socialToken,
-      socialRefreshToken,
-      newCustomer,
-      isOauth: !!newCustomer,
-    };
-  }
+        socialToken,
+        socialRefreshToken,
+        newCustomer,
+        isOauth: !!newCustomer,
+    }
 }
 
-class LogoutHandler {
-  static isLogoutRequest(request) {
-    const pathname = request.nextUrl.pathname;
-    const url = request.nextUrl;
-
-    // Check if it's a logout path
-    const isLogoutPath = CONFIG.LOGOUT_PATHS.some(
-      (path) => pathname === path || pathname.endsWith(path)
-    );
-
-    // Check if logout parameter exists
-    const hasLogoutParam =
-      url.searchParams.has("logout") || url.searchParams.has("signout");
-
-    return isLogoutPath || hasLogoutParam;
-  }
-
-  static async handleLogoutRequest(request) {
-    const token = request.cookies.get("token")?.value;
-
-    if (token) {
-      // Clear auth cache
-      await AuthenticationService.logout(token);
-    }
-
-    // Create logout response
-    return ResponseBuilder.createLogoutResponse(request);
-  }
-}
-
-// =============================================================================
-// MAIN MIDDLEWARE FUNCTION
-// =============================================================================
-export async function middleware(request) {
-  const startTime = Date.now();
-
-  try {
-    const url = request.nextUrl;
-    const pathname = url.pathname;
-    const method = request.method;
-
-    // Basic security checks
-    if (!SecurityUtils.isValidPath(pathname)) {
-      return new NextResponse("Bad Request", { status: 400 });
-    }
-
-    // Handle logout requests first (before other checks)
-    if (LogoutHandler.isLogoutRequest(request)) {
-      return await LogoutHandler.handleLogoutRequest(request);
-    }
-
-    // Skip middleware for certain paths and methods
-    if (
-      method !== "GET" ||
-      SKIP_MIDDLEWARE_PATHS.some((path) => pathname.includes(path))
-    ) {
-      const response = NextResponse.next();
-      response.headers.set("Cache-Control", "no-store, must-revalidate");
-      return response;
-    }
-
-    // Handle social authentication
-    let socialAuth = {};
-    if (pathname === "/") {
-      socialAuth = SocialAuthHandler.extractParams(url);
-    }
-
-    const { socialToken, socialRefreshToken, isOauth, newCustomer } =
-      socialAuth;
-
-    // Authenticate user
-    const authResult = await AuthenticationService.authenticate(
-      request,
-      socialToken,
-      socialRefreshToken,
-      false,
-      isOauth
-    );
-
-    const { isAuthenticated, accessToken, refreshToken, user, isSocial } =
-      authResult;
-
-    // Handle login page
-    if (pathname === CONFIG.LOGIN_URL) {
-      if (isAuthenticated) {
-        const response = NextResponse.redirect(new URL("/", request.url));
-        response.headers.set("Cache-Control", "no-store, must-revalidate");
-        return response;
-      }
-
-      const response = NextResponse.next();
-
-      // Handle referral tracking
-      const existingRef = request.cookies.get("ref")?.value;
-      const urlRef = url.searchParams.get("ref");
-      const ref =
-        existingRef || (urlRef ? SecurityUtils.sanitizeInput(urlRef) : null);
-
-      if (ref) {
-        response.cookies.set("ref", ref, {
-          ...SecurityUtils.createSecureCookieOptions(),
-          maxAge: 60 * 60 * 24 * 30, // 30 days
-        });
-      }
-
-      response.headers.set("Cache-Control", "no-store, must-revalidate");
-      ResponseBuilder.deleteTokens(response);
-      return response;
-    }
-
-    // Check protected routes
-    const requiresAuth = PROTECTED_ROUTES.some((route) =>
-      pathname.startsWith(route)
-    );
-
-    if (requiresAuth && !isAuthenticated) {
-      const response = NextResponse.redirect(
-        new URL(CONFIG.LOGIN_URL, request.url)
-      );
-      response.headers.set("Cache-Control", "no-store, must-revalidate");
-      return response;
-    }
-
-    // Set language and create final response
-    const language = LanguageService.getLanguage(request);
-    const response = ResponseBuilder.createResponse(
-      user,
-      accessToken,
-      refreshToken,
-      request,
-      isAuthenticated,
-      isSocial,
-      newCustomer
-    );
-
-    response.cookies.set(
-      "lang",
-      language,
-      SecurityUtils.createSecureCookieOptions()
-    );
-
-    // Performance monitoring
-    const duration = Date.now() - startTime;
-    if (duration > 1000) {
-      console.warn(`Slow middleware execution: ${duration}ms for ${pathname}`);
-    }
-
-    return response;
-  } catch (error) {
-    console.error("Middleware error:", {
-      error: error.message,
-      stack: error.stack,
-      pathname: request.nextUrl.pathname,
-      method: request.method,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Return a safe response in case of error
-    const response = NextResponse.next();
-    response.headers.set("Cache-Control", "no-store, must-revalidate");
-    return response;
-  }
-}
-
-// =============================================================================
-// CONFIGURATION
-// =============================================================================
 export const config = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|web-app-manifest-192x192.png|sw.js).*)",
-  ],
-};
+    matcher: [
+        "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|web-app-manifest-192x192.png|sw.js).*)",
+    ],
+}

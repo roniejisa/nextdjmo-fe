@@ -31,7 +31,7 @@ const FormLogin = ({ msg, redirect }) => {
         router.refresh();
       } else {
         setOldData(formData);
-        notify.changeNotify("error", response.message);
+        notify.changeNotify("error", message);
       }
     });
   };

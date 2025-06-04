@@ -1,7 +1,7 @@
 "use server";
+import { clearTokensAndRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
 import { getRefreshToken, getToken } from "@/utils/server/utils";
-import { cookies } from "next/headers";
 
 export const handleLogout = async () => {
   const refreshToken = await getRefreshToken();
@@ -15,12 +15,7 @@ export const handleLogout = async () => {
   );
 
   // Clear cookies
-  cookies().delete("token");
-  cookies().delete("refreshToken");
-  cookies().delete("logged");
-  cookies().delete("ssId");
-
-  return true;
+  return clearTokensAndRedirect();
 };
 
 export const getMenu = async () => {

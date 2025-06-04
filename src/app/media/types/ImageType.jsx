@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { convertSize, showImageUrl } from "@/utils/client";
 import { useMedia } from "../MediaProvider";
-import { mediaOptions } from "./default";
 import Image from "next/image";
+import ImageCustom from "@/components/Maintain/Image";
+import { mediaOptions } from "./default";
 
 const ImageType = ({ media }) => {
   const { filename, file_info, extention, _id } = media;
@@ -12,8 +13,9 @@ const ImageType = ({ media }) => {
   }
   const { size } = fileInfo;
   const { setEditorImage, setMenuPosition, setListComponent, callbackMenu } =
-    useMedia((data) => data);
-
+    useMedia((data) => {
+      return data;
+    });
   const imageRef = useRef(null);
 
   const handleShowContextMenu = (e) => {
@@ -47,24 +49,19 @@ const ImageType = ({ media }) => {
     const offMenuContext = () => setMenuPosition(null);
     window.addEventListener("click", offMenuContext);
     return () => window.removeEventListener("click", offMenuContext);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <div className="rounded-md" onContextMenu={handleShowContextMenu}>
-      <Image
+      <ImageCustom
         ref={imageRef}
         src={showImageUrl(media)}
         fill={true}
+        title={media?.filename ?? media?.name}
         className="rounded-lg object-contain shadow-[0_0_5px_1px_rgba(0,0,0,.2)]"
         sizes="100vw"
         alt="image"
       />
-      <div className="absolute bottom-0 rounded-lg bg-black px-2 w-full">
-        <p className="line-clamp-1 text-white">{filename}</p>
-        {size ? (
-          <p className="line-clamp-1 text-gray-500">{convertSize(size)}</p>
-        ) : null}
-      </div>
     </div>
   );
 };

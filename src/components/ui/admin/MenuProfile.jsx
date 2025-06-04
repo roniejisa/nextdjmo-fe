@@ -200,7 +200,7 @@ const MenuProfile = ({
     } catch (error) {
       console.error("Logout failed:", error);
     }
-    router.push("/");
+    return router.push("/dang-nhap");
   };
 
   return (

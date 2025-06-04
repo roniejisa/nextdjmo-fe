@@ -1,18 +1,10 @@
 "use client";
 
-import {
-  useContext,
-  useRef,
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-} from "react";
+import { useContext, useRef, useState, useCallback, useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import FormFilter from "./FormFilter";
 import { ModuleContext } from "@/context/cms/ModuleProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
-import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 import { useNotify } from "@/context/NotifyProvider";
 import { createQueryString } from "@/utils/client";
@@ -21,9 +13,96 @@ import SearchIcon from "@/components/Icon/svg/Search";
 import Upload from "@/components/Icon/svg/Upload";
 import TooltipText from "@/components/Tooltip/Text";
 import { SearchFieldSelector } from "@/packages/select-super/SelectSuper";
+// THÊM MỚI: Import các icon export
+import CSVIcon from "@/components/Icon/svg/CSV"; // Cần tạo
+import PDFIcon from "@/components/Icon/svg/PDF"; // Cần tạo
+import DownloadIcon from "@/components/Icon/svg/Download"; // Cần tạo
+import { downloadFile } from "./actions";
+import { httpClientBlob } from "@/utils/client/http";
 
 const FORM_CONTROL_CLASSES =
   "px-4 py-2.5 border border-gray-300 rounded-lg text-sm transition-all duration-200 hover:border-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-[42px]";
+
+const useExportOperations = (module, notify, searchParams) => {
+  const exportData = useCallback(
+    async (format) => {
+      try {
+        const token = await getToken();
+
+        // Chuyển searchParams thành query string cho API
+        const queryParams = new URLSearchParams();
+        for (const [key, value] of searchParams.entries()) {
+          if (value) queryParams.append(key, value);
+        }
+        queryParams.set("format", format);
+
+        const formData = new FormData();
+
+        for (const [key, value] of [...queryParams]) {
+          formData.append(key, value);
+        }
+
+        // Sửa lại cách nhận response từ httpClientBlob
+        const response = await httpClientBlob(
+          `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/export`,
+          {
+            "X-API-KEY": "123456",
+            Authorization: `Bearer ${token}`,
+          },
+          formData,
+          "POST"
+        );
+
+        // Kiểm tra response và lấy data
+        let blobData;
+        if (response && response.data) {
+          // Trường hợp response có cấu trúc {data, status, headers, ...}
+          blobData = response.data;
+        } else if (response instanceof Blob) {
+          // Trường hợp response trả về trực tiếp là Blob
+          blobData = response;
+        } else {
+          throw new Error("Invalid response format");
+        }
+
+        const url = window.URL.createObjectURL(blobData);
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        // Xác định filename và extension dựa trên format
+        const extensions = { excel: "xlsx", csv: "csv", pdf: "pdf" };
+        const timestamp = new Date()
+          .toISOString()
+          .slice(0, 19)
+          .replace(/:/g, "-");
+        link.download = `${module}-export-${timestamp}.${extensions[format]}`;
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        notify.changeNotify(
+          "success",
+          `Xuất ${format.toUpperCase()} thành công`
+        );
+      } catch (error) {
+        console.error(`Error exporting ${format}:`, error);
+        notify.changeNotify("error", `Không thể xuất ${format.toUpperCase()}`);
+      }
+    },
+    [module, notify, searchParams]
+  );
+
+  const exportExcel = useCallback(() => exportData("excel"), [exportData]);
+  const exportCSV = useCallback(() => exportData("csv"), [exportData]);
+  const exportPDF = useCallback(() => exportData("pdf"), [exportData]);
+
+  return { exportExcel, exportCSV, exportPDF };
+};
 
 const SearchInput = ({ searchField, searchParams, inputRef, onSubmit }) => {
   if (!searchField) return null;
@@ -85,7 +164,13 @@ const ActionButton = ({ onClick, icon: Icon, label, variant = "default" }) => {
 };
 
 // Action buttons group component
-const ActionButtonsGroup = ({ onDownloadExcel, onUploadExcel }) => (
+const ActionButtonsGroup = ({
+  onDownloadExcel,
+  onUploadExcel,
+  onExportExcel,
+  onExportCSV,
+  onExportPDF,
+}) => (
   <div className="flex items-center gap-2">
     <ActionButton
       onClick={onDownloadExcel}
@@ -98,6 +183,28 @@ const ActionButtonsGroup = ({ onDownloadExcel, onUploadExcel }) => (
       icon={Upload}
       label="Upload Excel"
       variant="primary"
+    />
+    {/* THÊM MỚI: Divider */}
+    <div className="w-px h-6 bg-gray-300 mx-1" />
+
+    {/* THÊM MỚI: Nhóm Export */}
+    <ActionButton
+      onClick={onExportExcel}
+      icon={ExcelIcon}
+      label="Xuất Excel"
+      variant="default"
+    />
+    <ActionButton
+      onClick={onExportCSV}
+      icon={CSVIcon}
+      label="Xuất CSV"
+      variant="default"
+    />
+    <ActionButton
+      onClick={onExportPDF}
+      icon={PDFIcon}
+      label="Xuất PDF"
+      variant="default"
     />
   </div>
 );
@@ -213,6 +320,13 @@ const HeaderTable = () => {
     router
   );
 
+  // THÊM MỚI: Export operations hook
+  const { exportExcel, exportCSV, exportPDF } = useExportOperations(
+    module,
+    notify,
+    searchParams
+  );
+
   const handleSubmit = useCallback(
     async (formData) => {
       const form = Array.from(formData.entries());
@@ -261,6 +375,9 @@ const HeaderTable = () => {
       <ActionButtonsGroup
         onDownloadExcel={downloadExcel}
         onUploadExcel={uploadExcel}
+        onExportExcel={exportExcel}
+        onExportCSV={exportCSV}
+        onExportPDF={exportPDF}
       />
     </div>
   );

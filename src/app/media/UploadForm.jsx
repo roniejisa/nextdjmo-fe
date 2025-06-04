@@ -13,13 +13,13 @@ import CloseIcon from "@/components/Icon/svg/Close";
 import ImageCustom from "@/components/Maintain/Image";
 
 const UploadForm = ({ media_id, token }) => {
+  const { breadcrumbs } = useContext(MediaContext);
   const [progress, setProgress] = useState(0);
   const [isPending, startTransition] = useTransition();
   const countChunkCurrentRef = useRef(0);
   const [uploading, setUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const setMedias = useMedia(({ setMedias }) => setMedias);
-  const { breadcrumbs } = useContext(MediaContext);
   const [files, setFiles] = useState([]);
   const fileListRef = useRef(new DataTransfer());
   const notify = useNotify();
