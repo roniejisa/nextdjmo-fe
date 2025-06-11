@@ -57,7 +57,7 @@ export const createQueryString = (
 
   // Thêm các tham số mặc định
   for (const [key, value] of Object.entries(defaultParams)) {
-    if (!newSearchParams.has(key)) {
+    if (newSearchParams.has(key)) {
       newSearchParams.set(key, String(value));
     }
   }

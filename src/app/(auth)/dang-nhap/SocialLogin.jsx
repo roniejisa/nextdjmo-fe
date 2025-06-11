@@ -85,9 +85,9 @@ const SocialLogin = ({ redirect }) => {
       console.log(type, created, redirect)
       if (type === "login-social-success") {
         if (created.toLowerCase() == "true") {
-          router.push("/account/profile");
+          router.push("/system");
         } else {
-          if (redirect) {
+          if (redirect != "None") {
             router.push(redirect);
           } else {
             router.push("/");

@@ -6,6 +6,7 @@ import NewsChart from "@/components/ui/admin/statistics/NewsChart";
 import ImageCustom from "@/components/Maintain/Image";
 import HistoryTab from "./HistoryTab";
 import { showImageUrl } from "@/utils/client";
+import AnalyticsDashboard from "@/components/ui/admin/statistics/Dashboard";
 
 // Configuration constants
 const ORDER_STATISTICS = [
@@ -66,11 +67,11 @@ const TAB_CONFIG = [
 // Custom Hook for tab management
 const useTabNavigation = (initialTab = "general") => {
   const [activeTab, setActiveTab] = useState(initialTab);
-  
+
   const switchTab = (tabId) => {
     setActiveTab(tabId);
   };
-  
+
   return { activeTab, switchTab };
 };
 
@@ -100,15 +101,16 @@ const TabButton = ({ tab, isActive, onClick }) => {
       className={`
         flex items-center gap-2 px-4 py-3 rounded-xl font-medium text-sm sm:text-base
         transition-all duration-300 ease-out transform hover:scale-105
-        ${isActive 
-          ? 'bg-white text-blue-600 shadow-lg shadow-blue-100 font-bold border-2 border-blue-200' 
-          : 'text-gray-600 hover:text-gray-800 hover:bg-white/50'
+        ${
+          isActive
+            ? "bg-white text-blue-600 shadow-lg shadow-blue-100 font-bold border-2 border-blue-200"
+            : "text-gray-600 hover:text-gray-800 hover:bg-white/50"
         }
       `}
     >
       <span className="text-lg">{tab.icon}</span>
       <span className="hidden sm:inline">{tab.label}</span>
-      <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
+      <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
     </button>
   );
 };
@@ -116,7 +118,9 @@ const TabButton = ({ tab, isActive, onClick }) => {
 // Statistics Grid Component
 const StatisticsGrid = ({ statistics, className = "" }) => {
   return (
-    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ${className}`}>
+    <div
+      className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 ${className}`}
+    >
       {statistics.map((item, index) => (
         <div
           key={index}
@@ -134,25 +138,36 @@ const ChartStatisticsOverview = ({ title, icon, bgColor, stats }) => {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className={`w-10 h-10 bg-gradient-to-br ${bgColor} rounded-xl flex items-center justify-center`}>
+        <div
+          className={`w-10 h-10 bg-gradient-to-br ${bgColor} rounded-xl flex items-center justify-center`}
+        >
           <span className="text-white text-lg">{icon}</span>
         </div>
         <h3 className="text-xl font-bold text-gray-800">{title}</h3>
       </div>
-      
+
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => (
-            <div key={index} className="text-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200">
-              <div className={`text-2xl font-bold ${stat.color || 'text-gray-800'}`}>
+            <div
+              key={index}
+              className="text-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors duration-200"
+            >
+              <div
+                className={`text-2xl font-bold ${
+                  stat.color || "text-gray-800"
+                }`}
+              >
                 {stat.value}
               </div>
               <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
               {stat.change && (
-                <div className={`text-xs mt-1 flex items-center justify-center gap-1 ${
-                  stat.change > 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  <span>{stat.change > 0 ? '↗' : '↘'}</span>
+                <div
+                  className={`text-xs mt-1 flex items-center justify-center gap-1 ${
+                    stat.change > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  <span>{stat.change > 0 ? "↗" : "↘"}</span>
                   <span>{Math.abs(stat.change)}%</span>
                 </div>
               )}
@@ -176,7 +191,7 @@ const HotProductsSection = ({ hotProducts }) => {
         </div>
         <h3 className="text-xl font-bold text-gray-800">Sản phẩm bán chạy</h3>
       </div>
-      
+
       <div className="space-y-4">
         {hotProducts.products.map((product) => (
           <ProductCard key={product.product_id} product={product} />
@@ -198,7 +213,7 @@ const ProductCard = ({ product }) => {
           alt={product.name}
         />
       </div>
-      
+
       <div className="flex-1 min-w-0">
         <h4 className="font-medium text-gray-800 truncate group-hover:text-blue-600 transition-colors duration-200">
           {product.name}
@@ -224,18 +239,18 @@ const Client = ({ hotProducts, profile }) => {
 
   // Filter general statistics based on user permissions
   const filteredGeneralStats = GENERAL_STATISTICS.filter((item) => {
-    return profile?.permissions?.some(permission => 
+    return profile?.permissions?.some((permission) =>
       permission?.includes(`${item.module}.read`)
     );
   });
 
   // Check history permission
-  const hasHistoryPermission = profile?.permissions?.some(permission => 
+  const hasHistoryPermission = profile?.permissions?.some((permission) =>
     permission.includes("history.read")
   );
 
   // Determine available tabs
-  const availableTabs = TAB_CONFIG.filter(tab => {
+  const availableTabs = TAB_CONFIG.filter((tab) => {
     if (tab.id === "general") return filteredGeneralStats.length > 0;
     if (tab.id === "history") return hasHistoryPermission;
     if (tab.id === "reports") return true; // Reports always available
@@ -261,7 +276,11 @@ const Client = ({ hotProducts, profile }) => {
 
       {/* History Tab Content */}
       {hasHistoryPermission && (
-        <div className={`transition-all duration-500 ${activeTab === "history" ? "block" : "hidden"}`}>
+        <div
+          className={`transition-all duration-500 ${
+            activeTab === "history" ? "block" : "hidden"
+          }`}
+        >
           <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
             <HistoryTab />
           </div>
@@ -269,107 +288,40 @@ const Client = ({ hotProducts, profile }) => {
       )}
 
       {/* General Tab Content */}
-      <div className={`transition-all duration-500 space-y-8 ${activeTab === "general" ? "block" : "hidden"}`}>
+      <div
+        className={`transition-all duration-500 space-y-8 ${
+          activeTab === "general" ? "block" : "hidden"
+        }`}
+      >
         {filteredGeneralStats.length > 0 && (
-          <StatisticsGrid 
-            statistics={filteredGeneralStats} 
-            className="mb-8"
-          />
+          <StatisticsGrid statistics={filteredGeneralStats} className="mb-8" />
         )}
-        
-        {/* General Overview Statistics */}
-        <ChartStatisticsOverview
-          title="Tổng quan hệ thống"
-          icon="🏢"
-          bgColor="from-blue-400 to-purple-500"
-          stats={[
-            { label: "Tổng người dùng", value: "2,847", color: "text-blue-600", change: 12 },
-            { label: "Hoạt động hôm nay", value: "324", color: "text-green-600", change: 8 },
-            { label: "Nội dung mới", value: "156", color: "text-purple-600", change: 15 },
-            { label: "Tổng tương tác", value: "1.2K", color: "text-orange-600", change: 7 }
-          ]}
-        />
       </div>
 
-      {/* Reports Tab Content */}
-      <div className={`transition-all duration-500 space-y-8 ${activeTab === "reports" ? "block" : "hidden"}`}>
-        {/* News Statistics Overview */}
-        <ChartStatisticsOverview
-          title="Thống kê tin tức"
-          icon="📰"
-          bgColor="from-indigo-400 to-purple-500"
-          stats={[
-            { label: "Tổng bài viết", value: "1,234", color: "text-blue-600", change: 12 },
-            { label: "Bài mới hôm nay", value: "28", color: "text-green-600", change: 8 },
-            { label: "Lượt xem", value: "45.2K", color: "text-purple-600", change: -3 },
-            { label: "Tương tác", value: "892", color: "text-orange-600", change: 15 }
-          ]}
-        />
-        
+      <div
+        className={`transition-all duration-500 space-y-8 ${
+          activeTab === "reports" ? "block" : "hidden"
+        }`}
+      >
         {/* News Chart */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center">
               <span className="text-white text-lg">📈</span>
             </div>
             <h3 className="text-xl font-bold text-gray-800">Biểu đồ tin tức</h3>
           </div>
-          <NewsChart />
-        </div>
-
-        {/* Additional Analytics could go here */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-teal-500 rounded-xl flex items-center justify-center">
-                <span className="text-white text-lg">👥</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-800">Phân tích người dùng</h3>
-            </div>
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              {/* Placeholder for future user analytics chart */}
-              <div className="text-center">
-                <div className="text-4xl mb-2">📊</div>
-                <p>Biểu đồ người dùng</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-orange-400 to-red-500 rounded-xl flex items-center justify-center">
-                <span className="text-white text-lg">🎯</span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-800">Hiệu suất</h3>
-            </div>
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              {/* Placeholder for future performance chart */}
-              <div className="text-center">
-                <div className="text-4xl mb-2">⚡</div>
-                <p>Biểu đồ hiệu suất</p>
-              </div>
-            </div>
-          </div>
-        </div>
+          <AnalyticsDashboard />
+          {/* <NewsChart /> */}
       </div>
 
       {/* Ecommerce Tab Content */}
-      <div className={`transition-all duration-500 space-y-8 ${activeTab === "ecommerce" ? "block" : "hidden"}`}>
+      <div
+        className={`transition-all duration-500 space-y-8 ${
+          activeTab === "ecommerce" ? "block" : "hidden"
+        }`}
+      >
         <StatisticsGrid statistics={ORDER_STATISTICS} />
-        
-        {/* Ecommerce Statistics Overview */}
-        <ChartStatisticsOverview
-          title="Thống kê bán hàng"
-          icon="💰"
-          bgColor="from-green-400 to-blue-500"
-          stats={[
-            { label: "Doanh thu hôm nay", value: "₫2.4M", color: "text-green-600", change: 18 },
-            { label: "Đơn hàng mới", value: "156", color: "text-blue-600", change: 5 },
-            { label: "Tỷ lệ chuyển đổi", value: "3.2%", color: "text-purple-600", change: -2 },
-            { label: "Giá trị TB/đơn", value: "₫650K", color: "text-orange-600", change: 12 }
-          ]}
-        />
-        
+
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Order Chart - Takes up 3/4 of the width on xl screens */}
           <div className="xl:col-span-3">
@@ -378,12 +330,14 @@ const Client = ({ hotProducts, profile }) => {
                 <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center">
                   <span className="text-white text-lg">📊</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800">Biểu đồ đơn hàng</h3>
+                <h3 className="text-xl font-bold text-gray-800">
+                  Biểu đồ đơn hàng
+                </h3>
               </div>
               <OrderChart />
             </div>
           </div>
-          
+
           {/* Hot Products - Takes up 1/4 of the width on xl screens */}
           <div className="xl:col-span-1">
             <HotProductsSection hotProducts={hotProducts} />

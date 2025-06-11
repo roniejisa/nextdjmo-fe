@@ -17,7 +17,7 @@ export const useCommentActions = () => {
 
   const handleSubmitReply = async (body) => {
     body.type = type;
-    body._id = id;
+    body.id = id;
     const response = await submitReview(body);
 
     if (response.status === 401) {

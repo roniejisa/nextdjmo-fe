@@ -1,0 +1,1369 @@
+$mainColor: #f7a5be;
+$subColor: #000000;
+$subColorMain: #000000;
+$colorText: #f0eef8;
+$colorProcess: #fce9ef;
+$colorLineSpan: #f7a5be;
+$colorOpacity: #00000099;
+$karaokeColor: #f5c3d2;
+$backgroundMain: #ffdfe9;
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+@mixin screen($screen) {
+  @media screen and (min-width: $screen) {
+    @content;
+  }
+}
+
+@mixin textGradient() {
+  background: linear-gradient(to bottom, $mainColor, $colorText);
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 5px $mainColor);
+}
+
+@mixin backgroundGradient($radiant: to bottom) {
+  background: linear-gradient($radiant, $mainColor, $subColor);
+}
+
+@mixin processIconGradient() {
+  background: radial-gradient($mainColor, $subColor);
+  box-shadow: 2px 0 10px $subColor;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  outline: none;
+  user-select: none;
+}
+
+body {
+  font-family: Montserrat, sans-serif;
+  display: flex;
+  flex-direction: column;
+  background: black;
+  color: black;
+}
+
+//Header
+body:has(.tab-control.show) {
+  main {
+    top: 50px;
+  }
+}
+
+header {
+  padding: 16px 10px;
+
+  @include screen(992px) {
+    padding: 18px 20px;
+  }
+
+  .tab-control {
+    position: fixed;
+    z-index: 10000;
+    order: 1;
+    left: 15px;
+    right: 15px;
+    transform: translateY(-100%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition-duration: 400ms;
+    transition-timing-function: ease-out;
+    transition-property: visibility, transform, opacity;
+
+    @include screen(992px) {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+      transform: translateY(0%);
+    }
+
+    top: 55px;
+
+    &.show {
+      transform: translateY(10px);
+      opacity: 1;
+      visibility: visible;
+      pointer-events: all;
+    }
+
+    @include screen(992px) {
+      order: initial;
+      display: block;
+      position: relative;
+      top: initial;
+      left: initial;
+      right: initial;
+      bottom: initial;
+    }
+
+    .tabs {
+      background: $backgroundMain;
+      display: flex;
+      justify-content: center;
+      border-radius: 25px;
+
+      padding: 6px;
+      position: relative;
+      box-shadow: 0 0 6px $mainColor;
+
+      button {
+        padding: 6px 10px;
+        width: 100%;
+
+        @include screen(992px) {
+          width: 160px;
+        }
+
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 25px;
+        font-weight: bold;
+        transform-origin: center;
+        transition: 0.4s ease;
+        transition-property: min-width, opacity, color;
+        position: relative;
+        z-index: 2;
+
+        span {
+          color: black;
+          position: relative;
+          z-index: 1;
+        }
+
+        &.selected {
+          span {
+            @include textGradient();
+          }
+        }
+      }
+
+      .menu-close {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 9999;
+        padding: 10px;
+        cursor: pointer;
+
+        @include screen(992px) {
+          display: none;
+        }
+      }
+
+      .overlay {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 25px;
+        left: 0;
+        z-index: 1;
+        height: calc(100% - 10px);
+        transition: left 0.4s ease;
+        z-index: 1;
+        animation: filterRotate 4s ease-in-out infinite alternate;
+
+        span {
+          position: absolute;
+          background: #000000eb;
+          border-radius: 25px;
+          width: 100%;
+          height: 100%;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 2;
+        }
+      }
+    }
+  }
+
+  .header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .logo,
+  .header-form {
+    flex-basis: 150px;
+
+    @include screen(992px) {
+      flex-basis: 200px;
+    }
+  }
+
+  .logo {
+    flex: 1;
+    flex-basis: initial;
+    order: 2;
+
+    @include screen(992px) {
+      flex: initial;
+      order: initial;
+      flex-basis: 200px;
+    }
+
+    a {
+      font-size: 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    img {
+      max-width: 200px;
+      height: auto;
+    }
+  }
+
+  .header-form {
+    order: 3;
+    flex-basis: 100px;
+
+    @include screen(992px) {
+      order: initial;
+      flex-basis: 200px;
+    }
+
+    .form-search {
+      position: relative;
+      display: flex;
+      border-radius: 25px;
+      box-shadow: 0 0 6px $mainColor;
+
+      input {
+        &::placeholder {
+          color: $backgroundMain;
+        }
+
+        padding: 8px 10px;
+
+        @include screen(992px) {
+          padding: 12px 40px 12px 20px;
+        }
+
+        border: none;
+        outline: none;
+        height: 100%;
+        width: 100%;
+        flex: 1;
+        font-weight: bold;
+        color: $mainColor;
+        background: transparent;
+      }
+
+      button {
+        cursor: pointer;
+        border: none;
+        background: none;
+        color: $mainColor;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 6px;
+        padding: 10px;
+        display: none;
+
+        @include screen(992px) {
+          display: initial;
+        }
+
+        i {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .menu-open {
+    border: none;
+    @include textGradient();
+    flex-basis: 80px;
+    font-size: 28px;
+    cursor: pointer;
+    padding-right: 20px;
+
+    @include screen(992px) {
+      display: none;
+    }
+  }
+}
+
+// Player
+.player-dashboard {
+  padding: 12px 1vw;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-height: 100px;
+  position: relative;
+  z-index: 9999;
+  background: $subColor;
+
+  .toolbar {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    z-index: 1;
+
+    @include screen(992px) {
+      z-index: 10001;
+    }
+
+    .left,
+    .right {
+      z-index: 9999;
+
+      @include screen(1024px) {
+        flex-basis: 30%;
+      }
+    }
+
+    .left {
+      //style mobile
+      position: absolute;
+      top: -105px;
+      left: -1vw;
+      width: 70%;
+      padding-top: 10px;
+      padding-left: 15px;
+      background: black;
+
+      //Style 992px
+      @include screen(992px) {
+        position: initial;
+        bottom: initial;
+        z-index: initial;
+        left: initial;
+        padding: initial;
+        background: initial;
+      }
+
+      .info-current {
+        display: flex;
+        gap: 10px;
+      }
+
+      .title {
+        @include textGradient();
+        font-size: 14px;
+      }
+
+      .author {
+        color: $colorText;
+        font-size: 12px;
+      }
+
+      img {
+        height: 42px;
+        width: 42px;
+        object-fit: cover;
+        border-radius: 5px;
+        box-shadow: 0 0 2px $mainColor;
+      }
+    }
+
+    .right {
+      position: absolute;
+      bottom: 95px;
+      gap: 6px;
+      background: black;
+      padding-top: 10px;
+      padding-right: 15px;
+      right: -1vw;
+      width: 35%;
+
+      @include screen(992px) {
+        position: initial;
+        width: initial;
+        bottom: initial;
+        padding-top: initial;
+        padding-right: initial;
+      }
+
+      align-items: center;
+      display: flex;
+      justify-content: flex-end;
+
+      @include screen(992px) {
+        gap: 30px;
+      }
+
+      i {
+        @include screen(1024px) {
+          font-size: 24px;
+        }
+      }
+
+      .lyric,
+      .karaoke {
+        display: flex;
+        position: relative;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        justify-content: center;
+
+        button {
+          background: none;
+          @include textGradient();
+
+          border: none;
+          font-size: 20px;
+          cursor: pointer;
+        }
+      }
+
+      .volume {
+        display: flex;
+        position: relative;
+        align-items: center;
+        justify-content: center;
+
+        .icon {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          cursor: pointer;
+          width: 30px;
+          height: 30px;
+          @include textGradient();
+        }
+
+        .volume-background {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          bottom: 50px;
+          background: $subColorMain;
+          border-radius: 5px;
+          height: 100px;
+          padding: 10px;
+          width: 50px;
+          opacity: 0;
+          pointer-events: none;
+          visibility: hidden;
+          transition: 0.3s ease-out;
+          transition-property: opacity, visibility;
+
+          &::before {
+            content: "";
+            top: -30px;
+            width: 100%;
+            height: 30px;
+            left: 0;
+            position: absolute;
+            background: transparent;
+          }
+
+          &::after {
+            content: "";
+            bottom: -24px;
+            width: 100%;
+            height: 30px;
+            left: 0;
+            position: absolute;
+            background: transparent;
+          }
+
+          &.show,
+          &:focus,
+          &:active,
+          &:hover {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+          }
+
+          .volume-process {
+            position: absolute;
+            top: 10px;
+            height: calc(100% - 20px);
+            width: 5px;
+            background: $colorProcess;
+            left: 50%;
+            border-radius: 10px;
+            transform: translateX(-50%);
+            cursor: pointer;
+
+            .process-main {
+              position: absolute;
+              bottom: 0;
+              width: 5px;
+              height: 100%;
+              border-radius: 10px;
+              background: $mainColor;
+
+              .process-icon {
+                position: absolute;
+                top: 0;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                @include processIconGradient();
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+              }
+
+              .process-percent {
+                position: absolute;
+                right: 36px;
+                font-size: 14px;
+                font-weight: bold;
+                @include textGradient();
+                padding: 5px 2px;
+                border-radius: 5px;
+                font-weight: bold;
+                user-select: none;
+                pointer-events: none;
+                top: -10px;
+              }
+            }
+          }
+        }
+
+        &:hover {
+          .volume-background {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+          }
+        }
+      }
+    }
+
+    .middle {
+      flex-basis: 100%;
+
+      @include screen(1024px) {
+        flex-basis: 40%;
+      }
+
+      display: flex;
+      justify-content: center;
+
+      @include screen(320px) {
+        gap: 20px;
+      }
+
+      button {
+        background: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        @include screen(400px) {
+          font-size: 24px;
+        }
+
+        width: 32px;
+        cursor: pointer;
+        transition: transform 0.3s ease-out;
+        @include textGradient();
+
+        &:active {
+          transform: scale(1.3);
+        }
+
+        &.big {
+          margin: 0 20px;
+          font-size: 36px;
+        }
+      }
+    }
+  }
+
+  .player {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+
+    .time-start,
+    .time-end {
+      user-select: none;
+      pointer-events: none;
+      @include textGradient();
+      font-weight: bold;
+
+      @include screen(992px) {
+        font-size: 18px;
+      }
+    }
+    .process-inner {
+      position: relative;
+      width: calc(100% - 16px);
+      height: 100%;
+      z-index: 20000;
+    }
+    .process {
+      height: 8px;
+      display: block;
+      background: $colorProcess;
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      z-index: 10000;
+
+      &-main {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+
+        width: 0%;
+        background: $mainColor;
+        height: 8px;
+      }
+
+      &-icon {
+        height: 16px;
+        width: 16px;
+        position: absolute;
+        @include processIconGradient();
+        border-radius: 5px;
+        top: 50%;
+        right: 0;
+        transform: translateX(100%) translateY(-50%);
+      }
+
+      &-timer {
+        position: absolute;
+        bottom: 20px;
+        left: 0px;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: $subColor;
+        font-weight: bold;
+        background: $mainColor;
+        padding: 4px 8px;
+        display: flex;
+        border-radius: 5px;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: visible;
+        pointer-events: none;
+        user-select: none;
+        transition: 0.3s ease-out;
+        transition-property: visibility, opacity;
+        z-index: 999999;
+
+        &.show {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+    }
+  }
+}
+
+main {
+  position: relative;
+  overflow: hidden;
+}
+
+.player-screen {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+
+  .screen-left {
+    position: relative;
+
+    .search-container,
+    .home-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 100%;
+      opacity: 0;
+      transition-property: opacity, visibility, top;
+      visibility: hidden;
+      pointer-events: none;
+      user-select: none;
+      transition: 400ms ease-out;
+
+      &.show {
+        user-select: all;
+        top: 0;
+        opacity: 1;
+        visibility: visible;
+        pointer-events: all;
+      }
+    }
+
+    .heading {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      color: white;
+      padding: 0 3vw;
+      margin-bottom: 20px;
+
+      h2 {
+        @include textGradient();
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        i {
+          font-size: 16px;
+          margin-right: 5px;
+        }
+      }
+
+      button {
+        border: none;
+        padding: 5px;
+        background: none;
+        @include textGradient();
+        cursor: pointer;
+      }
+    }
+
+    .search,
+    .songs {
+      &::-webkit-scrollbar {
+        background: transparent;
+        width: 8px;
+      }
+
+      &::-webkit-scrollbar-button {
+        background: transparent;
+        height: 0;
+        display: none;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, transparent, $mainColor);
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      position: absolute;
+      width: 100%;
+      padding-bottom: 10px;
+      overflow: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, 160px);
+      max-height: calc(100vh - 300px);
+      @include screen(992px) {
+        grid-template-columns: repeat(auto-fit, 210px);
+      }
+
+      justify-content: center;
+      flex-wrap: wrap;
+      grid-gap: 20px;
+
+      .song-item {
+        flex-basis: calc(100% / 12 * 3 - 20px);
+        position: relative;
+        font-size: 0;
+        cursor: pointer;
+        border-radius: 25px;
+        transition: box-shadow 400ms ease-out;
+
+        &:hover {
+          box-shadow: 1px 1px 10px $mainColor;
+        }
+
+        img {
+          width: 100%;
+          border-radius: 10px;
+        }
+
+        .image-placeholder {
+          width: 100%;
+          height: 100%;
+          min-height: 210px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 28px;
+          font-weight: bold;
+          position: relative;
+          overflow: hidden;
+
+          // Music icon animation
+          > span:first-child {
+            animation: pulse 2s infinite;
+          }
+        }
+
+        .duration-overlay {
+          position: absolute;
+          bottom: 8px;
+          right: 8px;
+          background: rgba(0, 0, 0, 0.8);
+          color: white;
+          font-size: 12px;
+          font-weight: 600;
+          padding: 4px 6px;
+          border-radius: 4px;
+          font-family: "SF Mono", "Monaco", monospace;
+        }
+
+        .info {
+          background: #00000090;
+          font-size: initial;
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          padding: 10px;
+          width: 100%;
+          border-bottom-left-radius: 10px;
+          border-bottom-right-radius: 10px;
+
+          h3 {
+            font-size: 14px;
+            height: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            @include textGradient();
+          }
+
+          .author {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: $colorText;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+
+    &:has(.home-container.show) {
+      .search {
+        top: 100%;
+      }
+    }
+
+    &:has(.songs.show) {
+      .search {
+        top: 100%;
+      }
+    }
+  }
+
+  .main {
+    align-items: center;
+    gap: 30px;
+    padding: 20px 0;
+  }
+
+  .screen-left,
+  .main,
+  .screen-right {
+    opacity: 0;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    visibility: hidden;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    top: 100%;
+    transition-property: top, opacity, visibility;
+    transition-duration: 300ms;
+
+    &.show {
+      opacity: 1;
+      top: 0;
+      visibility: visible;
+      pointer-events: all;
+    }
+  }
+
+  .screen-right {
+    justify-content: flex-start;
+  }
+}
+
+//End: Player
+.disc-overlay {
+  display: flex;
+  justify-content: center;
+  padding: 4px;
+}
+
+.disc {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  width: 30vh;
+  height: 30vh;
+
+  @include screen(1024px) {
+    width: 50vh;
+    height: 50vh;
+  }
+
+  filter: drop-shadow(1px 1px 2px $mainColor);
+
+  &::before {
+    content: "";
+    width: 5vh;
+    height: 5vh;
+    border: 2vh solid $subColor;
+    top: 50%;
+    left: 50%;
+    position: absolute;
+    border-radius: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 1;
+    @include screen(1024px) {
+      width: 10vh;
+      height: 10vh;
+    }
+  }
+
+  &::after {
+    content: "";
+    border-style: solid;
+    border-color: transparent;
+    border-width: 15vh;
+    position: absolute;
+
+    border-image-source: var(--url-image);
+    border-image-repeat: stretch;
+    border-image-slice: 41%;
+    border-image-width: 43%;
+    border-image-outset: 0px;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+
+    @include screen(1024px) {
+      border-width: 25vh;
+    }
+  }
+}
+
+.song-info {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 20px;
+
+  h1 {
+    font-size: 16px;
+
+    @include screen(320px) {
+      font-size: 22px;
+    }
+
+    @include screen(575px) {
+      font-size: 32px;
+    }
+
+    text-align: center;
+    text-transform: capitalize;
+    line-height: 1;
+    @include textGradient();
+  }
+}
+
+.screen-right {
+  padding: 0 10px;
+  background: linear-gradient(to bottom, $subColor, transparent);
+  box-shadow: 0 0 40px $colorOpacity;
+  border-radius: 4px;
+  overflow: hidden;
+
+  h2 {
+    font-size: 16px;
+
+    @include screen(1024px) {
+      font-size: 20px;
+    }
+
+    color: white;
+    font-weight: bold;
+    @include backgroundGradient(180deg);
+    text-transform: uppercase;
+    padding: 10px 40px;
+    text-align: center;
+  }
+
+  .playlist {
+    position: relative;
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+      background: transparent;
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-button {
+      background: transparent;
+      height: 0;
+      display: none;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, transparent, $mainColor);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
+
+  .song {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+
+    &.playing {
+      @include backgroundGradient(120deg);
+
+      .info {
+        h3 {
+          text-shadow: 0 0 0px $colorText;
+          // filter: drop-shadow(0 0 1px $mainColor);
+        }
+      }
+
+      .image {
+        .play-line {
+          display: flex;
+          z-index: 10;
+
+          span {
+            background-image: linear-gradient(
+              to top,
+              $colorText,
+              $colorLineSpan
+            );
+            z-index: 10;
+          }
+        }
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: $colorOpacity;
+        }
+      }
+    }
+
+    .image {
+      position: relative;
+      font-size: 0;
+      box-shadow: 0 0 10px $mainColor;
+
+      .play-line {
+        display: none;
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translate(-50%);
+      }
+    }
+
+    img {
+      width: auto;
+      height: 28px;
+    }
+
+    .info {
+      h3 {
+        font-size: 18px;
+        @include textGradient();
+      }
+    }
+  }
+}
+
+.play-line {
+  display: flex;
+  gap: 2px;
+  justify-content: flex-end;
+  align-items: flex-end;
+  overflow: hidden;
+
+  span {
+    background: linear-gradient(to top, $colorText, $colorLineSpan);
+    display: block;
+    height: 0px;
+    width: 2px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 -1px 3px $colorLineSpan;
+  }
+}
+
+.karaoke-screen {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center; // Thêm này để center theo chiều dọc
+  padding: 15px;
+
+  @include screen(992px) {
+    padding: 30px;
+  }
+
+  z-index: 9999;
+  background: $karaokeColor;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 100%;
+  transition: top 400ms;
+
+  &.show {
+    top: 0;
+  }
+
+  .karaoke-content {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 100%; // Đảm bảo content chiếm full width
+    max-width: 1200px; // Giới hạn max-width để không quá rộng
+    text-align: center; // Center text trong content
+
+    .words {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center; // Center các từ
+
+      + .words {
+        margin-top: 20px;
+      }
+    }
+
+    .word {
+      color: black;
+      position: relative;
+      font-size: 32px;
+      font-weight: bold;
+
+      @include screen(992px) {
+        white-space: nowrap;
+      }
+
+      text-shadow: 1px 1px 3px white, 1.2px 1.2px 3px white,
+        1.3px 1.3px 3px white, 1.4px 1.4px 3px white, 1.5px 1.5px 3px white;
+
+      span {
+        overflow: hidden;
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        width: 0%;
+        color: #2026da;
+        text-shadow: 1px 1px 3px white, 1.1px 1.1px 3px white,
+          1.2px 1.2px 3px white, 1.3px 1.3px 3px white, 1.4px 1.4px 3px white,
+          1.5px 1.5px 3px white;
+      }
+    }
+
+    .plain-text-lyrics {
+      width: 100%;
+      height: calc(100vh - 300px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .lyrics-content {
+      height: 100%;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .lyric-line {
+      font-size: 1.5rem;
+      line-height: 2;
+      margin: 10px 0;
+      opacity: 0.9;
+      transition: opacity 0.3s ease;
+    }
+
+    .lyric-line:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .lyric-line {
+        font-size: 1.2rem;
+        line-height: 1.8;
+      }
+    }
+  }
+
+  .karaoke-action {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    .get-link {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+}
+
+[hidden] {
+  visibility: hidden;
+  pointer-events: none;
+  display: none !important;
+}
+
+[data-title] {
+  position: relative;
+  height: 42px !important;
+
+  .title-show {
+    position: absolute;
+    padding: 5px 10px;
+    background: black;
+    font-size: 16px;
+    white-space: nowrap;
+    color: white !important;
+    top: -100%;
+    -webkit-text-fill-color: initial;
+    left: 50%;
+    border-radius: 5px;
+    transform: translateX(-50%);
+    box-shadow: initial;
+    filter: initial;
+  }
+}
+
+.active {
+  position: relative;
+  filter: drop-shadow(0 0 2px $mainColor) !important;
+  background: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+
+  &::before {
+    content: ".";
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
+    bottom: calc(100% - 2px);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background: $mainColor;
+    -webkit-text-fill-color: initial;
+  }
+
+  i {
+    color: $mainColor;
+  }
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+
+  @include screen(992px) {
+    padding-top: 20px;
+    position: initial;
+    bottom: initial;
+    left: initial;
+  }
+}
+
+@keyframes filterRotate {
+  0% {
+    filter: hue-rotate(360deg);
+  }
+
+  50% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.loading {
+  position: absolute;
+  left: 50%;
+  top: 30px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 50px;
+  border: 5px solid $mainColor;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+  filter: drop-shadow(0 0 5px $mainColor);
+  animation: spin 1s infinite ease-out;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  user-select: none;
+  transition-property: visibility, opacity;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

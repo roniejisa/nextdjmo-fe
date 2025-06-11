@@ -46,7 +46,6 @@ const useExportOperations = (module, notify, searchParams) => {
         const response = await httpClientBlob(
           `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/export`,
           {
-            "X-API-KEY": "123456",
             Authorization: `Bearer ${token}`,
           },
           formData,

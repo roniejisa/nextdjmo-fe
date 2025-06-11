@@ -407,7 +407,7 @@ const ActionButtons = memo(({ message, onEdit, onRetry, noEdit = false }) => (
 
 // Main message item component
 const MessageItem = memo(function MessageItem({ message, index }) {
-  const { submitFormQuestion } = useContext(RosoContext);
+  const { submitFormQuestion, handlePreviewImage } = useContext(RosoContext);
   const setMessages = useChatStore.getState().setMessages;
   const messages = useChatStore((s) => s.messages);
   const containerRef = useRef(null);
@@ -415,9 +415,33 @@ const MessageItem = memo(function MessageItem({ message, index }) {
 
   // State for editing
   const [isEditing, setIsEditing] = useState(false);
+  
+  
 
   const { addHeaderBar } = useCodeBlockLogic();
   const { addDownloadButton } = useImageDownloadLogic();
+
+  // **THÊM MỚI: Hàm xử lý tải ảnh**
+  const handleDownloadImage = async (imageUrl, imageIndex) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `image_${Date.now()}_${imageIndex + 1}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+    }
+  };
+
+ 
+
+ 
 
   const handleEdit = () => {
     if (message?.isQuestion) {
@@ -527,6 +551,7 @@ const MessageItem = memo(function MessageItem({ message, index }) {
     : `bg-gradient-to-br from-white/80 via-gray-50/80 to-white/60 backdrop-blur-xl p-4 lg:p-6 rounded-2xl lg:rounded-3xl 
        shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50
        transform hover:scale-[1.01] hover:-translate-y-0.5`;
+  
   if (message.isStopped) {
     return (
       <div className="message-item stopped">
@@ -539,47 +564,73 @@ const MessageItem = memo(function MessageItem({ message, index }) {
   }
 
   return (
-    <div className={messageClasses}>
-      <div className="w-fit max-w-full space-y-4">
-        {htmlContent && htmlContent.trim() && (
-          <div ref={printRef}>
-            {isEditing ? (
-              <EditableTextArea
-                value={message.content}
-                onSave={handleSaveEdit}
-                onCancel={handleCancelEdit}
-                className="w-full"
-              />
-            ) : (
-              <div className={contentClasses}>
-                <div
-                  ref={containerRef}
-                  className={`markdown-content prose prose-sm lg:prose-base max-w-none
-                            ${
-                              message.isQuestion
-                                ? "whitespace-pre-line prose-invert"
-                                : "prose-gray"
-                            }`}
-                  style={{
-                    maxWidth: "100%",
-                    overflowX: "auto",
-                  }}
-                  dangerouslySetInnerHTML={{ __html: htmlContent }}
+    <>
+      <div className={messageClasses}>
+        <div className="w-fit max-w-full space-y-4">
+          {htmlContent && htmlContent.trim() && (
+            <div ref={printRef}>
+              {isEditing ? (
+                <EditableTextArea
+                  value={message.content}
+                  onSave={handleSaveEdit}
+                  onCancel={handleCancelEdit}
+                  className="w-full"
                 />
-              </div>
-            )}
-          </div>
-        )}
-        {message.images && message.images.length > 0 && (
-          <div>
-            (
+              ) : (
+                <div className={contentClasses}>
+                  <div
+                    ref={containerRef}
+                    className={`markdown-content prose prose-sm lg:prose-base max-w-none
+                              ${
+                                message.isQuestion
+                                  ? "whitespace-pre-line prose-invert"
+                                  : "prose-gray"
+                              }`}
+                    style={{
+                      maxWidth: "100%",
+                      overflowX: "auto",
+                    }}
+                    dangerouslySetInnerHTML={{ __html: htmlContent }}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* **CHỈNH SỬA: Thêm overlay actions cho ảnh** */}
+          {message.images && message.images.length > 0 && (
             <div
               className="bg-gradient-to-br w-fit from-white/80 via-gray-50/80 to-white/60 backdrop-blur-xl rounded-2xl lg:rounded-3xl 
-       shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50
-       transform hover:scale-[1.01] hover:-translate-y-0.5"
+         shadow-lg hover:shadow-xl transition-all duration-300 border border-white/50
+         transform hover:scale-[1.01] hover:-translate-y-0.5"
             >
               {message.images.map((imageUrl, index) => (
-                <div key={index} className="image-container">
+                <div key={index} className="image-container relative group">
+                  {/* **THÊM MỚI: Overlay với 2 nút action** */}
+                  <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    {/* Nút Preview */}
+                    <button
+                      onClick={() => handlePreviewImage(imageUrl)}
+                      className="bg-black/70 hover:bg-black/90 text-white p-2 rounded-full transition-all duration-200 hover:scale-110"
+                      title="Phóng to ảnh"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                      </svg>
+                    </button>
+                    
+                    {/* Nút Download */}
+                    <button
+                      onClick={() => handleDownloadImage(imageUrl, index)}
+                      className="bg-black/70 hover:bg-black/90 text-white p-2 rounded-full transition-all duration-200 hover:scale-110"
+                      title="Tải ảnh xuống"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                  
                   <ImageCustom
                     className={"max-w-full h-auto min-w-96 rounded-2xl"}
                     width={0}
@@ -590,39 +641,38 @@ const MessageItem = memo(function MessageItem({ message, index }) {
                 </div>
               ))}
             </div>
-            )
-          </div>
-        )}
+          )}
 
-        {!isEditing && message?.isQuestion && (
-          <ActionButtons
-            message={message}
-            onEdit={handleEdit}
-            onRetry={handleRetry}
-          />
-        )}
-
-        {!message.isQuestion && (
-          <ActionButtons
-            noEdit={true}
-            message={message}
-            onEdit={handleEdit}
-            onRetry={handleRetry}
-          />
-        )}
-      </div>
-
-      {!message?.isQuestion &&
-        message.content &&
-        message.images.length == 0 && (
-          <div className="mt-4">
-            <DownloadTools
-              rawMarkdown={message.content}
-              printTargetRef={printRef}
+          {!isEditing && message?.isQuestion && (
+            <ActionButtons
+              message={message}
+              onEdit={handleEdit}
+              onRetry={handleRetry}
             />
-          </div>
-        )}
-    </div>
+          )}
+
+          {!message.isQuestion && (
+            <ActionButtons
+              noEdit={true}
+              message={message}
+              onEdit={handleEdit}
+              onRetry={handleRetry}
+            />
+          )}
+        </div>
+
+        {!message?.isQuestion &&
+          message.content &&
+          message.images.length == 0 && (
+            <div className="mt-4">
+              <DownloadTools
+                rawMarkdown={message.content}
+                printTargetRef={printRef}
+              />
+            </div>
+          )}
+      </div>
+    </>
   );
 });
 
@@ -719,11 +769,12 @@ const Message = () => {
         {messages
           .filter((item) => {
             // Bỏ qua message rỗng
-            if (!item.content || item.content.trim().length === 0) return false;
+            const checkLengthImage = (Array.isArray(item?.images) && item.images.length > 0)
+            if ((!item.content || item.content.trim().length === 0) && !checkLengthImage) return false;
 
             // Bỏ qua message chỉ có HTML rỗng
             const textContent = item.content.replace(/<[^>]*>/g, "").trim();
-            return textContent.length > 0;
+            return textContent.length > 0 || checkLengthImage;
           })
           .map((item, index) => (
             <MessageItem key={index} index={index} message={item} />

@@ -1,4 +1,5 @@
 "use server";
+import { clearTokensAndRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 import { headers } from "next/headers";
@@ -52,9 +53,10 @@ export const getProfile = async () => {
         {}
       );
       return response.data;
-    } catch (e) {}
+    } catch (e) {
+      return clearTokensAndRedirect();
+    }
   }
-  return null;
 };
 
 export const changeOrderStatus = async (value, _id) => {

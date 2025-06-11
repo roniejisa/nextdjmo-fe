@@ -32,7 +32,7 @@ const CommentProvider = ({ children, type, id }) => {
   const handleSubmitFormReview = async (form) => {
     startTransition(async () => {
       const body = Object.fromEntries(form);
-      (body.type = type), (body._id = id);
+      (body.type = type), (body.id = id);
       const response = await submitReview(body);
       if (response.status == 401) {
         notify.changeNotify("error", response.message);

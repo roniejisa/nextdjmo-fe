@@ -1,5 +1,4 @@
 import Chat from "./Chat";
-import MessageProvider from "@/context/cms/MessageProvider";
 import History from "./History";
 import Message from "./Message";
 import { httpClient } from "@/utils/http";

@@ -77,7 +77,19 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
                     console.log('Token refreshed successfully')
                     
                     // Gọi lại authenticate với token mới để verify
-                    return await authenticate(request, accessToken, newRefreshToken, true, isOauth)
+                    const result = await authenticate(request, accessToken, newRefreshToken, true, isOauth)
+                    
+                    // *** QUAN TRỌNG: Trả về token mới để có thể set vào cookie ***
+                    if (result.isAuthenticated) {
+                        return {
+                            ...result,
+                            accessToken, // Token mới
+                            refreshToken: newRefreshToken, // Refresh token mới
+                            tokensUpdated: true // Flag để biết cần update cookies
+                        }
+                    }
+                    
+                    return result
                 } else {
                     console.log('Refresh token response invalid:', refreshData?.status)
                 }
@@ -95,7 +107,7 @@ async function authenticate(request, token = null, refreshToken = null, isRefres
     return { isAuthenticated: false, isSocial, shouldClearTokens: true }
 }
 
-function setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens = false) {
+function setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens = false, tokensUpdated = false) {
     const headers = new Headers()
     if (user) headers.set('user', encodeURIComponent(JSON.stringify(user)))
     let response
@@ -119,8 +131,8 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
     if (shouldClearTokens) {
         deleteTokens(response)
     } else {
-        // Set tokens nếu authenticated
-        if (accessToken && isAuthenticated) {
+        // Set tokens nếu authenticated hoặc tokens được update
+        if (accessToken && (isAuthenticated || tokensUpdated)) {
             response.cookies.set('token', accessToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
@@ -128,9 +140,14 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
                 sameSite: "strict",
                 maxAge: 60 * 60 * 24 // 24 hours
             })
+            
+            // Log để debug
+            if (tokensUpdated) {
+                console.log('Setting new access token in cookie')
+            }
         }
 
-        if (refreshToken && isAuthenticated) {
+        if (refreshToken && (isAuthenticated || tokensUpdated)) {
             response.cookies.set('refreshToken', refreshToken, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV === 'production',
@@ -138,6 +155,11 @@ function setResponse(user, accessToken, refreshToken, request, isAuthenticated, 
                 sameSite: "strict",
                 maxAge: 60 * 60 * 24 * 30 // 30 days
             })
+            
+            // Log để debug
+            if (tokensUpdated) {
+                console.log('Setting new refresh token in cookie')
+            }
         }
 
         if (isAuthenticated) {
@@ -193,7 +215,7 @@ export async function middleware(request) {
     
     try {
         const authResult = await authenticate(request, socialToken, socialRefreshToken, false, isOauth)
-        const { isAuthenticated, accessToken, refreshToken, user, isSocial, shouldClearTokens } = authResult
+        const { isAuthenticated, accessToken, refreshToken, user, isSocial, shouldClearTokens, tokensUpdated } = authResult
 
         // Xử lý trang login
         if (pathname === URL_LOGIN) {
@@ -233,7 +255,7 @@ export async function middleware(request) {
 
         // Set language và response
         const language = getLanguage(request)
-        const response = setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens)
+        const response = setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens, tokensUpdated)
         
         response.cookies.set("lang", language, {
             httpOnly: true,

@@ -1,190 +1,382 @@
 "use client";
-import "plyr/dist/plyr.css"; // Đảm bảo bạn đã import CSS của Plyr
+import "plyr/dist/plyr.css";
 import React, { useEffect, useRef, useState } from "react";
-import Hls from "hls.js";
 import dynamic from "next/dynamic";
-const Plyr = dynamic(() => import("plyr"), { ssr: false });
-// Hàm chuẩn hóa IV (đảm bảo IV có độ dài 16 byte)
-function normalizeIV(iv) {
-  const requiredLength = 16; // Đảm bảo IV luôn có độ dài 16 byte
-  let ivBuffer = iv; // Giả sử iv đã là ArrayBuffer hoặc Uint8Array
+import CryptoJS from "crypto-js";
 
-  // Kiểm tra chiều dài của IV và chuẩn hóa
-  if (ivBuffer.byteLength < requiredLength) {
-    const padding = new Uint8Array(requiredLength - ivBuffer.byteLength);
-    ivBuffer = new Uint8Array([...new Uint8Array(ivBuffer), ...padding]);
-  } else if (ivBuffer.byteLength > requiredLength) {
-    ivBuffer = ivBuffer.slice(0, requiredLength); // Cắt bớt nếu IV dài hơn 16 byte
-  }
+const createStringNumberLastHour = () => {
+  const result = new Date().getHours() % 10 || 1;
+  return result;
+};
 
-  return ivBuffer;
-}
+const getVNDay = () => {
+  const days = [
+    "Chủ nhật",
+    "Thứ 2",
+    "Thứ 3",
+    "Thứ 4",
+    "Thứ 5",
+    "Thứ 6",
+    "Thứ 7",
+  ];
+  const dayIndex = new Date().getDay(); // 0=Sunday, 6=Saturday
+  const dayVietnamese = days[dayIndex];
+  return dayVietnamese;
+};
 
-// Hàm giải mã với Web Crypto API
-async function decryptDataWithWebCrypto(encryptedData, key, iv) {
-  // Key và IV đều đã được chuẩn bị sẵn, bạn chỉ cần sử dụng để giải mã.
+const createMD5 = () => {
+  const strHash = createStringNumberLastHour().toString() + getVNDay();
+  const md5Hash = CryptoJS.MD5(strHash).toString();
+  return md5Hash;
+};
 
-  try {
-    // Giải mã dữ liệu sử dụng AES trong chế độ CBC
-    const decryptedData = await crypto.subtle.decrypt(
-      {
-        name: "AES-CBC",
-        iv: iv,
-      },
-      await crypto.subtle.importKey("raw", key, { name: "AES-CBC" }, false, [
-        "decrypt",
-      ]),
-      encryptedData // Dữ liệu mã hóa đã có sẵn
-    );
-
-    // Trả về dữ liệu giải mã dưới dạng ArrayBuffer
-    return decryptedData;
-  } catch (error) {
-    console.error("Decryption failed:", error);
-    throw error;
-  }
-}
-
-// Hàm chuyển chuỗi hex thành ArrayBuffer
-function hexToArrayBuffer(hex) {
-  const typedArray = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    typedArray[i / 2] = parseInt(hex.substr(i, 2), 16);
-  }
-  return typedArray.buffer;
-}
-
-const VideoPlayer = ({ m3u8Url }) => {
+const VideoPlayerCore = ({ m3u8Url }) => {
   const videoRef = useRef(null);
-  const [currentResolution, setCurrentResolution] = useState(null); // Resolution hiện tại đang phát
+  const [currentResolution, setCurrentResolution] = useState(null);
+  const [isClient, setIsClient] = useState(false);
   const hlsRef = useRef(null);
   const plyrRef = useRef(null);
+
   useEffect(() => {
-    if (typeof window !== "undefined" && Hls.isSupported()) {
-      const hls = new Hls({
-        xhrSetup: (xhr, url) => {
-          xhr.setRequestHeader("x-api-key", "123456"); // Thêm API key nếu cần
-        },
-      });
+    setIsClient(true);
+  }, []);
 
-      hls.loadSource(m3u8Url);
-      hls.attachMedia(videoRef.current);
+  useEffect(() => {
+    if (!isClient || !videoRef.current) return;
 
-      // hls.on(Hls.Events.FRAG_LOADING, async (event, data) => {
-      //   // try {
-      //   const response = await fetch(data.frag.url);
-      //   const encryptedData = await response.arrayBuffer(); // Lấy dữ liệu mã hóa từ video
-      //   const iv = response.headers.get("X-IV"); // Lấy IV từ header "X-IV"
-      //   const key = response.headers.get("X-Key"); // Lấy key từ header "X-KEY"
+    const initializePlayer = async () => {
+      try {
+        const [{ default: Hls }, { default: Plyr }] = await Promise.all([
+          import("hls.js"),
+          import("plyr"),
+        ]);
 
-      //   // Chuyển IV và key sang ArrayBuffer nếu cần
-      //   const ivBuffer = hexToArrayBuffer(iv);
-      //   const keyBuffer = hexToArrayBuffer(key);
-
-      //   // Giải mã dữ liệu
-      //   const decryptedData = await decryptDataWithWebCrypto(
-      //     encryptedData,
-      //     keyBuffer,
-      //     ivBuffer
-      //   );
-      //   console.log("Decrypted data:", decryptedData);
-      //   const blob = new Blob([decryptedData], {
-      //     type: "video/MP2T", // Kiểm tra MIME type
-      //   });
-
-      //   const url = URL.createObjectURL(blob);
-
-      //   // Kiểm tra xem URL có hợp lệ không trước khi gán
-      //   if (url) {
-      //     data.frag.url = url;
-      //     console.log("Decrypted data URL:", url);
-      //   } else {
-      //     console.error("Failed to create Blob URL");
-      //   }
-      //   // } catch (error) {
-      //   //   console.error("Failed to load or decrypt fragment:", error);
-      //   // }
-      // });
-
-      hls.on(Hls.Events.LEVEL_SWITCHED, function (event, data) {
-        // Cập nhật độ phân giải hiện tại khi chuyển cấp độ
-        setCurrentResolution(hls.levels[data.level].height);
-        // console.log(
-        //   "Current level switched to:",
-        //   hls.levels[data.level].height
-        // );
-      });
-
-      // Khi manifest được tải
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        if(!hls.levels) return
-        const availableResolutions = hls.levels?.map((level) => level.height);
-        if (availableResolutions.length > 0) {
-          hls.startLevel = availableResolutions.length - 1; // Đổi chất lượng video tốt nhất
+        if (!Hls.isSupported()) {
+          console.warn("HLS is not supported in this browser");
+          return;
         }
-        if (!plyrRef.current && videoRef.current) {
-          const player = new Plyr(videoRef.current, {
-            quality: {
-              default: availableResolutions[availableResolutions.length - 1],
-              options: availableResolutions.sort((a, b) => b - a),
-              forced: true,
-              onChange: (event) => handleChangeResolution(event),
-            },
-          });
-          plyrRef.current = player;
-        }
-      });
 
-      hls.on(Hls.Events.ERROR, function (event, data) {
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              console.error("A network error occurred.");
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error("A media error occurred.");
-              break;
-            case Hls.ErrorTypes.OTHER_ERROR:
-              console.error("An unknown error occurred.");
-              break;
-            default:
-              console.error("An error occurred.");
-              break;
+        // Custom loader để xử lý encrypted segments
+        class CustomFragmentLoader extends Hls.DefaultConfig.loader {
+          constructor(config) {
+            super(config);
+          }
+
+          load(context, config, callbacks) {
+            const { url } = context;
+
+            // Chỉ xử lý custom cho video segments từ API
+            if (url.includes("/api/video/")) {
+              this.loadCustomSegment(url, context, config, callbacks);
+            } else {
+              // Sử dụng loader mặc định cho các file khác (manifest, etc.)
+              super.load(context, config, callbacks);
+            }
+          }
+
+          async loadCustomSegment(url, context, config, callbacks) {
+            try {
+              // console.log('Loading custom segment:', url);
+
+              const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                  "X-API-KEY": "123456",
+                  "Content-Type": "application/json",
+                },
+                cache: "no-cache",
+              });
+
+              if (!response.ok) {
+                throw new Error(
+                  `HTTP ${response.status}: ${response.statusText}`
+                );
+              }
+
+              const jsonData = await response.json();
+
+              if (!jsonData.data) {
+                throw new Error("No video data in response");
+              }
+
+              const hourCurrent = createStringNumberLastHour();
+              const md5 = createMD5();
+              // Decode base64 thành ArrayBuffer
+              const base64Data = jsonData.data
+                .replaceAll(md5, hourCurrent)
+                .replaceAll("/kopwefd", "H")
+                .replaceAll("ixgrgfd/", "D");
+                
+              const binaryString = atob(base64Data);
+              const arrayBuffer = new ArrayBuffer(binaryString.length);
+              const uint8Array = new Uint8Array(arrayBuffer);
+
+              for (let i = 0; i < binaryString.length; i++) {
+                uint8Array[i] = binaryString.charCodeAt(i);
+              }
+
+              // console.log('Decoded segment size:', arrayBuffer.byteLength);
+
+              // Tạo response object giống như XMLHttpRequest
+              const customResponse = {
+                url: url,
+                data: arrayBuffer,
+                status: 200,
+                statusText: "OK",
+                headers: {
+                  "content-type": "video/mp2t",
+                  "content-length": arrayBuffer.byteLength.toString(),
+                },
+              };
+
+              // Gọi callback success
+              callbacks.onSuccess(customResponse, { url }, context);
+            } catch (error) {
+              console.error("Custom loader error:", error);
+
+              // Gọi callback error
+              callbacks.onError(
+                {
+                  code: error.code || 0,
+                  text: error.message || "Load failed",
+                  response: { url, status: 500 },
+                },
+                context,
+                null
+              );
+            }
+          }
+
+          abort() {
+            // Implement abort logic nếu cần
+            // console.log('Aborting custom loader');
+          }
+
+          destroy() {
+            // Cleanup logic nếu cần
+            // console.log('Destroying custom loader');
           }
         }
-      });
-      hlsRef.current = hls;
-      return () => {
-        hls.destroy();
-      };
-    }
-  }, [m3u8Url]);
 
-  const handleChangeResolution = (event) => {
-    // Tìm index của độ phân giải trong danh sách levels
-    if(!hlsRef.current.levels) return
-    const levelIndex = hlsRef.current.levels
-      ?.map((level) => level.height)
-      .findIndex((resolution) => resolution == event);
-    if (hlsRef.current) {
-      // Đặt độ phân giải của HLS.js
+        const hls = new Hls({
+          // Sử dụng custom loader
+          fLoader: CustomFragmentLoader,
+
+          // Các config khác
+          enableWorker: true,
+          lowLatencyMode: true,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 600,
+          maxBufferSize: 60 * 1000 * 1000,
+          maxBufferHole: 0.5,
+
+          // Thêm config cho debugging
+          debug: false,
+
+          // Config cho fragment loading
+          fragLoadingTimeOut: 20000,
+          fragLoadingMaxRetry: 4,
+          fragLoadingRetryDelay: 1000,
+
+          // Config cho manifest loading
+          manifestLoadingTimeOut: 10000,
+          manifestLoadingMaxRetry: 1,
+        });
+
+        hls.loadSource(m3u8Url);
+        hls.attachMedia(videoRef.current);
+
+        hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+          const newResolution = hls.levels[data.level]?.height;
+          setCurrentResolution(newResolution);
+          // console.log(`Resolution switched to: ${newResolution}p`);
+        });
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          const availableResolutions = hls.levels
+            .map((level) => level.height)
+            .filter(Boolean)
+            .sort((a, b) => b - a);
+
+          // console.log("Available resolutions:", availableResolutions);
+
+          if (availableResolutions.length > 0) {
+            hls.startLevel = hls.levels.length - 1;
+
+            if (!plyrRef.current && videoRef.current) {
+              const player = new Plyr(videoRef.current, {
+                quality: {
+                  default: availableResolutions[0],
+                  options: availableResolutions,
+                  forced: true,
+                  onChange: handleChangeResolution,
+                },
+                controls: [
+                  "play-large",
+                  "play",
+                  "progress",
+                  "current-time",
+                  "duration",
+                  "mute",
+                  "volume",
+                  "settings",
+                  "fullscreen",
+                ],
+                settings: ["quality", "speed"],
+                speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
+              });
+
+              plyrRef.current = player;
+            }
+          }
+        });
+
+        hls.on(Hls.Events.FRAG_LOADING, (event, data) => {
+          // console.log("Fragment loading:", data.frag.url);
+        });
+
+        hls.on(Hls.Events.FRAG_LOADED, (event, data) => {
+          // console.log("Fragment loaded successfully:", data.frag.url);
+        });
+
+        hls.on(Hls.Events.FRAG_LOAD_ERROR, (event, data) => {
+          // console.error("Fragment load error:", data);
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          // console.error("HLS Error:", data.type, data.details, data);
+
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                // console.log("Attempting to recover from network error");
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                // console.log("Attempting to recover from media error");
+                hls.recoverMediaError();
+                break;
+              default:
+                // console.error("Fatal error, cannot recover:", data);
+                hls.destroy();
+                break;
+            }
+          }
+        });
+
+        hlsRef.current = hls;
+      } catch (error) {
+        console.error("Error initializing video player:", error);
+      }
+    };
+
+    initializePlayer();
+
+    return () => {
+      if (plyrRef.current) {
+        try {
+          plyrRef.current.destroy();
+          plyrRef.current = null;
+        } catch (error) {
+          console.error("Error destroying Plyr:", error);
+        }
+      }
+
+      if (hlsRef.current) {
+        try {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
+        } catch (error) {
+          console.error("Error destroying HLS:", error);
+        }
+      }
+    };
+  }, [m3u8Url, isClient]);
+
+  const handleChangeResolution = (newQuality) => {
+    if (!hlsRef.current) return;
+
+    const levelIndex = hlsRef.current.levels.findIndex(
+      (level) => level.height === parseInt(newQuality)
+    );
+
+    if (levelIndex !== -1) {
       hlsRef.current.currentLevel = levelIndex;
+      // console.log(`Resolution changed to: ${newQuality}p`);
     }
   };
 
+  if (!isClient) {
+    return (
+      <div className="video-player-container">
+        <div className="video-wrapper">
+          <div
+            className="video-loading"
+            style={{
+              width: "100%",
+              height: "400px",
+              backgroundColor: "#000",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+            }}
+          >
+            Loading video player...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      <video ref={videoRef} controls width="100%">
-        Your browser does not support the video tag.
-      </video>
-      <div>
-        <p>
-          Current Resolution:{" "}
-          {currentResolution ? `${currentResolution}p` : "N/A"}
-        </p>
+    <div className="video-player-container">
+      <div className="video-wrapper">
+        <video
+          ref={videoRef}
+          controls
+          className="video-player"
+          style={{ width: "100%", height: "auto" }}
+          crossOrigin="anonymous"
+          playsInline
+        >
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div
+        className="video-info"
+        style={{ marginTop: "10px", padding: "10px" }}
+      >
+        <div className="resolution-info">
+          <strong>Current Resolution:</strong>{" "}
+          {currentResolution ? `${currentResolution}p` : "Loading..."}
+        </div>
       </div>
     </div>
   );
 };
+
+const VideoPlayer = dynamic(() => Promise.resolve(VideoPlayerCore), {
+  ssr: false,
+  loading: () => (
+    <div className="video-player-container">
+      <div className="video-wrapper">
+        <div
+          style={{
+            width: "100%",
+            height: "400px",
+            backgroundColor: "#f0f0f0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          Loading video player...
+        </div>
+      </div>
+    </div>
+  ),
+});
 
 export default VideoPlayer;

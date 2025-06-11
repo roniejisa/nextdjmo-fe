@@ -12,13 +12,13 @@ export const useCommentState = (initialComments = [], initialTotal = 0) => {
   const toggleReplication = (commentId) => {
     setComments((prev) =>
       prev.map((comment) =>
-        comment._id === commentId
+        comment.id === commentId
           ? { ...comment, showReplication: !comment.showReplication }
           : comment
       )
     );
 
-    const targetComment = comments.find((comment) => comment._id === commentId);
+    const targetComment = comments.find((comment) => comment.id === commentId);
     if (targetComment) {
       setFocusComment(!targetComment.showReplication ? commentId : null);
     }
@@ -27,7 +27,7 @@ export const useCommentState = (initialComments = [], initialTotal = 0) => {
   const showChild = (commentId) => {
     setComments((prev) =>
       prev.map((comment) =>
-        comment._id === commentId ? { ...comment, showChild: true } : comment
+        comment.id === commentId ? { ...comment, showChild: true } : comment
       )
     );
   };
@@ -36,7 +36,7 @@ export const useCommentState = (initialComments = [], initialTotal = 0) => {
     setTotal(newTotal);
     setComments((prev) => {
       const filteredComments = newComments.filter(
-        (item) => !prev.some((comment) => comment._id === item._id)
+        (item) => !prev.some((comment) => comment.id === item.id)
       );
       return [...prev, ...filteredComments];
     });

@@ -100,7 +100,6 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
           const menuData = item.data ? JSON.parse(item.data) : [];
           processedAllMenus[item.key] = menuData;
         } catch (error) {
-          console.error(`Error parsing data for menu ${item.key}:`, error);
           processedAllMenus[item.key] = [];
         }
       });
@@ -292,7 +291,6 @@ const MenuBuilder = ({ data, moduleMain, items }) => {
     const error = validateForm();
     if (!error) return;
     const updateItems = (items) => {
-      console.log(formData)
       return items.map((item) => {
         if (item._id === editingItem._id) {
           return {

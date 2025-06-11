@@ -5,7 +5,7 @@ import { CommentContext } from "./CommentProvider";
 import StarIcon from "./StarIcon";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import ImageCustom from "@/components/Maintain/Image";
-import { formatTimeComment, showImageUrl } from "@/utils/client/util";
+import { formatTimeComment, showImageUrl } from "@/utils/client";
 import Send from "@/components/Icon/svg/Send";
 import { useCommentActions } from "./hooks/useCommentActions";
 import { useCommentState } from "./hooks/useCommentState";
@@ -21,6 +21,7 @@ const CommentItem = ({
 }) => {
   const [reactions, setReactions] = useState({});
   const handleReaction = (commentId, reactionType) => {
+    console.log(`Comment ${commentId} received reaction: ${reactionType}`);
     setReactions((prev) => ({
       ...prev,
       [commentId]: reactionType,
@@ -58,11 +59,11 @@ const CommentItem = ({
         <div className="flex text-sm gap-4">
           <span>{formatTimeComment(comment.comment_at)}</span>
           <ReactionButton
-            onReaction={(reaction) => handleReaction(comment._id, reaction)}
+            onReaction={(reaction) => handleReaction(comment.id, reaction)}
             currentReaction={comment?.userReaction} // reaction hiện tại của user
             reactionCount={comment?.reactionCount} // tổng số reactions
           />
-          <button onClick={() => onToggleReplication(comment._id)}>
+          <button onClick={() => onToggleReplication(comment.id)}>
             Phản hồi
           </button>
         </div>
@@ -87,13 +88,13 @@ const ReplyForm = ({ comment, onSubmit, placeholder }) => {
       <form
         action={async (form) => {
           const body = Object.fromEntries(form);
-          body.comment_id = comment._id;
+          body.comment_id = comment.id;
           onSubmit(body);
         }}
         className="flex items-center bg-gray-100 p-2 rounded-xl"
       >
         <textarea
-          id={comment._id}
+          id={comment.id}
           name="content"
           className="w-full bg-transparent outline-none appearance-none resize-none"
           placeholder={placeholder || `Trả lời ${comment?.customer?.last_name}`}
@@ -157,7 +158,7 @@ const RenderCommentChilds = ({ comment, onShow }) => {
 
     const getComment = async () => {
       const response = await loadComments({
-        comment_id: commentData._id,
+        comment_id: commentData.id,
         page,
       });
 
@@ -173,7 +174,7 @@ const RenderCommentChilds = ({ comment, onShow }) => {
   }, [page]);
 
   const handleShowCommentChild = () => {
-    onShow(comment._id);
+    onShow(comment.id);
     setCommentData({
       ...commentData,
       showComment: true,
@@ -198,7 +199,7 @@ const RenderCommentChilds = ({ comment, onShow }) => {
       {commentData.showComment ? (
         <>
           {commentsChilds?.map((childComment, index) => (
-            <div key={childComment._id} className={getCommentClasses(index)}>
+            <div key={childComment.id} className={getCommentClasses(index)}>
               <CommentItem
                 comment={childComment}
                 onToggleReplication={toggleReplication}
@@ -318,7 +319,7 @@ const CommentContent = () => {
       {/* Danh sách comment chính */}
       <div className="flex flex-col gap-2">
         {comments?.map((comment) => (
-          <div key={comment._id}>
+          <div key={comment.id}>
             {/* Comment chính */}
             <CommentItem
               comment={comment}

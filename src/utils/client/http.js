@@ -13,7 +13,9 @@ export const httpClient = async (
   isRetry = false,
   searchParams,
   msg = "Vui lòng đăng nhập!",
-  typeResponse = "json"
+  typeResponse = "json",
+  signal = null, // AbortSignal để cancel request
+  isSSE = false // Flag để xác định có phải SSE không
 ) => {
   const options = {
     cache: "no-cache",
@@ -23,25 +25,40 @@ export const httpClient = async (
     method,
   };
 
+  // Thêm signal nếu có
+  if (signal) {
+    options.signal = signal;
+  }
+
   if (hasPrefixHeader) {
     options.headers[process.env.NEXT_PUBLIC_PREFIX_HEADER_KEY] =
       process.env.NEXT_PUBLIC_PREFIX_HEADER_VALUE;
   }
+
+  // Xử lý headers cho SSE
 
   if (Object.keys(body).length > 0) {
     if (method === "GET") {
       const searchParams = new URLSearchParams(body);
       url = url + "?" + searchParams.toString();
     } else {
-      options.headers["Content-Type"] = "application/json";
-      options.body = JSON.stringify(body);
+      // Kiểm tra nếu body là FormData thì không set Content-Type
+      if (!(body instanceof FormData)) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(body);
+      } else {
+        options.body = body;
+      }
     }
   } else if (body instanceof FormData) {
     options.body = body;
+  } else if (isSSE) {
+    options.headers["Accept"] = "text/event-stream";
+    options.headers["Cache-Control"] = "no-cache";
   }
 
   const response = await fetch(url, options);
-  
+
   // Kiểm tra 401 trước khi xử lý response body
   if (response.status === 401 && !isRetry) {
     // If already refreshing, wait for it to complete
@@ -62,7 +79,9 @@ export const httpClient = async (
             true, // isRetry = true
             searchParams,
             msg,
-            typeResponse
+            typeResponse,
+            signal,
+            isSSE
           );
         }
       } catch (error) {
@@ -91,7 +110,9 @@ export const httpClient = async (
             true, // isRetry = true
             searchParams,
             msg,
-            typeResponse
+            typeResponse,
+            signal,
+            isSSE
           );
         } else {
           return clearTokensAndRedirect();
@@ -107,6 +128,7 @@ export const httpClient = async (
 
   // Xử lý response body sau khi đã handle 401
   let data;
+
   switch (typeResponse) {
     case "blob":
       data = await response.blob();
@@ -116,6 +138,9 @@ export const httpClient = async (
       break;
     case "text":
       data = await response.text();
+      break;
+    case "stream":
+      data = response.body; // Trả về ReadableStream
       break;
     default:
       // Kiểm tra content-type cho trường hợp default
@@ -135,6 +160,31 @@ export const httpClient = async (
   };
 };
 
+// Utility function để xử lý SSE
+export const httpClientSSE = async (
+  url,
+  customHeaders = {},
+  body = {},
+  method = "POST",
+  hasPrefixHeader = true,
+  signal = null
+) => {
+  return await httpClient(
+    url,
+    customHeaders,
+    body,
+    method,
+    hasPrefixHeader,
+    false,
+    null,
+    "Vui lòng đăng nhập!",
+    "stream",
+    signal,
+    true // isSSE = true
+  );
+};
+
+// Enhanced blob client với signal support
 export const httpClientBlob = async (
   url,
   customHeaders = {},
@@ -144,7 +194,8 @@ export const httpClientBlob = async (
   isRetry = false,
   searchParams,
   msg = "Vui lòng đăng nhập!",
-  typeResponse = "blob"
+  typeResponse = "blob",
+  signal = null
 ) => {
   return await httpClient(
     url,
@@ -155,6 +206,7 @@ export const httpClientBlob = async (
     isRetry,
     searchParams,
     msg,
-    typeResponse
+    typeResponse,
+    signal
   );
 };

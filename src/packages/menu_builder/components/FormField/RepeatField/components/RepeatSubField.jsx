@@ -5,6 +5,7 @@ import SmallInput from "../base/SmallInput";
 import SmallTextarea from "../base/SmallTextarea";
 import BaseSelect from "../base/BaseSelect";
 import BaseCheckbox from "../base/BaseCheckbox";
+import ImageField from "../../../ImageField";
 
 const RepeatSubField = ({ field, value, onChange, index, parentKey }) => {
   const handleChange = (newValue) => {
@@ -39,15 +40,22 @@ const RepeatSubField = ({ field, value, onChange, index, parentKey }) => {
         <BaseSelect {...commonProps} options={field.options} size="small" />
       </div>
     ),
-    textarea: () => (
-      <div>
-        <FieldLabel
-          icon={field.icon}
-          label={field.label}
-          required={field.required}
-          size="small"
-        />
-        <SmallTextarea {...commonProps} />
+    textarea: () => {
+      return (
+        <div>
+          <FieldLabel
+            icon={field.icon}
+            label={field.label}
+            required={field.required}
+            size="small"
+          />
+          <SmallTextarea {...commonProps} />
+        </div>
+      );
+    },
+    image: () => (
+      <div className="space-y-3">
+        <ImageField {...commonProps} />
       </div>
     ),
     default: () => (
@@ -62,8 +70,9 @@ const RepeatSubField = ({ field, value, onChange, index, parentKey }) => {
       </div>
     ),
   };
-
-  return fieldComponents[field.type] || fieldComponents.default();
+  
+  const isFunction = typeof fieldComponents[field.type] === 'function'
+  return isFunction ? fieldComponents[field.type]() : fieldComponents.default();
 };
 
 export default RepeatSubField;

@@ -6,6 +6,8 @@ import hljs from "highlight.js";
 import "highlight.js/styles/vs2015.min.css";
 import DOMPurify from "dompurify";
 import { useChatStore } from "@/stories/roso/ChatStore";
+import { httpClientSSE } from "@/utils/client/http";
+import ImageCustom from "@/components/Maintain/Image";
 
 export const RosoContext = createContext();
 const RosoProvider = ({ children }) => {
@@ -13,6 +15,9 @@ const RosoProvider = ({ children }) => {
   const setIsStreaming = chatStore.setIsStreaming;
   const setFormValue = chatStore.setFormValue;
   const addMessage = chatStore.addMessage;
+
+  // **THÊM MỚI: State cho modal preview ảnh**
+  const { previewImage, setPreviewImage } = useChatStore();
 
   const abortControllerRef = useRef(null);
   const messageRef = useRef(null);
@@ -32,7 +37,7 @@ const RosoProvider = ({ children }) => {
   }, []);
   // Thêm vào RosoProvider, ngay sau submitFormQuestion
   const stopStream = () => {
-    console.log("Stopping stream...");
+    // console.log("Stopping stream...");
 
     // Abort request thực sự
     if (abortControllerRef.current) {
@@ -54,7 +59,6 @@ const RosoProvider = ({ children }) => {
           ...tempTextRef.current,
           isStopped: true,
         };
-        console.log(123);
         useChatStore.getState().addMessage(stoppedMessage);
       }
 
@@ -167,7 +171,7 @@ const RosoProvider = ({ children }) => {
 
     // ✅ Render ảnh đẹp với error handling
     const renderImage = (imageUrl, index) => {
-      console.log("Rendering image:", imageUrl, "Index:", index);
+      // console.log("Rendering image:", imageUrl, "Index:", index);
       return `
     <div class="image-container" style="
       margin: 16px 0;
@@ -249,7 +253,7 @@ const RosoProvider = ({ children }) => {
       // Hiển thị trạng thái tạo ảnh nếu đang tạo
       if (accumulatedMessage.isGeneratingImage) {
         fullContent += showImageGenerating();
-        console.log("Showing image generating state");
+        // console.log("Showing image generating state");
       }
 
       // Render images đã hoàn thành
@@ -263,12 +267,12 @@ const RosoProvider = ({ children }) => {
       }
 
       // Cập nhật DOM
-      console.log("Setting innerHTML with content length:", fullContent.length);
+      // console.log("Setting innerHTML with content length:", fullContent.length);
       tempRef.current.innerHTML = fullContent;
 
       // Debug: in ra nội dung HTML
       if (accumulatedMessage.images && accumulatedMessage.images.length > 0) {
-        console.log("Final HTML content:", fullContent);
+        // console.log("Final HTML content:", fullContent);
       }
 
       // Highlight code blocks nếu có hljs
@@ -284,7 +288,7 @@ const RosoProvider = ({ children }) => {
     };
 
     const handleStreamChunk = (parsedData) => {
-      console.log("Received chunk:", parsedData);
+      // console.log("Received chunk:", parsedData);
 
       // Scroll đến vị trí tempTextRef
       if (typeof window !== "undefined" && tempTextRef.current) {
@@ -312,7 +316,14 @@ const RosoProvider = ({ children }) => {
         textQueue = Array.from(parsedData.text);
 
         // Kiểm tra nếu text mention về việc tạo ảnh, bật trạng thái generating
-        if (parsedData.text.includes("Tôi sẽ tạo một hình ảnh")) {
+        if (
+          parsedData.text.includes("Tôi sẽ tạo một hình ảnh") ||
+          parsedData.text.includes("I will generate an image") ||
+          parsedData.text.includes("A striking image") ||
+          parsedData.text.includes("I will generate a photorealistic image") ||
+          parsedData.text.includes("A captivating image") ||
+          parsedData.text.includes("A captivating photo")
+        ) {
           accumulatedMessage.isGeneratingImage = true;
         }
 
@@ -321,13 +332,13 @@ const RosoProvider = ({ children }) => {
 
       // Xử lý image - ƯU TIÊN CAO NHẤT
       if (parsedData?.image) {
-        console.log("Processing image:", parsedData.image);
+        // console.log("Processing image:", parsedData.image);
 
         // Fix URL path: thay thế tất cả backslash thành forward slash
         const fixedImageUrl = parsedData.image
           .replace(/\\\\/g, "/")
           .replace(/\\/g, "/");
-        console.log("Fixed image URL:", fixedImageUrl);
+        // console.log("Fixed image URL:", fixedImageUrl);
 
         // Khởi tạo mảng images nếu chưa có
         if (!accumulatedMessage.images) {
@@ -343,7 +354,7 @@ const RosoProvider = ({ children }) => {
         // Render ngay lập tức để hiển thị ảnh
         renderCurrentContent();
 
-        console.log("Current images array:", accumulatedMessage.images);
+        // console.log("Current images array:", accumulatedMessage.images);
       }
 
       tempTextRef.current = { ...accumulatedMessage };
@@ -377,11 +388,11 @@ const RosoProvider = ({ children }) => {
         // ✅ Images sẽ được render riêng bởi component hiển thị message
       };
 
-      console.log("Final message content length:", finalContent.length);
-      console.log(
-        "Final message images count:",
-        finalMessage.images?.length || 0
-      );
+      // console.log("Final message content length:", finalContent.length);
+      // console.log(
+      //   "Final message images count:",
+      //   finalMessage.images?.length || 0
+      // );
 
       // Render lần cuối với tempRef (để hiển thị trong quá trình stream)
       renderCurrentContent();
@@ -392,96 +403,94 @@ const RosoProvider = ({ children }) => {
       waitingRef.current = false;
     };
 
-    try {
-      abortControllerRef.current = new AbortController();
+    // try {
+    abortControllerRef.current = new AbortController();
 
-      // ✅ Hiển thị loading ngay từ đầu
-      showLoadingState();
+    // ✅ Hiển thị loading ngay từ đầu
+    showLoadingState();
 
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
-        {
-          method: "POST",
-          headers: {
-            "X-API-KEY": 123456,
-            Authorization: `Bearer ${token}`,
-          },
-          body: form,
-          signal: abortControllerRef.current.signal,
-        }
-      );
+    const response = await httpClientSSE(
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
+      {
+        Authorization: `Bearer ${token}`,
+      },
+      form,
+      "POST",
+      true,
+      abortControllerRef.current.signal
+    );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let sseBuffer = "";
-
-      function readChunk() {
-        reader
-          .read()
-          .then(({ done, value }) => {
-            if (done || !waitingRef.current) {
-              finishStream();
-              return;
-            }
-
-            sseBuffer += decoder.decode(value);
-            let events = sseBuffer.split("\n\n");
-            sseBuffer = events.pop();
-
-            events.forEach((event) => {
-              const lines = event
-                .split("\n")
-                .filter((line) => line.startsWith("data: "));
-
-              lines.forEach((line) => {
-                const jsonStr = line.substring("data: ".length).trim();
-                if (jsonStr === "[DONE]") return;
-
-                try {
-                  const parsedData = JSON.parse(jsonStr);
-                  handleStreamChunk(parsedData);
-                } catch (err) {
-                  console.error("JSON parse error:", err, "Line:", jsonStr);
-                }
-              });
-            });
-
-            readChunk();
-
-            // Kiểm tra scroll function
-            if (typeof checkScroll === "function") {
-              checkScroll();
-            }
-          })
-          .catch((error) => {
-            // Kiểm tra nếu là abort error thì không log
-            if (error.name === "AbortError") {
-              console.log("Stream was aborted");
-              return;
-            }
-            console.error("Stream reading error:", error);
-            finishStream();
-          });
-      }
-
-      readChunk();
-    } catch (error) {
-      console.error("Request error:", error);
-      if (tempRef.current) {
-        tempRef.current.innerHTML = `
-      <div style="padding: 16px; color: #e74c3c; background: #fdf2f2; border-radius: 8px; border-left: 4px solid #e74c3c;">
-        <strong>❌ Lỗi kết nối</strong><br>
-        Không thể kết nối đến server. Vui lòng thử lại sau.
-      </div>
-    `;
-      }
-      setIsStreaming(false);
-      waitingRef.current = false;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    const reader = response.data.getReader();
+    const decoder = new TextDecoder();
+    let sseBuffer = "";
+
+    function readChunk() {
+      reader
+        .read()
+        .then(({ done, value }) => {
+          if (done || !waitingRef.current) {
+            finishStream();
+            return;
+          }
+
+          sseBuffer += decoder.decode(value);
+          let events = sseBuffer.split("\n\n");
+          sseBuffer = events.pop();
+
+          events.forEach((event) => {
+            const lines = event
+              .split("\n")
+              .filter((line) => line.startsWith("data: "));
+
+            lines.forEach((line) => {
+              const jsonStr = line.substring("data: ".length).trim();
+              if (jsonStr === "[DONE]") return;
+
+              try {
+                const parsedData = JSON.parse(jsonStr);
+                handleStreamChunk(parsedData);
+              } catch (err) {
+                console.error("JSON parse error:", err, "Line:", jsonStr);
+              }
+            });
+          });
+
+          readChunk();
+
+          // Kiểm tra scroll function
+          if (typeof checkScroll === "function") {
+            checkScroll();
+          }
+        })
+        .catch((error) => {
+          // Kiểm tra nếu là abort error thì không log
+          if (error.name === "AbortError") {
+            // console.log("Stream was aborted");
+            return;
+          }
+          console.error("Stream reading error:", error);
+          finishStream();
+        });
+    }
+
+    readChunk();
+    // } catch (error) {
+    //   console.error("Request error:", error);
+    //   if (tempRef.current) {
+    //     tempRef.current.innerHTML = `
+    //   <div style="padding: 16px; color: #e74c3c; background: #fdf2f2; border-radius: 8px; border-left: 4px solid #e74c3c;">
+    //     <strong>❌ Lỗi kết nối</strong><br>
+    //     Không thể kết nối đến server. Vui lòng thử lại sau.
+    //   </div>
+    // `;
+    //   }
+    //   setIsStreaming(false);
+    //   waitingRef.current = false;
+    // }
   };
 
   const checkScroll = () => {
@@ -500,6 +509,17 @@ const RosoProvider = ({ children }) => {
       backToBotRef.current.classList.add("opacity-0");
     }
   };
+
+  // **THÊM MỚI: Hàm đóng modal preview**
+  const handleClosePreview = () => {
+    setPreviewImage(null);
+  };
+
+  // **THÊM MỚI: Hàm mở modal preview**
+  const handlePreviewImage = (imageUrl) => {
+    setPreviewImage(imageUrl);
+  };
+
   useEffect(() => {
     if (messageRef.current) {
       messageRef.current.addEventListener("scroll", checkScroll);
@@ -513,7 +533,7 @@ const RosoProvider = ({ children }) => {
       }
     };
   }, []);
-
+  console.log(previewImage);
   return (
     <RosoContext.Provider
       value={{
@@ -525,10 +545,53 @@ const RosoProvider = ({ children }) => {
         backToBotRef,
         submitFormQuestion,
         stopStream,
-        abortControllerRef
+        abortControllerRef,
+        handleClosePreview,
+        handlePreviewImage,
       }}
     >
       {children}
+      {/* **THÊM MỚI: Modal Preview ảnh** */}
+
+      {previewImage && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={handleClosePreview}
+        >
+          <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+            {/* Nút đóng */}
+            <button
+              onClick={handleClosePreview}
+              className="absolute top-4 right-4 z-10 bg-black/70 hover:bg-black/90 text-white p-2 rounded-full transition-all duration-200"
+              title="Đóng"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Ảnh preview */}
+            <ImageCustom
+              width={0}
+              height={0}
+              src={previewImage}
+              alt="Preview"
+              className="max-w-full min-h-[calc(100vh/2)] max-h-[90vh] w-fit object-contain rounded-lg shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
     </RosoContext.Provider>
   );
 };

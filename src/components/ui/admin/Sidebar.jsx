@@ -89,6 +89,8 @@ const Sidebar = ({ profile, menus: allMenu }) => {
     );
   };
 
+  console.log(permissions, allMenu)
+
   const filteredMenus = allMenu?.filter(hasPermission) || [];
 
   return (
