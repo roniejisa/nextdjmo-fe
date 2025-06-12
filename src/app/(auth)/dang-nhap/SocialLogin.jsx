@@ -82,7 +82,6 @@ const SocialLogin = ({ redirect }) => {
     // Lắng nghe thông điệp từ cửa sổ popup
     const handleMessage = (event) => {
       const { type, created, redirect } = event.data;
-      console.log(type, created, redirect)
       if (type === "login-social-success") {
         if (created.toLowerCase() == "true") {
           router.push("/system");

@@ -43,7 +43,6 @@ const iconPause = renderToString(<Pause />);
 
 const MusicProvider = ({ children }) => {
   // State management
-  const [playHomeCount, setPlayHomeCount] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Refs for persistent values
@@ -119,19 +118,6 @@ const MusicProvider = ({ children }) => {
     } catch (error) {
       console.error("Error getting localStorage:", error);
       return null;
-    }
-  }, []);
-
-  // API calls with useCallback
-  const loadSongHomeStart = useCallback(async () => {
-    try {
-      const response = await request
-        .setEndpoint("https://music-two-gules.vercel.app")
-        .get("/topSong");
-      return response.data;
-    } catch (error) {
-      console.error("Error loading home songs:", error);
-      return { status: 500, data: [] };
     }
   }, []);
 
@@ -483,6 +469,7 @@ const MusicProvider = ({ children }) => {
       // Optional: Auto-scroll functionality
       startAutoScroll(lyricsLines.length);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const showLyricKaraoke = useCallback(() => {
@@ -541,6 +528,7 @@ const MusicProvider = ({ children }) => {
         checkDataLyric();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getTimeCurrent, indexLyricZingMP3, zingMP3Lyric, checkDataLyric]);
 
   // Lyric management functions
@@ -748,12 +736,21 @@ const MusicProvider = ({ children }) => {
     if (isInitialized) return;
 
     try {
+      const timeLastUpdate = getLocalStorage(KEY_TIME_LAST_UPDATE);
+      if (timeLastUpdate && timeLastUpdate + 60 * 10 * 1000 >= new Date().getTime()) {
+        playlistHome.current = getLocalStorage(KEY_HOME) || [];
+        playlists.current = getLocalStorage(KEY_PLAYLIST_MAIN) || [];
+      } 
+
       if (playlists.current.length === 0) {
-        const [responseDB, responseJson] = await Promise.all([
+        const [responseDB, responseJson, responseHome] = await Promise.all([
           request
             .setEndpoint(process.env.NEXT_PUBLIC_ENDPOINT_URL)
             .get("api/get-list-music"),
           await fetch("/songs.json"),
+          request
+            .setEndpoint("https://music-two-gules.vercel.app")
+            .get("/topSong"),
         ]);
         if (responseDB.status === "OK" && responseDB.data.status === 200) {
           playlists.current = responseDB.data.data;
@@ -762,42 +759,15 @@ const MusicProvider = ({ children }) => {
         playlists.current = playlists.current.concat(await responseJson.json());
         setLocalStorage(KEY_PLAYLIST_MAIN, playlists.current);
         setLocalStorage(KEY_TIME_LAST_UPDATE, new Date().getTime());
-      } else {
-        const timeLastUpdate = getLocalStorage(KEY_TIME_LAST_UPDATE);
-        if (timeLastUpdate && timeLastUpdate + 60000 >= new Date().getTime()) {
-          playlistHome.current = getLocalStorage(KEY_HOME) || [];
-          playlists.current = getLocalStorage(KEY_PLAYLIST_MAIN) || [];
-        } else {
-          playlists.current = [];
-          playlistHome.current = [];
+        if (responseHome?.status === 200 && responseHome.status === "OK") {
+          playlistHome.current = responseHome.data.data;
+          setLocalStorage(KEY_HOME, responseHome.data.data);
         }
-      }
-
-      let currentPlayHomeCount = playHomeCount;
-      while (!playlistHome.current.length && currentPlayHomeCount < 5) {
-        const response = await loadSongHomeStart();
-        if (response?.status === 200 && response?.data) {
-          setLocalStorage(KEY_HOME, response.data);
-          playlistHome.current = response.data;
-          break;
-        }
-        currentPlayHomeCount++;
-        if (currentPlayHomeCount >= 5) break;
-      }
-
-      if (currentPlayHomeCount !== playHomeCount) {
-        setPlayHomeCount(currentPlayHomeCount);
       }
     } catch (error) {
       console.error("Error initializing playlist:", error);
     }
-  }, [
-    playHomeCount,
-    setLocalStorage,
-    getLocalStorage,
-    loadSongHomeStart,
-    isInitialized,
-  ]);
+  }, [setLocalStorage, getLocalStorage, isInitialized]);
   // Song loading and management
   const loadSongStart = useCallback(() => {
     try {
@@ -1131,7 +1101,7 @@ const MusicProvider = ({ children }) => {
     }
   }, [checkLoopIfEnded]);
 
-  function renderSongHome() {
+  const renderSongHome = useCallback(() => {
     return new Promise((resolve) => {
       if (songEl.current) {
         songEl.current.innerHTML = playlistHome.current
@@ -1151,7 +1121,7 @@ const MusicProvider = ({ children }) => {
       }
       resolve(songEl.current?.children);
     });
-  }
+  }, []);
 
   const pauseMusic = useCallback(() => {
     try {
@@ -1314,7 +1284,6 @@ const MusicProvider = ({ children }) => {
       initPlayList,
       setupTabButtons,
       initializeAudio,
-      loadSongHomeStart,
       renderSongHome,
     }),
     [
@@ -1346,7 +1315,6 @@ const MusicProvider = ({ children }) => {
       initPlayList,
       setupTabButtons,
       initializeAudio,
-      loadSongHomeStart,
     ]
   );
 

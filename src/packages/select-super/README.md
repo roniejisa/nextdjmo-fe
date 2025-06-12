@@ -70,7 +70,6 @@ function MyComponent() {
       selectedField={selectedField}
       onChange={(fieldName, fieldObject) => {
         setSelectedField(fieldName);
-        console.log("Selected:", fieldObject);
       }}
     />
   );
@@ -90,7 +89,6 @@ function MultiSelectComponent() {
       multiple={true}
       onChange={(fieldNames, fieldObjects) => {
         setSelectedFields(fieldObjects);
-        console.log("Selected fields:", fieldNames);
       }}
     />
   );

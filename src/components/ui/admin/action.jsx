@@ -1,5 +1,4 @@
 "use server";
-import { clearTokensAndRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
 import { getRefreshToken, getToken } from "@/utils/server/utils";
 
@@ -7,7 +6,7 @@ export const handleLogout = async () => {
   const refreshToken = await getRefreshToken();
 
   // Call API logout
-  const data = await httpClient(
+  const { status, data, message } = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/logout",
     {},
     { refreshToken },
@@ -15,7 +14,11 @@ export const handleLogout = async () => {
   );
 
   // Clear cookies
-  return clearTokensAndRedirect();
+  return {
+    status: status,
+    message: "Token expired",
+    shouldRedirect: true,
+  };
 };
 
 export const getMenu = async () => {
@@ -26,5 +29,5 @@ export const getMenu = async () => {
       Authorization: `Bearer ${token}`,
     }
   );
-  return response.data;
+  return response;
 };

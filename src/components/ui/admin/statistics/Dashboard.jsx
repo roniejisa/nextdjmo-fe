@@ -19,12 +19,10 @@ import {
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
-    console.log(payload);
     return (
       <div className="bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-xl p-4 shadow-2xl">
         <p className="text-white font-medium mb-2">{`Ngày: ${label}`}</p>
         {payload.map((entry, index) => {
-          console.log(entry);
           return (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {entry.dataKey === "total_views" &&

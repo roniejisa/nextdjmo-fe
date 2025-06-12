@@ -1128,7 +1128,7 @@ const MusicPlayer = () => {
               </div>
               <Volume
                 onVolumeChange={(vol) => {
-                  console.log(vol);
+                  console.log("Âm lượng hiện tại: " + vol);
                 }}
               />
             </div>

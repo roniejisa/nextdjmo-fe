@@ -450,7 +450,6 @@ const MessageItem = memo(function MessageItem({ message, index }) {
   };
 
   const handleSaveEdit = async (newContent) => {
-    console.log(newContent && newContent !== message.content);
     if (newContent && newContent !== message.content) {
       // Cập nhật message với nội dung mới
       const updatedMessages = messages.map((msg) =>
@@ -720,7 +719,6 @@ const Message = () => {
   const pageRef = useRef(1);
   const observerRef = useRef(null);
   const isLoadingMore = useRef(false);
-  console.log(editorHeight);
   useLayoutEffect(() => {
     tempTextRef.current = null;
     tempRef.current.innerHTML = "";

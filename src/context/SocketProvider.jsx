@@ -37,7 +37,6 @@ export const SocketProvider = ({ children }) => {
       socketRef.current = new WebSocket(process.env.NEXT_PUBLIC_SOCKET_URL);
       // ... rest of your socket setup
       socketRef.current.onopen = () => {
-        // console.log("Đã kết nối");
         setSocketOn(true);
         alertConnectSocket();
       };
@@ -80,7 +79,7 @@ export const SocketProvider = ({ children }) => {
           if (typeof socketRef.current.send != "function") return;
           socketRef.current.send(encryptData(obj));
         } catch (error) {
-          console.log(error);
+          // ERROR SOCKET
         }
       };
     }

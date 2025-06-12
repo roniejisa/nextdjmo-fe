@@ -84,6 +84,5 @@ const setCookieAuth = (obj) => {
       // Dữ liệu real
     }
   } catch (e) {
-    console.log("LỖI");
   }
 };

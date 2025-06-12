@@ -1,314 +1,525 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
-const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + 'auth'
-const API_KEY = process.env.API_KEY || '123456'
-const URL_LOGIN = '/dang-nhap'
-const defaultLang = 'vi'
-const languages = ['en', 'vi']
+// ==================== CONSTANTS ====================
+const AUTH_BASE_URL = process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth";
+const API_KEY = process.env.API_KEY || "123456";
+const URL_LOGIN = "/dang-nhap";
+const DEFAULT_LANG = "vi";
+const LANGUAGES = ["en", "vi"];
+const FETCH_TIMEOUT = 30000; // 5 seconds timeout
+const PROTECTED_ROUTES = ["/system"];
 
-function deleteTokens(response) {
-    response.cookies.delete('token')
-    response.cookies.delete('refreshToken')
-    response.cookies.delete('logged')
-    return response
+// ==================== GLOBAL REFRESH TOKEN MANAGEMENT ====================
+/**
+ * Global object để quản lý refresh token promises
+ * Key: refreshToken, Value: Promise đang thực hiện refresh
+ */
+const refreshPromises = new Map();
+
+/**
+ * Timeout để cleanup promises cũ (tránh memory leak)
+ */
+const REFRESH_PROMISE_TIMEOUT = 10000; // 10 seconds
+
+// ==================== UTILITY FUNCTIONS ====================
+
+/**
+ * Xóa tất cả authentication cookies
+ * @param {NextResponse} response - Response object để modify cookies
+ * @returns {NextResponse} Response với cookies đã bị xóa
+ */
+function clearAuthCookies(response) {
+  response.cookies.delete("token");
+  response.cookies.delete("refreshToken");
+  response.cookies.delete("logged");
+  return response;
 }
 
-// Sửa lỗi trong hàm authenticate
-async function authenticate(request, token = null, refreshToken = null, isRefresh = false, isOauth = false) {
-    const method = request.method
-    const isSocial = isOauth && token ? true : false
+/**
+ * Tạo session ID ngẫu nhiên
+ * @param {number} length - Độ dài của ID
+ * @returns {string} Random session ID
+ */
+function generateSessionId(length) {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
+/**
+ * Lấy ngôn ngữ từ URL path
+ * @param {Request} request - Next.js request object
+ * @returns {string} Language code (vi hoặc en)
+ */
+function getLanguageFromPath(request) {
+  const pathname = request.nextUrl.pathname;
+  const pathLanguage = pathname.split("/")[1];
+  return LANGUAGES.includes(pathLanguage) ? pathLanguage : DEFAULT_LANG;
+}
+
+/**
+ * Trích xuất thông tin OAuth từ URL parameters
+ * @param {URL} url - URL object từ request
+ * @returns {Object} Object chứa thông tin OAuth
+ */
+function extractOAuthParams(url) {
+  const socialToken = url.searchParams.get("token") || null;
+  const socialRefreshToken = url.searchParams.get("refreshToken") || null;
+  const newCustomer = url.searchParams.get("created") || null;
+
+  return {
+    socialToken,
+    socialRefreshToken,
+    newCustomer,
+    isOauth: !!newCustomer,
+  };
+}
+
+/**
+ * Cleanup expired refresh promises để tránh memory leak
+ */
+function cleanupExpiredPromises() {
+  const now = Date.now();
+  for (const [key, promiseData] of refreshPromises.entries()) {
+    if (now - promiseData.timestamp > REFRESH_PROMISE_TIMEOUT) {
+      refreshPromises.delete(key);
+    }
+  }
+}
+
+// ==================== AUTHENTICATION FUNCTIONS ====================
+
+/**
+ * Verify token bằng cách gọi API profile
+ * @param {string} token - Access token cần verify
+ * @returns {Promise<Object|null>} User profile nếu token hợp lệ, null nếu không
+ */
+async function verifyToken(token) {
+  if (!token) return null;
+
+  try {
+    const response = await fetch(AUTH_BASE_URL + "/profile", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "X-API-KEY": API_KEY,
+        "Content-Type": "application/json",
+      },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+
+    if (!response.ok) {
+      console.log(`Token verification failed with status: ${response.status}`);
+      return null;
+    }
+
+    const profile = await response.json();
     
-    token = token ? token : request.cookies.get('token')?.value
-    refreshToken = refreshToken ? refreshToken : request.cookies.get('refreshToken')?.value
-
-    // Kiểm tra token hiện tại
-    if (token) {
-        try {
-            const response = await fetch(AUTH_BASE_URL + '/profile', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'X-API-KEY': API_KEY,
-                    'Content-Type': 'application/json'
-                }
-            })
-            
-            // Kiểm tra status code trước khi parse JSON
-            if (response.ok) {
-                const profile = await response.json()
-                if (profile && profile.status === 200 && profile.data) {
-                    return { 
-                        isAuthenticated: true, 
-                        user: profile.data, 
-                        accessToken: token, 
-                        refreshToken, 
-                        isSocial 
-                    }
-                }
-            } else if (response.status === 401) {
-                console.log('Token expired or invalid, status:', response.status)
-                // Token hết hạn, không log error mà để logic refresh token xử lý
-            } else {
-                console.log('Profile fetch failed with status:', response.status)
-            }
-        } catch (error) {
-            console.error('Profile fetch error:', error)
-        }
+    if (profile && profile.status === 200 && profile.data) {
+      return profile.data;
     }
 
-    // Nếu token không hợp lệ hoặc hết hạn, thử làm mới
-    if (refreshToken && !isRefresh && method === "GET") {
-        try {
-            const refreshResponse = await fetch(AUTH_BASE_URL + '/refresh-token', {
-                headers: {
-                    "X-API-KEY": API_KEY,
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST',
-                body: JSON.stringify({ refreshToken })
-            })
-
-            // Kiểm tra status code của refresh token
-            if (refreshResponse.ok) {
-                const refreshData = await refreshResponse.json()
-                
-                if (refreshData && refreshData.status === 200 && refreshData.data) {
-                    const { accessToken, refreshToken: newRefreshToken } = refreshData.data
-                    console.log('Token refreshed successfully')
-                    
-                    // Gọi lại authenticate với token mới để verify
-                    const result = await authenticate(request, accessToken, newRefreshToken, true, isOauth)
-                    
-                    // *** QUAN TRỌNG: Trả về token mới để có thể set vào cookie ***
-                    if (result.isAuthenticated) {
-                        return {
-                            ...result,
-                            accessToken, // Token mới
-                            refreshToken: newRefreshToken, // Refresh token mới
-                            tokensUpdated: true // Flag để biết cần update cookies
-                        }
-                    }
-                    
-                    return result
-                } else {
-                    console.log('Refresh token response invalid:', refreshData?.status)
-                }
-            } else if (refreshResponse.status === 401) {
-                console.log('Refresh token expired or invalid')
-                // Refresh token cũng hết hạn
-            } else {
-                console.log('Refresh token failed with status:', refreshResponse.status)
-            }
-        } catch (error) {
-            console.error('Refresh token error:', error)
-        }
-    }
-
-    return { isAuthenticated: false, isSocial, shouldClearTokens: true }
+    return null;
+  } catch (error) {
+    console.error("Token verification error:", error);
+    return null;
+  }
 }
 
-function setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens = false, tokensUpdated = false) {
-    const headers = new Headers()
-    if (user) headers.set('user', encodeURIComponent(JSON.stringify(user)))
-    let response
+/**
+ * Refresh access token sử dụng refresh token (internal function)
+ * @param {string} refreshToken - Refresh token
+ * @returns {Promise<Object|null>} Object chứa tokens mới hoặc null nếu thất bại
+ */
+async function _refreshAccessToken(refreshToken) {
+  if (!refreshToken) return null;
 
-    if (isSocial) {
-        if (!isAuthenticated) {
-            response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
-            response.cookies.set('msg', "Đăng nhập không thành công!", { httpOnly: false, sameSite: 'Strict' })
-        } else {
-            response = NextResponse.redirect(new URL(newCustomer ? '/account/profile' : '/', request.url))
-        }
-    } else {
-        response = NextResponse.next({
-            request: {
-                headers: headers
-            }
-        })
+  try {
+    const response = await fetch(AUTH_BASE_URL + "/refresh-token", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": API_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken }),
+      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+    });
+
+    if (!response.ok) {
+      console.log(`Token refresh failed with status: ${response.status}`);
+      return null;
     }
 
-    // Xóa tokens nếu cần
-    if (shouldClearTokens) {
-        deleteTokens(response)
-    } else {
-        // Set tokens nếu authenticated hoặc tokens được update
-        if (accessToken && (isAuthenticated || tokensUpdated)) {
-            response.cookies.set('token', accessToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                path: "/",
-                sameSite: "strict",
-                maxAge: 60 * 60 * 24 // 24 hours
-            })
-            
-            // Log để debug
-            if (tokensUpdated) {
-                console.log('Setting new access token in cookie')
-            }
-        }
+    const refreshData = await response.json();
 
-        if (refreshToken && (isAuthenticated || tokensUpdated)) {
-            response.cookies.set('refreshToken', refreshToken, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                path: "/",
-                sameSite: "strict",
-                maxAge: 60 * 60 * 24 * 30 // 30 days
-            })
-            
-            // Log để debug
-            if (tokensUpdated) {
-                console.log('Setting new refresh token in cookie')
-            }
-        }
-
-        if (isAuthenticated) {
-            response.cookies.set('logged', "OK", {
-                httpOnly: false,
-                secure: process.env.NODE_ENV === 'production',
-                path: "/",
-                sameSite: "strict"
-            })
-        }
+    if (refreshData && refreshData.status === 200 && refreshData.data) {
+      const { accessToken, refreshToken: newRefreshToken } = refreshData.data;
+      console.log("Token refreshed successfully");
+      return {
+        accessToken,
+        refreshToken: newRefreshToken,
+      };
     }
 
-    // Tạo cookie riêng để làm phần đã xem
-    const cookieStore = cookies()
-    const ssId = cookieStore.has('ssId') ? cookieStore.get('ssId').value : makeid(12)
-    response.cookies.set('ssId', ssId, { 
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === 'production', 
-        path: "/", 
-        sameSite: "strict" 
-    })
-    
-    response.headers.set('Cache-Control', 'no-store, must-revalidate')
-    return response
+    return null;
+  } catch (error) {
+    console.error("Token refresh error:", error);
+    return null;
+  }
 }
 
-function getLanguage(request) {
-    const url = request.nextUrl
-    const pathname = url.pathname
-    const language = languages.find(language => language === pathname.split("/")[1]) ?? defaultLang
-    return language
-}
+/**
+ * Refresh access token với promise management để tránh duplicate requests
+ * @param {string} refreshToken - Refresh token
+ * @returns {Promise<Object|null>} Object chứa tokens mới hoặc null nếu thất bại
+ */
+async function refreshAccessToken(refreshToken) {
+  if (!refreshToken) return null;
 
-export async function middleware(request) {
-    const url = request.nextUrl
-    const requireRoutes = ["/system"]
-    const pathname = url.pathname
-    const method = request.method
+  // Cleanup expired promises trước khi xử lý
+  cleanupExpiredPromises();
 
-    // Skip middleware for specific paths
-    if (method !== 'GET' || pathname.startsWith('/api/')) {
-        const response = NextResponse.next()
-        response.headers.set('Cache-Control', 'no-store, must-revalidate')
-        return response
-    }
-
-    let socialAuth = {}
-    if (pathname === "/") {
-        socialAuth = extractSocialAuthParams(url)
-    }
-
-    const { socialToken, socialRefreshToken, isOauth, newCustomer } = socialAuth
+  // Kiểm tra xem có promise nào đang refresh token này không
+  if (refreshPromises.has(refreshToken)) {
+    console.log("Refresh token request already in progress, waiting...");
+    const existingPromise = refreshPromises.get(refreshToken);
     
     try {
-        const authResult = await authenticate(request, socialToken, socialRefreshToken, false, isOauth)
-        const { isAuthenticated, accessToken, refreshToken, user, isSocial, shouldClearTokens, tokensUpdated } = authResult
-
-        // Xử lý trang login
-        if (pathname === URL_LOGIN) {
-            if (isAuthenticated === true) {
-                const response = NextResponse.redirect(new URL('/', request.url))
-                response.headers.set('Cache-Control', 'no-store, must-revalidate')
-                return response
-            }
-
-            const response = NextResponse.next()
-            const cookieStore = cookies()
-            const ref = cookieStore.has('ref') ? cookieStore.get('ref').value : url.searchParams.get('ref') || null
-            if (ref) {
-                response.cookies.set('ref', ref, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    path: "/",
-                    sameSite: "strict",
-                    maxAge: 60 * 60 * 24 * 30
-                })
-            }
-
-            response.headers.set('Cache-Control', 'no-store, must-revalidate')
-            deleteTokens(response)
-            return response
-        }
-
-        // Kiểm tra các trang bắt buộc đăng nhập
-        const isRedirectLogin = (!isAuthenticated && requireRoutes.some(router => pathname.startsWith(router)))
-            
-        if (isRedirectLogin) {
-            const response = NextResponse.redirect(new URL(URL_LOGIN, request.url))
-            response.headers.set('Cache-Control', 'no-store, must-revalidate')
-            deleteTokens(response)
-            return response
-        }
-
-        // Set language và response
-        const language = getLanguage(request)
-        const response = setResponse(user, accessToken, refreshToken, request, isAuthenticated, isSocial, newCustomer, shouldClearTokens, tokensUpdated)
-        
-        response.cookies.set("lang", language, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            path: "/",
-            sameSite: "strict"
-        })
-        
-        return response
-        
+      // Đợi promise hiện tại hoàn thành
+      const result = await existingPromise.promise;
+      return result;
     } catch (error) {
-        console.error('Middleware authentication error:', error)
-        
-        const response = NextResponse.next()
-        response.headers.set('Cache-Control', 'no-store, must-revalidate')
-        deleteTokens(response)
-        
-        const isProtectedRoute = requireRoutes.some(router => pathname.startsWith(router))
-        if (isProtectedRoute) {
-            return NextResponse.redirect(new URL(URL_LOGIN, request.url))
-        }
-        
-        return response
+      // Nếu promise bị lỗi, xóa khỏi map và thử lại
+      refreshPromises.delete(refreshToken);
+      console.error("Existing refresh promise failed:", error);
+      return null;
     }
+  }
+
+  // Tạo promise mới cho refresh token
+  const refreshPromise = _refreshAccessToken(refreshToken);
+  
+  // Lưu promise vào map với timestamp
+  refreshPromises.set(refreshToken, {
+    promise: refreshPromise,
+    timestamp: Date.now()
+  });
+
+  try {
+    const result = await refreshPromise;
+    
+    // Xóa promise khỏi map khi hoàn thành
+    refreshPromises.delete(refreshToken);
+    
+    return result;
+  } catch (error) {
+    // Xóa promise khỏi map khi có lỗi
+    refreshPromises.delete(refreshToken);
+    throw error;
+  }
 }
 
-function makeid(length) {
-    let result = ''
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    const charactersLength = characters.length
-    let counter = 0
-    while (counter < length) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength))
-        counter += 1
-    }
-    return result
-}
+/**
+ * Xác thực người dùng - hàm chính xử lý authentication logic
+ * @param {Request} request - Next.js request object
+ * @param {string|null} providedToken - Token được cung cấp từ OAuth
+ * @param {string|null} providedRefreshToken - Refresh token từ OAuth
+ * @param {boolean} isOauth - Có phải OAuth login không
+ * @returns {Promise<Object>} Kết quả authentication
+ */
+async function authenticate(request, providedToken = null, providedRefreshToken = null, isOauth = false) {
+  const method = request.method;
+  
+  // Lấy tokens từ parameters hoặc cookies
+  const token = providedToken || request.cookies.get("token")?.value;
+  const refreshToken = providedRefreshToken || request.cookies.get("refreshToken")?.value;
 
-function extractSocialAuthParams(url) {
-    const socialToken = url.searchParams.get('token') || null
-    const socialRefreshToken = url.searchParams.get('refreshToken') || null
-    const newCustomer = url.searchParams.get('created') || null
-
+  // Bước 1: Verify token hiện tại
+  const user = await verifyToken(token);
+  if (user) {
     return {
-        socialToken,
-        socialRefreshToken,
-        newCustomer,
-        isOauth: !!newCustomer,
+      isAuthenticated: true,
+      user,
+      accessToken: token,
+      refreshToken,
+      isSocial: isOauth,
+      shouldClearTokens: false,
+      tokensUpdated: false,
+    };
+  }
+
+  // Bước 2: Nếu token không hợp lệ và có refresh token, thử refresh
+  // Chỉ refresh cho GET requests để tránh side effects
+  if (refreshToken && method === "GET") {
+    try {
+      const newTokens = await refreshAccessToken(refreshToken);
+      
+      if (newTokens) {
+        // Verify token mới
+        const newUser = await verifyToken(newTokens.accessToken);
+        
+        if (newUser) {
+          return {
+            isAuthenticated: true,
+            user: newUser,
+            accessToken: newTokens.accessToken,
+            refreshToken: newTokens.refreshToken,
+            isSocial: isOauth,
+            shouldClearTokens: false,
+            tokensUpdated: true, // Flag để biết cần update cookies
+          };
+        }
+      }
+    } catch (error) {
+      console.error("Token refresh process failed:", error);
+      // Continue to authentication failure
     }
+  }
+
+  // Bước 3: Authentication thất bại
+  return {
+    isAuthenticated: false,
+    user: null,
+    accessToken: null,
+    refreshToken: null,
+    isSocial: isOauth,
+    shouldClearTokens: true,
+    tokensUpdated: false,
+  };
 }
+
+// ==================== RESPONSE HANDLING ====================
+
+/**
+ * Tạo response với cookies và headers phù hợp
+ * @param {Object} authResult - Kết quả từ authenticate function
+ * @param {Request} request - Original request
+ * @returns {NextResponse} Response đã được config
+ */
+function createAuthResponse(authResult, request) {
+  const {
+    isAuthenticated,
+    user,
+    accessToken,
+    refreshToken,
+    isSocial,
+    newCustomer,
+    shouldClearTokens,
+    tokensUpdated,
+  } = authResult;
+
+  // Setup headers
+  const headers = new Headers();
+  if (user) {
+    headers.set("user", encodeURIComponent(JSON.stringify(user)));
+  }
+
+  let response;
+
+  // Xử lý OAuth redirect
+  if (isSocial) {
+    if (!isAuthenticated) {
+      response = NextResponse.redirect(new URL(URL_LOGIN, request.url));
+      response.cookies.set("msg", "Đăng nhập không thành công!", {
+        httpOnly: false,
+        sameSite: "Strict",
+      });
+    } else {
+      // Redirect đến profile nếu là user mới, về home nếu là user cũ
+      const redirectUrl = newCustomer ? "/account/profile" : "/";
+      response = NextResponse.redirect(new URL(redirectUrl, request.url));
+    }
+  } else {
+    // Request thông thường
+    response = NextResponse.next({
+      request: { headers },
+    });
+  }
+
+  // Xử lý cookies
+  if (shouldClearTokens) {
+    clearAuthCookies(response);
+  } else if (isAuthenticated || tokensUpdated) {
+    // Set access token
+    if (accessToken) {
+      response.cookies.set("token", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24, // 24 hours
+      });
+    }
+
+    // Set refresh token
+    if (refreshToken) {
+      response.cookies.set("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 30, // 30 days
+      });
+    }
+
+    // Set logged flag
+    if (isAuthenticated) {
+      response.cookies.set("logged", "OK", {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        sameSite: "strict",
+      });
+    }
+  }
+
+  // Set session ID (cho tracking, analytics, etc.)
+  const cookieStore = cookies();
+  const sessionId = cookieStore.has("ssId") 
+    ? cookieStore.get("ssId").value 
+    : generateSessionId(12);
+  
+  response.cookies.set("ssId", sessionId, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    sameSite: "strict",
+  });
+
+  // Set language cookie
+  const language = getLanguageFromPath(request);
+  response.cookies.set("lang", language, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    sameSite: "strict",
+  });
+
+  // Prevent caching để đảm bảo middleware luôn chạy
+  response.headers.set("Cache-Control", "no-store, must-revalidate");
+
+  return response;
+}
+
+// ==================== MAIN MIDDLEWARE FUNCTION ====================
+
+/**
+ * Main middleware function - điểm vào chính của middleware
+ * @param {Request} request - Next.js request object
+ * @returns {Promise<NextResponse>} Response cho request
+ */
+export async function middleware(request) {
+  const { nextUrl, method } = request;
+  const pathname = nextUrl.pathname;
+
+  // Skip middleware cho các paths không cần thiết
+  if (method !== "GET" || pathname.startsWith("/api/")) {
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "no-store, must-revalidate");
+    return response;
+  }
+
+  try {
+    // Trích xuất OAuth params nếu có
+    let oauthData = {};
+    if (pathname === "/") {
+      oauthData = extractOAuthParams(nextUrl);
+    }
+
+    const { socialToken, socialRefreshToken, isOauth, newCustomer } = oauthData;
+
+    // Thực hiện authentication
+    const authResult = await authenticate(
+      request,
+      socialToken,
+      socialRefreshToken,
+      isOauth
+    );
+
+    // Xử lý trang login
+    if (pathname === URL_LOGIN) {
+      if (authResult.isAuthenticated) {
+        // User đã login, redirect về home
+        const response = NextResponse.redirect(new URL("/", request.url));
+        response.headers.set("Cache-Control", "no-store, must-revalidate");
+        return response;
+      }
+
+      // Xử lý referral parameter
+      const response = NextResponse.next();
+      const cookieStore = cookies();
+      const ref = cookieStore.has("ref")
+        ? cookieStore.get("ref").value
+        : nextUrl.searchParams.get("ref");
+
+      if (ref) {
+        response.cookies.set("ref", ref, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          path: "/",
+          sameSite: "strict",
+          maxAge: 60 * 60 * 24 * 30, // 30 days
+        });
+      }
+
+      response.headers.set("Cache-Control", "no-store, must-revalidate");
+      clearAuthCookies(response);
+      return response;
+    }
+
+    // Kiểm tra protected routes
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+      pathname.startsWith(route)
+    );
+
+    if (isProtectedRoute && !authResult.isAuthenticated) {
+      const response = NextResponse.redirect(new URL(URL_LOGIN, request.url));
+      response.headers.set("Cache-Control", "no-store, must-revalidate");
+      clearAuthCookies(response);
+      return response;
+    }
+
+    // Tạo response với auth data
+    return createAuthResponse({
+      ...authResult,
+      newCustomer,
+    }, request);
+
+  } catch (error) {
+    console.error("Middleware error:", error);
+
+    // Fallback response khi có lỗi
+    const response = NextResponse.next();
+    response.headers.set("Cache-Control", "no-store, must-revalidate");
+    clearAuthCookies(response);
+
+    // Redirect protected routes về login khi có lỗi
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+      pathname.startsWith(route)
+    );
+    
+    if (isProtectedRoute) {
+      return NextResponse.redirect(new URL(URL_LOGIN, request.url));
+    }
+
+    return response;
+  }
+}
+
+// ==================== MIDDLEWARE CONFIG ====================
 
 export const config = {
-    matcher: [
-        "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|web-app-manifest-192x192.png|sw.js).*)",
-    ],
-}
+  matcher: [
+    /*
+     * Match tất cả request paths trừ:
+     * - api routes
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, manifest files, service worker
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|web-app-manifest-192x192.png|sw.js).*)",
+  ],
+};

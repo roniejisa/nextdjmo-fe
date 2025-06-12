@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { LoadingContext } from "./LoadingProvider";
 import { useRouter } from "next/navigation";
 import { useContext } from "react";
@@ -11,19 +11,19 @@ const useRouterCustom = () => {
   // Helper function để tạo full URL
   const createFullUrl = (path) => {
     // Nếu path đã có query params, return nguyên
-    if (path.includes('?')) return path;
-    
+    if (path.includes("?")) return path;
+
     // Nếu chỉ có pathname, return pathname
     return path;
   };
 
-  const push = async (path) => {
-    const fullPath = createFullUrl(path);
-    
-    // Kiểm tra nếu URL hoàn toàn giống nhau (bao gồm cả query params)
-    if (currentUrl === fullPath) return;
-    
-    setTransition(true);
+  const push = async (path, noTransition = false) => {
+    if (!noTransition) {
+      const fullPath = createFullUrl(path);
+      // Kiểm tra nếu URL hoàn toàn giống nhau (bao gồm cả query params)
+      if (currentUrl === fullPath) return;
+      setTransition(true);
+    }
     router.push(path);
   };
 
@@ -48,9 +48,9 @@ const useRouterCustom = () => {
 
   const replace = async (path) => {
     const fullPath = createFullUrl(path);
-    
+
     if (currentUrl === fullPath) return;
-    
+
     setTransition(true);
     router.replace(path);
   };
@@ -63,33 +63,34 @@ const useRouterCustom = () => {
   // Helper methods để làm việc với query params
   const pushWithQuery = async (pathname, queryParams = {}) => {
     const searchParams = new URLSearchParams(queryParams);
-    const fullPath = searchParams.toString() 
-      ? `${pathname}?${searchParams.toString()}` 
+    const fullPath = searchParams.toString()
+      ? `${pathname}?${searchParams.toString()}`
       : pathname;
-    
+
     await push(fullPath);
   };
 
   const replaceWithQuery = async (pathname, queryParams = {}) => {
     const searchParams = new URLSearchParams(queryParams);
-    const fullPath = searchParams.toString() 
-      ? `${pathname}?${searchParams.toString()}` 
+    const fullPath = searchParams.toString()
+      ? `${pathname}?${searchParams.toString()}`
       : pathname;
-    
+
     await replace(fullPath);
   };
 
-  return { 
-    push, 
-    back, 
-    forward, 
-    refresh, 
-    replace, 
+  return {
+    push,
+    back,
+    forward,
+    refresh,
+    replace,
     prefetch,
     pushWithQuery,
     replaceWithQuery,
     currentUrl,
-    currentPathname
+    currentPathname,
+    router,
   };
 };
 

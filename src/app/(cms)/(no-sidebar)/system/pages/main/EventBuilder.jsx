@@ -44,11 +44,9 @@ const EventBuilder = () => {
       });
 
       editor.on("component:styleUpdate", (component) => {
-        // console.log(component);
       });
       // Lắng nghe sự kiện khi chọn component
       editor.on("component:selected", (component) => {
-        //   console.log(component);
       });
 
       return () => {

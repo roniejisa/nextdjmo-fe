@@ -1,5 +1,4 @@
 "use server";
-import { clearTokensAndRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 import { headers } from "next/headers";
@@ -43,6 +42,7 @@ export const getProfile = async () => {
   if (user && user != "undefined") {
     return JSON.parse(decodeURIComponent(user));
   } else {
+    console.log("đang chạy vào đây")
     try {
       const token = await getToken();
       const response = await httpClient(
@@ -52,9 +52,13 @@ export const getProfile = async () => {
         },
         {}
       );
-      return response.data;
+      return response;
     } catch (e) {
-      return clearTokensAndRedirect();
+      return {
+        status: 401,
+        message: "Token expired",
+        shouldRedirect: true,
+      };
     }
   }
 };

@@ -23,7 +23,6 @@ const page = () => {
       },{}
     ,"POST");
     const data = await Promise.all([one,two,three])
-    console.log("check refresh token on client ", data);
   };
 
   const checkRefreshTokenOnServer = async () => {
@@ -31,7 +30,6 @@ const page = () => {
     const one = getDataPost("links");
     const two = getDataPost("topics");
     const data = await Promise.all([one,two,three])
-    console.log("check refresh token on server ", data);
   };
   return (
     <div>

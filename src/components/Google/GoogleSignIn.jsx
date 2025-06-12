@@ -9,7 +9,7 @@ const GoogleSignIn = () => {
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.onload = () => {
-      console.log("GGSI");
+      // Kiểm tra khi load script vào thành công
     };
     document.body.appendChild(script);
 

@@ -79,7 +79,6 @@ const MenuForm = ({
                     <select
                       value={formData.type}
                       onChange={(e) => {
-                        console.log(e.target.value)
                         onFormDataChange({ ...formData, type: e.target.value })
                       }
                       }

@@ -28,7 +28,7 @@ $backgroundMain: #ffdfe9;
 }
 
 @mixin processIconGradient() {
-  background: radial-gradient($mainColor, $subColor);
+  background: white;
   box-shadow: 2px 0 10px $subColor;
 }
 
@@ -523,7 +523,7 @@ header {
                 font-weight: bold;
                 @include textGradient();
                 padding: 5px 2px;
-                border-radius: 5px;
+                border-radius: 50%;
                 font-weight: bold;
                 user-select: none;
                 pointer-events: none;
@@ -637,7 +637,7 @@ header {
         width: 16px;
         position: absolute;
         @include processIconGradient();
-        border-radius: 5px;
+        border-radius: 50%;
         top: 50%;
         right: 0;
         transform: translateX(100%) translateY(-50%);

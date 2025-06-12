@@ -21,7 +21,6 @@ const CommentItem = ({
 }) => {
   const [reactions, setReactions] = useState({});
   const handleReaction = (commentId, reactionType) => {
-    console.log(`Comment ${commentId} received reaction: ${reactionType}`);
     setReactions((prev) => ({
       ...prev,
       [commentId]: reactionType,

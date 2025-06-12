@@ -380,14 +380,10 @@ const AvatarCanvas = ({
               playAction(actionClip);
             }
           });
-          console.log(`✅ Lazy loaded animation "${action}" from ${url}`);
         },
         undefined,
         (err) => {
-          console.error(
-            `❌ Error loading animation "${action}" from ${url}`,
-            err
-          );
+          
         }
       );
     }

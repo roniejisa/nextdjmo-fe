@@ -7,5 +7,5 @@ export const getSignedUrl = async (projectName) => {
     process.env.NEXT_PUBLIC_ENDPOINT_URL +
       `video/hls/encrypted/create_singed_url/${projectName}`
   );
-  return response.data;
+  return response;
 };

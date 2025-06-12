@@ -24,10 +24,6 @@ const useAudioDeviceDetector = () => {
       deltaY > motionThreshold ||
       deltaZ > motionThreshold
     ) {
-      console.log(
-        "Phát hiện chuyển động mạnh - có thể AirPods được đặt vào/tháo ra"
-      );
-
       // Delay một chút rồi kiểm tra lại danh sách thiết bị
       setTimeout(() => {
         updateDeviceList();
@@ -38,29 +34,23 @@ const useAudioDeviceDetector = () => {
   }, []);
 
   const onHeadphonesConnected = useCallback(() => {
-    console.log("Tai nghe đã được cắm vào");
     // Thêm logic xử lý khi tai nghe được kết nối
   }, []);
 
   const onHeadphonesDisconnected = useCallback(() => {
-    console.log("Tai nghe đã được rút ra");
     // Thêm logic xử lý khi tai nghe bị ngắt kết nối
   }, []);
 
   const onBluetoothDeviceConnected = useCallback((device) => {
-    console.log("Thiết bị Bluetooth kết nối:", device.name);
     // Kiểm tra nếu là tai nghe Bluetooth
     if (/airpods|headphones|earbuds|headset/i.test(device.name || "")) {
-      console.log("Tai nghe Bluetooth được kết nối");
       onHeadphonesConnected();
     }
   }, [onHeadphonesConnected]);
 
   const onBluetoothDeviceDisconnected = useCallback((device) => {
-    console.log("Thiết bị Bluetooth ngắt kết nối:", device.name);
     // Kiểm tra nếu là tai nghe Bluetooth
     if (/airpods|headphones|earbuds|headset/i.test(device.name || "")) {
-      console.log("Tai nghe Bluetooth bị ngắt kết nối");
       onHeadphonesDisconnected();
     }
   }, [onHeadphonesDisconnected]);
@@ -71,10 +61,7 @@ const useAudioDeviceDetector = () => {
     navigator.mediaDevices
       .enumerateDevices()
       .then((devices) => {
-        console.log(
-          "Danh sách thiết bị audio:",
-          devices.filter((d) => d.kind.includes("audio"))
-        );
+   
 
         // Kiểm tra audio output (tai nghe/loa)
         const audioOutputs = devices.filter(
@@ -85,11 +72,9 @@ const useAudioDeviceDetector = () => {
         );
 
         if (defaultAudio && defaultAudio.groupId !== idDeviceAudio) {
-          console.log("Thiết bị audio thay đổi:", defaultAudio.label);
 
           // Kiểm tra nếu là loa và đang phát nhạc thì dừng
           if (isPlay?.current && /Speakers|Speaker/.test(defaultAudio.label)) {
-            console.log("Chuyển sang loa, tạm dừng phát nhạc");
             // Fixed: Use pauseMusic from context instead of buttonPlayRef
             if (pauseMusic) {
               pauseMusic();
@@ -100,7 +85,6 @@ const useAudioDeviceDetector = () => {
           if (
             /headphones|earbuds|airpods|headset/i.test(defaultAudio.label)
           ) {
-            console.log("Tai nghe được kết nối");
             onHeadphonesConnected();
           }
 
@@ -113,18 +97,15 @@ const useAudioDeviceDetector = () => {
         );
         audioInputs.forEach((device) => {
           if (/headphones|earbuds|airpods|headset/i.test(device.label)) {
-            console.log("Microphone tai nghe được phát hiện:", device.label);
           }
         });
       })
       .catch((err) => {
-        console.error("Không thể liệt kê thiết bị:", err);
       });
   }, [isPlay, pauseMusic, onHeadphonesConnected]);
 
   const scanBluetoothDevices = useCallback(async () => {
     if (!navigator.bluetooth) {
-      console.log("Web Bluetooth không được hỗ trợ");
       return;
     }
 
@@ -141,42 +122,35 @@ const useAudioDeviceDetector = () => {
         acceptAllDevices: false,
       });
 
-      console.log("Thiết bị Bluetooth được chọn:", device.name);
 
       // Lắng nghe sự kiện ngắt kết nối
       device.addEventListener("gattserverdisconnected", () => {
-        console.log("Thiết bị Bluetooth bị ngắt kết nối:", device.name);
         connectedBluetoothDevices.delete(device.id);
         onBluetoothDeviceDisconnected(device);
       });
 
       // Kết nối với thiết bị
       const server = await device.gatt.connect();
-      console.log("Đã kết nối với GATT server");
 
       connectedBluetoothDevices.add(device.id);
       onBluetoothDeviceConnected(device);
 
       return device;
     } catch (error) {
-      console.error("Lỗi kết nối Bluetooth:", error);
     }
   }, [onBluetoothDeviceConnected, onBluetoothDeviceDisconnected]);
 
   const initBluetooth = useCallback(async () => {
     if (!navigator.bluetooth) {
-      console.log("Trình duyệt không hỗ trợ Web Bluetooth API");
       return;
     }
 
     try {
       // Kiểm tra trạng thái Bluetooth
       const availability = await navigator.bluetooth.getAvailability();
-      console.log("Bluetooth khả dụng:", availability);
 
       // Lắng nghe thay đổi trạng thái Bluetooth
       navigator.bluetooth.addEventListener("availabilitychanged", (event) => {
-        console.log("Trạng thái Bluetooth thay đổi:", event.value);
       });
     } catch (error) {
       console.error("Lỗi khởi tạo Bluetooth:", error);
@@ -194,7 +168,6 @@ const useAudioDeviceDetector = () => {
         updateDeviceList();
       })
       .catch((err) => {
-        console.error("Không thể truy cập microphone:", err);
       });
   }, [updateDeviceList]);
 
@@ -211,8 +184,6 @@ const useAudioDeviceDetector = () => {
   useEffect(() => {
     if (!isPlay?.current) return;
     
-    console.log(isPlay);
-    console.log("Khởi tạo hệ thống phát hiện thiết bị audio...");
 
     // Khởi tạo media devices
     addMediaDevice();
@@ -224,12 +195,10 @@ const useAudioDeviceDetector = () => {
     if (window.DeviceMotionEvent) {
       window.addEventListener("devicemotion", handleDeviceMotion, false);
     } else {
-      console.log("DeviceMotion không được hỗ trợ");
     }
 
     // Lắng nghe thay đổi thiết bị
     const deviceChangeHandler = () => {
-      console.log("Thiết bị thay đổi");
       updateDeviceList();
     };
 
