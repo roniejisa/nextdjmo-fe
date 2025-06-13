@@ -4,6 +4,12 @@ import GrapesBuilder from "../../main/GrapesBuilder";
 import { getProfile } from "@/app/(cms)/(has-sidebar)/system/[module]/actions";
 import { redirect } from "next/navigation";
 
+export const generateMetadata = async () => {
+  return {
+    title:"PAGE BUILDER"
+  }
+}
+
 const UpdatePage = async ({ params }) => {
   const { id } = await params;
   const token = await getToken();

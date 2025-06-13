@@ -17,6 +17,7 @@ const nextConfig = {
         silenceDeprecations: ['legacy-js-api'],
     },
     experimental: {
+        instrumentationHook: true, // Enable instrumentation
         missingSuspenseWithCSRBailout: false,
         serverActions: {
             bodySizeLimit: '5GB',

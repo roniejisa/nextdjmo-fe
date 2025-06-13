@@ -68,7 +68,7 @@ const ActionTable = () => {
 // Separate UI Component
 const ActionToolbar = ({ selectedCount, onDelete, hasDeletePermission }) => {
   return (
-    <div className="sticky bottom-0 left-0 w-full z-50">
+    <div className="sticky bottom-4 left-0 w-full z-50">
       <div className="mx-4 mb-4 bg-white rounded-lg shadow-lg border border-gray-200 backdrop-blur-sm">
         <div className="flex items-center justify-between px-6 py-4">
           {/* Selection Info */}

@@ -21,9 +21,71 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
     const paramString = createSearchParamString(page)
     router.push(pathname + paramString ? "?"+paramString : "")
   }
+
+  // Function to render page numbers with proper ellipsis logic
+  const renderPageNumbers = () => {
+    const pages = [];
+    const currentPage = +page;
+    
+    for (let i = 1; i <= totalPages; i++) {
+      // Always show first 3 pages
+      if (i <= 3) {
+        pages.push(renderPageButton(i));
+      }
+      // Always show last 3 pages
+      else if (i > totalPages - 3) {
+        pages.push(renderPageButton(i));
+      }
+      // Show pages around current page
+      else if (i >= currentPage - 2 && i <= currentPage + 2) {
+        pages.push(renderPageButton(i));
+      }
+      // Add ellipsis before current page range (if there's a gap)
+      else if (i === currentPage - 3 && currentPage > 6) {
+        pages.push(
+          <span key={`ellipsis-before-${i}`} className="px-2 py-2 text-gray-500 text-sm font-medium">
+            ...
+          </span>
+        );
+      }
+      // Add ellipsis after current page range (if there's a gap)
+      else if (i === currentPage + 3 && currentPage < totalPages - 5) {
+        pages.push(
+          <span key={`ellipsis-after-${i}`} className="px-2 py-2 text-gray-500 text-sm font-medium">
+            ...
+          </span>
+        );
+      }
+    }
+    
+    return pages;
+  };
+
+  const renderPageButton = (pageNum) => {
+    return (
+      <LinkCustom
+        className={`
+          relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg
+          transition-all duration-200 ease-in-out min-w-[40px] justify-center
+          ${pageNum == page
+            ? 'bg-blue-600 text-white shadow-md pointer-events-none border border-blue-600'
+            : 'text-gray-700 bg-white border border-gray-300 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 active:bg-blue-100'
+          }
+        `}
+        key={pageNum}
+        href={
+          process.env.NEXT_PUBLIC_ADMIN_URL +
+          `${module}?${createSearchParamString(pageNum)}`
+        }
+      >
+        {pageNum}
+      </LinkCustom>
+    );
+  };
+
   return (
     <div className="bg-white px-4 py-6 sm:px-6">
-      <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+      <div className="flex flex-col gap-4 space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
         {/* Results Info */}
         <div className="flex items-center justify-center lg:justify-start">
           <p className="text-sm text-gray-700 font-medium">
@@ -68,40 +130,7 @@ const Pagination = ({ total, limit, page, module, items, searchParams }) => {
 
           {/* Page Numbers */}
           <div className="flex items-center space-x-1">
-            {Array.from({ length: totalPages }).map((_, index) => {
-              if (
-                [1, 2, 3].includes(index + 1) ||
-                [totalPages - 2, totalPages - 1, totalPages].includes(index + 1) ||
-                (index + 1 >= +page - 2 && index + 1 <= +page + 2)
-              ) {
-                return (
-                  <LinkCustom
-                    className={`
-                      relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg
-                      transition-all duration-200 ease-in-out min-w-[40px] justify-center
-                      ${index + 1 == page
-                        ? 'bg-blue-600 text-white shadow-md pointer-events-none border border-blue-600'
-                        : 'text-gray-700 bg-white border border-gray-300 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 active:bg-blue-100'
-                      }
-                    `}
-                    key={index}
-                    href={
-                      process.env.NEXT_PUBLIC_ADMIN_URL +
-                      `${module}?${createSearchParamString(index + 1)}`
-                    }
-                  >
-                    {index + 1}
-                  </LinkCustom>
-                );
-              } else if (index + 1 == totalPages - 3 && totalPages > 6) {
-                return (
-                  <span key={index} className="px-2 py-2 text-gray-500 text-sm font-medium">
-                    ...
-                  </span>
-                );
-              }
-              return null;
-            })}
+            {renderPageNumbers()}
           </div>
 
           {/* Next Button */}

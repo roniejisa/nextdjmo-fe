@@ -51,14 +51,11 @@ const providers = [
   },
   // Thêm các provider khác nếu cần
 ];
+
 const SocialLogin = ({ redirect }) => {
   const { showModalOTP, setShowModalOTP } = useContext(LoginContext);
   const router = useRouterCustom();
-  const pathname = usePathname();
   const notify = useNotify();
-  const handleLogin = (url) => {
-    window.location.href = url; // Chuyển hướng đến backend
-  };
 
   const openPopup = (url) => {
     const width = 600;
@@ -71,7 +68,7 @@ const SocialLogin = ({ redirect }) => {
     if (redirect) {
       url += `?redirect=${redirect}`;
     }
-    const popupWindow = parent.window.open(
+    parent.window.open(
       url,
       "popupWindow",
       `width=${width},height=${height},top=${top},left=${left}`

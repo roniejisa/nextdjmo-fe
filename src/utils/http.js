@@ -6,7 +6,7 @@ import { refreshTokens } from "./action";
 // Session-based state management để tránh memory leak
 const refreshStates = new Map();
 const MAX_REFRESH_ATTEMPTS = 2;
-const REQUEST_TIMEOUT = 30000; // 10 seconds
+const REQUEST_TIMEOUT = 60000; // 10 seconds
 const CLEANUP_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
 /**

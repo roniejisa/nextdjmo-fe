@@ -14,31 +14,28 @@ const useTagLogic = (field) => {
     return searchParams.get(field.name) || null;
   });
 
-  const [isInitialRender, setIsInitialRender] = useState(true);
-
   const handleSelectTag = (label) => {
-    setSelected((prev) => (prev === label ? null : label));
-  };
+    const newSelected = selected === label ? null : label;
+    setSelected(newSelected);
 
-  useEffect(() => {
-    if (isInitialRender) {
-      setIsInitialRender(false);
-      return;
-    }
-
+    // Update URL immediately with pagination reset
     const newSearchParams = new URLSearchParams(
       Object.fromEntries(searchParams)
     );
 
-    if (selected) {
-      newSearchParams.set(field.name, selected);
+    if (newSelected) {
+      newSearchParams.set(field.name, newSelected);
     } else {
       newSearchParams.delete(field.name);
     }
 
+    // Reset pagination when filter changes
+    newSearchParams.delete('page');
+    newSearchParams.delete('limit');
+    
     const paramsObject = Object.fromEntries(newSearchParams);
     router.pushWithQuery(pathname, paramsObject);
-  }, [selected, field.name, searchParams, pathname, router, isInitialRender]);
+  };
 
   return { selected, handleSelectTag };
 };

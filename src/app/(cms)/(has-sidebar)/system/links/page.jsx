@@ -1,29 +1,17 @@
 import { notFound } from "next/navigation";
-import { cache } from "react";
-import { getDataModule, getProfile } from "../[module]/actions";
-import { getToken } from "@/utils/server/utils";
+import { getDataModule } from "../[module]/actions";
 import MenuBuilder from "@/packages/menu_builder/MenuBuilder";
 
-const cacheGetDataModule = cache(async (module) => {
-  return await getDataModule(module);
-});
-export async function generateMetadata({ params, searchParams }, parent) {
-  const moduleName = "settings";
-  const { data } = await cacheGetDataModule(moduleName);
-  if (!data) {
-    return notFound();
-  }
-  let { module: moduleMain } = data || {};
+export async function generateMetadata() {
   return {
-    title: moduleMain.name,
+    title: 'Quản lý Menu',
+    robots: "noindex, nofollow",
   };
 }
 
 const LinkBuilder = async ({}) => {
   const moduleName = "links";
-  const user = await getProfile();
-  const { data } = await cacheGetDataModule(moduleName);
-  const token = await getToken();
+  const { data } = await getDataModule(moduleName);
   if (!data) {
     return notFound();
   }
@@ -31,7 +19,7 @@ const LinkBuilder = async ({}) => {
   let { module: moduleMain, items } = data || {};
   return (
     <>
-      <MenuBuilder data={data} moduleMain={moduleMain} items={items}/>
+      <MenuBuilder data={data} moduleMain={moduleMain} items={items} />
     </>
   );
 };

@@ -1,8 +1,6 @@
 // ORDER PROVIDER OF ADMIN
 import { httpClient } from "@/utils/http";
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
-import { cache } from "react";
 import { getProfile } from "../../[module]/actions";
 import { showImageUrl } from "@/utils/client";
 import Form from "./Form";
@@ -11,29 +9,21 @@ import OrderStatus from "./components/OrderStatus";
 import ImageCustom from "@/components/Maintain/Image";
 import PaymentStatus from "./components/PaymentStatus";
 import ActivityOrder from "./components/ActivityOrder";
+import { getToken } from "@/utils/server/utils";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const orderDetail = async (id) => {
-  const storeCookie = await cookies();
-  const token = storeCookie.get("token")?.value;
+  const token = await getToken();
   return httpClient(`${process.env.NEXT_PUBLIC_ENDPOINT_URL}orders/${id}`, {
     isAdmin: 1,
     Authorization: `Bearer ${token}`,
   });
 };
 
-const cacheOrderDetail = cache(async (id) => {
-  return orderDetail(id);
-});
-
-export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const data = await cacheOrderDetail(id);
-  if (!Object.keys(data).length) {
-    return redirect(403);
-  }
+export async function generateMetadata() {
   return {
-    title: data.data.module.name,
+    title: "Chi tiết đơn hàng",
+    robots: "noindex, nofollow",
   };
 }
 
@@ -65,36 +55,36 @@ const DetailComponent = async ({ params }) => {
             <div className="shadow-md p-4 rounded-md border">
               <p className="font-bold text-xl mb-4">Sản phẩm đã đặt</p>
               <div className="flex flex-wrap gap-2">
-              {item.order_details.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex w-full justify-between bg-active-light p-4 rounded-md"
-                >
-                  <div className="flex gap-2">
-                    <span className="flex items-center gap-4">
-                      <ImageCustom
-                        src={showImageUrl(item.image)}
-                        width={100}
-                        height={100}
-                        alt=""
-                      />
-                      <div>
-                        <h3 className="font-bold">{item.name}</h3>
-                        <span className="text-sm text-gray-700">
-                          {typeof item.variants === "string" &&
-                            JSON.parse(item.variants).join(" - ")}
-                        </span>
-                      </div>
-                    </span>
+                {item.order_details.map((item) => (
+                  <div
+                    key={item._id}
+                    className="flex w-full justify-between bg-active-light p-4 rounded-md"
+                  >
+                    <div className="flex gap-2">
+                      <span className="flex items-center gap-4">
+                        <ImageCustom
+                          src={showImageUrl(item.image)}
+                          width={100}
+                          height={100}
+                          alt=""
+                        />
+                        <div>
+                          <h3 className="font-bold">{item.name}</h3>
+                          <span className="text-sm text-gray-700">
+                            {typeof item.variants === "string" &&
+                              JSON.parse(item.variants).join(" - ")}
+                          </span>
+                        </div>
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-bold">
+                        {Intl.NumberFormat().format(item.price * item.qty)} VND
+                      </p>
+                      <p className="text-sm">Số lượng: {item.qty}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-bold">
-                      {Intl.NumberFormat().format(item.price * item.qty)} VND
-                    </p>
-                    <p className="text-sm">Số lượng: {item.qty}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
               </div>
             </div>
             <div className="shadow-md p-4 rounded-md border">

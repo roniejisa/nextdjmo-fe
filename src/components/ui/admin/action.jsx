@@ -1,4 +1,5 @@
 "use server";
+import { handleAuthRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
 import { getRefreshToken, getToken } from "@/utils/server/utils";
 
@@ -14,11 +15,7 @@ export const handleLogout = async () => {
   );
 
   // Clear cookies
-  return {
-    status: status,
-    message: "Token expired",
-    shouldRedirect: true,
-  };
+  return handleAuthRedirect();
 };
 
 export const getMenu = async () => {

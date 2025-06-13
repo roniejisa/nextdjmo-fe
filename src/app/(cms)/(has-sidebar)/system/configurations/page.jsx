@@ -2,8 +2,9 @@ import ConfigurationComponent from "./Configuration";
 
 export async function generateMetadata() {
   return {
-    title: "Cấu hình chung | Admin Panel",
+    title: "Cấu hình chung",
     description: "Quản lý cấu hình ngôn ngữ và thông báo",
+    robots: "noindex, nofollow",
   };
 }
 

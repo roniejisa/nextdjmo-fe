@@ -5,6 +5,7 @@ import { useContext, useEffect, useRef, useState, useTransition } from "react";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { LoginContext } from "../providers/LoginProvider";
+import {  SecureDecoder } from "@/utils/client/decode/decode_for_id";
 
 const FormLogin = ({ msg, redirect }) => {
   const notify = useNotify();
@@ -55,6 +56,25 @@ const FormLogin = ({ msg, redirect }) => {
       }
     });
   };
+
+  useEffect(() => {
+    // Lắng nghe thông điệp từ cửa sổ popup
+    const handleMessage = async (event) => {
+      const { type, _id } = event.data;
+      if (type === "login-otp") {
+        const decoder = new SecureDecoder("my_super_secret_key_2024");
+        const decoded = decoder.decode(_id);
+        customerRef.current = decoded;
+        setShowModalOTP(true);
+        return notify.changeNotify("success", "Đăng nhập thành công!");
+      }
+    };
+
+    const channel = new BroadcastChannel("login-channel");
+    channel.addEventListener("message", handleMessage);
+    return () => channel.removeEventListener("message", handleMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (msg) {

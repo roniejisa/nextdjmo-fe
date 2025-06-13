@@ -1,8 +1,7 @@
-import { getDataModule, getProfile } from "./actions";
+import { getDataModule, getProfile, getSeo } from "./actions";
 import Pagination from "@/components/Pagination/Pagination";
 import { redirect } from "next/navigation";
 import LinkCustom from "@/packages/translation/Link";
-import { cache } from "react";
 import ModuleProvider from "@/context/cms/ModuleProvider";
 import SelectRow from "./components/SelectRow";
 import SelectAllRow from "./components/SelectAllRow";
@@ -14,25 +13,23 @@ import Language from "./components/buttons/Language";
 import { componentActions, components } from "./components";
 import TabModule from "./Tab";
 import StartTable from "./StartTable";
-
-const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
-  return await getDataModule(module, limit, page, searchParams);
-});
+import { cfl } from "@/utils/client";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export async function generateMetadata({ params, searchParams }) {
+export async function generateMetadata({ params }) {
   const { module } = await params;
-  const { data } = await cacheGetDataModule(
-    module,
-    undefined,
-    undefined,
-    searchParams
-  );
-  if (data && Object.keys(data).length === 0) redirect("/403");
-  let { module: moduleMain } = data;
+  const { data, status } = await getSeo(module);
+  if (status == 200) {
+    return {
+      title: `${cfl(data.title)}`,
+      description: `${cfl(data.description)}`,
+      robots: "noindex, nofollow",
+    };
+  }
   return {
-    title: moduleMain.name,
+    title: "CMS quản trị",
+    robots: "noindex, nofollow",
   };
 }
 

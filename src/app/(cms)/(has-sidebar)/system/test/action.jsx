@@ -1,5 +1,4 @@
 import { httpClient } from "@/utils/http"
-import { getToken } from "@/utils/server/utils"
 
 export const getDataPost =async (type) => {
     const token = 'TEST'

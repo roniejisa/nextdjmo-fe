@@ -1,34 +1,18 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { notFound } from "next/navigation";
-import { cache } from "react";
 import { getDataModule, getProfile } from "../[module]/actions";
 import ClientVideoPage from "./ClientVideoPage";
 import Pagination from "@/components/Pagination/Pagination";
 
-const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
-  return await getDataModule(module, limit, page, searchParams);
-});
-
-export async function generateMetadata({ params, searchParams }, parent) {
-  const { limit, page, ...propSearchParams } = await searchParams;
-  const moduleName = "videos";
-  const { data } = await cacheGetDataModule(
-    moduleName,
-    limit,
-    page,
-    propSearchParams
-  );
-  if (!data) {
-    return notFound();
-  }
-  let { module: moduleMain } = data || {};
+export async function generateMetadata() {
   return {
-    title: moduleMain?.name,
+    title: "Quản lý Video",
+    robots: "noindex, nofollow",
   };
 }
 
-const VideoPage = async ({ profile, searchParams }) => {
+const VideoPage = async ({ searchParams }) => {
   const { limit, page, ...propSearchParams } = await searchParams;
   const moduleName = "videos";
   const user = await getProfile();
@@ -50,7 +34,7 @@ const VideoPage = async ({ profile, searchParams }) => {
     module: moduleMain,
   } = data || {};
 
-  console.log(items)
+  console.log(items);
   return (
     <div className="p-4">
       <ClientVideoPage

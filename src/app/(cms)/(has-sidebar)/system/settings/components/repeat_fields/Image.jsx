@@ -1,6 +1,6 @@
 "use client";
 import { GalleryContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef } from "react";
+import { useContext, useEffect, useId, useRef, useState } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import Group from "../../../[module]/components/Group";
 
@@ -14,23 +14,48 @@ const ImageComponent = ({
   const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
     useContext(GalleryContext);
   const imageRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasImage, setHasImage] = useState(false);
   const id = useId();
+
   const handleShowUpload = () => {
+    setIsLoading(true);
     setShowMedia(id);
+  };
+
+  const handleRemoveImage = (e) => {
+    e.stopPropagation();
+    setItemCurrent((prev) => prev.filter((item) => item.id !== id));
+    setHasImage(false);
+    updateData(
+      {
+        target: { value: "" },
+      },
+      itemData.id,
+      field
+    );
   };
 
   useEffect(() => {
     if (isMultiple) return;
     const index = itemCurrent.findIndex((item) => item.id == id);
     if (index !== -1) {
-      imageRef.current.src = itemCurrent[index]?.data
-        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + itemCurrent[index]?.data.url
+      const imageData = itemCurrent[index]?.data;
+      const imageUrl = imageData
+        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + imageData.url
         : "/next.svg";
+      
+      if (imageRef.current) {
+        imageRef.current.src = imageUrl;
+      }
+      
+      setHasImage(!!imageData);
+      setIsLoading(false);
 
       updateData(
         {
           target: {
-            value: JSON.stringify(itemCurrent[index]?.data),
+            value: JSON.stringify(imageData),
           },
         },
         itemData.id,
@@ -50,35 +75,157 @@ const ImageComponent = ({
     }
     if (itemCurrent) {
       setItemCurrent((prev) => [...prev, { id, data: itemCurrent }]);
+      setHasImage(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const currentImage = itemCurrent.find((item) => item.id == id);
+  const imageUrl = currentImage
+    ? process.env.NEXT_PUBLIC_ENDPOINT_URL + currentImage.data.url
+    : "/next.svg";
+
   return (
     <Group field={field}>
-      <div className="relative">
-        <div className="group w-[200px] h-[200px] before:content-[''] before:absolute before:top-0 before:left-0 before:w-full before:h-full before:bg-black before:opacity-0 before:transition-opacity before:duration-300 before:ease-in-out hover:before:opacity-50 hover:text-white">
-          <ImageCustom
-            ref={imageRef}
-            src={
-              itemCurrent.find((item) => item.id == id)
-                ? process.env.NEXT_PUBLIC_ENDPOINT_URL +
-                  itemCurrent.find((item) => item.id == id).data.url
-                : "/next.svg"
+      <div className="relative max-w-xs mx-auto">
+        <div 
+          className={`
+            group relative w-full h-48
+            rounded-xl overflow-hidden border border-solid
+            transition-all duration-200 ease-out cursor-pointer
+            ${hasImage 
+              ? 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-md hover:-translate-y-0.5' 
+              : 'border-gray-300 bg-gradient-to-br from-gray-50 to-gray-100 hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100'
             }
-            height={0}
-            width={0}
-            className="absolute top-0 left-0 object-contain px-4"
-            style={{ width: "100%", height: "100%" }}
-            alt={"image"}
-          />
-          <button
-            type="button"
-            className="group-hover:opacity-100 py-4 px-6 group-hover:border group-hover:border-white rounded-[99px] opacity-0 absolute transition top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hover:bg-white hover:text-black"
-            onClick={handleShowUpload}
-          >
-            Chọn ảnh
-          </button>
+            ${isLoading ? 'animate-pulse' : ''}
+          `}
+          onClick={handleShowUpload}
+        >
+          {/* Image Container */}
+          <div className="relative w-full h-full p-2">
+            <ImageCustom
+              ref={imageRef}
+              src={imageUrl}
+              height={0}
+              width={0}
+              className={`
+                w-full h-full object-contain rounded-lg transition-all duration-200
+                ${hasImage ? 'opacity-100' : 'opacity-30'}
+                group-hover:scale-[1.02]
+              `}
+              alt="Selected image"
+            />
+
+            {/* Gentle Overlay */}
+            <div className={`
+              absolute inset-2 rounded-lg bg-black transition-opacity duration-200
+              ${hasImage 
+                ? 'opacity-0 group-hover:opacity-10' 
+                : 'opacity-0'
+              }
+            `}></div>
+
+            {/* Loading Spinner */}
+            {isLoading && (
+              <div className="absolute inset-2 flex items-center justify-center bg-white bg-opacity-90 rounded-lg">
+                <div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
+
+            {/* Upload Icon & Text (No Image) */}
+            {!hasImage && !isLoading && (
+              <div className="absolute inset-2 flex flex-col items-center justify-center text-gray-400 group-hover:text-blue-500 transition-colors duration-200">
+                <svg
+                  className="w-8 h-8 mb-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span className="text-xs font-medium mb-0.5">Chọn ảnh</span>
+                <span className="text-xs opacity-60">Click để tải lên</span>
+              </div>
+            )}
+
+            {/* Compact Action Buttons (Has Image) */}
+            {hasImage && !isLoading && (
+              <div className="absolute top-3 right-3 flex space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                {/* Change Image - Mini Button */}
+                <button
+                  type="button"
+                  className="
+                    p-1.5 bg-white hover:bg-gray-50 text-gray-600 
+                    rounded-full shadow-sm hover:shadow-md
+                    border border-gray-200 hover:border-gray-300
+                    transition-all duration-150 transform hover:scale-110
+                  "
+                  onClick={handleShowUpload}
+                  title="Thay đổi ảnh"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                </button>
+
+                {/* Remove Image - Mini Button */}
+                <button
+                  type="button"
+                  className="
+                    p-1.5 bg-red-500 hover:bg-red-600 text-white 
+                    rounded-full shadow-sm hover:shadow-md
+                    transition-all duration-150 transform hover:scale-110
+                  "
+                  onClick={handleRemoveImage}
+                  title="Xóa ảnh"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            )}
+
+            {/* Success Indicator */}
+            {hasImage && (
+              <div className="absolute bottom-3 left-3 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center opacity-80 group-hover:opacity-100 transition-opacity duration-200">
+                <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Compact File Info */}
+        {hasImage && currentImage?.data && currentImage?.data?.file_info && (
+          <div className="mt-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="text-xs text-gray-600">
+              <div className="font-medium truncate mb-0.5 text-gray-800">
+                {currentImage.data.filename + currentImage.data.extention || 'image.jpg'}
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">
+                  {isJSON(currentImage?.data?.file_info)
+                    ? `${(JSON.parse(currentImage?.data?.file_info)?.['size'] / 1024).toFixed(1)} KB`
+                    : 'Size unknown'
+                  }
+                </span>
+                <span className="text-green-600 text-xs font-medium flex items-center">
+                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Uploaded
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Group>
   );

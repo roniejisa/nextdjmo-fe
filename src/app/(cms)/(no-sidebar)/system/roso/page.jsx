@@ -4,7 +4,7 @@ import Message from "./Message";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
 import Header from "./Header";
-import "./chat.css"
+import "./chat.css";
 import RosoProvider from "@/context/cms/RosoProvider";
 export const getModels = async () => {
   const token = await getToken();
@@ -15,6 +15,12 @@ export const getModels = async () => {
     }
   );
   return response;
+};
+
+export const generateMetadata = async () => {
+  return {
+    title: "ROSO AI",
+  };
 };
 
 const ChatPage = async () => {

@@ -6,6 +6,7 @@ import React, {
   useTransition,
 } from "react";
 import { configLanguage, getConfiguration } from "./action";
+import NotificationTabContent from "./NotificationTabContent";
 
 // Constants
 const ALL_TABS = [
@@ -264,34 +265,6 @@ const LanguageTabContent = ({
         )}
       </div>
     )}
-  </div>
-);
-
-// Notification Tab Content
-const NotificationTabContent = () => (
-  <div className="space-y-6">
-    {/* Header */}
-    <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-100">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">
-        Cấu hình thông báo
-      </h1>
-      <p className="text-gray-600">
-        Thiết lập các tùy chọn thông báo và cảnh báo hệ thống
-      </p>
-    </div>
-
-    {/* Coming Soon */}
-    <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-      <div className="w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-        <span className="text-2xl">🚧</span>
-      </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">
-        Tính năng đang phát triển
-      </h3>
-      <p className="text-gray-500">
-        Cấu hình thông báo sẽ có sẵn trong phiên bản tiếp theo
-      </p>
-    </div>
   </div>
 );
 

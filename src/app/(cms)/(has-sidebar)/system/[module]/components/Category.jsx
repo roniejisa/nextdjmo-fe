@@ -9,34 +9,33 @@ const useCategoryLogic = (field) => {
   const router = useRouterCustom();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  
+
   const [selected, setSelected] = useState(() => {
     return searchParams.get(field.name) || null;
   });
-  
-  const [isInitialRender, setIsInitialRender] = useState(true);
 
   const handleSelectCategory = (categoryId) => {
-    setSelected((prev) => (prev === categoryId ? null : categoryId));
-  };
+    const newSelected = selected === categoryId ? null : categoryId;
+    setSelected(newSelected);
 
-  useEffect(() => {
-    if (isInitialRender) {
-      setIsInitialRender(false);
-      return;
-    }
+    // Update URL immediately with pagination reset
+    const newSearchParams = new URLSearchParams(
+      Object.fromEntries(searchParams)
+    );
 
-    const newSearchParams = new URLSearchParams(Object.fromEntries(searchParams));
-    
-    if (selected) {
-      newSearchParams.set(field.name, selected);
+    if (newSelected) {
+      newSearchParams.set(field.name, categoryId);
     } else {
       newSearchParams.delete(field.name);
     }
 
+    // Reset pagination when filter changes
+    newSearchParams.delete("page");
+    newSearchParams.delete("limit");
+
     const paramsObject = Object.fromEntries(newSearchParams);
     router.pushWithQuery(pathname, paramsObject);
-  }, [selected, field.name, searchParams, pathname, router, isInitialRender]);
+  };
 
   return { selected, handleSelectCategory };
 };
@@ -50,14 +49,14 @@ const useCategoryDropdownLogic = (fieldName) => {
 
   const calculateDropdownPosition = () => {
     if (!buttonRef.current) return;
-    
+
     const rect = buttonRef.current.getBoundingClientRect();
     const scrollY = window.scrollY;
     const scrollX = window.scrollX;
-    
+
     setDropdownPosition({
       top: rect.bottom + scrollY + 12,
-      left: rect.left + scrollX
+      left: rect.left + scrollX,
     });
   };
 
@@ -100,15 +99,15 @@ const useCategoryDropdownLogic = (fieldName) => {
     const handleResize = () => setShowDropdown(false);
 
     if (showDropdown) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('scroll', handleScroll);
-      window.addEventListener('resize', handleResize);
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("scroll", handleScroll);
+      window.addEventListener("resize", handleResize);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
       // Clean up timeout on unmount
       if (hideTimeoutRef.current) {
         clearTimeout(hideTimeoutRef.current);
@@ -123,14 +122,21 @@ const useCategoryDropdownLogic = (fieldName) => {
     handleShowDropdown,
     handleHideDropdown,
     handleKeepDropdown,
-    setShowDropdown
+    setShowDropdown,
   };
 };
 
 // CategoryItem Component
-const CategoryItem = ({ category, field, isSelected, onClick, className = "" }) => {
-  const baseClasses = "inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer border-2 select-none";
-  
+const CategoryItem = ({
+  category,
+  field,
+  isSelected,
+  onClick,
+  className = "",
+}) => {
+  const baseClasses =
+    "inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer border-2 select-none";
+
   const selectedClasses = isSelected
     ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-transparent shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-105"
     : "text-gray-700 border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 hover:shadow-md hover:scale-105";
@@ -147,7 +153,13 @@ const CategoryItem = ({ category, field, isSelected, onClick, className = "" }) 
 };
 
 // MoreButton Component
-const MoreCategoryButton = ({ count, buttonRef, onMouseEnter, onMouseLeave, onClick }) => {
+const MoreCategoryButton = ({
+  count,
+  buttonRef,
+  onMouseEnter,
+  onMouseLeave,
+  onClick,
+}) => {
   return (
     <div
       ref={buttonRef}
@@ -164,15 +176,15 @@ const MoreCategoryButton = ({ count, buttonRef, onMouseEnter, onMouseLeave, onCl
 };
 
 // CategoryDropdown Component
-const CategoryDropdown = ({ 
-  id, 
-  position, 
-  categories, 
+const CategoryDropdown = ({
+  id,
+  position,
+  categories,
   field,
-  selected, 
-  onSelectCategory, 
-  onMouseEnter, 
-  onMouseLeave 
+  selected,
+  onSelectCategory,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   return (
     <div
@@ -180,7 +192,7 @@ const CategoryDropdown = ({
       className="fixed z-[9999] animate-in fade-in-0 zoom-in-95 duration-200"
       style={{
         top: `${position.top}px`,
-        left: `${position.left}px`
+        left: `${position.left}px`,
       }}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -214,8 +226,18 @@ const CategoryEmptyState = ({ fieldLabel }) => {
     <div className="flex items-center justify-center p-6 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
       <div className="text-center">
         <div className="w-12 h-12 mx-auto mb-3 bg-gray-200 rounded-full flex items-center justify-center">
-          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          <svg
+            className="w-6 h-6 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+            />
           </svg>
         </div>
         <p className="text-gray-500 text-sm font-medium">
@@ -236,7 +258,7 @@ const Category = ({ value, field, item }) => {
     handleShowDropdown,
     handleHideDropdown,
     handleKeepDropdown,
-    setShowDropdown
+    setShowDropdown,
   } = useCategoryDropdownLogic(field.name);
 
   // Early return for empty state

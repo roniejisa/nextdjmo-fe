@@ -24,7 +24,9 @@ const Page = async ({ params }) => {
   try {
     dataContent = JSON.parse(page.content);
   } catch (e) {}
-
+  if (!dataContent) {
+    redirect("/");
+  }
   return (
     <>
       {page.header === "active" && (

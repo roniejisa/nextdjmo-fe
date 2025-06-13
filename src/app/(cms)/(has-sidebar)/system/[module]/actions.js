@@ -28,9 +28,16 @@ export const getDataModule = async (
   }
 };
 
+export const getSeo = async (module) => {
+  const token = await getToken();
+  return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `/seo`, {
+    Authorization: `Bearer ${token}`,
+  });
+};
+
 export const getDataModuleDetail = async (module, id) => {
   const token = await getToken();
-  return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `/${id}/`, {
+  return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `/${id}`, {
     isAdmin: 1,
     Authorization: `Bearer ${token}`,
   });
@@ -42,7 +49,7 @@ export const getProfile = async () => {
   if (user && user != "undefined") {
     return JSON.parse(decodeURIComponent(user));
   } else {
-    console.log("đang chạy vào đây")
+    console.log("đang chạy vào đây");
     try {
       const token = await getToken();
       const response = await httpClient(
