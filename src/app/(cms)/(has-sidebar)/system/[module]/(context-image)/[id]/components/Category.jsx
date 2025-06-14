@@ -1,6 +1,6 @@
 "use client";
 
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { getData } from "../../create/components/action";
 
@@ -237,7 +237,7 @@ const RecursiveCategory = ({ options, field, value, ...props }) => {
 const Category = ({ field, defaultValue }) => {
   const [items, setItems] = useState(field.data);
   const [isLoading, setIsLoading] = useState(false);
-  const { updateField, setUpdateField } = useContext(AllContext);
+  const { updateField, setUpdateField } = useContext(CMSContext);
 
   // Giữ nguyên logic getListData
   const getListData = async () => {

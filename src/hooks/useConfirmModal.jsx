@@ -1,10 +1,10 @@
 "use client";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import { useCallback, useContext } from "react";
 
 export const useConfirmModal = () => {
-  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+  const { setShowModalQuestion, setModalOptions } = useContext(CMSContext);
   const notify = useNotify();
   const showConfirmModal = useCallback(
     ({ title, onConfirm, onCancel, successMessage, errorMessage }) => {

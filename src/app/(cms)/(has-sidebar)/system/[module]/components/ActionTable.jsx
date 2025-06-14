@@ -5,12 +5,12 @@ import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext } from "react";
 import { deleteItems } from "../actions";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
 const ActionTable = () => {
-  const { module, user, selectIds, setSelectIds, selectAllRef, data } =
+  const { module, selectIds, setSelectIds, selectAllRef, data } =
     useContext(ModuleContext);
-  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+  const { setShowModalQuestion, setModalOptions, profile } = useContext(CMSContext);
   const router = useRouterCustom();
   const notify = useNotify();
 
@@ -54,7 +54,7 @@ const ActionTable = () => {
   }
 
   // Check if user has delete permission
-  const hasDeletePermission = user?.permissions?.includes(`${module}.delete`);
+  const hasDeletePermission = profile?.permissions?.includes(`${module}.delete`);
 
   return (
     <ActionToolbar

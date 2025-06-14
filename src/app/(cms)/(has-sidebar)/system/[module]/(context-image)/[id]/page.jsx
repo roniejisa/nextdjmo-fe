@@ -1,12 +1,12 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { httpClient } from "@/utils/http";
 import { notFound, redirect } from "next/navigation";
 import FormUpdate from "./FormUpdate";
 import { cookies } from "next/headers";
-import { getProfile } from "../../actions";
 import { cache } from "react";
-export const dynamic = "force-dynamic";
 const moduleDetail = async (module, id, language) => {
-  const storeCookie = await cookies();
+  const storeCookie = cookies();
   const token = storeCookie.get("token")?.value;
   return httpClient(
     `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/${id}` +
@@ -34,18 +34,12 @@ export async function generateMetadata({ params, searchParams }) {
 }
 const DetailComponent = async ({ params, searchParams }) => {
   const { id, module } = await params;
-  const profile = await getProfile();
 
   const language = searchParams.language;
 
-  let { data } = await moduleDetail(module, id, language);
-
-
-  if (
-    !Object.keys(data).length ||
-    !profile.permissions.includes(`${module}.update`)
-  ) {
-    return redirect("/403");
+  let { status, data } = await moduleDetail(module, id, language);
+  if (status !== 200) {
+    return notFound();
   }
   let { item, fields, module: moduleStore } = data;
   // Kiểm tra có phải 2 ngôn ngữ hay không
@@ -61,7 +55,6 @@ const DetailComponent = async ({ params, searchParams }) => {
     );
   }
 
-
   fields = fields.filter((field) => {
     field.hiddenForm = field.hiddenForm ?? 0;
     return field.hiddenForm === 0;
@@ -72,7 +65,6 @@ const DetailComponent = async ({ params, searchParams }) => {
       item={item}
       module={module}
       id={id}
-      profile={profile}
       fields={fields}
       moduleStore={moduleStore}
       searchParams={searchParams}

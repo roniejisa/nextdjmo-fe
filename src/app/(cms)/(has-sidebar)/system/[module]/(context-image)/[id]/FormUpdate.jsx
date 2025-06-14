@@ -2,25 +2,21 @@
 import GroupButtonForm from "../../components/form/GroupButtonForm";
 import { handleUpdate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
-import { useEffect, useState, useTransition } from "react";
+import { useContext, useEffect, useState, useTransition } from "react";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { components } from "./components";
 import Group from "../../components/Group";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
-const FormUpdate = ({
-  module,
-  item,
-  fields,
-  moduleStore,
-  searchParams,
-  profile,
-}) => {
+const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
   const router = useRouterCustom();
   const notify = useNotify();
+  const { profile } = useContext(CMSContext);
   const [isPending, startTransition] = useTransition(false);
   const [oldData, setOldData] = useState({
     ...item,
   });
+
   const isMultipleLanguage = moduleStore.language ?? false;
   const language = searchParams.language;
   const submitAction = async (form) => {

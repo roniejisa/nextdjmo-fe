@@ -1,7 +1,8 @@
-import { getDataModule, getProfile, getSeo } from "./actions";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+import { getDataModule, getSeo } from "./actions";
 import Pagination from "@/components/Pagination/Pagination";
 import { redirect } from "next/navigation";
-import LinkCustom from "@/packages/translation/Link";
 import ModuleProvider from "@/context/cms/ModuleProvider";
 import SelectRow from "./components/SelectRow";
 import SelectAllRow from "./components/SelectAllRow";
@@ -9,14 +10,13 @@ import HeaderTable from "./HeaderTable";
 import ActionTable from "./components/ActionTable";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import SkeletonWithChildren from "@/components/Skeleton/SkeletonWithChildren";
-import Language from "./components/buttons/Language";
-import { componentActions, components } from "./components";
+import { components } from "./components";
 import TabModule from "./Tab";
 import StartTable from "./StartTable";
 import { cfl } from "@/utils/client";
+import HeaderAction from "./HeaderAction";
+import ModuleActions from "./ModuleActions";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export async function generateMetadata({ params }) {
   const { module } = await params;
   const { data, status } = await getSeo(module);
@@ -36,7 +36,6 @@ export async function generateMetadata({ params }) {
 const Module = async ({ params, searchParams }) => {
   const { module } = await params;
   const { limit, page, ...propSearchParams } = await searchParams;
-  const user = await getProfile();
   const response = await getDataModule(module, limit, page, propSearchParams);
   const data = response?.data ?? {};
   if (Object.keys(data).length === 0) {
@@ -65,12 +64,7 @@ const Module = async ({ params, searchParams }) => {
     });
 
   return (
-    <ModuleProvider
-      module={module}
-      fields={allFields}
-      user={user}
-      data={moduleMain}
-    >
+    <ModuleProvider module={module} fields={allFields} data={moduleMain}>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
         {/* Header Section */}
         <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200/60 shadow-sm">
@@ -82,32 +76,7 @@ const Module = async ({ params, searchParams }) => {
                 </h1>
                 {moduleMain?.hasTab && <TabModule tab={moduleMain?.hasTab} />}
               </div>
-
-              <div className="flex items-center gap-3 sm:ml-auto">
-                <Language module={module} moduleMain={moduleMain} />
-                {user?.permissions.includes(`${module}.create`) &&
-                  !moduleMain?.no_add && (
-                    <LinkCustom
-                      href={`${module}/create`}
-                      className="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium rounded-lg shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/30 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-                    >
-                      <svg
-                        className="w-4 h-4 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                      Thêm mới
-                    </LinkCustom>
-                  )}
-              </div>
+              <HeaderAction module={module} moduleMain={moduleMain} />
             </div>
           </div>
         </div>
@@ -226,31 +195,12 @@ const Module = async ({ params, searchParams }) => {
                               );
                             })}
 
-                            <div className="flex-1 py-1 px-2 gap-2 flex items-center">
-                              {actions.map((action, index) => {
-                                if (
-                                  user.permissions.includes(
-                                    `${module}.${action.permission}`
-                                  )
-                                ) {
-                                  const ComponentAction =
-                                    componentActions[action.type];
-                                  return (
-                                    <ComponentAction
-                                      item={item}
-                                      data={moduleMain}
-                                      module={module}
-                                      action={action}
-                                      key={index}
-                                      href={`${module}/${item._id}`}
-                                    >
-                                      {action.svg}
-                                    </ComponentAction>
-                                  );
-                                }
-                                return null;
-                              })}
-                            </div>
+                            <ModuleActions
+                              actions={actions}
+                              module={module}
+                              item={item}
+                              moduleMain={moduleMain}
+                            />
                           </div>
                         ))}
                       </>

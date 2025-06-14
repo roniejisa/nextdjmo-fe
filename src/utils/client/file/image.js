@@ -8,51 +8,80 @@ export const showImageUrl = (imageData, optimal = true) => {
   const baseUrl = process.env.NEXT_PUBLIC_ENDPOINT_URL?.replace(/\/?$/, "/");
   if (!imageData) return "/next.svg";
 
-  // Nếu `url` là string và là URL đầy đủ (http, https, blob, hoặc absolute path)
-  if (/^(https?:|blob:|\/\/|\/)/.test(imageData)) return imageData;
-
-  // Nếu `url` là string và bắt đầu bằng "/"
-  if (typeof imageData === "string" && imageData.startsWith("/"))
-    return baseUrl + imageData.slice(1);
-
-  // Nếu `url` là object và có `url` bên trong
-  if (typeof imageData === "object" && imageData?.url) {
-    if (imageData.file_info && optimal) {
-      const parsed = JSON.parse(imageData.file_info);
-      if (parsed.avif) {
-        imageData.url = parsed.avif;
-      } else if (parsed.webp) {
-        imageData.url = parsed.webp;
+  // Helper function to safely parse JSON
+  const safeJsonParse = (jsonString) => {
+    if (!jsonString || typeof jsonString !== 'string') return null;
+    
+    try {
+      // Clean up common JSON formatting issues
+      let cleanJson = jsonString.trim();
+      
+      // Replace single quotes with double quotes if needed
+      if (cleanJson.includes("'") && !cleanJson.includes('"')) {
+        cleanJson = cleanJson.replace(/'/g, '"');
       }
+      
+      // Handle mixed quotes - replace single quotes that aren't inside double quotes
+      cleanJson = cleanJson.replace(/(?<!\\)'(?=([^"\\]*(\\.|"([^"\\]*\\.)*[^"\\]*"))*[^"]*$)/g, '"');
+      
+      return JSON.parse(cleanJson);
+    } catch (error) {
+      console.warn('Failed to parse JSON:', jsonString, error);
+      return null;
     }
-    return imageData.url.startsWith("/")
-      ? baseUrl + imageData.url.slice(1).replace(/\\/g, "/")
-      : baseUrl + imageData.url.replace(/\\/g, "/");
-  }
+  };
 
-  // Thử parse `url` như JSON
-  try {
-    let parsed = JSON.parse(imageData);
-    if (parsed.file_info && optimal) {
-      parsed =
-        typeof imageData?.file_info === "string"
-          ? JSON.parse(imageData?.file_info.replaceAll("'", '"'))
-          : parsed;
-      if (typeof parsed.avif != "undefined") {
-        imageData.url = parsed.avif;
-      } else if (typeof parsed.webp != "undefined") {
-        imageData.url = parsed.webp;
-      }
+  // Helper function to get optimized URL from file_info
+  const getOptimizedUrl = (fileInfo, originalUrl) => {
+    if (!fileInfo || !optimal) return originalUrl;
+    
+    const parsed = safeJsonParse(fileInfo);
+    if (!parsed) return originalUrl;
+    
+    // Priority: avif > webp > original
+    if (parsed.avif) return parsed.avif;
+    if (parsed.webp) return parsed.webp;
+    return originalUrl;
+  };
+
+  // Helper function to construct full URL
+  const constructUrl = (url) => {
+    if (!url) return "/next.svg";
+    
+    // Clean up backslashes
+    const cleanUrl = url.replace(/\\/g, "/");
+    
+    if (cleanUrl.startsWith("/")) {
+      return baseUrl + cleanUrl.slice(1);
     }
+    return baseUrl + cleanUrl;
+  };
+
+  // Case 1: imageData is a string and is a full URL
+  if (typeof imageData === "string") {
+    if (/^(https?:|blob:|\/\/|\/)/.test(imageData)) {
+      return imageData;
+    }
+    
+    // Case 2: imageData is a string starting with "/"
+    if (imageData.startsWith("/")) {
+      return baseUrl + imageData.slice(1);
+    }
+    
+    // Case 3: Try to parse imageData as JSON string
+    const parsed = safeJsonParse(imageData);
     if (parsed?.url) {
-      return parsed.url.startsWith("/")
-        ? baseUrl + parsed.url.slice(1).replace(/\\/g, "/")
-        : baseUrl + parsed.url.replace(/\\/g, "/");
+      const optimizedUrl = getOptimizedUrl(parsed.file_info, parsed.url);
+      return constructUrl(optimizedUrl);
     }
-  } catch {
-    // Bỏ qua lỗi nếu JSON không hợp lệ
   }
 
-  // Trả về mặc định nếu không khớp điều kiện nào
+  // Case 4: imageData is an object with url property
+  if (typeof imageData === "object" && imageData?.url) {
+    const optimizedUrl = getOptimizedUrl(imageData.file_info, imageData.url);
+    return constructUrl(optimizedUrl);
+  }
+
+  // Default fallback
   return "/next.svg";
 };

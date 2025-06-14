@@ -48,3 +48,5 @@ export {
 export { generateCombinations, generateKey, sortData } from "./product/variant";
 
 export { isJSON } from "./json/check";
+
+export {formatTimeComment} from './time/format'

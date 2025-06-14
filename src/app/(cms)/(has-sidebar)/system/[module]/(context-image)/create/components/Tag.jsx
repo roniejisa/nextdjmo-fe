@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { getData } from "./action";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
 // Tag Item Component
 const TagItem = ({ tag, onRemove }) => (
@@ -90,7 +90,7 @@ const Tag = ({ field, module }) => {
   const preventBlur = useRef(false);
 
   // Context
-  const { updateField, setUpdateField } = useContext(AllContext);
+  const { updateField, setUpdateField } = useContext(CMSContext);
 
   // Event handlers
   const handleChangeValue = (e) => {

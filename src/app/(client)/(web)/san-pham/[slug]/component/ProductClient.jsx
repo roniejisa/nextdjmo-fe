@@ -1,11 +1,9 @@
 "use client";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import Variant from "./Variant";
 import { ProductContext } from "@/context/client/ProductProvider";
-import { showImageUrl } from "@/utils/client";
 import FormAddOrder from "./FormAddOrder";
-import ImageCustom from "@/components/Maintain/Image";
 import ImagePreview from "./ImagePreview";
 import Skeleton from "@/components/Skeleton/Skeleton";
 
@@ -53,7 +51,7 @@ const ProductClient = () => {
             }}
             height="200px"
           />
-          <Skeleton width="40%"/>
+          <Skeleton width="40%" />
         </div>
       </div>
     );

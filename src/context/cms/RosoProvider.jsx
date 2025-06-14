@@ -86,8 +86,8 @@ const RosoProvider = ({ children }) => {
    * @param {HTMLElement} element - Element img bị lỗi
    */
   const handleImageError = (imageUrl, element) => {
-    console.error('Image load error:', imageUrl);
-    
+    console.error("Image load error:", imageUrl);
+
     // Tạo fallback UI với option retry
     if (element && element.parentElement) {
       element.parentElement.innerHTML = `
@@ -143,14 +143,14 @@ const RosoProvider = ({ children }) => {
 
     const token = await getToken();
     let data = "";
-    
+
     // Xử lý data dựa trên loại request
     if (isAgain) {
       data = form.get("message");
     } else {
       data = editorRef.current.getData();
       if (data.length === 0) return;
-      
+
       // Thêm message user vào chat
       addMessage({
         content: data,
@@ -312,7 +312,10 @@ const RosoProvider = ({ children }) => {
 
         try {
           // Xử lý markdown với DOMPurify để bảo mật
-          if (typeof marked !== "undefined" && typeof DOMPurify !== "undefined") {
+          if (
+            typeof marked !== "undefined" &&
+            typeof DOMPurify !== "undefined"
+          ) {
             processedText = DOMPurify.sanitize(marked.parse(currentRawText));
           } else if (typeof marked !== "undefined") {
             processedText = marked.parse(currentRawText);
@@ -398,10 +401,14 @@ const RosoProvider = ({ children }) => {
           "A striking image",
           "I will generate a photorealistic image",
           "A captivating image",
-          "A captivating photo"
+          "A captivating photo",
         ];
 
-        if (imageGenerationTriggers.some(trigger => parsedData.text.includes(trigger))) {
+        if (
+          imageGenerationTriggers.some((trigger) =>
+            parsedData.text.includes(trigger)
+          )
+        ) {
           accumulatedMessage.isGeneratingImage = true;
         }
 
@@ -565,10 +572,9 @@ const RosoProvider = ({ children }) => {
       }
 
       readChunk();
-
     } catch (error) {
       console.error("Request error:", error);
-      
+
       // Hiển thị error UI
       if (tempRef.current) {
         tempRef.current.innerHTML = `
@@ -587,7 +593,7 @@ const RosoProvider = ({ children }) => {
           </div>
         `;
       }
-      
+
       setIsStreaming(false);
       waitingRef.current = false;
     }
@@ -598,7 +604,7 @@ const RosoProvider = ({ children }) => {
    */
   const checkScroll = () => {
     if (!messageRef.current || !backToBotRef.current) return;
-    
+
     const scrollTop = messageRef.current.scrollTop;
     const windowHeight = messageRef.current.offsetHeight;
     const fullHeight = messageRef.current.scrollHeight;
@@ -649,7 +655,7 @@ const RosoProvider = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         messageRef?.current.removeEventListener("scroll", checkScroll);
       }
-      
+
       // Cleanup global function
       if (typeof window !== "undefined") {
         delete window.rosoPreviewImage;
@@ -676,7 +682,7 @@ const RosoProvider = ({ children }) => {
       }}
     >
       {children}
-      
+
       {/* Modal Preview ảnh với improved UX */}
       {previewImage && (
         <div
@@ -716,14 +722,17 @@ const RosoProvider = ({ children }) => {
               onLoad={() => console.log("Preview image loaded successfully")}
               onError={() => console.error("Preview image failed to load")}
             />
-            
+
             {/* Loading spinner cho ảnh preview */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="animate-pulse bg-gray-200 rounded-lg" style={{ 
-                width: '200px', 
-                height: '200px',
-                display: 'none' 
-              }} />
+              <div
+                className="animate-pulse bg-gray-200 rounded-lg"
+                style={{
+                  width: "200px",
+                  height: "200px",
+                  display: "none",
+                }}
+              />
             </div>
           </div>
         </div>

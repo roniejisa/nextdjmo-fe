@@ -4,7 +4,7 @@ import { Plus, Edit3, Copy, Trash2 } from "lucide-react";
 import { generateId } from "../menuUtils";
 import { useNotify } from "@/context/NotifyProvider";
 import { copyMenu, deleteMenu, saveMenu, updateMenu } from "../action";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { formatKey } from "@/utils/client";
 import { useConfirmModal } from "@/hooks/useConfirmModal";
 const MenuTypeManager = ({

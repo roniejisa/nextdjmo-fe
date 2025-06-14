@@ -1,17 +1,16 @@
 "use client";
 
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import { useContext, useState } from "react";
 import { confirmOtp, disabledOtp, enableOtp } from "../actions";
 import Image from "next/image";
 
-const TwoFA = ({ defaultValue, item, profile }) => {
-  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+const TwoFA = ({ defaultValue, item }) => {
+  const { setShowModalQuestion, setModalOptions, profile } = useContext(CMSContext);
   const [on2Fa, setOn2Fa] = useState(defaultValue);
   const [isLoading, setIsLoading] = useState(false);
   const notify = useNotify();
-
   const handleOn2FA = () => {
     setShowModalQuestion(true);
     setModalOptions(on2FAObj);

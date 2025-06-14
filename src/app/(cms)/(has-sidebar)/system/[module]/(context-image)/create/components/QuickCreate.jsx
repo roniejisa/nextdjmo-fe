@@ -3,9 +3,9 @@
 import { useContext, useEffect, useRef, useState, useTransition } from "react";
 import { handleCreate, moduleDetail } from "../actions";
 import { components } from "../components";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 const QuickCreate = () => {
-  const { modalQuick, setModalQuick, setUpdateField } = useContext(AllContext);
+  const { modalQuick, setModalQuick, setUpdateField } = useContext(CMSContext);
   const [isPending, startTransition] = useTransition();
   const [module, setModule] = useState(null);
   const modalQuickRef = useRef(null);

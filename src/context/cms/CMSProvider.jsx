@@ -6,8 +6,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { SocketContext } from "../SocketProvider";
 import ImageProvider from "./ImageProvider";
 
-export const AllContext = createContext();
-const AllProvider = ({ children, profile }) => {
+export const CMSContext = createContext();
+const CMSProvider = ({ children, profile }) => {
   const [showModalQuestion, setShowModalQuestion] = useState(false);
   const [modalOptions, setModalOptions] = useState({});
   const [modalQuick, setModalQuick] = useState(false);
@@ -33,8 +33,9 @@ const AllProvider = ({ children, profile }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
   return (
-    <AllContext.Provider
+    <CMSContext.Provider
       value={{
+        profile,
         socketRef,
         typeRef,
         addTypes,
@@ -54,8 +55,8 @@ const AllProvider = ({ children, profile }) => {
         <QuestionModal />
         <QuickCreate />
       </ImageProvider>
-    </AllContext.Provider>
+    </CMSContext.Provider>
   );
 };
 
-export default AllProvider;
+export default CMSProvider;

@@ -13,7 +13,7 @@ import React, {
 import { deleteFolder, editFolder, getFolders } from "./action";
 import { useMedia } from "./MediaProvider";
 import Dot from "@/components/Icon/svg/Dot";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { useNotify } from "@/context/NotifyProvider";
 
 const Folder = () => {
@@ -29,7 +29,7 @@ const Folder = () => {
     setOpenMenuIndex,
   } = useMedia((media) => media);
 
-  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+  const { setShowModalQuestion, setModalOptions } = useContext(CMSContext);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

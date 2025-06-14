@@ -4,16 +4,15 @@ import ModalSeach from "@/components/ui/client/ModalSeach";
 import { createContext, useEffect, useRef, useState } from "react";
 
 export const ClientContext = createContext();
-const ClientProvider = ({ children }) => {
+const ClientProvider = ({ profile, ssId, children }) => {
   const [showModalSearch, setShowModalSearch] = useState(false);
   const [updateCart, setUpdateCart] = useState(false);
   const [totalOrders, setTotalOrders] = useState(0);
   const [orders, setOrders] = useState([]);
-
   // HEADER
   const headerRef = useRef();
   const sectionRef = useRef({
-    home: []
+    home: [],
   });
 
   const fetchData = async () => {
@@ -54,6 +53,8 @@ const ClientProvider = ({ children }) => {
         setUpdateCart,
         headerRef,
         sectionRef,
+        profile,
+        ssId
       }}
     >
       {children}

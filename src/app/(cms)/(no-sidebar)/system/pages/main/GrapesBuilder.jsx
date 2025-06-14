@@ -2,14 +2,13 @@
 import { useContext, useEffect, useRef } from "react";
 import grapesjs from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css"; // Default GrapesJS styles
-import style from "./global.css"; // Custom styles for the editor
+import "./global.css"; // Custom styles for the editor
 import { BuilderContext } from "../providers/BuilderProvider";
 import { httpClient } from "@/utils/http";
-const GrapesBuilder = ({ token, profile, id = null }) => {
+const GrapesBuilder = ({ id }) => {
   const editorRef = useRef(null); // Reference for the editor container
-  const { setEditor, setToken, setId, setPage } = useContext(BuilderContext);
+  const { setEditor, setId, setPage } = useContext(BuilderContext);
   useEffect(() => {
-    setToken(token);
     if (id) {
       setId(id);
     }

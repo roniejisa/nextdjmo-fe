@@ -1,10 +1,7 @@
-import { notFound } from "next/navigation";
-import { getProfile } from "./[module]/actions";
-
+import { notFound, } from "next/navigation";
 import { getToken } from "@/utils/server/utils";
 import { httpClient } from "@/utils/http";
 import Client from "./Client";
-
 
 const getProductHot = async () => {
   const token = await getToken();
@@ -14,21 +11,18 @@ const getProductHot = async () => {
       Authorization: `Bearer ${token}`,
     }
   );
-  return response.data;
+  return response;
 };
+
 const Dashboard = async () => {
-  const profile = await getProfile();
-  const hotProducts = await getProductHot();
-  if (
-    profile &&
-    profile?.permissions &&
-    profile?.permissions.filter((permission) => permission.includes(".read"))
-      .length === 0
-  )
+  const { status, data, message } = await getProductHot();
+  if (status !== 200) {
     return notFound();
+  }
+
   return (
     <div className="p-4">
-      <Client hotProducts={hotProducts} profile={profile} />
+      <Client hotProducts={data} />
     </div>
   );
 };

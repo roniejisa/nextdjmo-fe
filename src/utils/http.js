@@ -19,10 +19,10 @@ const getRefreshState = (sessionId) => {
     refreshStates.set(sessionId, {
       refreshPromise: null,
       refreshFailCount: 0,
-      lastActivity: Date.now()
+      lastActivity: Date.now(),
     });
   }
-  
+
   // Update last activity
   const state = refreshStates.get(sessionId);
   state.lastActivity = Date.now();
@@ -35,7 +35,7 @@ const getRefreshState = (sessionId) => {
 const cleanupOldSessions = () => {
   const now = Date.now();
   const cutoff = now - CLEANUP_INTERVAL;
-  
+
   for (const [sessionId, state] of refreshStates.entries()) {
     if (state.lastActivity < cutoff) {
       refreshStates.delete(sessionId);
@@ -44,7 +44,7 @@ const cleanupOldSessions = () => {
 };
 
 // Periodic cleanup - chạy mỗi 30 phút
-if (typeof global !== 'undefined') {
+if (typeof global !== "undefined") {
   setInterval(cleanupOldSessions, CLEANUP_INTERVAL);
 }
 
@@ -58,18 +58,18 @@ if (typeof global !== 'undefined') {
 const fetchWithTimeout = async (url, options, timeoutMs = REQUEST_TIMEOUT) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-  
+
   try {
     const response = await fetch(url, {
       ...options,
-      signal: controller.signal
+      signal: controller.signal,
     });
     clearTimeout(timeoutId);
     return response;
   } catch (error) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error('Request timeout - server không phản hồi');
+    if (error.name === "AbortError") {
+      throw new Error("Request timeout - server không phản hồi");
     }
     throw error;
   }
@@ -84,46 +84,46 @@ const fetchWithTimeout = async (url, options, timeoutMs = REQUEST_TIMEOUT) => {
 const categorizeError = (response, data) => {
   // Network errors
   if (!response || !response.ok) {
-    return { 
-      type: 'NETWORK_ERROR', 
+    return {
+      type: "NETWORK_ERROR",
       retryable: true,
-      message: 'Lỗi kết nối mạng'
+      message: "Lỗi kết nối mạng",
     };
   }
-  
+
   // Server error codes
   switch (data?.status) {
     case 401:
-      return { 
-        type: 'AUTH_ERROR', 
+      return {
+        type: "AUTH_ERROR",
         retryable: false,
-        message: 'Phiên đăng nhập hết hạn'
+        message: "Phiên đăng nhập hết hạn",
       };
     case 403:
-      return { 
-        type: 'PERMISSION_ERROR', 
+      return {
+        type: "PERMISSION_ERROR",
         retryable: false,
-        message: 'Không có quyền truy cập'
+        message: "Không có quyền truy cập",
       };
     case 429:
-      return { 
-        type: 'RATE_LIMIT', 
+      return {
+        type: "RATE_LIMIT",
         retryable: true,
-        message: 'Quá nhiều requests, vui lòng thử lại sau'
+        message: "Quá nhiều requests, vui lòng thử lại sau",
       };
     case 500:
     case 502:
     case 503:
-      return { 
-        type: 'SERVER_ERROR', 
+      return {
+        type: "SERVER_ERROR",
         retryable: true,
-        message: 'Lỗi server, vui lòng thử lại'
+        message: "Lỗi server, vui lòng thử lại",
       };
     default:
-      return { 
-        type: 'CLIENT_ERROR', 
+      return {
+        type: "CLIENT_ERROR",
         retryable: false,
-        message: data?.message || 'Có lỗi xảy ra'
+        message: data?.message || "Có lỗi xảy ra",
       };
   }
 };
@@ -135,17 +135,19 @@ const categorizeError = (response, data) => {
  */
 const handleTokenRefresh = async (sessionId) => {
   const state = getRefreshState(sessionId);
-  
+
   // Kiểm tra số lần thử refresh
   if (state.refreshFailCount >= MAX_REFRESH_ATTEMPTS) {
-    console.log(`[Auth] Max refresh attempts reached for session: ${sessionId}`);
+    console.log(
+      `[Auth] Max refresh attempts reached for session: ${sessionId}`
+    );
     return {
       success: false,
       shouldRedirect: true,
-      message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại."
+      message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
     };
   }
-  
+
   // Nếu đang refresh, chờ kết quả
   if (state.refreshPromise) {
     console.log(`[Auth] Waiting for existing refresh process: ${sessionId}`);
@@ -157,18 +159,19 @@ const handleTokenRefresh = async (sessionId) => {
       return {
         success: false,
         shouldRedirect: true,
-        message: "Lỗi làm mới token"
+        message: "Lỗi làm mới token",
       };
     }
   }
-  
+
   // Bắt đầu refresh process
   console.log(`[Auth] Starting token refresh for session: ${sessionId}`);
   state.refreshPromise = refreshTokens()
-    .then(result => {
+    .then((result) => {
+      console.log(result)
       // Reset promise sau khi hoàn thành
       state.refreshPromise = null;
-      
+
       if (result && result.success && result.newToken) {
         // Reset fail count khi thành công
         state.refreshFailCount = 0;
@@ -176,7 +179,7 @@ const handleTokenRefresh = async (sessionId) => {
         return {
           success: true,
           newToken: result.newToken,
-          shouldRedirect: false
+          shouldRedirect: false,
         };
       } else {
         // Refresh thất bại
@@ -185,11 +188,11 @@ const handleTokenRefresh = async (sessionId) => {
         return {
           success: false,
           shouldRedirect: true,
-          message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại."
+          message: "Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.",
         };
       }
     })
-    .catch(error => {
+    .catch((error) => {
       // Reset promise và tăng fail count
       state.refreshPromise = null;
       state.refreshFailCount++;
@@ -197,10 +200,10 @@ const handleTokenRefresh = async (sessionId) => {
       return {
         success: false,
         shouldRedirect: true,
-        message: "Lỗi làm mới token"
+        message: "Lỗi làm mới token",
       };
     });
-  
+
   return await state.refreshPromise;
 };
 
@@ -216,16 +219,18 @@ const retryWithBackoff = async (fn, maxRetries = 3) => {
       return await fn();
     } catch (error) {
       // Không retry cho auth errors
-      if (error.type === 'AUTH_ERROR' || error.type === 'PERMISSION_ERROR') {
+      if (error.type === "AUTH_ERROR" || error.type === "PERMISSION_ERROR") {
         throw error;
       }
-      
+
       // Retry cho network và server errors
       if (i === maxRetries - 1) throw error;
-      
+
       const delay = Math.pow(2, i) * 1000; // Exponential backoff
-      console.log(`[HTTP] Retrying request in ${delay}ms (attempt ${i + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      console.log(
+        `[HTTP] Retrying request in ${delay}ms (attempt ${i + 1}/${maxRetries})`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 };
@@ -238,7 +243,7 @@ const retryWithBackoff = async (fn, maxRetries = 3) => {
  * @param {number} startTime - Request start time
  */
 const logRequest = (method, url, status, startTime) => {
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     const duration = Date.now() - startTime;
     console.log(`[HTTP] ${method} ${url} - ${status} (${duration}ms)`);
   }
@@ -267,8 +272,11 @@ export const httpClient = async (
   msg = "Vui lòng đăng nhập!"
 ) => {
   const startTime = Date.now();
-  const sessionId = cookies().get("sessionId")?.value || cookies().get("token")?.value || "default";
-  
+  const sessionId =
+    cookies().get("sessionId")?.value ||
+    cookies().get("token")?.value ||
+    "default";
+
   try {
     // Chuẩn bị request options
     const options = {
@@ -278,14 +286,6 @@ export const httpClient = async (
       },
       method,
     };
-
-    // Thêm token vào headers nếu có
-    if (!isRetry) {
-      const token = cookies().get("token")?.value;
-      if (token) {
-        options.headers["Authorization"] = `Bearer ${token}`;
-      }
-    }
 
     // Thêm prefix header nếu cần
     if (hasPrefixHeader) {
@@ -310,7 +310,7 @@ export const httpClient = async (
 
     // Thực hiện request với timeout
     const response = await fetchWithTimeout(url, options);
-    
+
     let data;
     try {
       data = await response.json();
@@ -330,10 +330,12 @@ export const httpClient = async (
 
     // Xử lý 401 - Token expired
     if (data.status === 401 && !isRetry) {
-      console.log(`[Auth] Token expired, attempting refresh for session: ${sessionId}`);
-      
+      console.log(
+        `[Auth] Token expired, attempting refresh for session: ${sessionId}`
+      );
+
       const refreshResult = await handleTokenRefresh(sessionId);
-      
+
       if (refreshResult.success && refreshResult.newToken) {
         // Retry request với token mới
         console.log(`[Auth] Retrying request with new token: ${sessionId}`);
@@ -352,7 +354,9 @@ export const httpClient = async (
         );
       } else {
         // Refresh thất bại, redirect về login
-        console.log(`[Auth] Token refresh failed, redirecting to login: ${sessionId}`);
+        console.log(
+          `[Auth] Token refresh failed, redirecting to login: ${sessionId}`
+        );
         return {
           status: 401,
           message: refreshResult.message,
@@ -370,20 +374,19 @@ export const httpClient = async (
     }
 
     return data;
-    
   } catch (error) {
     console.error("[HTTP] Request error:", error);
-    logRequest(method, url, 'ERROR', startTime);
-    
+    logRequest(method, url, "ERROR", startTime);
+
     // Phân loại lỗi
     const errorInfo = categorizeError(null, null);
-    
+
     return {
       status: 500,
       message: errorInfo.message,
       errorMessage: error.message,
       searchParams,
-      retryable: errorInfo.retryable
+      retryable: errorInfo.retryable,
     };
   }
 };

@@ -1,12 +1,12 @@
 import Sidebar from "@/components/ui/admin/Sidebar";
 import "@/app/system.scss";
-import AllProvider from "@/context/cms/AllProvider";
+import CMSProvider from "@/context/cms/CMSProvider";
 import React from "react";
-import { getProfile } from "./system/[module]/actions";
 import SocketProvider from "@/context/SocketProvider";
 import PreviewProvider from "@/packages/previews/PreviewProvider";
 import { getMenu } from "@/components/ui/admin/action";
 import { handleAuthRedirect } from "@/utils/action";
+import { getProfile } from "@/utils/server/utils";
 
 const AdminLayout = async ({ children, params }) => {
   let profile = await getProfile();
@@ -26,7 +26,7 @@ const AdminLayout = async ({ children, params }) => {
   
   return (
     <SocketProvider>
-      <AllProvider profile={profile}>
+      <CMSProvider profile={profile}>
         <main className="grid lg:grid-cols-[auto_1fr] gap-4 lg:h-[calc(100vh-16px*2)] lg:p-4 h-screen p-0">
           <Sidebar storeParams={params} profile={profile} menus={menus} />
           <div className="flex-1 shadow-lg rounded-none lg:rounded-2xl bg-main overflow-auto h-screen lg:h-[calc(100vh-16px*2)]">
@@ -34,7 +34,7 @@ const AdminLayout = async ({ children, params }) => {
           </div>
         </main>
         <PreviewProvider />
-      </AllProvider>
+      </CMSProvider>
     </SocketProvider>
   );
 };

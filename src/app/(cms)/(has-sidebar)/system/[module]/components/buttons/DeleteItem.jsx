@@ -2,13 +2,13 @@
 
 import { handleDeleteModule } from "@/components/Modal/action";
 import TooltipText from "@/components/Tooltip/Text";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { useNotify } from "@/context/NotifyProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { useContext } from "react";
 
 const DeleteItem = ({ item, module, data, action }) => {
-  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+  const { setShowModalQuestion, setModalOptions } = useContext(CMSContext);
   const router = useRouterCustom();
   const notify = useNotify();
   const handleShowModalDeleteForm = () => {

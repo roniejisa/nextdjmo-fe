@@ -2,12 +2,12 @@
 
 import { useContext, useEffect, useState } from "react";
 import { selectList } from "./action";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
 const SelectList = ({ defaultValue, item, field }) => {
   const [list, setList] = useState([]);
   const [value, setValue] = useState(defaultValue);
-  const { updateField, setUpdateField } = useContext(AllContext);
+  const { updateField, setUpdateField } = useContext(CMSContext);
 
   const getListData = async () => {
     const data = await selectList(field.module, item, field);

@@ -24,3 +24,8 @@ export const sentFormReceive = async (body) => {
   );
   return response;
 };
+
+export const getssId = async () => {
+  const ssId = cookies().get("ssId")?.value;
+  return ssId;
+};

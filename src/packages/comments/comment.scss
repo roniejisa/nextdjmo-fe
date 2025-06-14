@@ -1,210 +1,522 @@
+// Reaction Button Container
+.reaction-container {
+  position: relative;
+  display: inline-block;
+  
+  // Floating reactions panel
+  .reactions-panel {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 8px; // Giảm khoảng cách để dễ hover hơn
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 50;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    // Default hidden state
+    opacity: 0;
+    transform: scale(0.75) translateY(16px) rotate(3deg);
+    pointer-events: none;
+    
+    // Force hidden state - ưu tiên cao hơn hover
+    &.force-hidden {
+      opacity: 0 !important;
+      transform: scale(0.75) translateY(16px) rotate(3deg) !important;
+      pointer-events: none !important;
+      transition: all 0.15s ease-out !important;
+    }
+    
+    // Tạo vùng hover invisible để bridge gap
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      height: 12px; // Chiều cao bằng margin-bottom + thêm buffer
+      background: transparent;
+      pointer-events: auto;
+    }
+    
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+      pointer-events: none;
+    }
+  }
+  
+  // Show panel on container hover OR panel hover (chỉ khi không có force-hidden)
+  &:hover .reactions-panel:not(.force-hidden),
+  .reactions-panel:hover:not(.force-hidden) {
+    opacity: 1;
+    transform: scale(1) translateY(0) rotate(0deg);
+    pointer-events: auto;
+  }
+}
+
+// Individual reaction icons in panel
 .reaction-icon {
   position: relative;
+  padding: 8px;
+  border-radius: 12px;
   background: transparent;
   border: none;
   cursor: pointer;
-  border-radius: 50%;
-  margin: 8px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  outline: none;
+  
+  // Animation on panel show
+  opacity: 0;
+  transform: scale(0.3) translateY(-20px);
+  
+  .reaction-container:hover .reactions-panel:not(.force-hidden) &,
+  .reactions-panel:hover:not(.force-hidden) & {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    animation: bounceIn 0.6s ease-out forwards;
+    
+    // Staggered delay for each icon
+    @for $i from 1 through 6 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{($i - 1) * 50ms};
+      }
+    }
+  }
+  
+  &:hover {
+    transform: scale(1.25) rotate(12deg) translateY(-4px);
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+  
+  &.selected {
+    background: rgba(59, 130, 246, 0.1);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    transform: scale(1.1);
+  }
+  
+  // Reaction emoji
+  .reaction-emoji {
+    display: block;
+    font-size: 20px;
+    transition: transform 0.2s ease-out;
+  }
+  
+  &:hover .reaction-emoji {
+    transform: scale(1.1);
+  }
+  
+  // Enhanced tooltip
+  .reaction-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(17, 24, 39, 0.9);
+    color: white;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: rgba(17, 24, 39, 0.9);
+    }
+  }
+  
+  &:hover .reaction-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
 }
 
-.reaction-icon:active {
-  transform: scale(1.1) translateY(-2px);
-  transition: all 0.15s ease-out;
+// Main reaction button
+.reaction-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(229, 231, 235, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  outline: none;
+  height: 34px;
+  
+  &:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05);
+    color: rgb(37, 99, 235);
+    border-color: rgba(147, 197, 253, 1);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+    }
+  }
+  
+  // Selected state
+  &.selected {
+    color: white;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border-color: transparent;
+  }
+  
+  // Animated background
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+    pointer-events: none;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+  }
+  
+  &:not(.selected)::before {
+    background: linear-gradient(135deg, rgba(239, 246, 255, 1) 0%, rgba(238, 242, 255, 1) 100%);
+  }
+  
+  &.selected::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%);
+  }
+  
+  // Content wrapper
+  .button-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  // Icon styling
+  .reaction-current-icon {
+    font-size: 18px;
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease-out;
+  }
+  
+  .like-icon {
+    width: 16px;
+    height: 16px;
+    transition: color 0.3s ease-out;
+  }
+  
+  &:hover .like-icon {
+    color: rgb(59, 130, 246);
+  }
+  
+  // Button text
+  .button-text {
+    transition: color 0.3s ease-out;
+    font-weight: 600;
+  }
+  
+  &:hover .button-text {
+    color: rgb(59, 130, 246);
+  }
+  
+  // Reaction count badge
+  .reaction-count {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    
+    &.default {
+      background: rgba(243, 244, 246, 1);
+      color: rgba(107, 114, 128, 1);
+    }
+    
+    &.selected {
+      background: rgba(255, 255, 255, 0.6);
+      font-weight: bold;
+    }
+    
+    .reaction-button:hover &.default {
+      background: rgba(219, 234, 254, 1);
+      color: rgb(37, 99, 235);
+    }
+  }
 }
 
-.reaction-icon.selected {
-  animation: selectedBounce 1s ease-in-out;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.4) 0%,
-    transparent 70%
-  );
-  transform: scale(1.2);
+// Animation states
+.animating {
+  .reaction-current-icon {
+    animation: bounceIcon 0.6s ease-out;
+  }
+  
+  .reaction-count {
+    animation: pulseCount 0.6s ease-out;
+    transform: scale(1.1);
+  }
 }
 
-.reaction-icon[data-type="like"]:hover,
-.reaction-icon:hover [data-type="like"],
-[data-type="like"]:hover {
-  border-radius: 50%;
-  box-shadow: 0 0 30px rgba(24, 119, 242, 0.6);
-  background: radial-gradient(
-    circle,
-    rgba(24, 119, 242, 0.2) 0%,
-    transparent 70%
-  );
-  animation: heartPulse 0.8s infinite;
-}
-
-.reaction-icon[data-type="love"]:hover,
-.reaction-icon:hover [data-type="love"],
-[data-type="love"]:hover {
-  border-radius: 50%;
-  box-shadow: 0 0 30px rgba(243, 62, 88, 0.6);
-  background: radial-gradient(
-    circle,
-    rgba(243, 62, 88, 0.2) 0%,
-    transparent 70%
-  );
-  animation: heartPulse 0.8s infinite;
-}
-
-.reaction-icon[data-type="laugh"]:hover,
-.reaction-icon:hover [data-type="laugh"],
-[data-type="laugh"]:hover {
-  border-radius: 50%;
-  box-shadow: 0 0 30px rgba(247, 177, 37, 0.6);
-  background: radial-gradient(
-    circle,
-    rgba(247, 177, 37, 0.2) 0%,
-    transparent 70%
-  );
-  animation: laughShake 0.4s infinite;
-}
-
-.reaction-icon[data-type="wow"]:hover,
-.reaction-icon:hover [data-type="wow"],
-[data-type="wow"]:hover {
-  border-radius: 50%;
-  box-shadow: 0 0 30px rgba(247, 177, 37, 0.6);
-  background: radial-gradient(
-    circle,
-    rgba(247, 177, 37, 0.2) 0%,
-    transparent 70%
-  );
-  animation: wowPulse 1.5s infinite;
-}
-
-.reaction-icon[data-type="sad"]:hover,
-.reaction-icon:hover [data-type="sad"],
-[data-type="sad"]:hover {
-  border-radius: 50%;
-  box-shadow: 0 0 30px rgba(247, 177, 37, 0.4);
-  background: radial-gradient(
-    circle,
-    rgba(100, 150, 255, 0.2) 0%,
-    transparent 70%
-  );
-  animation: sadDrop 2s infinite;
-}
-
-.reaction-icon[data-type="angry"]:hover,
-.reaction-icon:hover [data-type="angry"],
-[data-type="angry"]:hover {
-  border-radius: 50%;
-  box-shadow: 0 0 30px rgba(231, 76, 60, 0.7);
-  background: radial-gradient(
-    circle,
-    rgba(231, 76, 60, 0.3) 0%,
-    transparent 70%
-  );
-  animation: angerShake 0.2s infinite;
-}
-
-@keyframes selectedBounce {
-  0%,
-  100% {
-    transform: scale(1.2);
+// Keyframe animations
+@keyframes bounceIcon {
+  0%, 100% {
+    transform: scale(1);
   }
   25% {
-    transform: scale(1.4) translateY(-10px) rotate(10deg);
+    transform: scale(1.2) translateY(-2px);
   }
   50% {
-    transform: scale(1.3) translateY(-5px) rotate(-5deg);
+    transform: scale(1.1) translateY(-1px);
   }
   75% {
-    transform: scale(1.35) translateY(-8px) rotate(3deg);
+    transform: scale(1.15) translateY(-1.5px);
   }
 }
 
-@keyframes heartPulse {
-  0%,
-  100% {
-    transform: scale(1.4) translateY(-8px) rotate(8deg);
+@keyframes pulseCount {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
   }
   50% {
-    transform: scale(1.5) translateY(-12px) rotate(8deg);
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-20px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05) translateY(-5px);
+  }
+  70% {
+    transform: scale(0.9) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// Reaction type specific hover effects
+.reaction-icon {
+  &[data-type="like"]:hover {
+    box-shadow: 0 0 30px rgba(24, 119, 242, 0.6);
+    background: radial-gradient(circle, rgba(24, 119, 242, 0.2) 0%, transparent 70%);
+    animation: heartPulse 0.8s infinite;
+  }
+  
+  &[data-type="love"]:hover {
+    box-shadow: 0 0 30px rgba(243, 62, 88, 0.6);
+    background: radial-gradient(circle, rgba(243, 62, 88, 0.2) 0%, transparent 70%);
+    animation: heartPulse 0.8s infinite;
+  }
+  
+  &[data-type="laugh"]:hover {
+    box-shadow: 0 0 30px rgba(247, 177, 37, 0.6);
+    background: radial-gradient(circle, rgba(247, 177, 37, 0.2) 0%, transparent 70%);
+    animation: laughShake 0.4s infinite;
+  }
+  
+  &[data-type="wow"]:hover {
+    box-shadow: 0 0 30px rgba(247, 177, 37, 0.6);
+    background: radial-gradient(circle, rgba(247, 177, 37, 0.2) 0%, transparent 70%);
+    animation: wowPulse 1.5s infinite;
+  }
+  
+  &[data-type="sad"]:hover {
+    box-shadow: 0 0 30px rgba(100, 150, 255, 0.4);
+    background: radial-gradient(circle, rgba(100, 150, 255, 0.2) 0%, transparent 70%);
+    animation: sadDrop 2s infinite;
+  }
+  
+  &[data-type="angry"]:hover {
+    box-shadow: 0 0 30px rgba(231, 76, 60, 0.7);
+    background: radial-gradient(circle, rgba(231, 76, 60, 0.3) 0%, transparent 70%);
+    animation: angerShake 0.2s infinite;
+  }
+}
+
+// Reaction-specific animations
+@keyframes heartPulse {
+  0%, 100% {
+    transform: scale(1.25) translateY(-4px) rotate(12deg);
+  }
+  50% {
+    transform: scale(1.35) translateY(-8px) rotate(12deg);
   }
 }
 
 @keyframes laughShake {
-  0%,
-  100% {
-    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  0%, 100% {
+    transform: scale(1.25) translateY(-4px) rotate(12deg);
   }
   25% {
-    transform: scale(1.4) translateY(-8px) rotate(12deg);
+    transform: scale(1.25) translateY(-4px) rotate(16deg);
   }
   75% {
-    transform: scale(1.4) translateY(-8px) rotate(4deg);
+    transform: scale(1.25) translateY(-4px) rotate(8deg);
   }
 }
 
 @keyframes wowPulse {
-  0%,
-  100% {
-    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  0%, 100% {
+    transform: scale(1.25) translateY(-4px) rotate(12deg);
   }
   50% {
-    transform: scale(1.45) translateY(-10px) rotate(8deg);
+    transform: scale(1.3) translateY(-6px) rotate(12deg);
   }
 }
 
 @keyframes sadDrop {
-  0%,
-  100% {
-    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  0%, 100% {
+    transform: scale(1.25) translateY(-4px) rotate(12deg);
   }
   50% {
-    transform: scale(1.4) translateY(-6px) rotate(8deg);
+    transform: scale(1.25) translateY(-2px) rotate(12deg);
   }
 }
 
 @keyframes angerShake {
-  0%,
-  100% {
-    transform: scale(1.4) translateY(-8px) rotate(8deg);
+  0%, 100% {
+    transform: scale(1.25) translateY(-4px) rotate(12deg);
   }
   25% {
-    transform: scale(1.4) translateY(-8px) rotate(10deg);
+    transform: scale(1.25) translateY(-4px) rotate(14deg);
   }
   50% {
-    transform: scale(1.4) translateY(-8px) rotate(6deg);
+    transform: scale(1.25) translateY(-4px) rotate(10deg);
   }
   75% {
-    transform: scale(1.4) translateY(-8px) rotate(12deg);
+    transform: scale(1.25) translateY(-4px) rotate(16deg);
   }
 }
 
-.reaction-tooltip {
-  position: absolute;
-  bottom: 120%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 1000;
+// Responsive design
+@media (max-width: 768px) {
+  .reaction-button {
+    padding: 6px 12px;
+    font-size: 13px;
+    
+    .like-icon {
+      width: 16px;
+      height: 16px;
+    }
+    
+    .reaction-current-icon {
+      font-size: 16px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .reactions-panel {
+    padding: 6px;
+    gap: 2px;
+  }
+  
+  .reaction-icon {
+    padding: 6px;
+    
+    .reaction-emoji {
+      font-size: 18px;
+    }
+  }
 }
 
-.reaction-tooltip::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.8);
-}
-
-.reaction-icon:hover .reaction-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(-5px);
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .reaction-button {
+    background: rgba(31, 41, 55, 0.8);
+    border-color: rgba(75, 85, 99, 1);
+    color: rgba(229, 231, 235, 1);
+    
+    &:hover {
+      color: rgb(96, 165, 250);
+      border-color: rgba(96, 165, 250, 0.5);
+    }
+    
+    &:not(.selected)::before {
+      background: linear-gradient(135deg, rgba(55, 65, 81, 0.5) 0%, rgba(75, 85, 99, 0.3) 100%);
+    }
+  }
+  
+  .reactions-panel {
+    background: rgba(31, 41, 55, 0.95);
+    border-color: rgba(75, 85, 99, 0.3);
+    
+    &::before {
+      background: linear-gradient(135deg, rgba(55, 65, 81, 0.2) 0%, transparent 100%);
+    }
+  }
+  
+  .reaction-icon {
+    &:hover {
+      background: rgba(55, 65, 81, 0.5);
+    }
+    
+    &.selected {
+      background: rgba(59, 130, 246, 0.2);
+    }
+  }
+  
+  .reaction-count.default {
+    background: rgba(55, 65, 81, 1);
+    color: rgba(156, 163, 175, 1);
+  }
+  
+  .reaction-button:hover .reaction-count.default {
+    background: rgba(30, 64, 175, 0.3);
+    color: rgb(96, 165, 250);
+  }
 }

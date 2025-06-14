@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   Play,
   RefreshCw,
@@ -12,6 +12,7 @@ import ButtonUpload from "./ButtonUpload";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { convertVideoToTs, refreshPath } from "./action";
 import { usePathname, useSearchParams } from "next/navigation";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
 const VideoStatusBadge = ({ status }) => {
   const statusConfig = {
@@ -106,8 +107,9 @@ const VideoCard = ({ item, onConvert, isConverting }) => {
   );
 };
 
-const ClientVideoPage = ({ items, permissions, moduleName, nameLabel }) => {
+const ClientVideoPage = ({ items, moduleName, nameLabel }) => {
   const [isConverting, setIsConverting] = useState(false);
+  const {profile: {permissions}} = useContext(CMSContext)
   const router = useRouterCustom();
   const url = usePathname();
   const searchParams = useSearchParams();

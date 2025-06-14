@@ -42,7 +42,8 @@ function clearAuthCookies(response) {
  * @returns {string} Random session ID
  */
 function generateSessionId(length) {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -117,7 +118,7 @@ async function verifyToken(token) {
     }
 
     const profile = await response.json();
-    
+
     if (profile && profile.status === 200 && profile.data) {
       return profile.data;
     }
@@ -186,7 +187,7 @@ async function refreshAccessToken(refreshToken) {
   if (refreshPromises.has(refreshToken)) {
     console.log("Refresh token request already in progress, waiting...");
     const existingPromise = refreshPromises.get(refreshToken);
-    
+
     try {
       // Đợi promise hiện tại hoàn thành
       const result = await existingPromise.promise;
@@ -201,19 +202,19 @@ async function refreshAccessToken(refreshToken) {
 
   // Tạo promise mới cho refresh token
   const refreshPromise = _refreshAccessToken(refreshToken);
-  
+
   // Lưu promise vào map với timestamp
   refreshPromises.set(refreshToken, {
     promise: refreshPromise,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   });
 
   try {
     const result = await refreshPromise;
-    
+
     // Xóa promise khỏi map khi hoàn thành
     refreshPromises.delete(refreshToken);
-    
+
     return result;
   } catch (error) {
     // Xóa promise khỏi map khi có lỗi
@@ -230,12 +231,18 @@ async function refreshAccessToken(refreshToken) {
  * @param {boolean} isOauth - Có phải OAuth login không
  * @returns {Promise<Object>} Kết quả authentication
  */
-async function authenticate(request, providedToken = null, providedRefreshToken = null, isOauth = false) {
+async function authenticate(
+  request,
+  providedToken = null,
+  providedRefreshToken = null,
+  isOauth = false
+) {
   const method = request.method;
-  
+
   // Lấy tokens từ parameters hoặc cookies
   const token = providedToken || request.cookies.get("token")?.value;
-  const refreshToken = providedRefreshToken || request.cookies.get("refreshToken")?.value;
+  const refreshToken =
+    providedRefreshToken || request.cookies.get("refreshToken")?.value;
 
   // Bước 1: Verify token hiện tại
   const user = await verifyToken(token);
@@ -256,11 +263,11 @@ async function authenticate(request, providedToken = null, providedRefreshToken 
   if (refreshToken && method === "GET") {
     try {
       const newTokens = await refreshAccessToken(refreshToken);
-      
+
       if (newTokens) {
         // Verify token mới
         const newUser = await verifyToken(newTokens.accessToken);
-        
+
         if (newUser) {
           return {
             isAuthenticated: true,
@@ -378,10 +385,10 @@ function createAuthResponse(authResult, request) {
 
   // Set session ID (cho tracking, analytics, etc.)
   const cookieStore = cookies();
-  const sessionId = cookieStore.has("ssId") 
-    ? cookieStore.get("ssId").value 
+  const sessionId = cookieStore.has("ssId")
+    ? cookieStore.get("ssId").value
     : generateSessionId(12);
-  
+
   response.cookies.set("ssId", sessionId, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -402,6 +409,80 @@ function createAuthResponse(authResult, request) {
   response.headers.set("Cache-Control", "no-store, must-revalidate");
 
   return response;
+}
+
+function getModuleInfo(path) {
+  const afterSystem = path.split("/system/")[1];
+  if (!afterSystem) return null;
+
+  const segments = afterSystem.split("/");
+  return {
+    module: segments[0],
+    isDetailPage: segments.length >= 2,
+    isCreatePage: segments.length >= 2 && segments[1] == 'create',
+  };
+}
+
+// Helper function to check if user has required permission
+function hasRequiredPermission(permissions, moduleInfo) {
+  if (!moduleInfo) {
+    return permissions.some((permission) => permission.includes("read"));
+  }
+
+  const { module, isDetailPage, isCreatePage } = moduleInfo;
+  if (isCreatePage) {
+    // For detail pages, need edit or update permission
+    return (
+      permissions.includes(`${module}.create`) ||
+      permissions.includes(`${module}.add`)
+    );
+  } else if (isDetailPage) {
+    return (
+      permissions.includes(`${module}.edit`) ||
+      permissions.includes(`${module}.update`)
+    );
+  } else {
+    // For list pages, need read permission
+    return permissions.includes(`${module}.read`);
+  }
+}
+
+// Helper function to redirect to login
+function redirectToLogin(request) {
+  const response = NextResponse.redirect(new URL(URL_LOGIN, request.url));
+  response.headers.set("Cache-Control", "no-store, must-revalidate");
+  clearAuthCookies(response);
+  return response;
+}
+
+// Main permission check logic
+function checkPermissionAndRedirect(
+  isProtectedRoute,
+  authResult,
+  path,
+  request
+) {
+  // If not a protected route, allow access
+  if (!isProtectedRoute) {
+    return null; // No redirect needed
+  }
+
+  // If protected route but not authenticated, redirect to login
+  if (!authResult.isAuthenticated) {
+    return redirectToLogin(request);
+  }
+
+  // If authenticated, check specific permissions
+  const moduleInfo = getModuleInfo(path);
+  const { permissions } = authResult.user;
+  const hasPermission = hasRequiredPermission(permissions, moduleInfo);
+
+  if (!hasPermission) {
+    return redirectToLogin(request);
+  }
+
+  // All checks passed, allow access
+  return null;
 }
 
 // ==================== MAIN MIDDLEWARE FUNCTION ====================
@@ -470,24 +551,28 @@ export async function middleware(request) {
       return response;
     }
 
-    // Kiểm tra protected routes
-    const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+    const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
       pathname.startsWith(route)
     );
-
-    if (isProtectedRoute && !authResult.isAuthenticated) {
-      const response = NextResponse.redirect(new URL(URL_LOGIN, request.url));
-      response.headers.set("Cache-Control", "no-store, must-revalidate");
-      clearAuthCookies(response);
-      return response;
+    // Kiểm tra protected routes
+    const redirectResponse = checkPermissionAndRedirect(
+      isProtectedRoute,
+      authResult,
+      pathname,
+      request
+    );
+    if (redirectResponse) {
+      return redirectResponse;
     }
 
     // Tạo response với auth data
-    return createAuthResponse({
-      ...authResult,
-      newCustomer,
-    }, request);
-
+    return createAuthResponse(
+      {
+        ...authResult,
+        newCustomer,
+      },
+      request
+    );
   } catch (error) {
     console.error("Middleware error:", error);
 
@@ -497,10 +582,10 @@ export async function middleware(request) {
     clearAuthCookies(response);
 
     // Redirect protected routes về login khi có lỗi
-    const isProtectedRoute = PROTECTED_ROUTES.some(route => 
+    const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
       pathname.startsWith(route)
     );
-    
+
     if (isProtectedRoute) {
       return NextResponse.redirect(new URL(URL_LOGIN, request.url));
     }

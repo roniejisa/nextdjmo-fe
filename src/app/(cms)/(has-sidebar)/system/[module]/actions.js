@@ -1,7 +1,6 @@
 "use server";
 import { httpClient } from "@/utils/http";
 import { getToken } from "@/utils/server/utils";
-import { headers } from "next/headers";
 
 export const getDataModule = async (
   module,
@@ -41,33 +40,6 @@ export const getDataModuleDetail = async (module, id) => {
     isAdmin: 1,
     Authorization: `Bearer ${token}`,
   });
-};
-
-export const getProfile = async () => {
-  const header = await headers();
-  const user = header.get("user");
-  if (user && user != "undefined") {
-    return JSON.parse(decodeURIComponent(user));
-  } else {
-    console.log("đang chạy vào đây");
-    try {
-      const token = await getToken();
-      const response = await httpClient(
-        process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/profile",
-        {
-          Authorization: `Bearer ${token}`,
-        },
-        {}
-      );
-      return response;
-    } catch (e) {
-      return {
-        status: 401,
-        message: "Token expired",
-        shouldRedirect: true,
-      };
-    }
-  }
 };
 
 export const changeOrderStatus = async (value, _id) => {

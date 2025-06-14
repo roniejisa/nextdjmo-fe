@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ItemCount from "@/components/ui/admin/statistics/ItemCount";
 import OrderChart from "@/components/ui/admin/statistics/OrderChart";
 import NewsChart from "@/components/ui/admin/statistics/NewsChart";
@@ -7,6 +7,9 @@ import ImageCustom from "@/components/Maintain/Image";
 import HistoryTab from "./HistoryTab";
 import { showImageUrl } from "@/utils/client";
 import AnalyticsDashboard from "@/components/ui/admin/statistics/Dashboard";
+import { CMSContext } from "@/context/cms/CMSProvider";
+import { redirect } from "next/dist/server/api-utils";
+import useRouterCustom from "@/packages/translation/Navigation";
 
 // Configuration constants
 const ORDER_STATISTICS = [
@@ -230,11 +233,13 @@ const ProductCard = ({ product }) => {
 };
 
 // Main Dashboard Client Component
-const Client = ({ hotProducts, profile }) => {
+const Client = ({ hotProducts }) => {
   const { activeTab, switchTab } = useTabNavigation("general");
+  const { profile } = useContext(CMSContext);
 
   useEffect(() => {
     // Preserve original useEffect logic
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hotProducts]);
 
   // Filter general statistics based on user permissions
@@ -304,14 +309,14 @@ const Client = ({ hotProducts, profile }) => {
         }`}
       >
         {/* News Chart */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center">
-              <span className="text-white text-lg">📈</span>
-            </div>
-            <h3 className="text-xl font-bold text-gray-800">Biểu đồ tin tức</h3>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-xl flex items-center justify-center">
+            <span className="text-white text-lg">📈</span>
           </div>
-          <AnalyticsDashboard />
-          {/* <NewsChart /> */}
+          <h3 className="text-xl font-bold text-gray-800">Biểu đồ tin tức</h3>
+        </div>
+        <AnalyticsDashboard />
+        {/* <NewsChart /> */}
       </div>
 
       {/* Ecommerce Tab Content */}

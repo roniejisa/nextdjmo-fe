@@ -1,363 +1,372 @@
+/* eslint-disable react/display-name */
 "use client";
 
-import { useContext, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useContext, useEffect, useMemo, memo, useRef } from "react";
 import { CommentContext } from "./CommentProvider";
-import StarIcon from "./StarIcon";
-import Skeleton from "@/components/Skeleton/Skeleton";
-import ImageCustom from "@/components/Maintain/Image";
-import { formatTimeComment, showImageUrl } from "@/utils/client";
-import Send from "@/components/Icon/svg/Send";
 import { useCommentActions } from "./hooks/useCommentActions";
 import { useCommentState } from "./hooks/useCommentState";
-import { ReactionButton } from "./ReactionButton";
-import "./comment.scss"
-// Component UI chung cho comment
-const CommentItem = ({
-  comment,
-  isRoot = false,
-  onToggleReplication,
-  onSubmitReply,
-  showVerticalLine = false,
-}) => {
-  const [reactions, setReactions] = useState({});
-  const handleReaction = (commentId, reactionType) => {
-    setReactions((prev) => ({
-      ...prev,
-      [commentId]: reactionType,
-    }));
-  };
+import "./comment.scss";
+import { useCommentSocketEvents } from "./sockets/hooks/useCommentSocketEvents";
+import CommentItem from "./CommentItem";
+import { LoadingSection } from "./LoadingSection";
+import { RenderCommentChilds } from "./RenderCommentChilds";
+import { ReplyForm } from "./ReplyForm";
+import ModalRating from "./ModalRating";
 
-  return (
-    <div className="flex gap-2 relative">
-      {/* Avatar và đường kẻ dọc */}
-      <div className="relative">
-        <span className="relative w-8 h-8 block">
-          <ImageCustom
-            src={showImageUrl(comment?.customer?.avatar)}
-            alt={comment?.customer?.last_name}
-            fill={true}
-            className="rounded-full"
+// Memoized CommentItem to prevent unnecessary re-renders
+const MemoizedCommentItem = memo(CommentItem);
+const MemoizedRenderCommentChilds = memo(RenderCommentChilds);
+const MemoizedReplyForm = memo(ReplyForm);
+
+// Memoized comment renderer
+const CommentRenderer = memo(
+  ({
+    comment,
+    index,
+    onToggleReplication,
+    onSubmitReply,
+    onShowChild,
+    onLoadChildComments,
+  }) => {
+    return (
+      <div key={comment._id} className="relative">
+        {/* Comment chính với animation */}
+        <div
+          className={`
+          transform transition-all duration-500 ease-out
+          ${index === 0 ? "animate-fade-in-down" : ""}
+        `}
+        >
+          <MemoizedCommentItem
+            comment={comment}
+            isRoot={true}
+            onToggleReplication={onToggleReplication}
+            onSubmitReply={onSubmitReply}
+            showVerticalLine={
+              comment?.childs?.total > 0 || comment?.showReplication
+            }
           />
-        </span>
-        {showVerticalLine && (
-          <div className="w-[2px] bg-gray-200 h-[calc(100%-32px)] absolute top-[32px] left-1/2 -translate-x-1/2"></div>
-        )}
-      </div>
-
-      {/* Nội dung comment */}
-      <div className="relative">
-        <div className="bg-gray-100 p-2 rounded-xl mb-2">
-          <div className="flex items-center flex-wrap gap-2">
-            <span className="font-medium">{comment?.customer?.last_name}</span>
-            {isRoot && <StarIcon percent={comment.rating * 20} size="16" />}
-          </div>
-          <div>{comment.content}</div>
         </div>
 
-        {/* Actions */}
-        <div className="flex text-sm gap-4">
-          <span>{formatTimeComment(comment.comment_at)}</span>
-          <ReactionButton
-            onReaction={(reaction) => handleReaction(comment.id, reaction)}
-            currentReaction={comment?.userReaction} // reaction hiện tại của user
-            reactionCount={comment?.reactionCount} // tổng số reactions
-          />
-          <button onClick={() => onToggleReplication(comment.id)}>
-            Phản hồi
-          </button>
+        {/* Comment con và đường kẻ dọc */}
+        <div className="relative">
+          {comment?.showReplication && (
+            <div
+              className={`w-0.5 bg-gradient-to-b ${
+                comment.showChild
+                  ? "from-green-200 via-purple-200 to-blue-300"
+                  : "from-green-200 via-blue-200 to-blue-200"
+              } ${
+                comment?.childs?.total > 0 ? "h-[calc(100%+30px)]" : "h-[32px]"
+              } absolute -top-0.5 left-[23px]`}
+            />
+          )}
+          {comment?.childs?.total > 0 && (
+            <MemoizedRenderCommentChilds
+              comment={comment}
+              onShow={onShowChild}
+              onToggleReplication={onToggleReplication}
+              onSubmitReply={onSubmitReply}
+              onLoadChildComments={onLoadChildComments}
+            />
+          )}
+        </div>
+
+        {/* Form trả lời comment chính */}
+        <div className="relative pl-16">
+          {comment?.showReplication && (
+            <MemoizedReplyForm
+              checkFocus={comment?.showReplication}
+              comment={comment}
+              onSubmit={onSubmitReply}
+            />
+          )}
         </div>
       </div>
-    </div>
-  );
-};
-
-// Component form trả lời chung
-const ReplyForm = ({ comment, onSubmit, placeholder }) => {
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault(); // Ngăn xuống dòng
-      // Trigger form submit
-      e.target.closest("form").requestSubmit();
-    }
-    // Shift+Enter sẽ tự động xuống dòng (behavior mặc định)
-  };
-
-  return (
-    <div className="pt-2 pl-10 relative before:w-6 before:h-[calc(100%/2+4px)] before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0">
-      <form
-        action={async (form) => {
-          const body = Object.fromEntries(form);
-          body.comment_id = comment.id;
-          onSubmit(body);
-        }}
-        className="flex items-center bg-gray-100 p-2 rounded-xl"
-      >
-        <textarea
-          id={comment.id}
-          name="content"
-          className="w-full bg-transparent outline-none appearance-none resize-none"
-          placeholder={placeholder || `Trả lời ${comment?.customer?.last_name}`}
-          onKeyDown={handleKeyDown}
-        />
-        <button className="text-active">
-          <Send />
-        </button>
-      </form>
-    </div>
-  );
-};
-
-// Component loading chung
-const LoadingSection = () => (
-  <>
-    <div className="mb-2">
-      <Skeleton width="30%" className="mb-2" height="24px" />
-      <Skeleton width="70%" className="mb-2" height="50px" />
-    </div>
-    <div>
-      <Skeleton width="30%" className="mb-2" height="24px" />
-      <Skeleton width="70%" className="mb-2" height="50px" />
-    </div>
-  </>
+    );
+  }
 );
 
-// Component hiển thị comment con đã được tối ưu
-const RenderCommentChilds = ({ comment, onShow }) => {
-  const { loadComments } = useCommentActions();
-  const {
-    comments: commentsChilds,
-    setComments: setCommentsChilds,
-    total,
-    page,
-    setPage,
-    focusComment,
-    isPending,
-    startTransition,
-    toggleReplication,
-    addNewComments,
-  } = useCommentState(
-    comment?.childs?.items || [],
-    comment?.childs?.total || 0
-  );
+CommentRenderer.displayName = "CommentRenderer";
 
-  const [commentData, setCommentData] = useState(comment);
-  const { handleSubmitReply } = useCommentActions();
-
-  // Focus effect
-  useEffect(() => {
-    if (focusComment) {
-      const element = document.getElementById(`${focusComment}`);
-      element?.focus();
-    }
-  }, [focusComment]);
-
-  // Load more comments effect
-  useEffect(() => {
-    if (page <= 1) return;
-
-    const getComment = async () => {
-      const response = await loadComments({
-        comment_id: commentData.id,
-        page,
-      });
-
-      if (response.status === 200) {
-        addNewComments(response.data.comments, response.data.total);
-      }
-    };
-
-    startTransition(async () => {
-      await getComment();
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
-
-  const handleShowCommentChild = () => {
-    onShow(comment.id);
-    setCommentData({
-      ...commentData,
-      showComment: true,
-    });
-  };
-
-  const shouldShowVerticalLine = (index) => {
-    return index < commentsChilds.length - 1 || total > commentsChilds?.length;
-  };
-
-  const getCommentClasses = (index) => {
-    const baseClasses =
-      "pl-10 relative pt-2 before:w-6 before:h-6 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[15px] before:top-0";
-    const lineClasses =
-      "after:w-[2px] after:h-full after:content-[''] after:top-0 after:left-[15px] after:absolute after:bg-gray-200";
-
-    return `${baseClasses} ${shouldShowVerticalLine(index) ? lineClasses : ""}`;
-  };
-
-  return (
-    <div>
-      {commentData.showComment ? (
-        <>
-          {commentsChilds?.map((childComment, index) => (
-            <div key={childComment.id} className={getCommentClasses(index)}>
-              <CommentItem
-                comment={childComment}
-                onToggleReplication={toggleReplication}
-                onSubmitReply={handleSubmitReply}
-                showVerticalLine={
-                  childComment?.childs?.total > 0 ||
-                  childComment?.showReplication
-                }
-              />
-
-              {/* Render comment con của comment con (đệ quy) */}
-              {childComment?.childs.total > 0 && (
-                <div className="relative">
-                  {childComment?.showReplication && (
-                    <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
-                  )}
-                  <RenderCommentChilds comment={childComment} onShow={onShow} />
-                </div>
-              )}
-
-              {/* Form trả lời */}
-              {childComment?.showReplication && (
-                <ReplyForm
-                  comment={childComment}
-                  onSubmit={handleSubmitReply}
-                />
-              )}
-            </div>
-          ))}
-
-          {/* Loading hoặc load more */}
-          {isPending ? (
-            <LoadingSection />
-          ) : (
-            total > commentsChilds?.length && (
-              <button
-                className="pl-10 relative before:content-[''] before:w-6 before:h-4 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[14.5px] before:top-0"
-                onClick={() => setPage(page + 1)}
-              >
-                Xem thêm phản hồi
-              </button>
-            )
-          )}
-        </>
-      ) : (
-        <button
-          className={`relative py-1 before:content-[''] before:w-6 before:h-4 before:border-2 before:border-r-0 before:rounded-bl-xl before:border-t-0 before:absolute before:left-[14.5px] before:top-0 pl-10 ${
-            comment?.showReplication
-              ? "after:w-[2px] after:h-full after:content-[''] after:top-0 after:left-[14.5px] after:absolute after:bg-gray-200"
-              : ""
-          }`}
-          onClick={handleShowCommentChild}
-        >
-          Xem tất cả {commentData.childs.total} phản hồi
-        </button>
-      )}
-    </div>
-  );
-};
-
-// Component chính đã được tối ưu
 const CommentContent = () => {
-  const { setShowModel } = useContext(CommentContext);
-  const { loadComments, handleSubmitReply } = useCommentActions();
+  const { setShowModel, type, id } = useContext(CommentContext);
+  const { loadComments, handleSubmitReplyWithSocket } = useCommentActions();
   const {
     comments,
     total,
-    page,
-    setPage,
+    getCurrentPage,
+    incrementPage,
     focusComment,
     isPending,
     startTransition,
     toggleReplication,
     showChild,
     addNewComments,
+    addCommentToTree,
+    updateCommentInTree,
+    deleteCommentFromTree,
+    loadChildCommentsToTree,
+    updateReactionInTree
   } = useCommentState();
+  // Debounced socket event handlers to prevent rapid updates
+  const timeoutRefs = useRef({
+    newComment: null,
+    updateComment: null,
+    deleteComment: null,
+    updateReaction: null
+  });
+  console.log(comments)
+  const debouncedHandlers = useMemo(
+    () => ({
+      handleNewComment: (newComment) => {
+        if (timeoutRefs.current.newComment) {
+          clearTimeout(timeoutRefs.current.newComment);
+        }
+        timeoutRefs.current.newComment = setTimeout(() => {
+          console.log("New comment received:", newComment);
+          addCommentToTree(newComment);
+          timeoutRefs.current.newComment = null;
+        }, 100);
+      },
 
-  // Load comments effect
+      handleUpdateComment: (updatedComment) => {
+        if (timeoutRefs.current.updateComment) {
+          clearTimeout(timeoutRefs.current.updateComment);
+        }
+        timeoutRefs.current.updateComment = setTimeout(() => {
+          console.log("Comment updated:", updatedComment);
+          updateCommentInTree(updatedComment);
+          timeoutRefs.current.updateComment = null;
+        }, 100);
+      },
+
+      handleDeleteComment: (commentId) => {
+        if (timeoutRefs.current.deleteComment) {
+          clearTimeout(timeoutRefs.current.deleteComment);
+        }
+        timeoutRefs.current.deleteComment = setTimeout(() => {
+          console.log("Comment deleted:", commentId);
+          deleteCommentFromTree(commentId);
+          timeoutRefs.current.deleteComment = null;
+        }, 100);
+      },
+      
+      handleUpdateReaction: (data) => {
+        if (timeoutRefs.current.deleteComment) {
+          clearTimeout(timeoutRefs.current.deleteComment);
+        }
+        timeoutRefs.current.updateReaction = setTimeout(() => {
+          console.log("updateReaction:", data);
+          updateReactionInTree(data.comment_id, data.data);
+          timeoutRefs.current.deleteComment = null;
+        }, 100);
+      },
+    }),
+    [addCommentToTree, updateCommentInTree, deleteCommentFromTree, updateReactionInTree]
+  );
+
+  // Cleanup timeouts
   useEffect(() => {
-    const getComment = async () => {
-      const response = await loadComments({ page });
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      Object.values(timeoutRefs.current).forEach((timeoutId) => {
+        if (timeoutId) clearTimeout(timeoutId);
+      });
+    };
+  }, []);
 
+  // Socket events with debouncing
+  const { socketConnected } = useCommentSocketEvents(
+    type,
+    id,
+    debouncedHandlers.handleNewComment,
+    debouncedHandlers.handleUpdateComment,
+    debouncedHandlers.handleDeleteComment,
+    debouncedHandlers.handleUpdateReaction
+  );
+
+  // Memoized load functions to prevent recreation
+  const loadCommentsData = useCallback(
+    async (page) => {
+      const response = await loadComments({ page });
       if (response.status === 200) {
         addNewComments(response.data.comments, response.data.total);
       }
+    },
+    [loadComments, addNewComments]
+  );
+
+  const handleLoadChildComments = useCallback(
+    (parentCommentId, childComments, totalChilds) => {
+      loadChildCommentsToTree(parentCommentId, childComments, totalChilds);
+    },
+    [loadChildCommentsToTree]
+  );
+
+  // Initial load with cleanup
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadInitialComments = async () => {
+      if (isMounted) {
+        await loadCommentsData(1);
+      }
     };
 
-    startTransition(async () => {
-      await getComment();
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
+    loadInitialComments();
 
-  // Focus effect
+    return () => {
+      isMounted = false;
+    };
+  }, [loadCommentsData]);
+
+  // Memoized load more handler
+  const handleLoadMore = useCallback(() => {
+    const nextPage = incrementPage();
+    startTransition(async () => {
+      await loadCommentsData(nextPage);
+    });
+  }, [incrementPage, startTransition, loadCommentsData]);
+
+  // Focus effect with cleanup
   useEffect(() => {
     if (focusComment) {
-      const element = document.getElementById(`${focusComment}`);
-      element?.focus();
+      const timeoutId = setTimeout(() => {
+        const element = document.getElementById(`${focusComment}`);
+        element?.focus();
+      }, 100); // Small delay to ensure DOM is ready
+
+      return () => clearTimeout(timeoutId);
     }
   }, [focusComment]);
 
+  // Memoized comment list to prevent unnecessary re-renders
+  const commentList = useMemo(() => {
+    return comments?.map((comment, index) => (
+      <CommentRenderer
+        key={comment._id}
+        comment={comment}
+        index={index}
+        onToggleReplication={toggleReplication}
+        onSubmitReply={handleSubmitReplyWithSocket}
+        onShowChild={showChild}
+        onLoadChildComments={handleLoadChildComments}
+      />
+    ));
+  }, [
+    comments,
+    toggleReplication,
+    handleSubmitReplyWithSocket,
+    showChild,
+    handleLoadChildComments,
+  ]);
+
   return (
-    <div className="p-4 text-orange-400">
-      {/* Header */}
-      <div className="flex justify-between">
-        <h3 className="text-2xl">Bình luận sản phẩm</h3>
-        <div>
-          <button
-            className="bg-yellow-500 px-5 py-2 rounded-md"
-            onClick={() => setShowModel(true)}
+    <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+      <ModalRating socketConnected={socketConnected} total={total} />
+
+      {/* Danh sách comment */}
+      <div className="space-y-6">
+        {comments?.length === 0 && !isPending ? (
+          <div
+            className={`
+            relative bg-white/60 backdrop-blur-sm border border-white/20
+            rounded-3xl p-12 text-center shadow-sm
+            before:absolute before:inset-0 before:rounded-3xl
+            before:bg-gradient-to-br before:from-white/10 before:to-transparent
+            before:pointer-events-none
+          `}
           >
-            Đánh giá
-          </button>
-        </div>
-      </div>
-
-      {/* Danh sách comment chính */}
-      <div className="flex flex-col gap-2">
-        {comments?.map((comment) => (
-          <div key={comment.id}>
-            {/* Comment chính */}
-            <CommentItem
-              comment={comment}
-              isRoot={true}
-              onToggleReplication={toggleReplication}
-              onSubmitReply={handleSubmitReply}
-              showVerticalLine={
-                comment?.childs?.total > 0 || comment?.showReplication
-              }
-            />
-
-            {/* Comment con và đường kẻ dọc */}
-            <div className="relative">
-              {comment?.showReplication && (
-                <div className="w-[2px] bg-gray-200 h-[calc(100%)] absolute top-[0] left-[15px]"></div>
-              )}
-              {comment?.childs?.total > 0 && (
-                <RenderCommentChilds comment={comment} onShow={showChild} />
-              )}
+            <div className="w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                />
+              </svg>
             </div>
-
-            {/* Form trả lời comment chính */}
-            {comment?.showReplication && (
-              <ReplyForm comment={comment} onSubmit={handleSubmitReply} />
-            )}
+            <h4 className="text-lg font-semibold text-gray-600 mb-2">
+              Chưa có bình luận nào
+            </h4>
+            <p className="text-gray-500">
+              Hãy là người đầu tiên chia sẻ trải nghiệm về sản phẩm này!
+            </p>
           </div>
-        ))}
+        ) : (
+          commentList
+        )}
 
         {/* Loading hoặc load more */}
         {isPending ? (
-          <LoadingSection />
+          <div className="flex justify-center py-8">
+            <LoadingSection />
+          </div>
         ) : (
           total > comments?.length && (
-            <div>
-              <button onClick={() => setPage(page + 1)}>Tải thêm</button>
+            <div className="flex justify-center pt-6">
+              <button
+                onClick={handleLoadMore}
+                className={`
+                  relative px-8 py-4 rounded-2xl font-semibold
+                  bg-gradient-to-r from-blue-50 to-indigo-50
+                  hover:from-blue-100 hover:to-indigo-100
+                  text-blue-700 border border-blue-200 hover:border-blue-300
+                  transform hover:scale-105 active:scale-95
+                  transition-all duration-300 ease-out
+                  shadow-sm hover:shadow-md
+                  focus:outline-none focus:ring-2 focus:ring-blue-500/30
+                  before:absolute before:inset-0 before:rounded-2xl
+                  before:bg-gradient-to-r before:from-white/20 before:to-transparent
+                  before:opacity-0 before:transition-opacity before:duration-300
+                  hover:before:opacity-100
+                `}
+              >
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  Tải thêm bình luận ({comments?.length}/{total})
+                </span>
+              </button>
             </div>
           )
         )}
       </div>
+
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes fade-in-down {
+          0% {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-in-down {
+          animation: fade-in-down 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

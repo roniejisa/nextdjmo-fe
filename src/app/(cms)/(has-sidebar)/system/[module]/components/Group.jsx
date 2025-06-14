@@ -1,9 +1,9 @@
 "use client";
 import { useContext, useState } from "react";
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
 const Group = ({ children, field: { label, hasCreateQuick, name, className } }) => {
-  const { modalQuick, setModalQuick } = useContext(AllContext);
+  const { modalQuick, setModalQuick } = useContext(CMSContext);
   const handleCreate = () => {
     setModalQuick({
       name: name,

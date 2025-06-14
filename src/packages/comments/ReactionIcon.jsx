@@ -3,8 +3,8 @@ export const reactions = [
     type: "like",
     color: "#1877f2",
     name: "Thích",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full">
+    icon: ({ ...props }) => (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full" {...props}>
         <defs>
           {/* Gradient cho hiệu ứng 3D của hình tròn */}
           <radialGradient id="circle3DGradient" cx="30%" cy="30%">
@@ -288,8 +288,8 @@ export const reactions = [
     type: "love",
     color: "#f33e58",
     name: "Yêu thích",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full">
+    icon: ({ ...props }) => (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full" {...props}>
         <defs>
           <radialGradient id="loveGradient" cx="40%" cy="25%" r="80%">
             <stop offset="0%" stopColor="#FF8FB3">
@@ -625,134 +625,217 @@ export const reactions = [
     ),
   },
   {
-  type: "haha",
-  color: "#ffa726",
-  name: "HAHA",
-  icon: (
-    <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full">
-      <defs>
-        {/* Gradient cho nền vàng cam vui vẻ */}
-        <radialGradient id="hahaCircleGradient" cx="30%" cy="30%">
-          <stop offset="0%" stopColor="#FFD54F" />
-          <stop offset="50%" stopColor="#FFA726" />
-          <stop offset="100%" stopColor="#FF8F00" />
-        </radialGradient>
+    type: "laugh",
+    color: "#ffa726",
+    name: "HAHA",
+    icon: ({ ...props }) => (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full" {...props}>
+        <defs>
+          {/* Gradient cho nền vàng cam vui vẻ */}
+          <radialGradient id="hahaCircleGradient" cx="30%" cy="30%">
+            <stop offset="0%" stopColor="#FFD54F" />
+            <stop offset="50%" stopColor="#FFA726" />
+            <stop offset="100%" stopColor="#FF8F00" />
+          </radialGradient>
 
-        {/* Gradient cho ánh sáng vui vẻ */}
-        <radialGradient id="hahaGlowGradient" cx="50%" cy="50%">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="#FFD54F" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#FFA726" stopOpacity="0.2" />
-        </radialGradient>
+          {/* Gradient cho ánh sáng vui vẻ */}
+          <radialGradient id="hahaGlowGradient" cx="50%" cy="50%">
+            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#FFD54F" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#FFA726" stopOpacity="0.2" />
+          </radialGradient>
 
-        {/* Filter cho hiệu ứng sáng */}
-        <filter id="hahaGlow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-          <feMerge>
-            <feMergeNode in="coloredBlur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
+          {/* Filter cho hiệu ứng sáng */}
+          <filter id="hahaGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
 
-        {/* Gradient cho nước mắt vui */}
-        <radialGradient id="tearGradient" cx="30%" cy="20%">
-          <stop offset="0%" stopColor="#E3F2FD" />
-          <stop offset="50%" stopColor="#BBDEFB" />
-          <stop offset="100%" stopColor="#2196F3" />
-        </radialGradient>
-      </defs>
+          {/* Gradient cho nước mắt vui */}
+          <radialGradient id="tearGradient" cx="30%" cy="20%">
+            <stop offset="0%" stopColor="#E3F2FD" />
+            <stop offset="50%" stopColor="#BBDEFB" />
+            <stop offset="100%" stopColor="#2196F3" />
+          </radialGradient>
+        </defs>
 
-      {/* Ánh sáng nền rung rinh */}
-      <circle
-        cx="12"
-        cy="12"
-        r="16"
-        fill="url(#hahaGlowGradient)"
-        opacity="0.5"
-      >
-        <animate
-          attributeName="r"
-          values="16;19;16"
-          dur="0.8s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          values="0.5;0.2;0.5"
-          dur="0.8s"
-          repeatCount="indefinite"
-        />
-        <animateTransform
-          attributeName="transform"
-          type="rotate"
-          values="0 12 12;5 12 12;-5 12 12;0 12 12"
-          dur="1s"
-          repeatCount="indefinite"
-        />
-      </circle>
+        {/* Ánh sáng nền rung rinh */}
+        <circle
+          cx="12"
+          cy="12"
+          r="16"
+          fill="url(#hahaGlowGradient)"
+          opacity="0.5"
+        >
+          <animate
+            attributeName="r"
+            values="16;19;16"
+            dur="0.8s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="opacity"
+            values="0.5;0.2;0.5"
+            dur="0.8s"
+            repeatCount="indefinite"
+          />
+          <animateTransform
+            attributeName="transform"
+            type="rotate"
+            values="0 12 12;5 12 12;-5 12 12;0 12 12"
+            dur="1s"
+            repeatCount="indefinite"
+          />
+        </circle>
 
-      {/* Shadow nhảy nhót */}
-      <ellipse
-        cx="13"
-        cy="15"
-        rx="11"
-        ry="9"
-        fill="rgba(255, 143, 0, 0.3)"
-        opacity="0.6"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0;2,1;-1,0;0,0"
-          dur="0.6s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="rx"
-          values="11;12;10;11"
-          dur="0.6s"
-          repeatCount="indefinite"
-        />
-      </ellipse>
+        {/* Shadow nhảy nhót */}
+        <ellipse
+          cx="13"
+          cy="15"
+          rx="11"
+          ry="9"
+          fill="rgba(255, 143, 0, 0.3)"
+          opacity="0.6"
+        >
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            values="0,0;2,1;-1,0;0,0"
+            dur="0.6s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="rx"
+            values="11;12;10;11"
+            dur="0.6s"
+            repeatCount="indefinite"
+          />
+        </ellipse>
 
-      {/* Hình tròn nền chính */}
-      <circle
-        cx="12"
-        cy="12"
-        r="11"
-        fill="url(#hahaCircleGradient)"
-        filter="url(#hahaGlow)"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0;1,0;-1,0;0,1;0,-1;0,0"
-          dur="0.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="r"
-          values="11;11.5;10.8;11"
-          dur="0.5s"
-          repeatCount="indefinite"
-        />
-      </circle>
+        {/* Hình tròn nền chính */}
+        <circle
+          cx="12"
+          cy="12"
+          r="11"
+          fill="url(#hahaCircleGradient)"
+          filter="url(#hahaGlow)"
+        >
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            values="0,0;1,0;-1,0;0,1;0,-1;0,0"
+            dur="0.5s"
+            repeatCount="indefinite"
+          />
+          <animate
+            attributeName="r"
+            values="11;11.5;10.8;11"
+            dur="0.5s"
+            repeatCount="indefinite"
+          />
+        </circle>
 
-      {/* Highlight */}
-      <ellipse cx="9" cy="8" rx="4" ry="3" fill="#FFFFFF" opacity="0.6">
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0;1,0;-1,0;0,0"
-          dur="0.5s"
-          repeatCount="indefinite"
-        />
-      </ellipse>
+        {/* Highlight */}
+        <ellipse cx="9" cy="8" rx="4" ry="3" fill="#FFFFFF" opacity="0.6">
+          <animateTransform
+            attributeName="transform"
+            type="translate"
+            values="0,0;1,0;-1,0;0,0"
+            dur="0.5s"
+            repeatCount="indefinite"
+          />
+        </ellipse>
 
-      {/* Mắt cười nhắm - trái */}
-      <g>
+        {/* Mắt cười nhắm - trái */}
+        <g>
+          <path
+            d="M6.5 9 Q8.5 11 10.5 9"
+            stroke="#8B4513"
+            strokeWidth="2.5"
+            fill="none"
+            strokeLinecap="round"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="stroke-width"
+              values="2.5;3;2.5"
+              dur="0.3s"
+              repeatCount="indefinite"
+            />
+          </path>
+          {/* Nếp nhăn mắt cười */}
+          <path
+            d="M6 8.5 Q8.5 10 11 8.5"
+            stroke="#8B4513"
+            strokeWidth="1"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.6"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+          </path>
+        </g>
+
+        {/* Mắt cười nhắm - phải */}
+        <g>
+          <path
+            d="M13.5 9 Q15.5 11 17.5 9"
+            stroke="#8B4513"
+            strokeWidth="2.5"
+            fill="none"
+            strokeLinecap="round"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="stroke-width"
+              values="2.5;3;2.5"
+              dur="0.3s"
+              repeatCount="indefinite"
+            />
+          </path>
+          {/* Nếp nhăn mắt cười */}
+          <path
+            d="M13 8.5 Q15.5 10 18 8.5"
+            stroke="#8B4513"
+            strokeWidth="1"
+            fill="none"
+            strokeLinecap="round"
+            opacity="0.6"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+          </path>
+        </g>
+
+        {/* Miệng cười lớn */}
         <path
-          d="M6.5 9 Q8.5 11 10.5 9"
+          d="M6 14 Q12 20 18 14"
           stroke="#8B4513"
           strokeWidth="2.5"
           fill="none"
@@ -766,40 +849,15 @@ export const reactions = [
             repeatCount="indefinite"
           />
           <animate
-            attributeName="stroke-width"
-            values="2.5;3;2.5"
-            dur="0.3s"
+            attributeName="d"
+            values="M6 14 Q12 20 18 14;M6 14 Q12 21 18 14;M6 14 Q12 19 18 14;M6 14 Q12 20 18 14"
+            dur="0.4s"
             repeatCount="indefinite"
           />
         </path>
-        {/* Nếp nhăn mắt cười */}
-        <path
-          d="M6 8.5 Q8.5 10 11 8.5"
-          stroke="#8B4513"
-          strokeWidth="1"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.6"
-        >
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,0;1,0;-1,0;0,0"
-            dur="0.5s"
-            repeatCount="indefinite"
-          />
-        </path>
-      </g>
 
-      {/* Mắt cười nhắm - phải */}
-      <g>
-        <path
-          d="M13.5 9 Q15.5 11 17.5 9"
-          stroke="#8B4513"
-          strokeWidth="2.5"
-          fill="none"
-          strokeLinecap="round"
-        >
+        {/* Nội miệng */}
+        <path d="M7 15 Q12 19 17 15" fill="#8B4513" opacity="0.4">
           <animateTransform
             attributeName="transform"
             type="translate"
@@ -808,449 +866,406 @@ export const reactions = [
             repeatCount="indefinite"
           />
           <animate
-            attributeName="stroke-width"
-            values="2.5;3;2.5"
-            dur="0.3s"
+            attributeName="d"
+            values="M7 15 Q12 19 17 15;M7 15 Q12 20 17 15;M7 15 Q12 18 17 15;M7 15 Q12 19 17 15"
+            dur="0.4s"
             repeatCount="indefinite"
           />
         </path>
-        {/* Nếp nhăn mắt cười */}
-        <path
-          d="M13 8.5 Q15.5 10 18 8.5"
-          stroke="#8B4513"
-          strokeWidth="1"
-          fill="none"
-          strokeLinecap="round"
-          opacity="0.6"
+
+        {/* Răng cười */}
+        <g fill="#FFFFFF">
+          <rect x="9" y="16" width="1" height="2" rx="0.5">
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+          <rect x="11" y="16.5" width="1" height="2" rx="0.5">
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+          <rect x="13" y="16.5" width="1" height="2" rx="0.5">
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+          <rect x="15" y="16" width="1" height="2" rx="0.5">
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0;1,0;-1,0;0,0"
+              dur="0.5s"
+              repeatCount="indefinite"
+            />
+          </rect>
+        </g>
+
+        {/* Nước mắt cười - trái */}
+        <g>
+          <ellipse
+            cx="5"
+            cy="11"
+            rx="1"
+            ry="2"
+            fill="url(#tearGradient)"
+            opacity="0.8"
+          >
+            <animate
+              attributeName="ry"
+              values="2;3;1;2"
+              dur="1s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="cy"
+              values="11;13;15;11"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="0.8;0.4;0;0.8"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </ellipse>
+          {/* Giọt nước mắt nhỏ */}
+          <circle cx="4.5" cy="13" r="0.5" fill="url(#tearGradient)">
+            <animate
+              attributeName="cy"
+              values="13;16;13"
+              dur="1.5s"
+              repeatCount="indefinite"
+              begin="0.5s"
+            />
+            <animate
+              attributeName="opacity"
+              values="0.6;0;0.6"
+              dur="1.5s"
+              repeatCount="indefinite"
+              begin="0.5s"
+            />
+          </circle>
+        </g>
+
+        {/* Nước mắt cười - phải */}
+        <g>
+          <ellipse
+            cx="19"
+            cy="11"
+            rx="1"
+            ry="2"
+            fill="url(#tearGradient)"
+            opacity="0.8"
+          >
+            <animate
+              attributeName="ry"
+              values="2;3;1;2"
+              dur="1s"
+              repeatCount="indefinite"
+              begin="0.3s"
+            />
+            <animate
+              attributeName="cy"
+              values="11;13;15;11"
+              dur="2s"
+              repeatCount="indefinite"
+              begin="0.3s"
+            />
+            <animate
+              attributeName="opacity"
+              values="0.8;0.4;0;0.8"
+              dur="2s"
+              repeatCount="indefinite"
+              begin="0.3s"
+            />
+          </ellipse>
+          {/* Giọt nước mắt nhỏ */}
+          <circle cx="19.5" cy="13" r="0.5" fill="url(#tearGradient)">
+            <animate
+              attributeName="cy"
+              values="13;16;13"
+              dur="1.5s"
+              repeatCount="indefinite"
+              begin="0.8s"
+            />
+            <animate
+              attributeName="opacity"
+              values="0.6;0;0.6"
+              dur="1.5s"
+              repeatCount="indefinite"
+              begin="0.8s"
+            />
+          </circle>
+        </g>
+
+        {/* Text "HAHA" bay lên */}
+        <g
+          opacity="0.9"
+          fontSize="4"
+          fontWeight="bold"
+          fontFamily="Arial, sans-serif"
         >
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,0;1,0;-1,0;0,0"
-            dur="0.5s"
-            repeatCount="indefinite"
-          />
-        </path>
-      </g>
+          <text x="12" y="4" textAnchor="middle" fill="#FF8F00">
+            HAHA
+            <animate
+              attributeName="y"
+              values="4;2;0;4"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+            <animate
+              attributeName="opacity"
+              values="0.9;0.5;0.2;0.9"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+            <animateTransform
+              attributeName="transform"
+              type="scale"
+              values="1;1.2;0.8;1"
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </text>
+        </g>
 
-      {/* Miệng cười lớn */}
-      <path
-        d="M6 14 Q12 20 18 14"
-        stroke="#8B4513"
-        strokeWidth="2.5"
-        fill="none"
-        strokeLinecap="round"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0;1,0;-1,0;0,0"
-          dur="0.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="d"
-          values="M6 14 Q12 20 18 14;M6 14 Q12 21 18 14;M6 14 Q12 19 18 14;M6 14 Q12 20 18 14"
-          dur="0.4s"
-          repeatCount="indefinite"
-        />
-      </path>
+        {/* Hiệu ứng lấp lánh xung quanh */}
+        <g opacity="0.8">
+          {/* Sparkle 1 */}
+          <g>
+            <path d="M3 5 L3.8 6.2 L5 5 L3.8 3.8 Z" fill="#FFD700">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 4 5;360 4 5"
+                dur="1.5s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+              />
+            </path>
+            <path
+              d="M4 3.5 L4 6.5 M2.5 5 L5.5 5"
+              stroke="#FFD700"
+              strokeWidth="0.5"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 4 5;360 4 5"
+                dur="1.5s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+              />
+            </path>
+          </g>
 
-      {/* Nội miệng */}
-      <path
-        d="M7 15 Q12 19 17 15"
-        fill="#8B4513"
-        opacity="0.4"
-      >
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0;1,0;-1,0;0,0"
-          dur="0.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="d"
-          values="M7 15 Q12 19 17 15;M7 15 Q12 20 17 15;M7 15 Q12 18 17 15;M7 15 Q12 19 17 15"
-          dur="0.4s"
-          repeatCount="indefinite"
-        />
-      </path>
+          {/* Sparkle 2 */}
+          <g>
+            <path d="M21 7 L21.8 8.2 L23 7 L21.8 5.8 Z" fill="#FFD700">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 22 7;360 22 7"
+                dur="1.5s"
+                repeatCount="indefinite"
+                begin="0.5s"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+                begin="0.5s"
+              />
+            </path>
+            <path
+              d="M22 5.5 L22 8.5 M20.5 7 L23.5 7"
+              stroke="#FFD700"
+              strokeWidth="0.5"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 22 7;360 22 7"
+                dur="1.5s"
+                repeatCount="indefinite"
+                begin="0.5s"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+                begin="0.5s"
+              />
+            </path>
+          </g>
 
-      {/* Răng cười */}
-      <g fill="#FFFFFF">
-        <rect x="9" y="16" width="1" height="2" rx="0.5">
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,0;1,0;-1,0;0,0"
-            dur="0.5s"
-            repeatCount="indefinite"
-          />
-        </rect>
-        <rect x="11" y="16.5" width="1" height="2" rx="0.5">
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,0;1,0;-1,0;0,0"
-            dur="0.5s"
-            repeatCount="indefinite"
-          />
-        </rect>
-        <rect x="13" y="16.5" width="1" height="2" rx="0.5">
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,0;1,0;-1,0;0,0"
-            dur="0.5s"
-            repeatCount="indefinite"
-          />
-        </rect>
-        <rect x="15" y="16" width="1" height="2" rx="0.5">
-          <animateTransform
-            attributeName="transform"
-            type="translate"
-            values="0,0;1,0;-1,0;0,0"
-            dur="0.5s"
-            repeatCount="indefinite"
-          />
-        </rect>
-      </g>
+          {/* Sparkle 3 */}
+          <g>
+            <path d="M2 19 L2.8 20.2 L4 19 L2.8 17.8 Z" fill="#FFD700">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 3 19;360 3 19"
+                dur="1.5s"
+                repeatCount="indefinite"
+                begin="1s"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+                begin="1s"
+              />
+            </path>
+            <path
+              d="M3 17.5 L3 20.5 M1.5 19 L4.5 19"
+              stroke="#FFD700"
+              strokeWidth="0.5"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 3 19;360 3 19"
+                dur="1.5s"
+                repeatCount="indefinite"
+                begin="1s"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+                begin="1s"
+              />
+            </path>
+          </g>
 
-      {/* Nước mắt cười - trái */}
-      <g>
-        <ellipse cx="5" cy="11" rx="1" ry="2" fill="url(#tearGradient)" opacity="0.8">
+          {/* Sparkle 4 */}
+          <g>
+            <path d="M22 19 L22.8 20.2 L24 19 L22.8 17.8 Z" fill="#FFD700">
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 23 19;360 23 19"
+                dur="1.5s"
+                repeatCount="indefinite"
+                begin="1.5s"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+                begin="1.5s"
+              />
+            </path>
+            <path
+              d="M23 17.5 L23 20.5 M21.5 19 L24.5 19"
+              stroke="#FFD700"
+              strokeWidth="0.5"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0 23 19;360 23 19"
+                dur="1.5s"
+                repeatCount="indefinite"
+                begin="1.5s"
+              />
+              <animate
+                attributeName="opacity"
+                values="0;1;0"
+                dur="1s"
+                repeatCount="indefinite"
+                begin="1.5s"
+              />
+            </path>
+          </g>
+        </g>
+
+        {/* Hiệu ứng sóng cười */}
+        <circle
+          cx="12"
+          cy="12"
+          r="13"
+          fill="none"
+          stroke="#FFD700"
+          strokeWidth="0.5"
+          opacity="0.4"
+        >
           <animate
-            attributeName="ry"
-            values="2;3;1;2"
-            dur="1s"
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="cy"
-            values="11;13;15;11"
-            dur="2s"
+            attributeName="r"
+            values="13;17;13"
+            dur="1.5s"
             repeatCount="indefinite"
           />
           <animate
             attributeName="opacity"
-            values="0.8;0.4;0;0.8"
-            dur="2s"
-            repeatCount="indefinite"
-          />
-        </ellipse>
-        {/* Giọt nước mắt nhỏ */}
-        <circle cx="4.5" cy="13" r="0.5" fill="url(#tearGradient)">
-          <animate
-            attributeName="cy"
-            values="13;16;13"
+            values="0.4;0;0.4"
             dur="1.5s"
             repeatCount="indefinite"
-            begin="0.5s"
-          />
-          <animate
-            attributeName="opacity"
-            values="0.6;0;0.6"
-            dur="1.5s"
-            repeatCount="indefinite"
-            begin="0.5s"
           />
         </circle>
-      </g>
 
-      {/* Nước mắt cười - phải */}
-      <g>
-        <ellipse cx="19" cy="11" rx="1" ry="2" fill="url(#tearGradient)" opacity="0.8">
+        {/* Sóng thứ hai */}
+        <circle
+          cx="12"
+          cy="12"
+          r="15"
+          fill="none"
+          stroke="#FFA726"
+          strokeWidth="0.3"
+          opacity="0.3"
+        >
           <animate
-            attributeName="ry"
-            values="2;3;1;2"
-            dur="1s"
-            repeatCount="indefinite"
-            begin="0.3s"
-          />
-          <animate
-            attributeName="cy"
-            values="11;13;15;11"
+            attributeName="r"
+            values="15;19;15"
             dur="2s"
             repeatCount="indefinite"
-            begin="0.3s"
           />
           <animate
             attributeName="opacity"
-            values="0.8;0.4;0;0.8"
+            values="0.3;0;0.3"
             dur="2s"
             repeatCount="indefinite"
-            begin="0.3s"
-          />
-        </ellipse>
-        {/* Giọt nước mắt nhỏ */}
-        <circle cx="19.5" cy="13" r="0.5" fill="url(#tearGradient)">
-          <animate
-            attributeName="cy"
-            values="13;16;13"
-            dur="1.5s"
-            repeatCount="indefinite"
-            begin="0.8s"
-          />
-          <animate
-            attributeName="opacity"
-            values="0.6;0;0.6"
-            dur="1.5s"
-            repeatCount="indefinite"
-            begin="0.8s"
           />
         </circle>
-      </g>
-
-      {/* Text "HAHA" bay lên */}
-      <g opacity="0.9" fontSize="4" fontWeight="bold" fontFamily="Arial, sans-serif">
-        <text x="12" y="4" textAnchor="middle" fill="#FF8F00">
-          HAHA
-          <animate
-            attributeName="y"
-            values="4;2;0;4"
-            dur="2s"
-            repeatCount="indefinite"
-          />
-          <animate
-            attributeName="opacity"
-            values="0.9;0.5;0.2;0.9"
-            dur="2s"
-            repeatCount="indefinite"
-          />
-          <animateTransform
-            attributeName="transform"
-            type="scale"
-            values="1;1.2;0.8;1"
-            dur="2s"
-            repeatCount="indefinite"
-          />
-        </text>
-      </g>
-
-      {/* Hiệu ứng lấp lánh xung quanh */}
-      <g opacity="0.8">
-        {/* Sparkle 1 */}
-        <g>
-          <path d="M3 5 L3.8 6.2 L5 5 L3.8 3.8 Z" fill="#FFD700">
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 4 5;360 4 5"
-              dur="1.5s"
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-            />
-          </path>
-          <path
-            d="M4 3.5 L4 6.5 M2.5 5 L5.5 5"
-            stroke="#FFD700"
-            strokeWidth="0.5"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 4 5;360 4 5"
-              dur="1.5s"
-              repeatCount="indefinite"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-            />
-          </path>
-        </g>
-
-        {/* Sparkle 2 */}
-        <g>
-          <path d="M21 7 L21.8 8.2 L23 7 L21.8 5.8 Z" fill="#FFD700">
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 22 7;360 22 7"
-              dur="1.5s"
-              repeatCount="indefinite"
-              begin="0.5s"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-              begin="0.5s"
-            />
-          </path>
-          <path
-            d="M22 5.5 L22 8.5 M20.5 7 L23.5 7"
-            stroke="#FFD700"
-            strokeWidth="0.5"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 22 7;360 22 7"
-              dur="1.5s"
-              repeatCount="indefinite"
-              begin="0.5s"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-              begin="0.5s"
-            />
-          </path>
-        </g>
-
-        {/* Sparkle 3 */}
-        <g>
-          <path d="M2 19 L2.8 20.2 L4 19 L2.8 17.8 Z" fill="#FFD700">
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 3 19;360 3 19"
-              dur="1.5s"
-              repeatCount="indefinite"
-              begin="1s"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-              begin="1s"
-            />
-          </path>
-          <path
-            d="M3 17.5 L3 20.5 M1.5 19 L4.5 19"
-            stroke="#FFD700"
-            strokeWidth="0.5"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 3 19;360 3 19"
-              dur="1.5s"
-              repeatCount="indefinite"
-              begin="1s"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-              begin="1s"
-            />
-          </path>
-        </g>
-
-        {/* Sparkle 4 */}
-        <g>
-          <path d="M22 19 L22.8 20.2 L24 19 L22.8 17.8 Z" fill="#FFD700">
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 23 19;360 23 19"
-              dur="1.5s"
-              repeatCount="indefinite"
-              begin="1.5s"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"  
-              begin="1.5s"
-            />
-          </path>
-          <path
-            d="M23 17.5 L23 20.5 M21.5 19 L24.5 19"
-            stroke="#FFD700"
-            strokeWidth="0.5"
-          >
-            <animateTransform
-              attributeName="transform"
-              type="rotate"
-              values="0 23 19;360 23 19"
-              dur="1.5s"
-              repeatCount="indefinite"
-              begin="1.5s"
-            />
-            <animate
-              attributeName="opacity"
-              values="0;1;0"
-              dur="1s"
-              repeatCount="indefinite"
-              begin="1.5s"
-            />
-          </path>
-        </g>
-      </g>
-
-      {/* Hiệu ứng sóng cười */}
-      <circle
-        cx="12"
-        cy="12"
-        r="13"
-        fill="none"
-        stroke="#FFD700"
-        strokeWidth="0.5"
-        opacity="0.4"
-      >
-        <animate
-          attributeName="r"
-          values="13;17;13"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          values="0.4;0;0.4"
-          dur="1.5s"
-          repeatCount="indefinite"
-        />
-      </circle>
-
-      {/* Sóng thứ hai */}
-      <circle
-        cx="12"
-        cy="12"
-        r="15"
-        fill="none"
-        stroke="#FFA726"
-        strokeWidth="0.3"
-        opacity="0.3"
-      >
-        <animate
-          attributeName="r"
-          values="15;19;15"
-          dur="2s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          values="0.3;0;0.3"
-          dur="2s"
-          repeatCount="indefinite"
-        />
-      </circle>
-    </svg>
-  ),
-},
+      </svg>
+    ),
+  },
   {
     type: "sad",
     color: "#4FC3F7",
     name: "Khóc òa",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full">
+    icon: ({ ...props }) => (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full" {...props}>
         <defs>
           {/* Gradient cho nền xanh buồn */}
           <radialGradient id="cryCircleGradient" cx="30%" cy="30%">
@@ -1751,8 +1766,8 @@ export const reactions = [
     type: "wow",
     color: "#f7b928",
     name: "Wow",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full">
+    icon: ({ ...props }) => (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full" {...props}>
         <defs>
           {/* Gradient cho nền vàng ngạc nhiên */}
           <radialGradient id="wowCircleGradient" cx="30%" cy="30%">
@@ -2102,8 +2117,8 @@ export const reactions = [
     type: "angry",
     color: "#f33e58",
     name: "Tức giận",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full">
+    icon: ({ ...props }) => (
+      <svg viewBox="0 0 24 24" className="w-8 h-8 rounded-full" {...props}>
         <defs>
           {/* Gradient cho nền đỏ tức giận */}
           <radialGradient id="angryCircleGradient" cx="30%" cy="30%">

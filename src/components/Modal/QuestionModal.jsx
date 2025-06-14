@@ -1,12 +1,12 @@
 "use client";
 
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { useContext, useRef, useEffect, forwardRef } from "react";
 import CloseIcon from "../Icon/svg/Close";
 
 const QuestionModal = () => {
   const { showModalQuestion, setShowModalQuestion, modalOptions } =
-    useContext(AllContext);
+    useContext(CMSContext);
   const modalRef = useRef(null);
 
   // Logic handlers

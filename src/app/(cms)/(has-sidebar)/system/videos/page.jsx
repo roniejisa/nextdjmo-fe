@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 import { notFound } from "next/navigation";
-import { getDataModule, getProfile } from "../[module]/actions";
+import { getDataModule } from "../[module]/actions";
 import ClientVideoPage from "./ClientVideoPage";
 import Pagination from "@/components/Pagination/Pagination";
 
@@ -15,7 +15,6 @@ export async function generateMetadata() {
 const VideoPage = async ({ searchParams }) => {
   const { limit, page, ...propSearchParams } = await searchParams;
   const moduleName = "videos";
-  const user = await getProfile();
   const { data } = await getDataModule(
     moduleName,
     limit,
@@ -38,7 +37,6 @@ const VideoPage = async ({ searchParams }) => {
   return (
     <div className="p-4">
       <ClientVideoPage
-        permissions={user.permissions}
         items={items}
         moduleName={moduleName}
         nameLabel={moduleMain?.name}

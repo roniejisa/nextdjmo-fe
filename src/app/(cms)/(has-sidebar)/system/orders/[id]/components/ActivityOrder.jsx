@@ -1,6 +1,6 @@
 "use client";
 
-import { AllContext } from "@/context/cms/AllProvider";
+import { CMSContext } from "@/context/cms/CMSProvider";
 import { useContext, useState } from "react";
 import { addActivityForOrder } from "../action";
 import { useNotify } from "@/context/NotifyProvider";
@@ -58,7 +58,7 @@ const ActivityOrder = ({ order }) => {
     return createActivites();
   });
 
-  const { setShowModalQuestion, setModalOptions } = useContext(AllContext);
+  const { setShowModalQuestion, setModalOptions } = useContext(CMSContext);
 
   const addActivityOrder = () => {
     setShowModalQuestion(true);

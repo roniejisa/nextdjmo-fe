@@ -1,7 +1,6 @@
 // ORDER PROVIDER OF ADMIN
 import { httpClient } from "@/utils/http";
 import { redirect } from "next/navigation";
-import { getProfile } from "../../[module]/actions";
 import { showImageUrl } from "@/utils/client";
 import Form from "./Form";
 import OrderProvider from "@/context/cms/OrderProvider";
@@ -29,12 +28,8 @@ export async function generateMetadata() {
 
 const DetailComponent = async ({ params }) => {
   const { id } = await params;
-  const user = await getProfile();
-  let { data } = await orderDetail(id);
-  if (
-    !Object.keys(data).length ||
-    !user.permissions.includes(`orders.update`)
-  ) {
+  let { status, data } = await orderDetail(id);
+  if (status !== 200 || !Object.keys(data).length) {
     return redirect("/403");
   }
   let { item } = data;
