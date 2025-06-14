@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import LikeIcon from "@/components/Icon/svg/Like";
 import React, {

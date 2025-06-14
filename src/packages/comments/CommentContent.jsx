@@ -116,7 +116,6 @@ const CommentContent = () => {
     deleteComment: null,
     updateReaction: null
   });
-  console.log(comments)
   const debouncedHandlers = useMemo(
     () => ({
       handleNewComment: (newComment) => {
