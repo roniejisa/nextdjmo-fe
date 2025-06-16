@@ -24,12 +24,12 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
       const formData = Object.fromEntries(form);
       const data = await handleUpdate(module, item._id, formData, language);
       if (data.status == 200) {
-        router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
+        router.refresh();
         notify.changeNotify("success", data.message);
-        return;
+        router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
       } else {
-        setOldData(formData);
         notify.changeNotify("error", data.message);
+        setOldData(formData);
       }
     });
   };

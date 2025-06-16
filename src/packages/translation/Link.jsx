@@ -11,7 +11,7 @@ const LinkCustom = ({ children, href, ...props }) => {
   };
   
   return (
-    <Link href={href} onClick={changePage} {...props}>
+    <Link href={href} {...props} prefetch={false}>
       {children}
     </Link>
   );

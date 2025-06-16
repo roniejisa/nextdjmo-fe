@@ -60,3 +60,15 @@ export const disabledOtp = async (body) => {
   );
   return data;
 };
+
+export const moduleDetail = async (module, id, language = null) => {
+  const token = await getToken();
+  return httpClient(
+    `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/${id}` +
+      (language ? `?language=${language}` : ""),
+    {
+      isAdmin: 1,
+      Authorization: `Bearer ${token}`,
+    }
+  );
+};

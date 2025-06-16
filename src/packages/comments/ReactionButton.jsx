@@ -132,6 +132,7 @@ const ReactionButton = ({ comment }) => {
       reaction_type: newReaction,
     };
     const response = await submitReaction(data);
+    console.log(response)
     if (response.status === 401) {
       router.pushWithQuery("/dang-nhap", { redirect: pathname });
       notify.changeNotify("error", response.message);

@@ -1,5 +1,5 @@
 "use client";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useCallback, useRef } from "react";
 import { SocketContext } from "@/context/SocketProvider";
 import { ClientContext } from "@/context/client/ClientProvider";
 
@@ -9,13 +9,15 @@ export const useCommentSocket = (type, id) => {
     sessionIdRef,
     setSessionId,
     connectSocket,
-    socketOn, // Giờ đây là state thay vì ref
+    socketOn,
   } = useContext(SocketContext);
 
   const { ssId } = useContext(ClientContext);
+  const isJoinedRef = useRef(false);
+  const reconnectTimeoutRef = useRef(null);
 
-  const sendJoinModuleComment = () => {
-    if (!socketRef.current || !type || !id || !sessionIdRef.current) return;
+  const sendJoinModuleComment = useCallback(() => {
+    if (!socketRef.current || !type || !id || !sessionIdRef.current || isJoinedRef.current) return;
 
     const joinData = {
       type: "join-module-comment",
@@ -26,51 +28,88 @@ export const useCommentSocket = (type, id) => {
       },
     };
 
-    socketRef.current.sendEncode(joinData);
-    console.log("🚀 Joined comment module:", type, id);
-  };
+    try {
+      socketRef.current.sendEncode(joinData);
+      isJoinedRef.current = true;
+      console.log(`🚀 Joined comment room: ${type}-${id}`);
+    } catch (error) {
+      console.error("❌ Failed to join room:", error);
+    }
+  }, [type, id, socketRef, sessionIdRef]);
 
-  const sendLeaveModuleComment = () => {
-    if (!socketRef.current || !type || !id || !sessionIdRef.current) return;
+  const sendLeaveModuleComment = useCallback(() => {
+    if (!socketRef.current || !type || !id || !sessionIdRef.current || !isJoinedRef.current) return;
 
-    socketRef.current.sendEncode({
-      type: "leave-module-comment",
-      data: {
-        module: type,
-        module_id: id,
-        id: sessionIdRef.current,
-      },
-    });
-    console.log("👋 Left comment module:", type, id);
-  };
+    try {
+      socketRef.current.sendEncode({
+        type: "leave-module-comment",
+        data: {
+          module: type,
+          module_id: id,
+          id: sessionIdRef.current,
+        },
+      });
+      isJoinedRef.current = false;
+      console.log(`👋 Left comment room: ${type}-${id}`);
+    } catch (error) {
+      console.error("❌ Failed to leave room:", error);
+    }
+  }, [type, id, socketRef, sessionIdRef]);
 
-  // Initialize socket và session
+  // Initialize socket và session - chỉ chạy 1 lần
   useEffect(() => {
-    const initSocket = async () => {
+    if (ssId && !sessionIdRef.current) {
       setSessionId(ssId);
       connectSocket();
+    }
+  }, [ssId, setSessionId, connectSocket, sessionIdRef]);
+
+  // Join room với retry mechanism
+  useEffect(() => {
+    if (!socketOn || !type || !id) return;
+
+    // Clear any existing reconnect timeout
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+    }
+
+    // Join immediately if not already joined
+    if (!isJoinedRef.current) {
+      sendJoinModuleComment();
+    }
+
+    // Auto-reconnect mechanism
+    const handleReconnect = () => {
+      if (socketOn && !isJoinedRef.current) {
+        console.log("🔄 Auto-reconnecting to comment room...");
+        sendJoinModuleComment();
+      }
     };
 
-    initSocket();
-  }, [setSessionId, connectSocket]);
+    reconnectTimeoutRef.current = setTimeout(handleReconnect, 1000);
 
-  // Join room khi socket connected
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      sendLeaveModuleComment();
+    };
+  }, [socketOn, type, id, sendJoinModuleComment, sendLeaveModuleComment]);
+
+  // Cleanup on unmount
   useEffect(() => {
-    if (socketOn && type && id) {
-      // Join room ngay khi socket connected
-      sendJoinModuleComment();
-
-      // Return cleanup function
-      return () => {
-        sendLeaveModuleComment();
-      };
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketOn, type, id]); // Dependency vào socketOn state
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      sendLeaveModuleComment();
+    };
+  }, [sendLeaveModuleComment]);
 
   return {
     socketConnected: socketOn,
     joinRoom: sendJoinModuleComment,
     leaveRoom: sendLeaveModuleComment,
+    isJoined: isJoinedRef.current,
   };
 };

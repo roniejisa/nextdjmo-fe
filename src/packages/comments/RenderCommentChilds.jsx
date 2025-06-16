@@ -1,5 +1,5 @@
 import { LoadingSection } from "./LoadingSection";
-import { useState, useEffect, useTransition, useRef, useCallback } from "react";
+import { useEffect, useTransition, useRef, useCallback } from "react";
 import CommentItem from "./CommentItem";
 import { useCommentActions } from "./hooks/useCommentActions";
 import { ReplyForm } from "./ReplyForm";
@@ -79,22 +79,9 @@ export const RenderCommentChilds = ({
   const ActionButton = ({ onClick, children, variant = "default" }) => (
     <button
       onClick={onClick}
-      className={`
-        relative flex items-center gap-2 px-4 py-2 text-sm font-medium mb-3 rounded-xl
-        backdrop-blur-sm border transition-all duration-300 transform
-        hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/20
-        ${
-          variant === "collapse"
-            ? `
-          bg-gradient-to-r from-red-50/80 to-pink-50/80 text-red-600 border-red-200/60 
-          hover:from-red-100/90 hover:to-pink-100/90 hover:border-red-300/80 hover:text-red-700
-        `
-            : `
-          bg-gradient-to-r from-blue-50/80 to-indigo-50/80 text-blue-600 border-blue-200/60 
-          hover:from-blue-100/90 hover:to-indigo-100/90 hover:border-blue-300/80 hover:text-blue-700
-        `
-        }
-      `}
+      className={`rcc-action-btn ${
+        variant === "collapse" ? "rcc-action-btn--collapse" : "rcc-action-btn--default"
+      }`}
     >
       {children}
     </button>
@@ -105,11 +92,11 @@ export const RenderCommentChilds = ({
   const total = comment?.childs?.total || 0;
 
   return (
-    <div className="relative">
+    <div className="rcc-container">
       {comment.showChild ? (
-        <div className="relative">
+        <div className="rcc-expanded">
           {/* Main vertical line - align với avatar của parent */}
-          <div className="absolute w-0.5 bg-gradient-to-b from-green-200 via-blue-200 to-purple-300 left-[23px] top-0 h-[calc(100%-18px)]"></div>
+          <div className="rcc-main-vertical-line"></div>
 
           {/* Child comments */}
           {commentsChilds?.map((childComment, index) => {
@@ -117,13 +104,13 @@ export const RenderCommentChilds = ({
             const hasMore = total > commentsChilds.length;
 
             return (
-              <div key={childComment._id} className="relative">
+              <div key={childComment._id} className="rcc-child-comment">
                 {/* Horizontal connector line */}
-                <div className="absolute w-8 h-0.5 bg-gradient-to-r from-blue-200/60 to-blue-300/80 left-[23px] top-6"></div>
-                <div className="absolute w-2 h-2 bg-blue-300/80 rounded-full left-[28px] top-[21px] border-2 border-white shadow-sm"></div>
+                <div className="rcc-horizontal-connector"></div>
+                <div className="rcc-connector-dot"></div>
 
                 {/* Comment container */}
-                <div className="pl-16">
+                <div className="rcc-comment-container">
                   <CommentItem
                     comment={childComment}
                     onToggleReplication={onToggleReplication}
@@ -149,16 +136,16 @@ export const RenderCommentChilds = ({
 
                   {/* Reply form */}
                   {childComment?.showReplication && (
-                    <div className="mt-3 relative pl-16 mb-3">
+                    <div className="rcc-reply-form-wrapper">
                       <div
-                        className={`absolute w-0.5 bg-gradient-to-b ${
+                        className={`rcc-reply-vertical-line ${
                           childComment.showChild
-                            ? "from-purple-300 via-blue-200 to-green-100"
-                            : "from-green-200 via-green-200 to-blue-100"
-                        } left-[23px] ${
+                            ? "rcc-reply-vertical-line--with-child"
+                            : "rcc-reply-vertical-line--no-child"
+                        } ${
                           childComment?.childs?.total > 0
-                            ? "h-12 -top-8"
-                            : "h-6 top-[-8px]"
+                            ? "rcc-reply-vertical-line--tall"
+                            : "rcc-reply-vertical-line--short"
                         }`}
                       ></div>
                       <ReplyForm
@@ -174,21 +161,21 @@ export const RenderCommentChilds = ({
           })}
 
           {/* Action buttons container */}
-          <div className="relative pl-16 mt-3 space-y-2">
+          <div className="rcc-actions-container">
             {/* Loading or Load more */}
             {isPending ? (
-              <div className="relative">
-                <div className="absolute w-6 h-0.5 bg-gradient-to-r from-blue-200/60 to-blue-300/80 left-[-40px] top-1/2 -translate-y-1/2"></div>
+              <div className="rcc-loading-section">
+                <div className="rcc-loading-connector"></div>
                 <LoadingSection />
               </div>
             ) : (
               total > commentsChilds?.length && (
-                <div className="relative">
-                  <div className="absolute w-6 h-0.5 bg-gradient-to-r from-blue-200/60 to-blue-300/80 left-[-40px] top-1/2 -translate-y-1/2"></div>
-                  <div className="absolute w-2 h-2 bg-blue-300/80 rounded-full left-[-37px] top-1/2 -translate-y-1/2 border-2 border-white shadow-sm"></div>
+                <div className="rcc-load-more-section">
+                  <div className="rcc-load-more-connector"></div>
+                  <div className="rcc-load-more-dot"></div>
                   <ActionButton onClick={handleLoadMore}>
                     <svg
-                      className="w-4 h-4"
+                      className="rcc-icon"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -207,12 +194,12 @@ export const RenderCommentChilds = ({
             )}
 
             {/* Collapse button */}
-            <div className="relative">
-              <div className="absolute w-6 h-0.5 bg-gradient-to-r from-blue-200/60 to-red-300/80 left-[-40px] top-1/2 -translate-y-1/2"></div>
-              <div className="absolute w-2 h-2 bg-red-300/80 rounded-full left-[-37px] top-1/2 -translate-y-1/2 border-2 border-white shadow-sm"></div>
+            <div className="rcc-collapse-section">
+              <div className="rcc-collapse-connector"></div>
+              <div className="rcc-collapse-dot"></div>
               <ActionButton onClick={handleShowCommentChild} variant="collapse">
                 <svg
-                  className="w-4 h-4"
+                  className="rcc-icon"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -231,13 +218,13 @@ export const RenderCommentChilds = ({
         </div>
       ) : (
         // Show all replies button
-        <div className="relative pl-16 mt-3">
-          <div className="absolute w-0.5 bg-gradient-to-b from-green-200 via-green-100 to-blue-50 left-[23px] top-[-8px] h-[calc(100%-10px)]"></div>
-          <div className="absolute w-6 h-0.5 bg-gradient-to-r from-blue-200/60 to-blue-300/80 left-[24px] top-1/2 -translate-y-1/2"></div>
-          <div className="absolute w-2 h-2 bg-blue-300/80 rounded-full left-[27px] top-1/2 -translate-y-1/2 border-2 border-white shadow-sm"></div>
+        <div className="rcc-collapsed">
+          <div className="rcc-collapsed-vertical-line"></div>
+          <div className="rcc-collapsed-connector"></div>
+          <div className="rcc-collapsed-dot"></div>
           <ActionButton onClick={handleShowCommentChild}>
             <svg
-              className="w-4 h-4"
+              className="rcc-icon"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

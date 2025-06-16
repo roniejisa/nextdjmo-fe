@@ -69,7 +69,6 @@ export const httpClient = async (
     }
     throw error;
   }
-
   // Kiểm tra nếu request đã bị abort sau khi fetch - tránh retry không cần thiết
   if (signal && signal.aborted) {
     throw new DOMException('Request aborted after fetch', 'AbortError');
@@ -81,14 +80,15 @@ export const httpClient = async (
     if (isRefreshing && refreshPromise) {
       try {
         const refreshResult = await refreshPromise;
-        if (refreshResult.success && refreshResult.newToken) {
+        console.log(refreshResult)
+        if (refreshResult && refreshResult) {
           console.log("Using refreshed token from concurrent request");
           // Retry với token mới từ concurrent refresh
           return await httpClient(
             url,
             {
               ...customHeaders,
-              Authorization: `Bearer ${refreshResult.newToken}`,
+              Authorization: `Bearer ${refreshResult}`,
             },
             body,
             method,
@@ -140,8 +140,7 @@ export const httpClient = async (
 
       try {
         const refreshResult = await refreshPromise;
-        
-        if (refreshResult.success && refreshResult.newToken) {
+        if (refreshResult) {
           console.log("Token refreshed successfully, retrying original request");
           
           // Retry request với token mới
@@ -149,7 +148,7 @@ export const httpClient = async (
             url,
             {
               ...customHeaders,
-              Authorization: `Bearer ${refreshResult.newToken}`,
+              Authorization: `Bearer ${refreshResult}`,
             },
             body,
             method,

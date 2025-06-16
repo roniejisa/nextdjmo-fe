@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext } from "react";
+import { createContext, useEffect } from "react";
 
 export const CommentContext = createContext();
 

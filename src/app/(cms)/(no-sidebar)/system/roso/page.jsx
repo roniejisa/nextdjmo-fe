@@ -8,7 +8,7 @@ import "./chat.css";
 import RosoProvider from "@/context/cms/RosoProvider";
 export const getModels = async () => {
   const token = await getToken();
-  const response = httpClient(
+  const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "get-models",
     {
       Authorization: `Bearer ${token}`,

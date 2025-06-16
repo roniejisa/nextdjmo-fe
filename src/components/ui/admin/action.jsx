@@ -1,5 +1,5 @@
 "use server";
-import { handleAuthRedirect } from "@/utils/action";
+import { clearTokensAndRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
 import { getRefreshToken, getToken } from "@/utils/server/utils";
 
@@ -15,7 +15,7 @@ export const handleLogout = async () => {
   );
 
   // Clear cookies
-  return handleAuthRedirect();
+  return clearTokensAndRedirect();
 };
 
 export const getMenu = async () => {

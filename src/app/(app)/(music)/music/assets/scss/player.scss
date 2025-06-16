@@ -1,14 +1,18 @@
-$mainColor: #f7a5be;
-$subColor: #000000;
-$subColorMain: #000000;
-$colorText: #f0eef8;
-$colorProcess: #fce9ef;
-$colorLineSpan: #f7a5be;
-$colorOpacity: #00000099;
-$karaokeColor: #f5c3d2;
-$backgroundMain: #ffdfe9;
+// Modern Neumorphism & Glassmorphism Color Palette
+$primaryColor: #3959e6; // Coral Red
+$secondaryColor: #5c17a1; // Teal
+$accentColor: #e849fa; // Sky Blue
+$backgroundColor: #f8fafc; // Light gray
+$surfaceColor: #ffffff; // White
+$textPrimary: #1e293b; // Dark slate
+$textSecondary: #64748b; // Slate
+$textMuted: #94a3b8; // Light slate
+$glassBg: rgba(255, 255, 255, 0.25);
+$glassBlur: blur(16px);
+$shadowLight: rgba(255, 255, 255, 0.8);
+$shadowDark: rgba(0, 0, 0, 0.1);
 
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @mixin screen($screen) {
   @media screen and (min-width: $screen) {
@@ -16,20 +20,45 @@ $backgroundMain: #ffdfe9;
   }
 }
 
-@mixin textGradient() {
-  background: linear-gradient(to bottom, $mainColor, $colorText);
+// Neumorphism mixins
+@mixin neumorphic($size: 8px, $inset: false) {
+  @if $inset {
+    box-shadow: inset #{$size} #{$size} #{$size * 2} $shadowDark,
+      inset #{-$size} #{-$size} #{$size * 2} $shadowLight;
+  } @else {
+    box-shadow: #{$size} #{$size} #{$size * 2} $shadowDark,
+      #{-$size} #{-$size} #{$size * 2} $shadowLight;
+  }
+}
+
+@mixin neumorphic-hover($size: 12px) {
+  box-shadow: #{$size} #{$size} #{$size * 2.5} rgba(0, 0, 0, 0.15),
+    #{-$size} #{-$size} #{$size * 2.5} $shadowLight;
+}
+
+// Glassmorphism mixins
+@mixin glassmorphic($opacity: 0.25, $blur: 16px) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur($blur);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@mixin textGradient($from: $primaryColor, $to: $secondaryColor) {
+  background: linear-gradient(135deg, $from, $to);
+  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 5px $mainColor);
 }
 
-@mixin backgroundGradient($radiant: to bottom) {
-  background: linear-gradient($radiant, $mainColor, $subColor);
-}
+@mixin buttonGradient($from: $primaryColor, $to: $secondaryColor) {
+  background: linear-gradient(135deg, $from, $to);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
 
-@mixin processIconGradient() {
-  background: white;
-  box-shadow: 2px 0 10px $subColor;
+  &:hover {
+    box-shadow: 0 8px 25px rgba($from, 0.3);
+  }
 }
 
 * {
@@ -37,18 +66,19 @@ $backgroundMain: #ffdfe9;
   margin: 0;
   box-sizing: border-box;
   outline: none;
-  user-select: none;
 }
 
 body {
-  font-family: Montserrat, sans-serif;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   display: flex;
   flex-direction: column;
-  background: black;
-  color: black;
+  background: linear-gradient(135deg, $backgroundColor 0%, #e2e8f0 100%);
+  color: $textPrimary;
+  min-height: 100vh;
+  gap: 16px;
 }
 
-//Header
+// Header
 body:has(.tab-control.show) {
   main {
     top: 50px;
@@ -56,25 +86,32 @@ body:has(.tab-control.show) {
 }
 
 header {
-  padding: 16px 10px;
+  padding: 20px;
+  @include glassmorphic(0.15, 20px);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  margin: 16px;
+  margin-bottom: 0;
+  border-radius: 24px;
+  @include neumorphic();
 
   @include screen(992px) {
-    padding: 18px 20px;
+    padding: 24px 32px;
   }
 
   .tab-control {
     position: fixed;
     z-index: 10000;
     order: 1;
-    left: 15px;
-    right: 15px;
+    left: 20px;
+    right: 20px;
     transform: translateY(-100%);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition-duration: 400ms;
-    transition-timing-function: ease-out;
-    transition-property: visibility, transform, opacity;
+    transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
 
     @include screen(992px) {
       opacity: 1;
@@ -83,10 +120,10 @@ header {
       transform: translateY(0%);
     }
 
-    top: 55px;
+    top: 80px;
 
     &.show {
-      transform: translateY(10px);
+      transform: translateY(20px);
       opacity: 1;
       visibility: visible;
       pointer-events: all;
@@ -103,18 +140,18 @@ header {
     }
 
     .tabs {
-      background: $backgroundMain;
+      @include glassmorphic(0.3, 24px);
+      @include neumorphic(6px);
       display: flex;
       justify-content: center;
-      border-radius: 25px;
-
-      padding: 6px;
+      border-radius: 20px;
+      padding: 8px;
       position: relative;
-      box-shadow: 0 0 6px $mainColor;
 
       button {
-        padding: 6px 10px;
+        padding: 12px 24px;
         width: 100%;
+        min-width: 120px;
 
         @include screen(992px) {
           width: 160px;
@@ -123,37 +160,50 @@ header {
         border: none;
         background: none;
         cursor: pointer;
-        border-radius: 25px;
-        font-weight: bold;
-        transform-origin: center;
-        transition: 0.4s ease;
-        transition-property: min-width, opacity, color;
+        border-radius: 16px;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         z-index: 2;
 
         span {
-          color: black;
+          color: $textSecondary;
           position: relative;
           z-index: 1;
+          transition: all 0.3s ease;
+        }
+
+        &:hover {
+          transform: translateY(-1px);
         }
 
         &.selected {
+          @include neumorphic(4px, true);
+
           span {
-            @include textGradient();
+            color: white;
+            font-weight: 600;
           }
         }
       }
 
       .menu-close {
         position: absolute;
-        top: 0;
-        right: 0;
+        top: 8px;
+        right: 8px;
         z-index: 9999;
-        padding: 10px;
+        padding: 12px;
         cursor: pointer;
+        border-radius: 50%;
+        transition: all 0.3s ease;
 
         @include screen(992px) {
           display: none;
+        }
+
+        &:hover {
+          @include neumorphic(4px);
         }
       }
 
@@ -161,18 +211,17 @@ header {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        border-radius: 25px;
+        border-radius: 16px;
         left: 0;
         z-index: 1;
-        height: calc(100% - 10px);
-        transition: left 0.4s ease;
-        z-index: 1;
-        animation: filterRotate 4s ease-in-out infinite alternate;
+        height: calc(100% - 16px);
+        transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        @include buttonGradient();
 
         span {
           position: absolute;
-          background: #000000eb;
-          border-radius: 25px;
+          @include glassmorphic(0.2, 8px);
+          border-radius: 16px;
           width: 100%;
           height: 100%;
           top: 50%;
@@ -188,15 +237,15 @@ header {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 24px;
   }
 
   .logo,
   .header-form {
-    flex-basis: 150px;
+    flex-basis: 200px;
 
     @include screen(992px) {
-      flex-basis: 200px;
+      flex-basis: 250px;
     }
   }
 
@@ -208,7 +257,7 @@ header {
     @include screen(992px) {
       flex: initial;
       order: initial;
-      flex-basis: 200px;
+      flex-basis: 250px;
     }
 
     a {
@@ -220,33 +269,36 @@ header {
     img {
       max-width: 200px;
       height: auto;
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1));
     }
   }
 
   .header-form {
     order: 3;
-    flex-basis: 100px;
+    flex-basis: 150px;
 
     @include screen(992px) {
       order: initial;
-      flex-basis: 200px;
+      flex-basis: 250px;
     }
 
     .form-search {
       position: relative;
       display: flex;
-      border-radius: 25px;
-      box-shadow: 0 0 6px $mainColor;
+      border-radius: 20px;
+      @include neumorphic(6px, true);
+      @include glassmorphic(0.1, 12px);
+      overflow: hidden;
 
       input {
         &::placeholder {
-          color: $backgroundMain;
+          color: $textMuted;
         }
 
-        padding: 8px 10px;
+        padding: 12px 16px;
 
         @include screen(992px) {
-          padding: 12px 40px 12px 20px;
+          padding: 16px 50px 16px 20px;
         }
 
         border: none;
@@ -254,25 +306,33 @@ header {
         height: 100%;
         width: 100%;
         flex: 1;
-        font-weight: bold;
-        color: $mainColor;
+        font-weight: 500;
+        color: $textPrimary;
         background: transparent;
+        font-size: 14px;
       }
 
       button {
         cursor: pointer;
         border: none;
         background: none;
-        color: $mainColor;
+        color: $primaryColor;
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        right: 6px;
-        padding: 10px;
+        right: 8px;
+        padding: 12px;
+        border-radius: 50%;
+        transition: all 0.3s ease;
         display: none;
 
         @include screen(992px) {
           display: initial;
+        }
+
+        &:hover {
+          @include neumorphic(4px);
+          color: $secondaryColor;
         }
 
         i {
@@ -285,29 +345,41 @@ header {
   .menu-open {
     border: none;
     @include textGradient();
-    flex-basis: 80px;
-    font-size: 28px;
+    flex-basis: 60px;
+    font-size: 24px;
     cursor: pointer;
-    padding-right: 20px;
+    padding: 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
 
     @include screen(992px) {
       display: none;
     }
+
+    &:hover {
+      @include neumorphic(6px);
+    }
   }
 }
 
-// Player
+// Player Dashboard
 .player-dashboard {
-  padding: 12px 1vw;
+  padding-left: 2vw;
+  padding-right: 2vw;
+  padding-top: 28px;
+  padding-bottom: 20px;
   display: flex;
   justify-content: space-between;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  max-height: 100px;
+  gap: 16px;
+  max-height: 160px;
   position: relative;
   z-index: 9999;
-  background: $subColor;
+  @include glassmorphic(0.2, 24px);
+  @include neumorphic(8px);
+  margin: 0 16px 16px;
+  border-radius: 24px;
 
   .toolbar {
     position: relative;
@@ -331,16 +403,15 @@ header {
     }
 
     .left {
-      //style mobile
       position: absolute;
-      top: -105px;
-      left: -1vw;
+      top: -120px;
+      left: -2vw;
       width: 70%;
-      padding-top: 10px;
-      padding-left: 15px;
-      background: black;
+      padding: 16px;
+      @include glassmorphic(0.3, 20px);
+      @include neumorphic(8px);
+      border-radius: 20px;
 
-      //Style 992px
       @include screen(992px) {
         position: initial;
         bottom: initial;
@@ -348,48 +419,58 @@ header {
         left: initial;
         padding: initial;
         background: initial;
+        backdrop-filter: none;
+        box-shadow: none;
+        border: none;
       }
 
       .info-current {
         display: flex;
-        gap: 10px;
+        gap: 12px;
+        align-items: center;
       }
 
       .title {
         @include textGradient();
-        font-size: 14px;
+        font-size: 16px;
+        font-weight: 600;
       }
 
       .author {
-        color: $colorText;
-        font-size: 12px;
+        color: $textSecondary;
+        font-size: 14px;
+        font-weight: 500;
       }
 
       img {
-        height: 42px;
-        width: 42px;
+        height: 48px;
+        width: 48px;
         object-fit: cover;
-        border-radius: 5px;
-        box-shadow: 0 0 2px $mainColor;
+        border-radius: 12px;
+        @include neumorphic(4px);
       }
     }
 
     .right {
       position: absolute;
-      bottom: 95px;
-      gap: 6px;
-      background: black;
-      padding-top: 10px;
-      padding-right: 15px;
-      right: -1vw;
-      width: 35%;
+      bottom: 110px;
+      gap: 8px;
+      @include glassmorphic(0.3, 20px);
+      @include neumorphic(8px);
+      padding: 16px;
+      border-radius: 20px;
+      right: -2vw;
+      width: 40%;
 
       @include screen(992px) {
         position: initial;
         width: initial;
         bottom: initial;
-        padding-top: initial;
-        padding-right: initial;
+        padding: initial;
+        background: initial;
+        backdrop-filter: none;
+        box-shadow: none;
+        border: none;
       }
 
       align-items: center;
@@ -397,12 +478,12 @@ header {
       justify-content: flex-end;
 
       @include screen(992px) {
-        gap: 30px;
+        gap: 24px;
       }
 
       i {
         @include screen(1024px) {
-          font-size: 24px;
+          font-size: 20px;
         }
       }
 
@@ -411,17 +492,34 @@ header {
         display: flex;
         position: relative;
         align-items: center;
-        width: 30px;
-        height: 30px;
+        width: 40px;
+        height: 40px;
         justify-content: center;
+        border-radius: 50%;
+        @include neumorphic(4px);
+        transition: all 0.3s ease;
+
+        &:hover {
+          @include neumorphic-hover(6px);
+        }
 
         button {
           background: none;
           @include textGradient();
-
           border: none;
-          font-size: 20px;
+          font-size: 18px;
           cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        &.active {
+          @include neumorphic(4px, true);
+          @include buttonGradient();
+
+          button {
+            color: white;
+            -webkit-text-fill-color: white;
+          }
         }
       }
 
@@ -436,45 +534,50 @@ header {
           justify-content: center;
           align-items: center;
           cursor: pointer;
-          width: 30px;
-          height: 30px;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          @include neumorphic(4px);
           @include textGradient();
+          transition: all 0.3s ease;
+
+          &:hover {
+            @include neumorphic-hover(6px);
+          }
         }
 
         .volume-background {
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
-          bottom: 50px;
-          background: $subColorMain;
-          border-radius: 5px;
-          height: 100px;
-          padding: 10px;
-          width: 50px;
+          bottom: 60px;
+          @include glassmorphic(0.4, 24px);
+          @include neumorphic(8px);
+          border-radius: 20px;
+          height: 120px;
+          padding: 16px;
+          width: 60px;
           opacity: 0;
           pointer-events: none;
           visibility: hidden;
-          transition: 0.3s ease-out;
-          transition-property: opacity, visibility;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-          &::before {
+          &::before,
+          &::after {
             content: "";
-            top: -30px;
             width: 100%;
-            height: 30px;
+            height: 20px;
             left: 0;
             position: absolute;
             background: transparent;
           }
 
+          &::before {
+            top: -20px;
+          }
+
           &::after {
-            content: "";
-            bottom: -24px;
-            width: 100%;
-            height: 30px;
-            left: 0;
-            position: absolute;
-            background: transparent;
+            bottom: -20px;
           }
 
           &.show,
@@ -488,10 +591,10 @@ header {
 
           .volume-process {
             position: absolute;
-            top: 10px;
-            height: calc(100% - 20px);
-            width: 5px;
-            background: $colorProcess;
+            top: 16px;
+            height: calc(100% - 32px);
+            width: 6px;
+            @include neumorphic(3px, true);
             left: 50%;
             border-radius: 10px;
             transform: translateX(-50%);
@@ -500,34 +603,36 @@ header {
             .process-main {
               position: absolute;
               bottom: 0;
-              width: 5px;
+              width: 6px;
               height: 100%;
               border-radius: 10px;
-              background: $mainColor;
+              @include buttonGradient();
 
               .process-icon {
                 position: absolute;
                 top: 0;
-                width: 14px;
-                height: 14px;
+                width: 16px;
+                height: 16px;
                 border-radius: 50%;
-                @include processIconGradient();
+                @include neumorphic(4px);
+                background: $surfaceColor;
                 left: 50%;
                 transform: translateX(-50%) translateY(-50%);
               }
 
               .process-percent {
                 position: absolute;
-                right: 36px;
-                font-size: 14px;
-                font-weight: bold;
+                right: 40px;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 6px 10px;
+                @include glassmorphic(0.3, 12px);
+                @include neumorphic(4px);
                 @include textGradient();
-                padding: 5px 2px;
-                border-radius: 50%;
-                font-weight: bold;
+                border-radius: 12px;
+                top: -8px;
                 user-select: none;
                 pointer-events: none;
-                top: -10px;
               }
             }
           }
@@ -552,9 +657,10 @@ header {
 
       display: flex;
       justify-content: center;
+      gap: 16px;
 
       @include screen(320px) {
-        gap: 20px;
+        gap: 24px;
       }
 
       button {
@@ -563,23 +669,38 @@ header {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        @include neumorphic(6px);
+        font-size: 20px;
 
         @include screen(400px) {
           font-size: 24px;
         }
 
-        width: 32px;
-        cursor: pointer;
-        transition: transform 0.3s ease-out;
-        @include textGradient();
+        &:hover {
+          @include neumorphic-hover(8px);
+        }
 
         &:active {
-          transform: scale(1.3);
+          transform: translateY(-1px) scale(0.95);
         }
 
         &.big {
-          margin: 0 20px;
-          font-size: 36px;
+          width: 64px;
+          height: 64px;
+          font-size: 28px;
+          @include buttonGradient();
+          color: white;
+          -webkit-text-fill-color: white;
+
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba($primaryColor, 0.4);
+          }
         }
       }
     }
@@ -589,7 +710,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
     width: 100%;
 
     .time-start,
@@ -597,72 +718,82 @@ header {
       user-select: none;
       pointer-events: none;
       @include textGradient();
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 14px;
 
       @include screen(992px) {
-        font-size: 18px;
+        font-size: 16px;
       }
     }
+
     .process-inner {
       position: relative;
-      width: calc(100% - 16px);
       height: 100%;
       z-index: 20000;
     }
+
     .process {
       height: 8px;
       display: block;
-      background: $colorProcess;
+      @include neumorphic(4px, true);
       cursor: pointer;
       position: absolute;
-      top: 0;
+      top: 16px;
       left: 50%;
       transform: translateX(-50%);
-      width: 100%;
+      width: calc(100% - 75px);
       z-index: 10000;
+      border-radius: 20px;
 
       &-main {
         position: absolute;
         left: 0;
         top: 50%;
         transform: translateY(-50%);
-
         width: 0%;
-        background: $mainColor;
+        @include buttonGradient();
         height: 8px;
+        border-radius: 20px;
+        transition: width 0.1s ease;
       }
 
       &-icon {
-        height: 16px;
-        width: 16px;
+        height: 20px;
+        width: 20px;
         position: absolute;
-        @include processIconGradient();
+        @include neumorphic(4px);
+        background: $surfaceColor;
         border-radius: 50%;
         top: 50%;
         right: 0;
-        transform: translateX(100%) translateY(-50%);
+        transform: translateX(50%) translateY(-50%);
+        cursor: grab;
+
+        &:active {
+          cursor: grabbing;
+        }
       }
 
       &-timer {
         position: absolute;
-        bottom: 20px;
+        bottom: 24px;
         left: 0px;
         transform: translateX(-50%);
         font-size: 12px;
-        color: $subColor;
-        font-weight: bold;
-        background: $mainColor;
-        padding: 4px 8px;
+        color: $textPrimary;
+        font-weight: 600;
+        @include glassmorphic(0.4, 16px);
+        @include neumorphic(4px);
+        padding: 6px 12px;
         display: flex;
-        border-radius: 5px;
+        border-radius: 12px;
         align-items: center;
         justify-content: center;
         opacity: 0;
-        visibility: visible;
+        visibility: hidden;
         pointer-events: none;
         user-select: none;
-        transition: 0.3s ease-out;
-        transition-property: visibility, opacity;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 999999;
 
         &.show {
@@ -677,6 +808,10 @@ header {
 main {
   position: relative;
   overflow: hidden;
+  flex: 1;
+  @include neumorphic();
+  margin: 0 16px;
+  border-radius: 24px;
 }
 
 .player-screen {
@@ -695,11 +830,10 @@ main {
       left: 0;
       top: 100%;
       opacity: 0;
-      transition-property: opacity, visibility, top;
+      transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
       visibility: hidden;
       pointer-events: none;
       user-select: none;
-      transition: 400ms ease-out;
 
       &.show {
         user-select: all;
@@ -714,29 +848,36 @@ main {
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
-      color: white;
-      padding: 0 3vw;
-      margin-bottom: 20px;
+      padding: 0 24px;
+      margin-bottom: 24px;
 
       h2 {
         @include textGradient();
-        font-size: 20px;
+        font-size: 24px;
+        font-weight: 700;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
 
         i {
-          font-size: 16px;
-          margin-right: 5px;
+          font-size: 20px;
+          margin-right: 8px;
         }
       }
 
       button {
         border: none;
-        padding: 5px;
+        padding: 8px 16px;
         background: none;
         @include textGradient();
         cursor: pointer;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+
+        &:hover {
+          @include neumorphic(4px);
+        }
       }
     }
 
@@ -754,7 +895,7 @@ main {
       }
 
       &::-webkit-scrollbar-thumb {
-        background: linear-gradient(to bottom, transparent, $mainColor);
+        background: linear-gradient(to bottom, transparent, $primaryColor);
         border-radius: 10px;
       }
 
@@ -764,13 +905,15 @@ main {
 
       position: absolute;
       width: 100%;
-      padding-bottom: 10px;
+      padding: 0 16px 16px;
       overflow: auto;
       display: grid;
-      grid-template-columns: repeat(auto-fit, 160px);
-      max-height: calc(100vh - 300px);
+      grid-template-columns: repeat(auto-fit, 180px);
+      max-height: calc(100vh - 320px);
+
       @include screen(992px) {
-        grid-template-columns: repeat(auto-fit, 210px);
+        grid-template-columns: repeat(auto-fit, 220px);
+        padding: 0 24px 24px;
       }
 
       justify-content: center;
@@ -778,38 +921,38 @@ main {
       grid-gap: 20px;
 
       .song-item {
-        flex-basis: calc(100% / 12 * 3 - 20px);
         position: relative;
         font-size: 0;
         cursor: pointer;
-        border-radius: 25px;
-        transition: box-shadow 400ms ease-out;
+        border-radius: 20px;
+        transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+        @include neumorphic(8px);
+        overflow: hidden;
 
         &:hover {
-          box-shadow: 1px 1px 10px $mainColor;
+          @include neumorphic-hover(12px);
         }
 
         img {
           width: 100%;
-          border-radius: 10px;
+          border-radius: 16px;
         }
 
         .image-placeholder {
           width: 100%;
           height: 100%;
-          min-height: 210px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 8px;
+          min-height: 220px;
+          @include buttonGradient($accentColor, $primaryColor);
+          border-radius: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
-          font-size: 28px;
+          font-size: 32px;
           font-weight: bold;
           position: relative;
           overflow: hidden;
 
-          // Music icon animation
           > span:first-child {
             animation: pulse 2s infinite;
           }
@@ -817,36 +960,40 @@ main {
 
         .duration-overlay {
           position: absolute;
-          bottom: 8px;
-          right: 8px;
-          background: rgba(0, 0, 0, 0.8);
-          color: white;
+          top: 12px;
+          right: 12px;
+          @include glassmorphic(0.4, 12px);
+          @include neumorphic(3px);
+          color: $textPrimary;
           font-size: 12px;
           font-weight: 600;
-          padding: 4px 6px;
-          border-radius: 4px;
+          padding: 6px 10px;
+          border-radius: 8px;
+          z-index: 1;
           font-family: "SF Mono", "Monaco", monospace;
         }
 
         .info {
-          background: #00000090;
+          @include glassmorphic(0.3, 16px);
           font-size: initial;
           position: absolute;
           bottom: 0;
           left: 0;
-          padding: 10px;
+          padding: 16px;
           width: 100%;
-          border-bottom-left-radius: 10px;
-          border-bottom-right-radius: 10px;
+          border-bottom-left-radius: 16px;
+          border-bottom-right-radius: 16px;
 
           h3 {
-            font-size: 14px;
-            height: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            height: 22px;
             display: -webkit-box;
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
             @include textGradient();
+            margin-bottom: 4px;
           }
 
           .author {
@@ -854,30 +1001,19 @@ main {
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            color: $colorText;
-            font-size: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
           }
         }
-      }
-    }
-
-    &:has(.home-container.show) {
-      .search {
-        top: 100%;
-      }
-    }
-
-    &:has(.songs.show) {
-      .search {
-        top: 100%;
       }
     }
   }
 
   .main {
     align-items: center;
-    gap: 30px;
-    padding: 20px 0;
+    gap: 40px;
+    padding: 32px 0;
   }
 
   .screen-left,
@@ -894,8 +1030,7 @@ main {
     flex-direction: column;
     justify-content: center;
     top: 100%;
-    transition-property: top, opacity, visibility;
-    transition-duration: 300ms;
+    transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
 
     &.show {
       opacity: 1;
@@ -910,41 +1045,45 @@ main {
   }
 }
 
-//End: Player
+// Disc Animation
 .disc-overlay {
   display: flex;
   justify-content: center;
-  padding: 4px;
+  padding: 8px;
 }
 
 .disc {
   position: relative;
   border-radius: 50%;
   overflow: hidden;
-  width: 30vh;
-  height: 30vh;
+  width: 35vh;
+  height: 35vh;
 
   @include screen(1024px) {
-    width: 50vh;
-    height: 50vh;
+    width: 45vh;
+    height: 45vh;
   }
 
-  filter: drop-shadow(1px 1px 2px $mainColor);
+  @include neumorphic(12px);
+  transition: all 0.3s ease;
 
   &::before {
     content: "";
-    width: 5vh;
-    height: 5vh;
-    border: 2vh solid $subColor;
+    width: 6vh;
+    height: 6vh;
+    border: 3vh solid $surfaceColor;
     top: 50%;
     left: 50%;
     position: absolute;
     border-radius: 50%;
     transform: translateX(-50%) translateY(-50%);
     z-index: 1;
+    @include neumorphic(6px);
+
     @include screen(1024px) {
-      width: 10vh;
-      height: 10vh;
+      width: 12vh;
+      height: 12vh;
+      border-width: 4vh;
     }
   }
 
@@ -952,9 +1091,8 @@ main {
     content: "";
     border-style: solid;
     border-color: transparent;
-    border-width: 15vh;
+    border-width: 17.5vh;
     position: absolute;
-
     border-image-source: var(--url-image);
     border-image-repeat: stretch;
     border-image-slice: 41%;
@@ -969,60 +1107,75 @@ main {
     }
   }
 }
+// Modern Neumorphism & Glassmorphism Music Player Styles
 
 .song-info {
   display: flex;
   justify-content: center;
   align-items: baseline;
   gap: 20px;
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 24px;
 
   h1 {
-    font-size: 16px;
+    font-size: 18px;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
 
     @include screen(320px) {
-      font-size: 22px;
+      font-size: 24px;
     }
 
     @include screen(575px) {
-      font-size: 32px;
+      font-size: 36px;
     }
 
     text-align: center;
     text-transform: capitalize;
-    line-height: 1;
-    @include textGradient();
+    line-height: 1.2;
+    @include textGradient($primaryColor, $accentColor);
+    letter-spacing: -0.02em;
   }
 }
 
 .screen-right {
-  padding: 0 10px;
-  background: linear-gradient(to bottom, $subColor, transparent);
-  box-shadow: 0 0 40px $colorOpacity;
-  border-radius: 4px;
+  padding: 0;
+  @include glassmorphic(0.2, 24px);
+  @include neumorphic(8px);
+  border-radius: 20px;
   overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
   h2 {
     font-size: 16px;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
 
     @include screen(1024px) {
       font-size: 20px;
     }
 
-    color: white;
-    font-weight: bold;
-    @include backgroundGradient(180deg);
+    color: $textPrimary;
+    @include textGradient($primaryColor, $secondaryColor);
     text-transform: uppercase;
-    padding: 10px 40px;
+    padding: 16px 24px;
     text-align: center;
+    letter-spacing: 0.05em;
+    background: $glassBg;
+    backdrop-filter: $glassBlur;
+    margin: 0;
   }
 
   .playlist {
     position: relative;
     overflow: auto;
+    max-height: 400px;
+    padding: 8px;
 
     &::-webkit-scrollbar {
       background: transparent;
-      width: 8px;
+      width: 6px;
     }
 
     &::-webkit-scrollbar-button {
@@ -1032,29 +1185,50 @@ main {
     }
 
     &::-webkit-scrollbar-thumb {
-      background: linear-gradient(to bottom, transparent, $mainColor);
+      background: linear-gradient(180deg, $primaryColor, $accentColor);
       border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     &::-webkit-scrollbar-track {
-      background: transparent;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
     }
   }
 
   .song {
-    padding: 10px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
     cursor: pointer;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    background: $surfaceColor;
+    @include neumorphic(4px);
+    transition: all 0.3s ease;
+    font-family: "Inter", sans-serif;
+
+    &:hover {
+      @include neumorphic-hover(6px);
+      background: rgba(255, 255, 255, 0.9);
+    }
 
     &.playing {
-      @include backgroundGradient(120deg);
+      @include glassmorphic(0.3, 16px);
+      @include neumorphic(4px, true);
+      background: linear-gradient(
+        135deg,
+        rgba($primaryColor, 0.1),
+        rgba($accentColor, 0.1)
+      );
+      border: 1px solid rgba($primaryColor, 0.2);
 
       .info {
         h3 {
-          text-shadow: 0 0 0px $colorText;
-          // filter: drop-shadow(0 0 1px $mainColor);
+          @include textGradient($primaryColor, $secondaryColor);
+          text-shadow: none;
+          filter: none;
         }
       }
 
@@ -1064,12 +1238,9 @@ main {
           z-index: 10;
 
           span {
-            background-image: linear-gradient(
-              to top,
-              $colorText,
-              $colorLineSpan
-            );
+            background: linear-gradient(180deg, $primaryColor, $accentColor);
             z-index: 10;
+            box-shadow: 0 0 8px rgba($primaryColor, 0.4);
           }
         }
 
@@ -1080,7 +1251,8 @@ main {
           left: 0;
           width: 100%;
           height: 100%;
-          background: $colorOpacity;
+          background: rgba($primaryColor, 0.1);
+          border-radius: 8px;
         }
       }
     }
@@ -1088,12 +1260,14 @@ main {
     .image {
       position: relative;
       font-size: 0;
-      box-shadow: 0 0 10px $mainColor;
+      border-radius: 8px;
+      overflow: hidden;
+      @include neumorphic(3px);
 
       .play-line {
         display: none;
         position: absolute;
-        bottom: 5px;
+        bottom: 6px;
         left: 50%;
         transform: translate(-50%);
       }
@@ -1101,13 +1275,17 @@ main {
 
     img {
       width: auto;
-      height: 28px;
+      height: 32px;
+      border-radius: 8px;
     }
 
     .info {
       h3 {
-        font-size: 18px;
-        @include textGradient();
+        font-size: 16px;
+        font-weight: 500;
+        color: $textPrimary;
+        margin: 0;
+        line-height: 1.4;
       }
     }
   }
@@ -1116,21 +1294,44 @@ main {
 .play-line {
   display: flex;
   gap: 2px;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: flex-end;
   overflow: hidden;
+  height: 12px;
 
   span {
-    background: linear-gradient(to top, $colorText, $colorLineSpan);
+    background: linear-gradient(180deg, $primaryColor, $accentColor);
     display: block;
     height: 0px;
     width: 2px;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-radius: 1px 1px 0 0;
     overflow: hidden;
     position: relative;
     z-index: 10;
-    box-shadow: 0 -1px 3px $colorLineSpan;
+    box-shadow: 0 0 4px rgba($primaryColor, 0.3);
+    animation: musicBars 1.2s ease-in-out infinite alternate;
+
+    &:nth-child(2) {
+      animation-delay: 0.1s;
+    }
+    &:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+    &:nth-child(4) {
+      animation-delay: 0.3s;
+    }
+    &:nth-child(5) {
+      animation-delay: 0.4s;
+    }
+  }
+}
+
+@keyframes musicBars {
+  0% {
+    height: 2px;
+  }
+  100% {
+    height: 12px;
   }
 }
 
@@ -1138,20 +1339,25 @@ main {
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center; // Thêm này để center theo chiều dọc
-  padding: 15px;
+  align-items: center;
+  padding: 20px;
 
   @include screen(992px) {
-    padding: 30px;
+    padding: 40px;
   }
 
   z-index: 9999;
-  background: $karaokeColor;
+  background: linear-gradient(
+    135deg,
+    $backgroundColor,
+    rgba($primaryColor, 0.05)
+  );
+  @include glassmorphic(0.95, 24px);
   position: absolute;
   width: 100%;
   left: 0;
   top: 100%;
-  transition: top 400ms;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 
   &.show {
     top: 0;
@@ -1160,34 +1366,35 @@ main {
   .karaoke-content {
     display: flex;
     flex-direction: column;
-    gap: 30px;
-    width: 100%; // Đảm bảo content chiếm full width
-    max-width: 1200px; // Giới hạn max-width để không quá rộng
-    text-align: center; // Center text trong content
+    gap: 32px;
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
 
     .words {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       flex-wrap: wrap;
-      justify-content: center; // Center các từ
+      justify-content: center;
 
       + .words {
-        margin-top: 20px;
+        margin-top: 24px;
       }
     }
 
     .word {
-      color: black;
+      color: $textPrimary;
       position: relative;
-      font-size: 32px;
-      font-weight: bold;
+      font-size: 28px;
+      font-weight: 600;
+      font-family: "Inter", sans-serif;
 
       @include screen(992px) {
+        font-size: 36px;
         white-space: nowrap;
       }
 
-      text-shadow: 1px 1px 3px white, 1.2px 1.2px 3px white,
-        1.3px 1.3px 3px white, 1.4px 1.4px 3px white, 1.5px 1.5px 3px white;
+      text-shadow: 0 2px 8px rgba(255, 255, 255, 0.8);
 
       span {
         overflow: hidden;
@@ -1196,10 +1403,8 @@ main {
         top: 0;
         left: 0;
         width: 0%;
-        color: #2026da;
-        text-shadow: 1px 1px 3px white, 1.1px 1.1px 3px white,
-          1.2px 1.2px 3px white, 1.3px 1.3px 3px white, 1.4px 1.4px 3px white,
-          1.5px 1.5px 3px white;
+        @include textGradient($primaryColor, $accentColor);
+        text-shadow: 0 2px 8px rgba($primaryColor, 0.3);
       }
     }
 
@@ -1210,7 +1415,7 @@ main {
       align-items: center;
       justify-content: center;
       overflow-y: auto;
-      padding: 20px;
+      padding: 24px;
     }
 
     .lyrics-content {
@@ -1222,17 +1427,28 @@ main {
 
     .lyric-line {
       font-size: 1.5rem;
+      font-family: "Inter", sans-serif;
+      font-weight: 400;
       line-height: 2;
-      margin: 10px 0;
-      opacity: 0.9;
-      transition: opacity 0.3s ease;
+      margin: 12px 0;
+      color: $textSecondary;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+
+      &:hover {
+        opacity: 1;
+        color: $textPrimary;
+        transform: scale(1.02);
+      }
+
+      &.active {
+        @include textGradient($primaryColor, $accentColor);
+        font-weight: 500;
+        opacity: 1;
+      }
     }
 
-    .lyric-line:hover {
-      opacity: 1;
-    }
-
-    @media (max-width: 768px) {
+    @include screen(768px) {
       .lyric-line {
         font-size: 1.2rem;
         line-height: 1.8;
@@ -1242,13 +1458,28 @@ main {
 
   .karaoke-action {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 20px;
+    right: 20px;
+
     .get-link {
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 4px;
+      gap: 8px;
+      padding: 10px 16px;
+      @include glassmorphic(0.2, 16px);
+      @include neumorphic(4px);
+      border-radius: 12px;
+      color: $textPrimary;
+      text-decoration: none;
+      font-family: "Inter", sans-serif;
+      font-weight: 500;
+      transition: all 0.3s ease;
+
+      &:hover {
+        @include neumorphic-hover(6px);
+        @include textGradient($primaryColor, $accentColor);
+      }
     }
   }
 }
@@ -1262,46 +1493,44 @@ main {
 [data-title] {
   position: relative;
   height: 42px !important;
-
   .title-show {
     position: absolute;
-    padding: 5px 10px;
-    background: black;
-    font-size: 16px;
+    padding: 8px 12px;
+    @include glassmorphic(0.9, 16px);
+    font-size: 14px;
+    font-family: "Inter", sans-serif;
+    font-weight: 500;
     white-space: nowrap;
-    color: white !important;
-    top: -100%;
-    -webkit-text-fill-color: initial;
+    top: -120%;
     left: 50%;
-    border-radius: 5px;
+    border-radius: 8px;
     transform: translateX(-50%);
-    box-shadow: initial;
-    filter: initial;
+    @include neumorphic(4px);
+    @include buttonGradient();
+
+    z-index: 1000;
   }
 }
 
 .active {
   position: relative;
-  filter: drop-shadow(0 0 2px $mainColor) !important;
-  background: initial !important;
-  background-clip: initial !important;
-  -webkit-text-fill-color: initial !important;
+  filter: drop-shadow(0 0 8px rgba($primaryColor, 0.3)) !important;
 
   &::before {
-    content: ".";
-    height: 5px;
-    width: 5px;
+    content: "";
+    height: 6px;
+    width: 6px;
     border-radius: 50%;
-    bottom: calc(100% - 2px);
+    bottom: calc(100% + 4px);
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    background: $mainColor;
-    -webkit-text-fill-color: initial;
+    background: linear-gradient(135deg, $primaryColor, $accentColor);
+    box-shadow: 0 0 8px rgba($primaryColor, 0.4);
   }
 
   i {
-    color: $mainColor;
+    @include textGradient($primaryColor, $accentColor);
   }
 }
 
@@ -1310,26 +1539,14 @@ footer {
   bottom: 0;
   left: 0;
   width: 100%;
+  @include glassmorphic(0.9, 24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 
   @include screen(992px) {
-    padding-top: 20px;
-    position: initial;
-    bottom: initial;
-    left: initial;
-  }
-}
-
-@keyframes filterRotate {
-  0% {
-    filter: hue-rotate(360deg);
-  }
-
-  50% {
-    filter: hue-rotate(0deg);
-  }
-
-  100% {
-    filter: hue-rotate(360deg);
+    position: static;
+    background: transparent;
+    backdrop-filter: none;
+    border-top: none;
   }
 }
 
@@ -1341,16 +1558,15 @@ footer {
   transform: translateX(-50%);
   width: 50px;
   height: 50px;
-  border: 5px solid $mainColor;
-  border-top-color: transparent;
-  border-bottom-color: transparent;
-  filter: drop-shadow(0 0 5px $mainColor);
-  animation: spin 1s infinite ease-out;
+  border: 3px solid transparent;
+  border-top: 3px solid $primaryColor;
+  border-bottom: 3px solid $accentColor;
+  box-shadow: 0 0 16px rgba($primaryColor, 0.3);
+  animation: spin 1s infinite linear, colorShift 2s infinite ease-in-out;
   z-index: 10;
   opacity: 0;
   visibility: hidden;
-  user-select: none;
-  transition-property: visibility, opacity;
+  transition: all 0.3s ease;
 
   &.show {
     opacity: 1;
@@ -1360,10 +1576,21 @@ footer {
 
 @keyframes spin {
   from {
-    transform: rotate(0deg);
+    transform: translateX(-50%) rotate(0deg);
   }
-
   to {
-    transform: rotate(360deg);
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+@keyframes colorShift {
+  0%,
+  100% {
+    border-top-color: $primaryColor;
+    border-bottom-color: $accentColor;
+  }
+  50% {
+    border-top-color: $accentColor;
+    border-bottom-color: $secondaryColor;
   }
 }

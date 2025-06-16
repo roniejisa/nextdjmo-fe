@@ -16,7 +16,7 @@ export const getSizeVolume = (percent) => {
 
 const Volume = ({ onVolumeChange }) => {
   const { audioKaraokeElRef, audioElRef } = useMusicContext();
-  
+
   // DOM refs
   const volumeRef = useRef(null);
   const volumeBackgroundRef = useRef(null);
@@ -32,8 +32,6 @@ const Volume = ({ onVolumeChange }) => {
   // Refs for internal tracking
   const isDraggingRef = useRef(false);
   const previousVolumeRef = useRef(50);
-  const dragStartYRef = useRef(0);
-  const dragStartHeightRef = useRef(0);
 
   // Update DOM elements directly
   const updateVolumeDisplay = useCallback((newVolume) => {
@@ -46,41 +44,48 @@ const Volume = ({ onVolumeChange }) => {
   }, []);
 
   // Update audio volume
-  const updateAudioVolume = useCallback((newVolume) => {
-    const volumeValue = getSizeVolume(newVolume);
+  const updateAudioVolume = useCallback(
+    (newVolume) => {
+      const volumeValue = getSizeVolume(newVolume);
 
-    if (audioElRef?.current) {
-      audioElRef.current.volume = volumeValue;
-    }
-    if (audioKaraokeElRef?.current) {
-      audioKaraokeElRef.current.volume = volumeValue;
-    }
+      if (audioElRef?.current) {
+        audioElRef.current.volume = volumeValue;
+      }
+      if (audioKaraokeElRef?.current) {
+        audioKaraokeElRef.current.volume = volumeValue;
+      }
 
-    if (onVolumeChange) {
-      onVolumeChange(newVolume);
-    }
-  }, [audioKaraokeElRef, audioElRef, onVolumeChange]);
+      if (onVolumeChange) {
+        onVolumeChange(newVolume);
+      }
+    },
+    [audioKaraokeElRef, audioElRef, onVolumeChange]
+  );
 
   // Handle volume change
-  const handleVolumeChange = useCallback((newVolume) => {
-    const checkedVolume = checkPercent(newVolume);
-    
-    // Update React state
-    setVolume(checkedVolume);
+  const handleVolumeChange = useCallback(
+    (newVolume) => {
+      const checkedVolume = checkPercent(newVolume);
 
-    if (checkedVolume > 0) {
-      setIsMuted(false);
-      previousVolumeRef.current = checkedVolume;
-    }
+      // Update React state
+      setVolume(checkedVolume);
 
-    updateVolumeDisplay(checkedVolume);
-    updateAudioVolume(checkedVolume);
-  }, [updateVolumeDisplay, updateAudioVolume]);
+      if (checkedVolume > 0) {
+        setIsMuted(false);
+        previousVolumeRef.current = checkedVolume;
+      }
+
+      updateVolumeDisplay(checkedVolume);
+      updateAudioVolume(checkedVolume);
+    },
+    [updateVolumeDisplay, updateAudioVolume]
+  );
 
   // Toggle mute
   const toggleMute = useCallback(() => {
     if (isMuted) {
-      const volumeToRestore = previousVolumeRef.current > 0 ? previousVolumeRef.current : 50;
+      const volumeToRestore =
+        previousVolumeRef.current > 0 ? previousVolumeRef.current : 50;
       handleVolumeChange(volumeToRestore);
       setIsMuted(false);
     } else {
@@ -90,7 +95,13 @@ const Volume = ({ onVolumeChange }) => {
       updateVolumeDisplay(0);
       updateAudioVolume(0);
     }
-  }, [isMuted, volume, handleVolumeChange, updateVolumeDisplay, updateAudioVolume]);
+  }, [
+    isMuted,
+    volume,
+    handleVolumeChange,
+    updateVolumeDisplay,
+    updateAudioVolume,
+  ]);
 
   // Calculate volume from mouse/touch position
   const calculateVolumeFromPosition = useCallback((clientY, rect) => {
@@ -100,29 +111,32 @@ const Volume = ({ onVolumeChange }) => {
   }, []);
 
   // Mouse event handlers
-  const handleMouseDown = useCallback((e) => {
-    if (!volumeProcessRef.current) return;
+  const handleMouseDown = useCallback(
+    (e) => {
+      if (!volumeProcessRef.current) return;
 
-    isDraggingRef.current = true;
-    setShowBackground(true);
+      isDraggingRef.current = true;
+      setShowBackground(true);
 
-    const rect = volumeProcessRef.current.getBoundingClientRect();
-    const newVolume = calculateVolumeFromPosition(e.clientY, rect);
+      const rect = volumeProcessRef.current.getBoundingClientRect();
+      const newVolume = calculateVolumeFromPosition(e.clientY, rect);
 
-    handleVolumeChange(newVolume);
+      handleVolumeChange(newVolume);
+    },
+    [calculateVolumeFromPosition, handleVolumeChange]
+  );
 
-    dragStartYRef.current = e.clientY;
-    dragStartHeightRef.current = newVolume;
-  }, [calculateVolumeFromPosition, handleVolumeChange]);
+  const handleMouseMove = useCallback(
+    (e) => {
+      if (!isDraggingRef.current || !volumeProcessRef.current) return;
 
-  const handleMouseMove = useCallback((e) => {
-    if (!isDraggingRef.current || !volumeProcessRef.current) return;
+      const rect = volumeProcessRef.current.getBoundingClientRect();
+      const newVolume = calculateVolumeFromPosition(e.clientY, rect);
 
-    const rect = volumeProcessRef.current.getBoundingClientRect();
-    const newVolume = calculateVolumeFromPosition(e.clientY, rect);
-
-    handleVolumeChange(newVolume);
-  }, [calculateVolumeFromPosition, handleVolumeChange]);
+      handleVolumeChange(newVolume);
+    },
+    [calculateVolumeFromPosition, handleVolumeChange]
+  );
 
   const handleMouseUp = useCallback(() => {
     isDraggingRef.current = false;
@@ -130,33 +144,36 @@ const Volume = ({ onVolumeChange }) => {
   }, []);
 
   // Touch event handlers
-  const handleTouchStart = useCallback((e) => {
-    e.preventDefault();
-    if (!volumeProcessRef.current) return;
+  const handleTouchStart = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!volumeProcessRef.current) return;
 
-    isDraggingRef.current = true;
-    setShowBackground(true);
+      isDraggingRef.current = true;
+      setShowBackground(true);
 
-    const touch = e.touches[0];
-    const rect = volumeProcessRef.current.getBoundingClientRect();
-    const newVolume = calculateVolumeFromPosition(touch.clientY, rect);
+      const touch = e.touches[0];
+      const rect = volumeProcessRef.current.getBoundingClientRect();
+      const newVolume = calculateVolumeFromPosition(touch.clientY, rect);
 
-    handleVolumeChange(newVolume);
+      handleVolumeChange(newVolume);
+    },
+    [calculateVolumeFromPosition, handleVolumeChange]
+  );
 
-    dragStartYRef.current = touch.clientY;
-    dragStartHeightRef.current = newVolume;
-  }, [calculateVolumeFromPosition, handleVolumeChange]);
+  const handleTouchMove = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!isDraggingRef.current || !volumeProcessRef.current) return;
 
-  const handleTouchMove = useCallback((e) => {
-    e.preventDefault();
-    if (!isDraggingRef.current || !volumeProcessRef.current) return;
+      const touch = e.touches[0];
+      const rect = volumeProcessRef.current.getBoundingClientRect();
+      const newVolume = calculateVolumeFromPosition(touch.clientY, rect);
 
-    const touch = e.touches[0];
-    const rect = volumeProcessRef.current.getBoundingClientRect();
-    const newVolume = calculateVolumeFromPosition(touch.clientY, rect);
-
-    handleVolumeChange(newVolume);
-  }, [calculateVolumeFromPosition, handleVolumeChange]);
+      handleVolumeChange(newVolume);
+    },
+    [calculateVolumeFromPosition, handleVolumeChange]
+  );
 
   const handleTouchEnd = useCallback((e) => {
     e.preventDefault();
@@ -165,36 +182,39 @@ const Volume = ({ onVolumeChange }) => {
   }, []);
 
   // Keyboard handler
-  const handleKeyDown = useCallback((e) => {
-    let newVolume = volume;
-    if (e.which === 38) {
-      newVolume += 10;
-    }
+  const handleKeyDown = useCallback(
+    (e) => {
+      let newVolume = volume;
+      if (e.which === 38) {
+        newVolume += 10;
+      }
 
-    if (e.which === 40) {
-      newVolume -= 10;
-    }
+      if (e.which === 40) {
+        newVolume -= 10;
+      }
 
-    if (e.which === 40 || e.which === 38) {
-      handleVolumeChange(newVolume);
-    }
-  }, [volume, handleVolumeChange]);
+      if (e.which === 40 || e.which === 38) {
+        handleVolumeChange(newVolume);
+      }
+    },
+    [volume, handleVolumeChange]
+  );
 
   // Global event listeners setup - FIXED VERSION
-  // Separate effect for keyboard listeners
+  // Keyboard listeners
   useEffect(() => {
     const handleGlobalKeyDown = (e) => handleKeyDown(e);
     document.addEventListener("keydown", handleGlobalKeyDown);
-    
+
     return () => {
       document.removeEventListener("keydown", handleGlobalKeyDown);
     };
   }, [handleKeyDown]);
 
-  // Separate effect for drag listeners
+  // Drag listeners - Alternative approach with state
   useEffect(() => {
-    if (!isDraggingRef.current) return;
-    
+    if (!showBackground) return; // showBackground tracks dragging state
+
     const handleGlobalMouseMove = (e) => handleMouseMove(e);
     const handleGlobalMouseUp = () => handleMouseUp();
     const handleGlobalTouchMove = (e) => handleTouchMove(e);
@@ -202,8 +222,12 @@ const Volume = ({ onVolumeChange }) => {
 
     document.addEventListener("mousemove", handleGlobalMouseMove);
     document.addEventListener("mouseup", handleGlobalMouseUp);
-    document.addEventListener("touchmove", handleGlobalTouchMove, { passive: false });
-    document.addEventListener("touchend", handleGlobalTouchEnd, { passive: false });
+    document.addEventListener("touchmove", handleGlobalTouchMove, {
+      passive: false,
+    });
+    document.addEventListener("touchend", handleGlobalTouchEnd, {
+      passive: false,
+    });
 
     return () => {
       document.removeEventListener("mousemove", handleGlobalMouseMove);
@@ -211,7 +235,13 @@ const Volume = ({ onVolumeChange }) => {
       document.removeEventListener("touchmove", handleGlobalTouchMove);
       document.removeEventListener("touchend", handleGlobalTouchEnd);
     };
-  }, [handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [
+    showBackground,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchMove,
+    handleTouchEnd,
+  ]); // Track showBackground state
 
   // Initialize volume
   useEffect(() => {
@@ -237,7 +267,7 @@ const Volume = ({ onVolumeChange }) => {
       <span className="icon" onClick={toggleMute}>
         {getVolumeIcon()}
       </span>
-      <div 
+      <div
         className={`volume-background ${showBackground ? "show" : ""}`}
         ref={volumeBackgroundRef}
       >
@@ -247,8 +277,8 @@ const Volume = ({ onVolumeChange }) => {
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
-          <div 
-            className="process-main" 
+          <div
+            className="process-main"
             ref={processMainRef}
             style={{ height: `${volume}%` }}
           >

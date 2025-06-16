@@ -16,8 +16,6 @@ import { SearchFieldSelector } from "@/packages/select-super/SelectSuper";
 // THÊM MỚI: Import các icon export
 import CSVIcon from "@/components/Icon/svg/CSV"; // Cần tạo
 import PDFIcon from "@/components/Icon/svg/PDF"; // Cần tạo
-import DownloadIcon from "@/components/Icon/svg/Download"; // Cần tạo
-import { downloadFile } from "./actions";
 import { httpClientBlob } from "@/utils/client/http";
 
 const FORM_CONTROL_CLASSES =

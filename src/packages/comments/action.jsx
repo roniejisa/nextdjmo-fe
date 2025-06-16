@@ -5,7 +5,10 @@ import { getToken } from "@/utils/server/utils";
 
 export const submitReview = async (body) => {
   const token = await getToken();
-  const response = httpClient(
+  if (!token) {
+    return { status: 401 };
+  }
+  const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "add-comment",
     {
       Authorization: "Bearer " + token,
@@ -18,7 +21,10 @@ export const submitReview = async (body) => {
 
 export const submitReaction = async (body) => {
   const token = await getToken();
-  const response = httpClient(
+  if (!token) {
+    return { status: 401 };
+  }
+  const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "add-reaction",
     {
       Authorization: "Bearer " + token,
@@ -30,7 +36,7 @@ export const submitReaction = async (body) => {
 };
 
 export const getDataComment = async (body) => {
-  const response = httpClient(
+  const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "get-comments",
     {},
     body,

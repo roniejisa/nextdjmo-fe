@@ -1,5 +1,6 @@
 "use server";
 import { cookies, headers } from "next/headers";
+import { httpClient } from "../http";
 
 export const getToken = async () => {
   const storeCookie = cookies();
@@ -14,10 +15,18 @@ export const getRefreshToken = async () => {
 };
 
 export const getProfile = async () => {
-  const header = headers();
-  const user = header.get("user");
-  if (user && user != "undefined") {
-    return JSON.parse(decodeURIComponent(user));
+  const token = await getToken();
+  if(!token){
+    return {
+      status:false,
+      data:{},
+      message:"Chưa đăng nhập"
+    }
   }
-  return {}
+  const response = await httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + "auth/profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return response;
 };

@@ -508,6 +508,16 @@ const RosoProvider = ({ children }) => {
       );
 
       if (!response.ok) {
+        const response = await httpClientSSE(
+          process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
+          {
+            Authorization: `Bearer ${token}`,
+          },
+          form,
+          "POST",
+          true,
+          abortControllerRef.current.signal
+        );
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

@@ -13,6 +13,7 @@ import {
 export const useCommentState = (initialComments = []) => {
   const [comments, setComments] = useState(initialComments);
   const pageRef = useRef(1);
+  const [total, setTotal] = useState(0);
   const [focusComment, setFocusComment] = useState(null);
   const [isPending, startTransition] = useTransition();
   const { profile } = useContext(ClientContext);
@@ -100,8 +101,6 @@ export const useCommentState = (initialComments = []) => {
       }
     };
   }, []);
-
-  const total = useMemo(() => comments.length, [comments]);
 
   // Optimized find with caching
   const findCommentById = useCallback((targetId) => {
@@ -191,7 +190,7 @@ export const useCommentState = (initialComments = []) => {
               });
             }
           }
-          console.log(newReactions)
+          console.log(newReactions);
           return {
             ...comment,
             reactions: newReactions,
@@ -300,9 +299,9 @@ export const useCommentState = (initialComments = []) => {
 
   // Optimized add new comments with sorting and deduplication
   const addNewComments = useCallback(
-    (newComments) => {
+    (newComments, total) => {
       if (!newComments?.length) return;
-
+      setTotal(total);
       batchUpdateComments((prev) => {
         const existingIds = new Set(prev.map((c) => c._id));
         const filteredComments = newComments
@@ -318,44 +317,61 @@ export const useCommentState = (initialComments = []) => {
   );
 
   // Optimized add comment with enhanced parent lookup
+  // Optimized add comment with enhanced parent lookup
   const addCommentToTree = useCallback(
     (newComment) => {
       if (!newComment?._id) return;
 
       batchUpdateComments((prev) => {
+        // Ensure newComment has reactions array initialized
+        const commentWithReactions = {
+          ...newComment,
+          reactions: newComment.reactions || [], // Khởi tạo reactions nếu chưa có
+        };
+
         // Root comment
-        if (!newComment.comment_id) {
-          return [newComment, ...prev];
+        if (!commentWithReactions.comment_id) {
+          // Cập nhật total khi thêm root comment
+          setTotal((prevTotal) => prevTotal + 1);
+          return [commentWithReactions, ...prev];
         }
 
         // Reply comment with enhanced parent search
-        const parentComment = findCommentById(newComment.comment_id);
+        const parentComment = findCommentById(commentWithReactions.comment_id);
         if (!parentComment) {
           console.warn(
-            `Parent comment ${newComment.comment_id} not found, adding as root`
+            `Parent comment ${commentWithReactions.comment_id} not found, adding as root`
           );
-          return [newComment, ...prev];
+          // Cũng cập nhật total khi fallback về root comment
+          setTotal((prevTotal) => prevTotal + 1);
+          return [commentWithReactions, ...prev];
         }
 
-        return updateCommentInTree(prev, newComment.comment_id, (comment) => {
-          const currentChilds = comment.childs || { items: [], total: 0 };
-          const isOwnerComment = customer_id === newComment.customer_id;
+        return updateCommentInTree(
+          prev,
+          commentWithReactions.comment_id,
+          (comment) => {
+            const currentChilds = comment.childs || { items: [], total: 0 };
+            const isOwnerComment =
+              customer_id === commentWithReactions.customer_id;
 
-          // Sort children by date
-          const sortedChilds = [newComment, ...currentChilds.items].sort(
-            (a, b) => new Date(b.comment_at) - new Date(a.comment_at)
-          );
+            // Sort children by date
+            const sortedChilds = [
+              commentWithReactions,
+              ...currentChilds.items,
+            ].sort((a, b) => new Date(b.comment_at) - new Date(a.comment_at));
 
-          return {
-            ...comment,
-            showChild: isOwnerComment ? true : comment.showChild,
-            showReplication: isOwnerComment ? false : comment.showReplication,
-            childs: {
-              items: sortedChilds,
-              total: (currentChilds.total || 0) + 1,
-            },
-          };
-        });
+            return {
+              ...comment,
+              showChild: isOwnerComment ? true : comment.showChild,
+              showReplication: isOwnerComment ? false : comment.showReplication,
+              childs: {
+                items: sortedChilds,
+                total: (currentChilds.total || 0) + 1,
+              },
+            };
+          }
+        );
       });
     },
     [findCommentById, updateCommentInTree, customer_id, batchUpdateComments]
@@ -382,6 +398,10 @@ export const useCommentState = (initialComments = []) => {
   const deleteCommentFromTree = useCallback(
     (commentId) => {
       if (!commentId) return;
+
+      // Kiểm tra xem comment bị xóa có phải là root comment không
+      const commentToDelete = findCommentById(commentId);
+      const isRootComment = commentToDelete && !commentToDelete.parentId;
 
       batchUpdateComments((prev) => {
         const deleteFromComments = (comments) => {
@@ -413,12 +433,17 @@ export const useCommentState = (initialComments = []) => {
         return deleteFromComments(prev);
       });
 
+      // Giảm total nếu xóa root comment
+      if (isRootComment) {
+        setTotal((prevTotal) => Math.max(0, prevTotal - 1));
+      }
+
       // Clear focus if focused comment is deleted
       if (focusComment === commentId) {
         setFocusComment(null);
       }
     },
-    [batchUpdateComments, focusComment]
+    [batchUpdateComments, focusComment, findCommentById]
   );
 
   // Page management with validation

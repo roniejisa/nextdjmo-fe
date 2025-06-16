@@ -4,13 +4,15 @@ import LinkCustom from "@/packages/translation/Link";
 import { usePathname } from "next/navigation";
 import SidebarProfile from "./SidebarProfile";
 import useRouterCustom from "@/packages/translation/Navigation";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { iconSVG } from "@/components/Icon/svg/constants";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { CMSContext } from "@/context/cms/CMSProvider";
 
-const Sidebar = ({ profile, menus: allMenu }) => {
+const Sidebar = ({ menus: allMenu }) => {
   const router = useRouterCustom();
   const pathname = usePathname();
+  const { profile } = useContext(CMSContext);
   const [isCollapsed, setIsCollapsed, isHydrated] = useLocalStorage(
     "isCollapsed",
     false
@@ -27,10 +29,6 @@ const Sidebar = ({ profile, menus: allMenu }) => {
     }
   }, [profile, router]);
 
-  // Sửa early return logic
-  if (!profile || !profile.permissions) {
-    return null; // Chỉ return null, không gọi router.push trực tiếp
-  }
   // Close mobile sidebar when route changes
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -38,6 +36,11 @@ const Sidebar = ({ profile, menus: allMenu }) => {
     return () => {};
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  // Sửa early return logic
+  if (!profile || !profile.permissions) {
+    return null; // Chỉ return null, không gọi router.push trực tiếp
+  }
 
   // Utility functions
   const checkActiveMenu = (link, hasChild = false) => {

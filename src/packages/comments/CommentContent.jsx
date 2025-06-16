@@ -1,11 +1,19 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { useCallback, useContext, useEffect, useMemo, memo, useRef } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  memo,
+  useRef,
+} from "react";
 import { CommentContext } from "./CommentProvider";
 import { useCommentActions } from "./hooks/useCommentActions";
 import { useCommentState } from "./hooks/useCommentState";
-import "./comment.scss";
+import "./comment-reaction.scss";
+import "./assets/all.scss"; // Import file SCSS mới
 import { useCommentSocketEvents } from "./sockets/hooks/useCommentSocketEvents";
 import CommentItem from "./CommentItem";
 import { LoadingSection } from "./LoadingSection";
@@ -29,13 +37,12 @@ const CommentRenderer = memo(
     onLoadChildComments,
   }) => {
     return (
-      <div key={comment._id} className="relative">
+      <div key={comment._id} className="cc-comment-wrapper">
         {/* Comment chính với animation */}
         <div
-          className={`
-          transform transition-all duration-500 ease-out
-          ${index === 0 ? "animate-fade-in-down" : ""}
-        `}
+          className={`cc-comment-main ${
+            index === 0 ? "cc-animate-fade-in-down" : ""
+          }`}
         >
           <MemoizedCommentItem
             comment={comment}
@@ -49,16 +56,18 @@ const CommentRenderer = memo(
         </div>
 
         {/* Comment con và đường kẻ dọc */}
-        <div className="relative">
+        <div className="cc-comment-children">
           {comment?.showReplication && (
             <div
-              className={`w-0.5 bg-gradient-to-b ${
+              className={`cc-vertical-line ${
                 comment.showChild
-                  ? "from-green-200 via-purple-200 to-blue-300"
-                  : "from-green-200 via-blue-200 to-blue-200"
+                  ? "cc-vertical-line--with-child"
+                  : "cc-vertical-line--no-child"
               } ${
-                comment?.childs?.total > 0 ? "h-[calc(100%+30px)]" : "h-[32px]"
-              } absolute -top-0.5 left-[23px]`}
+                comment?.childs?.total > 0
+                  ? "cc-vertical-line--full-height"
+                  : "cc-vertical-line--short-height"
+              }`}
             />
           )}
           {comment?.childs?.total > 0 && (
@@ -73,7 +82,7 @@ const CommentRenderer = memo(
         </div>
 
         {/* Form trả lời comment chính */}
-        <div className="relative pl-16">
+        <div className="cc-reply-form-wrapper">
           {comment?.showReplication && (
             <MemoizedReplyForm
               checkFocus={comment?.showReplication}
@@ -107,15 +116,17 @@ const CommentContent = () => {
     updateCommentInTree,
     deleteCommentFromTree,
     loadChildCommentsToTree,
-    updateReactionInTree
+    updateReactionInTree,
   } = useCommentState();
+
   // Debounced socket event handlers to prevent rapid updates
   const timeoutRefs = useRef({
     newComment: null,
     updateComment: null,
     deleteComment: null,
-    updateReaction: null
+    updateReaction: null,
   });
+
   const debouncedHandlers = useMemo(
     () => ({
       handleNewComment: (newComment) => {
@@ -123,7 +134,6 @@ const CommentContent = () => {
           clearTimeout(timeoutRefs.current.newComment);
         }
         timeoutRefs.current.newComment = setTimeout(() => {
-          console.log("New comment received:", newComment);
           addCommentToTree(newComment);
           timeoutRefs.current.newComment = null;
         }, 100);
@@ -134,7 +144,6 @@ const CommentContent = () => {
           clearTimeout(timeoutRefs.current.updateComment);
         }
         timeoutRefs.current.updateComment = setTimeout(() => {
-          console.log("Comment updated:", updatedComment);
           updateCommentInTree(updatedComment);
           timeoutRefs.current.updateComment = null;
         }, 100);
@@ -145,24 +154,27 @@ const CommentContent = () => {
           clearTimeout(timeoutRefs.current.deleteComment);
         }
         timeoutRefs.current.deleteComment = setTimeout(() => {
-          console.log("Comment deleted:", commentId);
           deleteCommentFromTree(commentId);
           timeoutRefs.current.deleteComment = null;
         }, 100);
       },
-      
+
       handleUpdateReaction: (data) => {
         if (timeoutRefs.current.deleteComment) {
           clearTimeout(timeoutRefs.current.deleteComment);
         }
         timeoutRefs.current.updateReaction = setTimeout(() => {
-          console.log("updateReaction:", data);
           updateReactionInTree(data.comment_id, data.data);
-          timeoutRefs.current.deleteComment = null;
+          timeoutRefs.current.updateReaction = null;
         }, 100);
       },
     }),
-    [addCommentToTree, updateCommentInTree, deleteCommentFromTree, updateReactionInTree]
+    [
+      addCommentToTree,
+      updateCommentInTree,
+      deleteCommentFromTree,
+      updateReactionInTree,
+    ]
   );
 
   // Cleanup timeouts
@@ -193,6 +205,7 @@ const CommentContent = () => {
         addNewComments(response.data.comments, response.data.total);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [loadComments, addNewComments]
   );
 
@@ -205,20 +218,17 @@ const CommentContent = () => {
 
   // Initial load with cleanup
   useEffect(() => {
-    let isMounted = true;
-
     const loadInitialComments = async () => {
-      if (isMounted) {
-        await loadCommentsData(1);
+      const response = await loadComments({ page: 1 });
+      if (response.status === 200) {
+        addNewComments(response.data.comments, response.data.total);
       }
     };
 
     loadInitialComments();
 
-    return () => {
-      isMounted = false;
-    };
-  }, [loadCommentsData]);
+    return () => {};
+  }, []);
 
   // Memoized load more handler
   const handleLoadMore = useCallback(() => {
@@ -262,24 +272,16 @@ const CommentContent = () => {
   ]);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-gradient-to-br from-gray-50 to-white min-h-screen">
+    <div className="cc-container">
       <ModalRating socketConnected={socketConnected} total={total} />
 
       {/* Danh sách comment */}
-      <div className="space-y-6">
+      <div className="cc-comments-list">
         {comments?.length === 0 && !isPending ? (
-          <div
-            className={`
-            relative bg-white/60 backdrop-blur-sm border border-white/20
-            rounded-3xl p-12 text-center shadow-sm
-            before:absolute before:inset-0 before:rounded-3xl
-            before:bg-gradient-to-br before:from-white/10 before:to-transparent
-            before:pointer-events-none
-          `}
-          >
-            <div className="w-16 h-16 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
+          <div className="cc-empty-state">
+            <div className="cc-empty-state__icon">
               <svg
-                className="w-8 h-8 text-gray-400"
+                className="cc-empty-state__svg"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -292,10 +294,8 @@ const CommentContent = () => {
                 />
               </svg>
             </div>
-            <h4 className="text-lg font-semibold text-gray-600 mb-2">
-              Chưa có bình luận nào
-            </h4>
-            <p className="text-gray-500">
+            <h4 className="cc-empty-state__title">Chưa có bình luận nào</h4>
+            <p className="cc-empty-state__description">
               Hãy là người đầu tiên chia sẻ trải nghiệm về sản phẩm này!
             </p>
           </div>
@@ -305,32 +305,16 @@ const CommentContent = () => {
 
         {/* Loading hoặc load more */}
         {isPending ? (
-          <div className="flex justify-center py-8">
+          <div className="cc-loading-wrapper">
             <LoadingSection />
           </div>
         ) : (
           total > comments?.length && (
-            <div className="flex justify-center pt-6">
-              <button
-                onClick={handleLoadMore}
-                className={`
-                  relative px-8 py-4 rounded-2xl font-semibold
-                  bg-gradient-to-r from-blue-50 to-indigo-50
-                  hover:from-blue-100 hover:to-indigo-100
-                  text-blue-700 border border-blue-200 hover:border-blue-300
-                  transform hover:scale-105 active:scale-95
-                  transition-all duration-300 ease-out
-                  shadow-sm hover:shadow-md
-                  focus:outline-none focus:ring-2 focus:ring-blue-500/30
-                  before:absolute before:inset-0 before:rounded-2xl
-                  before:bg-gradient-to-r before:from-white/20 before:to-transparent
-                  before:opacity-0 before:transition-opacity before:duration-300
-                  hover:before:opacity-100
-                `}
-              >
-                <span className="flex items-center gap-2">
+            <div className="cc-load-more-wrapper">
+              <button onClick={handleLoadMore} className="cc-load-more-btn">
+                <span className="cc-load-more-content">
                   <svg
-                    className="w-5 h-5"
+                    className="cc-load-more-icon"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -349,23 +333,6 @@ const CommentContent = () => {
           )
         )}
       </div>
-
-      {/* Custom CSS for animations */}
-      <style jsx>{`
-        @keyframes fade-in-down {
-          0% {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in-down {
-          animation: fade-in-down 0.5s ease-out;
-        }
-      `}</style>
     </div>
   );
 };

@@ -14,11 +14,12 @@ import { useChatStore } from "@/stories/roso/ChatStore";
 import ImageCustom from "@/components/Maintain/Image";
 
 /**
- * File Management Hook - Handles file operations with DataTransfer API
+ * File Management Hook - Handles file operations with proper binary data
  */
 const useFileManager = (setEditorHeight, boxEditorRef) => {
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const fileListRef = useRef(null);
 
   // File type configurations
   const fileTypes = {
@@ -48,37 +49,44 @@ const useFileManager = (setEditorHeight, boxEditorRef) => {
     },
   };
 
-  // Handle file selection
-  const handleFileSelect = (files, type) => {
-    const dataTransfer = new DataTransfer();
-    const newFiles = [];
+  // Update attached files display from DataTransfer
+  const updateAttachedFiles = () => {
+    const filesArray = Array.from(fileListRef.current.files);
+    const newFiles = filesArray.map((file, index) => {
+      // Auto-detect file type based on extension
+      let detectedType = "document"; // default
+      const extension = "." + file.name.split(".").pop().toLowerCase();
 
-    // Process selected files
-    Array.from(files).forEach((file) => {
+      for (const [type, config] of Object.entries(fileTypes)) {
+        if (config.extensions.includes(extension)) {
+          detectedType = type;
+          break;
+        }
+      }
+
       const fileObj = {
-        id: Date.now() + Math.random(),
+        id: `${file.name}_${file.size}_${index}`, // Unique ID
         file,
-        type,
+        type: detectedType,
         name: file.name,
         size: file.size,
-        url: URL.createObjectURL(file),
+        url: null,
         preview: null,
       };
 
       // Generate preview based on file type
-      if (type === "image") {
+      if (detectedType === "image") {
+        fileObj.url = URL.createObjectURL(file);
         fileObj.preview = fileObj.url;
-      } else if (type === "video") {
-        // For video, we'll create a thumbnail (simplified version)
+      } else if (detectedType === "video") {
+        fileObj.url = URL.createObjectURL(file);
         fileObj.preview = fileObj.url;
       }
 
-      newFiles.push(fileObj);
-      dataTransfer.items.add(file);
+      return fileObj;
     });
 
-    setAttachedFiles((prev) => [...prev, ...newFiles]);
-    setIsDropdownOpen(false);
+    setAttachedFiles(newFiles);
 
     // Update editor height
     setTimeout(() => {
@@ -88,8 +96,20 @@ const useFileManager = (setEditorHeight, boxEditorRef) => {
     }, 100);
   };
 
-  // Thêm cleanup effect
+  // Handle file selection
+  const handleFileSelect = (files, type) => {
+    // Add files to DataTransfer
+    Array.from(files).forEach((file) => {
+      fileListRef.current.items.add(file);
+    });
+
+    updateAttachedFiles();
+    setIsDropdownOpen(false);
+  };
+
+  // Cleanup effect for URLs
   useEffect(() => {
+    fileListRef.current = new DataTransfer();
     return () => {
       // Cleanup URLs when component unmounts
       attachedFiles.forEach((file) => {
@@ -98,37 +118,41 @@ const useFileManager = (setEditorHeight, boxEditorRef) => {
         }
       });
     };
-  }, [attachedFiles]);
+  }, []);
 
   // Remove file
   const removeFile = (fileId) => {
-    setAttachedFiles((prev) => {
-      const updatedFiles = prev.filter((f) => {
-        if (f.id === fileId) {
-          // Revoke object URL to prevent memory leaks
-          URL.revokeObjectURL(f.url);
-          return false;
-        }
-        return true;
-      });
+    // Find the file index in the current files
+    const fileIndex = attachedFiles.findIndex((f) => f.id === fileId);
 
-      // Update editor height after removal
-      setTimeout(() => {
-        if (boxEditorRef.current) {
-          setEditorHeight(boxEditorRef.current.offsetHeight);
-        }
-      }, 100);
+    if (fileIndex !== -1) {
+      // Revoke URL before removing
+      const fileToRemove = attachedFiles[fileIndex];
+      if (fileToRemove.url) {
+        URL.revokeObjectURL(fileToRemove.url);
+      }
 
-      return updatedFiles;
-    });
+      // Remove from DataTransfer
+      fileListRef.current.items.remove(fileIndex);
+
+      // Update display
+      updateAttachedFiles();
+    }
   };
 
   // Clear all files
   const clearAllFiles = () => {
+    // Cleanup all URLs
     attachedFiles.forEach((file) => {
-      URL.revokeObjectURL(file.url);
+      if (file.url) {
+        URL.revokeObjectURL(file.url);
+      }
     });
+
+    // Clear DataTransfer
+    fileListRef.current = new DataTransfer();
     setAttachedFiles([]);
+
     setTimeout(() => {
       if (boxEditorRef.current) {
         setEditorHeight(boxEditorRef.current.offsetHeight);
@@ -141,24 +165,21 @@ const useFileManager = (setEditorHeight, boxEditorRef) => {
     e.preventDefault();
     const files = Array.from(e.dataTransfer.files);
 
-    // Auto-detect file type based on extension
+    // Add files to DataTransfer
     files.forEach((file) => {
-      let detectedType = "document"; // default
-      const extension = "." + file.name.split(".").pop().toLowerCase();
-
-      for (const [type, config] of Object.entries(fileTypes)) {
-        if (config.extensions.includes(extension)) {
-          detectedType = type;
-          break;
-        }
-      }
-
-      handleFileSelect([file], detectedType);
+      fileListRef.current.items.add(file);
     });
+
+    updateAttachedFiles();
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
+  };
+
+  // Get file types for form submission
+  const getFileTypes = () => {
+    return attachedFiles.map((file) => file.type);
   };
 
   return {
@@ -171,6 +192,8 @@ const useFileManager = (setEditorHeight, boxEditorRef) => {
     clearAllFiles,
     handleDrop,
     handleDragOver,
+    fileListRef, // Expose for form submission
+    getFileTypes,
   };
 };
 
@@ -201,6 +224,7 @@ const FileTypeSelector = ({ isOpen, onToggle, fileTypes, onFileSelect }) => {
     if (e.target.files.length > 0) {
       onFileSelect(e.target.files, type);
     }
+    e.target.value = ""; // Reset input
   };
 
   return (
@@ -465,7 +489,7 @@ const SendButton = ({ isDisabled, isStreaming, onClick }) => {
 };
 
 /**
- * Editor Container Component - Wraps the custom editor with modern styling and drag-drop
+ * Editor Container Component - Wraps the custom editor with drag-drop
  */
 const EditorContainer = ({ children, onDrop, onDragOver }) => (
   <div
@@ -487,7 +511,7 @@ const EditorContainer = ({ children, onDrop, onDragOver }) => (
 );
 
 /**
- * Main Chat Component - Enhanced with file dropdown and DataTransfer API
+ * Main Chat Component - Enhanced with proper file handling
  */
 const Chat = () => {
   // Hooks and state
@@ -495,12 +519,12 @@ const Chat = () => {
   const isStreaming = useChatStore((s) => s.isStreaming);
   const setEditorHeight = useUIStore.getState().setEditorHeight;
   const [inputValue, setInputValue] = useState("");
-  const [isMounted, setIsMounted] = useState(false); // Fix hydration
+  const [isMounted, setIsMounted] = useState(false);
 
   // Refs
   const containerRef = useRef(null);
   const buttonRef = useRef(null);
-  const textareaRef = useRef(null); // Ref for hidden textarea
+  const textareaRef = useRef(null);
 
   // File management
   const {
@@ -513,6 +537,8 @@ const Chat = () => {
     clearAllFiles,
     handleDrop,
     handleDragOver,
+    fileListRef,
+    getFileTypes,
   } = useFileManager(setEditorHeight, containerRef);
 
   // Fix hydration error
@@ -526,21 +552,18 @@ const Chat = () => {
    */
   const handleContentChange = (content) => {
     setInputValue(content);
-    // Update hidden textarea immediately
     if (textareaRef.current) {
       textareaRef.current.value = content;
     }
   };
 
   /**
-   * Handle form submission from Enter key - chỉ submit, không stop
+   * Handle form submission from Enter key
    */
   const handleSubmitFromEnter = () => {
-    // Chỉ submit khi không đang streaming và có content
     if (isStreaming) return;
 
     const currentContent = editorRef.current?.getData() || "";
-
     setInputValue(currentContent);
     if (textareaRef.current) {
       textareaRef.current.value = currentContent;
@@ -552,18 +575,15 @@ const Chat = () => {
   };
 
   /**
-   * Handle button click - có thể submit hoặc stop
+   * Handle button click
    */
   const handleButtonClick = () => {
     if (isStreaming) {
-      // Stop streaming logic ở đây
       stopStream();
       return;
     }
 
-    // Submit logic
     const currentContent = editorRef.current?.getData() || "";
-
     setInputValue(currentContent);
     if (textareaRef.current) {
       textareaRef.current.value = currentContent;
@@ -573,13 +593,13 @@ const Chat = () => {
       buttonRef.current?.click();
     }, 0);
   };
+
   /**
    * Update editor height when content changes
    */
   useLayoutEffect(() => {
     if (containerRef.current) {
-      const newHeight = containerRef.current.clientHeight; // 16px padding * 2
-      // const newHeight = containerRef.current.clientHeight + 32; // 16px padding * 2
+      const newHeight = containerRef.current.clientHeight;
       setEditorHeight(newHeight);
     }
   }, [inputValue, attachedFiles, setEditorHeight]);
@@ -588,7 +608,7 @@ const Chat = () => {
   const isButtonDisabled =
     inputValue.length <= 0 && attachedFiles.length <= 0 && !isStreaming;
 
-  // Don't render until mounted (fix hydration)
+  // Don't render until mounted
   if (!isMounted) {
     return (
       <div className="relative">
@@ -596,17 +616,11 @@ const Chat = () => {
           <div className="w-full max-w-4xl mx-auto">
             <div className="w-full">
               <div className="sticky bottom-4">
-                <div
-                  className="group relative bg-gradient-to-br from-white/95 via-white/90 to-slate-50/95
-                               backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50"
-                >
+                <div className="group relative bg-gradient-to-br from-white/95 via-white/90 to-slate-50/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50">
                   <div className="relative p-4 sm:p-5">
                     <div className="flex items-end gap-3 sm:gap-4">
                       <div className="flex-shrink-0 mb-1">
-                        <div
-                          className="flex items-center justify-center h-10 w-10 rounded-xl
-                                       bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-200/50"
-                        >
+                        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 border border-slate-200/50">
                           <div className="w-5 h-5 bg-slate-300 rounded animate-pulse"></div>
                         </div>
                       </div>
@@ -614,10 +628,7 @@ const Chat = () => {
                         <div className="h-10 bg-slate-100 rounded-lg animate-pulse"></div>
                       </div>
                       <div className="flex-shrink-0 mb-1">
-                        <div
-                          className="flex items-center justify-center h-10 w-10 rounded-xl
-                                       bg-gradient-to-br from-slate-200 to-slate-300 border border-slate-300/50"
-                        >
+                        <div className="flex items-center justify-center h-10 w-10 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 border border-slate-300/50">
                           <div className="w-4 h-4 bg-slate-400 rounded animate-pulse"></div>
                         </div>
                       </div>
@@ -635,7 +646,6 @@ const Chat = () => {
   return (
     <div className="relative">
       <div ref={containerRef} className="p-4 sm:p-6 lg:p-8">
-        {/* Main form container */}
         <div className="w-full max-w-4xl mx-auto">
           <form className="w-full" action={submitFormQuestion}>
             <div className="sticky bottom-4">
@@ -662,28 +672,42 @@ const Chat = () => {
                   {/* Editor container */}
                   <div className="flex-1 min-w-0">
                     <div className="max-h-[25dvh] overflow-auto">
-                      {/* Hidden textarea for form submission */}
+                      {/* Hidden textarea for text message */}
                       <textarea
                         ref={textareaRef}
                         name="message"
                         hidden
                         value={inputValue}
-                        onChange={() => {}} // Controlled by editor
+                        onChange={() => {}}
                       />
 
-                      {/* Hidden inputs for attached files */}
-                      {attachedFiles.map((file, index) => (
+                      {/* Hidden input for file types */}
+                      {attachedFiles.length > 0 && (
                         <input
-                          key={file.id}
                           type="hidden"
-                          name={`file_${index}`}
-                          value={JSON.stringify({
-                            name: file.name,
-                            type: file.type,
-                            size: file.size,
-                          })}
+                          name="file_types"
+                          value={JSON.stringify(getFileTypes())}
                         />
-                      ))}
+                      )}
+
+                      {/* Hidden file input containing actual files */}
+                      {attachedFiles.length > 0 && (
+                        <input
+                          type="file"
+                          name="files"
+                          multiple
+                          hidden
+                          ref={(input) => {
+                            if (
+                              input &&
+                              fileListRef.current &&
+                              fileListRef.current.files.length > 0
+                            ) {
+                              input.files = fileListRef.current.files;
+                            }
+                          }}
+                        />
+                      )}
 
                       {/* Custom editor */}
                       <CustomEditor
@@ -720,13 +744,9 @@ const Chat = () => {
 
       {/* Background decoration */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full mix-blend-multiply filter blur-xl animate-pulse" />
         <div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 
-                        rounded-full mix-blend-multiply filter blur-xl animate-pulse"
-        />
-        <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-yellow-600/20 
-                        rounded-full mix-blend-multiply filter blur-xl animate-pulse"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-pink-400/20 to-yellow-600/20 rounded-full mix-blend-multiply filter blur-xl animate-pulse"
           style={{ animationDelay: "2s" }}
         />
       </div>

@@ -16,7 +16,7 @@ const ProgressTimer = () => {
     getTimeSecondHasPercent,
     checkHasAudioKaraoke,
     timeStartRef,
-    checkDataLyric
+    checkDataLyric,
   } = useMusicContext();
 
   // Refs for DOM elements
@@ -96,21 +96,26 @@ const ProgressTimer = () => {
   ]);
 
   const showTimer = useCallback((clientX) => {
-    if (!timerProcessRef.current) return;
+    if (!timerProcessRef.current || !processRef.current) return;
 
     timerProcessRef.current.classList.add("show");
-    let left = clientX;
 
-    if (clientX < timerProcessRef.current.clientWidth) {
-      left = timerProcessRef.current.clientWidth;
-    } else if (
-      window.innerWidth <
-      timerProcessRef.current.clientWidth + clientX
-    ) {
-      left = window.innerWidth - timerProcessRef.current.clientWidth;
+    // Lấy bounds của process element
+    const processRect = processRef.current.getBoundingClientRect();
+    const timerWidth = timerProcessRef.current.clientWidth;
+
+    // Tính position relative với process element
+    let relativeX = clientX - processRect.left;
+
+    // Đảm bảo timer không bị tràn ra ngoài process
+    if (relativeX < timerWidth / 2) {
+      relativeX = timerWidth / 2 - timerWidth / 2;
+    } else if (relativeX > processRect.width - timerWidth / 2) {
+      relativeX = processRect.width;
     }
 
-    timerProcessRef.current.style.left = left + "px";
+    // Nếu timer có position absolute trong process container
+    timerProcessRef.current.style.left = relativeX + "px";
   }, []);
 
   const hideTimer = useCallback(() => {
