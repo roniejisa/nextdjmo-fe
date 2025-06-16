@@ -50,6 +50,7 @@ export const httpClient = async (
     } else if (body instanceof FormData) {
       options.body = body;
     }
+    console.log(options)
 
     const response = await fetch(url, options);
     const data = await response.json();

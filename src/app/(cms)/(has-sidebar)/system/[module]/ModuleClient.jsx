@@ -229,7 +229,6 @@ const ModuleClient = () => {
   if (error) {
     return <ModuleError />;
   }
-  console.log(moduleData)
   let {
     items,
     limit: limitItem,

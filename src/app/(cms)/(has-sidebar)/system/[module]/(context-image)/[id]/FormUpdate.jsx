@@ -2,7 +2,8 @@
 import GroupButtonForm from "../../components/form/GroupButtonForm";
 import { handleUpdate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
-import { useContext, useEffect, useState, useTransition } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useFormState } from "react-dom";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { components } from "./components";
 import Group from "../../components/Group";
@@ -12,27 +13,44 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
   const router = useRouterCustom();
   const notify = useNotify();
   const { profile } = useContext(CMSContext);
-  const [isPending, startTransition] = useTransition(false);
   const [oldData, setOldData] = useState({
     ...item,
   });
 
   const isMultipleLanguage = moduleStore.language ?? false;
   const language = searchParams.language;
-  const submitAction = async (form) => {
-    startTransition(async () => {
-      const formData = Object.fromEntries(form);
-      const data = await handleUpdate(module, item._id, formData, language);
-      if (data.status == 200) {
-        router.refresh();
-        notify.changeNotify("success", data.message);
-        router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
-      } else {
-        notify.changeNotify("error", data.message);
-        setOldData(formData);
-      }
-    });
+
+  // Tạo bound action với các tham số cần thiết
+  const boundAction = async (prevState, formData) => {
+    const data = await handleUpdate(module, item._id, formData, language);
+
+    if (data.status === 200) {
+      router.refresh();
+      notify.changeNotify("success", data.message);
+      router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
+    } else {
+      notify.changeNotify("error", data.message);
+      // Nếu có lỗi, giữ lại dữ liệu form
+      return {
+        success: false,
+        message: data.message,
+        errors: data.errors || {},
+      };
+    }
   };
+
+  // Sử dụng useFormState
+  const [state, formAction, isPending] = useFormState(boundAction, {
+    success: null,
+    message: "",
+    errors: {},
+  });
+
+  // Xử lý kết quả từ server action
+  useEffect(() => {
+    if (state) {
+    }
+  }, [state, router, notify, module]);
 
   useEffect(() => {
     setOldData(item);
@@ -69,11 +87,11 @@ const FormUpdate = ({ module, item, fields, moduleStore, searchParams }) => {
     });
 
   return (
-    <form action={submitAction} className="pb-10">
+    <form action={formAction} className="pb-10">
       <GroupButtonForm
         module={module}
         isPending={isPending}
-        title={`Cập nhật ${moduleStore.name}`}
+        title={`Cập nhật ${moduleStore.name}`}
       />
       <div className="grid grid-cols-12 gap-4 px-4 py-4">
         <div className="col-span-9">

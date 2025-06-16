@@ -3,42 +3,48 @@
 import GroupButtonForm from "../../components/form/GroupButtonForm";
 import { handleCreate } from "./actions";
 import { useNotify } from "@/context/NotifyProvider";
-import { useState, useTransition } from "react";
+import { useFormState } from "react-dom";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { components } from "./components";
 import Group from "../../components/Group";
+import { useEffect } from "react";
 
 const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
   const notify = useNotify();
   const router = useRouterCustom();
-  const [oldData, setOldData] = useState({});
-  const [isPending, startTransition] = useTransition(false);
   const isStoreLanguage = moduleStore.language ?? false;
   const language = searchParams.language;
 
-  const handleSubmit = async (form) => {
-    startTransition(async () => {
-      const formData = Object.fromEntries(form);
-      const data = await handleCreate(module, formData, language);
-      if (data.status == 201) {
-        if (isStoreLanguage) {
-          router.pushWithQuery(
-            process.env.NEXT_PUBLIC_ADMIN_URL + module+ "/" + data?.data?._id,
-            {
-              language: language,
-            }
-          );
-        } else {
-          router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
-        }
-        await notify.changeNotify("success", data.message);
-        return;
+  // Tạo action wrapper để handle redirect và notification
+  const handleSubmitAction = async (prevState, formData) => {
+    const data = await handleCreate(module, formData, language);
+    
+    if (data.status == 201) {
+      if (isStoreLanguage) {
+        router.pushWithQuery(
+          process.env.NEXT_PUBLIC_ADMIN_URL + module + "/" + data?.data?._id,
+          { language: language }
+        );
       } else {
-        setOldData(formData);
-        await notify.changeNotify("error", data.message);
+        router.push(process.env.NEXT_PUBLIC_ADMIN_URL + `${module}`);
       }
-    });
+      await notify.changeNotify("success", data.message);
+      return { success: true, message: data.message };
+    } else {
+      await notify.changeNotify("error", data.message);
+      return { 
+        success: false, 
+        message: data.message,
+        errors: data.errors || {}
+      };
+    }
   };
+
+  const [state, formAction, isPending] = useFormState(handleSubmitAction, {
+    success: null,
+    message: "",
+    errors: {}
+  });
 
   const fieldLeft = fields
     .filter((field) => {
@@ -69,13 +75,22 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
       b.sort = b.sort ?? 999999;
       return a.sort - b.sort;
     });
+
   return (
-    <form action={handleSubmit} className="pb-10">
+    <form action={formAction} className="pb-10">
       <GroupButtonForm
         module={module}
         isPending={isPending}
         title={`Tạo ${moduleStore.name}`}
       />
+      
+      {/* Hiển thị error message nếu có */}
+      {state?.success === false && (
+        <div className="mx-4 mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {state.message}
+        </div>
+      )}
+
       <div className="grid grid-cols-12 gap-4 px-4 py-4">
         <div className="col-span-9">
           {fieldLeft.map((field) => {
@@ -87,11 +102,10 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
               <Group key={field.name} field={field}>
                 <Component
                   field={field}
-                  defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
-                  oldData={oldData}
                   language={language}
                   isMultipleLanguage={isStoreLanguage}
+                  error={state?.errors?.[field.name]}
                 />
               </Group>
             );
@@ -105,9 +119,8 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
               <Group key={field.name} field={field}>
                 <Component
                   field={field}
-                  defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
-                  oldData={oldData}
+                  error={state?.errors?.[field.name]}
                 />
               </Group>
             );
@@ -123,9 +136,8 @@ const FormCreate = ({ module, fields, moduleStore, searchParams }) => {
               <Group key={field.name} field={field}>
                 <Component
                   field={field}
-                  defaultValue={oldData?.[field.name] ?? ""}
                   module={module}
-                  oldData={oldData}
+                  error={state?.errors?.[field.name]}
                 />
               </Group>
             );

@@ -250,6 +250,7 @@ const CategoryEmptyState = ({ fieldLabel }) => {
 
 // Main Category Component
 const Category = ({ value, field, item }) => {
+  console.log(value,item,field)
   const { selected, handleSelectCategory } = useCategoryLogic(field);
   const {
     showDropdown,

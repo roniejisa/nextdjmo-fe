@@ -80,7 +80,7 @@ const DropdownContainer = ({ isVisible, children }) => (
 const Tag = ({ field, module }) => {
   // State management - Initialize with existing values for edit mode
   const [tags, setTags] = useState(() => {
-    return field.data.filter((item) => !field.value.includes(item));
+    return field?.data?.filter((item) => !field.value.includes(item)) ?? [];
   });
   const [list, setList] = useState(field.value || []);
   const [value, setValue] = useState("");
