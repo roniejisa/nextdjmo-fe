@@ -12,10 +12,8 @@ import { getToken } from "@/utils/server/utils";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 const orderDetail = async (id) => {
-  const token = await getToken();
   return httpClient(`${process.env.NEXT_PUBLIC_ENDPOINT_URL}orders/${id}`, {
     isAdmin: 1,
-    Authorization: `Bearer ${token}`,
   });
 };
 

@@ -1,17 +1,12 @@
 "use client";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import { showImageUrl } from "@/utils/client";
 import ImageCustom from "@/components/Maintain/Image";
 
-const ImageComponent = ({
-  value,
-  fnChooseImage,
-  attrName,
-  attrValue,
-}) => {
+const ImageComponent = ({ value, fnChooseImage, attrName, attrValue }) => {
   const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(GalleryContext);
+    useContext(ImageContext);
   const imageRef = useRef(null);
   const id = useId();
   const handleShowUpload = () => {

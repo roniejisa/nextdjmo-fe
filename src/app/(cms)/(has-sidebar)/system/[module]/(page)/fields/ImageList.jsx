@@ -1,5 +1,5 @@
 "use client";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 
@@ -10,7 +10,7 @@ const ImageListComponent = ({ value, item, field }) => {
     listImageChoosed,
     setIsMultiple,
     setItemCurrent,
-  } = useContext(GalleryContext);
+  } = useContext(ImageContext);
   const textareaRef = useRef(null);
   const id = useId();
   const handleShowUpload = () => {

@@ -1,15 +1,12 @@
-import { notFound, } from "next/navigation";
+import { notFound } from "next/navigation";
 import { getToken } from "@/utils/server/utils";
 import { httpClient } from "@/utils/http";
 import Client from "./Client";
 
 const getProductHot = async () => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "orders/products",
-    {
-      Authorization: `Bearer ${token}`,
-    }
+    {}
   );
   return response;
 };

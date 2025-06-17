@@ -1,11 +1,11 @@
 "use client";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 
 const ImageComponent = ({ defaultValue, item, field }) => {
   const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(GalleryContext);
+    useContext(ImageContext);
   
   // Refs and ID
   const imageRef = useRef(null);

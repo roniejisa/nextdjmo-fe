@@ -1,9 +1,7 @@
 import { httpClient } from "@/utils/http";
-import { getToken } from "@/utils/server/utils";
 
 const CHUNK_SIZE = 1024 * 1024 * 5;
 export const updateVideo = async (file, onProgress) => {
-  const token = await getToken();
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
   for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
     const start = chunkIndex * CHUNK_SIZE;
@@ -17,9 +15,7 @@ export const updateVideo = async (file, onProgress) => {
     formData.append("file_id", "upload");
     const response = await httpClient(
       process.env.NEXT_PUBLIC_ENDPOINT_URL + "videos/upload-file",
-      {
-        Authorization: `Bearer ${token}`,
-      },
+      {},
       formData,
       "POST"
     );
@@ -30,4 +26,3 @@ export const updateVideo = async (file, onProgress) => {
   }
   return true; // Upload hoàn tất
 };
-

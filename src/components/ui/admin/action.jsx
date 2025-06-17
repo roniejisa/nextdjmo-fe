@@ -1,7 +1,7 @@
 "use server";
 import { clearTokensAndRedirect } from "@/utils/action";
 import { httpClient } from "@/utils/http";
-import { getRefreshToken, getToken } from "@/utils/server/utils";
+import { getRefreshToken } from "@/utils/server/utils";
 
 export const handleLogout = async () => {
   const refreshToken = await getRefreshToken();
@@ -19,12 +19,9 @@ export const handleLogout = async () => {
 };
 
 export const getMenu = async () => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "get-menu-system",
-    {
-      Authorization: `Bearer ${token}`,
-    }
+    {}
   );
   return response;
 };

@@ -3,7 +3,7 @@ import MediaProvider from "@/app/media/MediaProvider";
 import MediaComponent from "@/components/Media/MediaComponent";
 import { createContext, useEffect, useRef, useState } from "react";
 
-export const GalleryContext = createContext(null);
+export const ImageContext = createContext(null);
 const ImageProvider = ({ children }) => {
   const [showMedia, setShowMedia] = useState(false);
   const [dataImage, setDataImage] = useState(null);
@@ -67,7 +67,7 @@ const ImageProvider = ({ children }) => {
     }
   }, [showMedia]);
   return (
-    <GalleryContext.Provider
+    <ImageContext.Provider
       value={{
         listImageChoosed,
         setListImageChoosed,
@@ -100,7 +100,7 @@ const ImageProvider = ({ children }) => {
           </div>
         </div>
       )}
-    </GalleryContext.Provider>
+    </ImageContext.Provider>
   );
 };
 

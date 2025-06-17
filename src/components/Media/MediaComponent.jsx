@@ -1,7 +1,7 @@
 "use client";
 
 import MediaList from "@/app/media/MediaList";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useState, useTransition } from "react";
 import { getToken } from "./action";
 import Editor from "@/app/media/components/Editor";
@@ -11,10 +11,10 @@ import CreateFolder from "@/app/media/CreateFolder";
 import Breadcrumb from "./Breadcrumb";
 
 const MediaComponent = () => {
-  // const { setShowMedia } = useContext(GalleryContext);
+  // const { setShowMedia } = useContext(ImageContext);
   const [isPending, startTransition] = useTransition();
   const [token, setToken] = useState(null);
-  const { listImage, setListImageChoosed, isMultiple } = useContext(GalleryContext);
+  const { listImage, setListImageChoosed, isMultiple } = useContext(ImageContext);
   const getTokenFromClient = async () => {
     const token = await getToken();
     startTransition(async function () {

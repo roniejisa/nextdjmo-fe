@@ -4,44 +4,52 @@ import { checkSlug } from "./action";
 import { toSlug } from "@/utils/client";
 import { useNotify } from "@/context/NotifyProvider";
 
-const Slug = ({ field, value, item, language }) => {
+const Slug = ({ field, value, language, item }) => {
   const slugRef = useRef(null);
   const notify = useNotify();
-  const timer = useRef(null);
   const checkChangeInputSlug = async (e) => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(async () => {
-      const data = await checkSlug(
-        field.module,
-        toSlug(e.target.value),
-        item._id,
-        language
-      );
-      if (data.status === 200) {
-        slugRef.current.value = toSlug(e.target.value);
-        notify.changeNotify("success", data.message);
-      } else {
-        slugRef.current.value = "";
-        notify.changeNotify("error", data.message);
-      }
-    }, 1000);
+    slugRef.current.value = toSlug(e.target.value);
+    if (!slugRef.current.value) return;
+    const data = await checkSlug(
+      field.module,
+      slugRef.current.value,
+      language,
+      item
+    );
+    if (data.status === 200) {
+      notify.changeNotify("success", data.message);
+    } else {
+      slugRef.current.value = "";
+      notify.changeNotify("error", data.message);
+    }
   };
 
   useEffect(() => {
-    if(slugRef.current){
-      slugRef.current.value = value ?? item?.[field.name] ?? "";
-    }
+    const inputSlug = document.querySelector(`input[name="${field.from}"]`);
+    const checkChange = async (e) => {
+      if (slugRef.current.value == "") {
+        checkChangeInputSlug(e);
+      }
+    };
+    inputSlug.addEventListener("change", checkChange);
+    return () => {
+      inputSlug.removeEventListener("change", checkChange);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, item]);
+  }, [slugRef]);
 
+  useEffect(() => {
+    slugRef.current.value = value ?? ""; 
+  }, [value]);
   return (
     <input
+      type="text"
+      autoComplete="off"
       name={field.name}
       ref={slugRef}
-      autoComplete="off"
-      onChange={checkChangeInputSlug}
       placeholder={field.placeholder}
-      value={value || ""}
+      defaultValue={value || ""}
+      onBlur={checkChangeInputSlug}
       className="w-full outline-outline outline-4 transition border rounded-md p-2"
     />
   );

@@ -1,13 +1,9 @@
 import { httpClient } from "@/utils/http";
-import { getToken } from "@/utils/server/utils";
 
 export const saveMenu = async (data) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "links",
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     data,
     "POST"
   );
@@ -15,12 +11,9 @@ export const saveMenu = async (data) => {
 };
 
 export const updateMenu = async (data, id) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "links/" + id,
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     data,
     "PATCH"
   );
@@ -28,12 +21,9 @@ export const updateMenu = async (data, id) => {
 };
 
 export const copyMenu = async (id) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "links/" + id,
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {},
     "PUT"
   );
@@ -41,12 +31,9 @@ export const copyMenu = async (id) => {
 };
 
 export const deleteMenu = async (id) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "links/" + id,
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {},
     "DELETE"
   );
@@ -54,12 +41,9 @@ export const deleteMenu = async (id) => {
 };
 
 export const getMenu = async () => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "links",
-    {
-      Authorization: `Bearer ${token}`,
-    }
+    {}
   );
   return response;
 };

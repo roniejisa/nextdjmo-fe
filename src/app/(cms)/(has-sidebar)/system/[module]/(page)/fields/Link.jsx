@@ -1,21 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
 import { httpClient } from "@/utils/http";
-import { getToken } from "@/utils/server/utils";
 
-const Link = ({ field, value:initialValue, item }) => {
+const Link = ({ field, value: initialValue, item }) => {
   const [value, setValue] = useState(initialValue || "");
   const [module, setModule] = useState("");
   const [list, setList] = useState([]);
 
   const getModuleLink = async () => {
-    const token = await getToken();
-
     const data = await httpClient(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}?fields=_id,name,slug`,
-      {
-        Authorization: `Bearer ${token}`,
-      }
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}?fields=_id,name,slug`
     );
     if (data.status == 200) {
       setList(data.data.items);

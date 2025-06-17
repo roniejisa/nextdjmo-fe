@@ -1,21 +1,17 @@
 import React from "react";
 import FormCreate from "./FormCreate";
 import { httpClient } from "@/utils/http";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { getDataModule } from "../../actions";
 
 const moduleDetail = async (module, language) => {
-  const storeCookie = await cookies();
-  const token = storeCookie.get("token")?.value;
   return httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL +
       `${module}/create` +
       (language ? `?language=${language}` : ""),
     {
       isAdmin: 1,
-      Authorization: `Bearer ${token}`,
     }
   );
 };

@@ -17,10 +17,7 @@ const BlockManager = () => {
 
   const getComponents = async () => {
     const response = await httpClient(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + "components/get-all",
-      {
-        Authorization: `Bearer ${token}`,
-      }
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + "components/get-all"
     );
 
     if (response.status == 200) {

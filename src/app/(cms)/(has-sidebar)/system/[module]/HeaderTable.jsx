@@ -5,7 +5,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import FormFilter from "./FormFilter";
 import { ModuleContext } from "@/context/cms/ModuleProvider";
 import useRouterCustom from "@/packages/translation/Navigation";
-import { getToken } from "@/utils/server/utils";
 import { useNotify } from "@/context/NotifyProvider";
 import { createQueryString } from "@/utils/client";
 import ExcelIcon from "@/components/Icon/svg/Excel";
@@ -25,8 +24,6 @@ const useExportOperations = (module, notify, searchParams) => {
   const exportData = useCallback(
     async (format) => {
       try {
-        const token = await getToken();
-
         // Chuyển searchParams thành query string cho API
         const queryParams = new URLSearchParams();
         for (const [key, value] of searchParams.entries()) {
@@ -43,9 +40,7 @@ const useExportOperations = (module, notify, searchParams) => {
         // Sửa lại cách nhận response từ httpClientBlob
         const response = await httpClientBlob(
           `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/export`,
-          {
-            Authorization: `Bearer ${token}`,
-          },
+          {},
           formData,
           "POST"
         );
@@ -227,24 +222,25 @@ const useSearchField = (fields) => {
 const useExcelOperations = (module, notify, router) => {
   const downloadExcel = useCallback(async () => {
     try {
-      const token = await getToken();
-      const response = await fetch(
+      const response = await httpClientBlob(
         `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/download-file-excel-example`,
-        {
-          method: "POST",
-          headers: {
-            "X-API-KEY": "123456",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        {},
+        {},
+        "POST"
       );
 
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+      let blobData;
+      if (response && response.data) {
+        // Trường hợp response có cấu trúc {data, status, headers, ...}
+        blobData = response.data;
+      } else if (response instanceof Blob) {
+        // Trường hợp response trả về trực tiếp là Blob
+        blobData = response;
+      } else {
+        throw new Error("Invalid response format");
       }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(blobData);
       const link = document.createElement("a");
 
       link.href = url;
@@ -271,13 +267,12 @@ const useExcelOperations = (module, notify, router) => {
       if (!file) return;
 
       try {
-        const token = await getToken();
         const formData = new FormData();
         formData.append("file_excel", file);
 
         const response = await httpClient(
           `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/create-rows-with-excel`,
-          { Authorization: `Bearer ${token}` },
+          {},
           formData,
           "POST"
         );

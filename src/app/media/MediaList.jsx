@@ -5,7 +5,7 @@ import { useMedia } from "./MediaProvider";
 import ImageType from "./types/ImageType";
 import VideoType from "./types/VideoType";
 import MediaItem from "./MediaItem";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { fetchFiles } from "./action";
 import DefaultType from "./types/DefaultType";
 import Folder from "./Folder";
@@ -269,7 +269,7 @@ const MediaList = () => {
     loadedPages,
   } = useMedia((media) => media);
 
-  const { setChoosed, setListImage, isMultiple } = useContext(GalleryContext);
+  const { setChoosed, setListImage, isMultiple } = useContext(ImageContext);
 
   // Effect to update items reference when medias, breadcrumbs, or viewMode change
   useEffect(() => {

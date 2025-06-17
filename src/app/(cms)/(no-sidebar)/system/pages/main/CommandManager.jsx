@@ -9,7 +9,6 @@ const CommandManager = () => {
     useContext(BuilderContext);
   useEffect(() => {
     if (editor) {
-      
       // Nút Undo
       editor.Panels.addButton("options", {
         id: "undo",
@@ -40,9 +39,6 @@ const CommandManager = () => {
         attributes: { title: "Xem thực tế" },
       });
 
-
-      
-
       editor.Panels.addButton("options", {
         id: "saveDb", // ID cho nút Redo
         className: "fa fa-save", // Icon cho nút Redo
@@ -50,7 +46,6 @@ const CommandManager = () => {
         attributes: { title: "Lưu lại" },
       });
 
-      
       // if (id) {
       //   editor.Panels.addButton("options", {
       //     id: "modal-edit", // ID cho nút Redo
@@ -65,8 +60,6 @@ const CommandManager = () => {
 
   useEffect(() => {
     if (editor) {
-     
-
       // Chỉnh sửa trong page nhưng khả năng bỏ
       editor.Commands.add("delete-all", {
         run: async (editor, sender) => {
@@ -84,10 +77,10 @@ const CommandManager = () => {
       });
 
       editor.Commands.add("viewSite", {
-        run:()=>{
-          window.open(`/${page.slug}`)
-        }
-      })
+        run: () => {
+          window.open(`/${page.slug}`);
+        },
+      });
 
       editor.Commands.add("saveDb", {
         run: async (editor, sender) => {
@@ -98,9 +91,7 @@ const CommandManager = () => {
           // Gửi dữ liệu HTML và CSS để lưu vào database
           const response = await httpClient(
             process.env.NEXT_PUBLIC_ENDPOINT_URL + "pages/save",
-            {
-              Authorization: `Bearer ${token}`,
-            },
+            {},
             {
               id,
               data: JSON.stringify({
@@ -122,7 +113,6 @@ const CommandManager = () => {
           );
         },
       });
-
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, id, page]);

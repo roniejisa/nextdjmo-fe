@@ -1,12 +1,12 @@
 "use client";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import { Upload, Link2, Image as ImageIcon } from "lucide-react";
 
 const ImageField = ({ field, value, onChange }) => {
   const { setShowMedia, itemCurrent, isMultiple, choosed, setItemCurrent } =
-    useContext(GalleryContext);
+    useContext(ImageContext);
 
   const imageRef = useRef(null);
   const urlRef = useRef(null);

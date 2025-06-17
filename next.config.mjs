@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Bật lại React Strict Mode để catch hooks issues
-  reactStrictMode: true,
+  reactStrictMode: false,
   
   experimental: {
     staleTimes: {

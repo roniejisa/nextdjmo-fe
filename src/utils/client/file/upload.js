@@ -24,13 +24,13 @@ export const uploadFileResumable = async (
     const start = chunkIndex * CHUNK_SIZE;
     const end = Math.min(start + CHUNK_SIZE, file.size);
     const chunk = file.slice(start, end);
-    
+
     const formData = new FormData();
     formData.append("file", chunk);
     formData.append("fileName", file.name);
     formData.append("chunkIndex", chunkIndex);
     formData.append("totalChunks", totalChunks);
-    
+
     if (obj.media_id) {
       formData.append("media_id", obj.media_id);
     }
@@ -38,9 +38,7 @@ export const uploadFileResumable = async (
 
     const response = await httpClient(
       process.env.NEXT_PUBLIC_ENDPOINT_URL + "files/upload-file",
-      {
-        Authorization: `Bearer ${token}`,
-      },
+      {},
       formData,
       "POST"
     );
@@ -66,15 +64,15 @@ export const uploadFileResumable = async (
  */
 export const convertSize = (bytes, decimals = 1) => {
   if (!+bytes) return "0 B";
-  
+
   const k = 1024;
   let dm = decimals < 0 ? 0 : decimals;
   const sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   if (i < 3) {
     dm = 0; // Không hiển thị decimal cho B, KB, MB
   }
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };

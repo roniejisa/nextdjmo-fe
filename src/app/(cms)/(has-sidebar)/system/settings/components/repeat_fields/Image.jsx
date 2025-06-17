@@ -1,5 +1,5 @@
 "use client";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef, useState } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import Group from "../../../[module]/fields/Group";
@@ -12,7 +12,7 @@ const ImageComponent = ({
   itemData,
 }) => {
   const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(GalleryContext);
+    useContext(ImageContext);
   const imageRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasImage, setHasImage] = useState(false);

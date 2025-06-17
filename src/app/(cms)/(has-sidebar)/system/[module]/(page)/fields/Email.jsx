@@ -2,12 +2,14 @@
 
 import TrueOrFalseIcon from "@/components/Icon/TrueOrFalseIcon";
 import { isValidEmail } from "@/utils/client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const Email = ({ field, value: initialValue }) => {
-  const [value, setValue] = useState(initialValue);
+  const memoInitialValue = useMemo(() => initialValue, [initialValue]);
+  const [value, setValue] = useState(memoInitialValue);
   const [name, setName] = useState(field.name);
   const [isValid, setIsValid] = useState(true);
+
   const handleChange = (e) => {
     const value = e.target.value.trim();
     setValue(value);
@@ -19,9 +21,11 @@ const Email = ({ field, value: initialValue }) => {
       setIsValid(false);
     }
   };
+
   useEffect(() => {
     setValue(initialValue);
   }, [initialValue]);
+
   return (
     <div className="flex relative">
       <input

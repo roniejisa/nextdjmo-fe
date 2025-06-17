@@ -723,11 +723,9 @@ const MusicProvider = ({ children }) => {
       // Cleanup audio references
       if (audioElRef.current) {
         audioElRef.current.pause();
-        audioElRef.current = null;
       }
       if (audioKaraokeElRef.current) {
         audioKaraokeElRef.current.pause();
-        audioKaraokeElRef.current = null;
       }
     };
   }, []);
@@ -737,10 +735,13 @@ const MusicProvider = ({ children }) => {
 
     try {
       const timeLastUpdate = getLocalStorage(KEY_TIME_LAST_UPDATE);
-      if (timeLastUpdate && timeLastUpdate + 60 * 10 * 1000 >= new Date().getTime()) {
+      if (
+        timeLastUpdate &&
+        timeLastUpdate + 60 * 10 * 1000 >= new Date().getTime()
+      ) {
         playlistHome.current = getLocalStorage(KEY_HOME) || [];
         playlists.current = getLocalStorage(KEY_PLAYLIST_MAIN) || [];
-      } 
+      }
 
       if (playlists.current.length === 0) {
         const [responseDB, responseJson, responseHome] = await Promise.all([
@@ -817,6 +818,12 @@ const MusicProvider = ({ children }) => {
             top: playlistEl.current.scrollTop + offsetTop,
           });
         }
+      }
+
+      if (songIndexCurrent.current >= playlists.current.length) {
+        songIndexCurrent.current = 0;
+      } else if (songIndexCurrent.current < 0) {
+        songIndexCurrent.current = playlists.current.length - 1;
       }
 
       const songCurrent = playlists.current[songIndexCurrent.current];
@@ -913,93 +920,73 @@ const MusicProvider = ({ children }) => {
   const checkLoopIfEnded = useCallback(
     (isNext = true, checkLoop = false) => {
       try {
-        if (isShuffle.current && isNext) {
+        // Reset audio time
+        if (audioElRef.current && audioElRef.current.readyState >= 1) {
+          audioElRef.current.currentTime = 0;
+        }
+        if (checkHasAudioKaraoke() && audioKaraokeElRef.current) {
+          audioKaraokeElRef.current.currentTime = 0;
+        }
+        changeProcess(0);
+
+        // Handle previous song in shuffle mode
+        if (isShuffle.current && isNext && !checkLoop) {
           songIndexPrevious.current = songIndexCurrent.current;
         }
 
         if (
-          songIndexPrevious.current &&
           !isNext &&
           isShuffle.current &&
+          songIndexPrevious.current !== null &&
           songIndexCurrent.current !== songIndexPrevious.current
         ) {
           songIndexCurrent.current = songIndexPrevious.current;
+          songIndexPrevious.current = null;
           loadSongStart();
           changeIconPlay();
-          songIndexPrevious.current = null;
-          return false;
+          return;
         }
 
+        // If loop is enabled and not forced to change
         if (isLoop.current && !checkLoop) {
           isPlay.current = true;
-        } else {
-          if (audioElRef.current && audioElRef.current.readyState >= 1) {
-            audioElRef.current.currentTime = 0;
-          }
-          if (checkHasAudioKaraoke() && audioKaraokeElRef.current) {
-            audioKaraokeElRef.current.currentTime = 0;
-          }
-          changeProcess(
-            secondTimeSongToPercent(audioElRef.current?.currentTime || 0)
-          );
+          loadSongStart();
+          changeIconPlay();
+          return;
         }
 
-        // Handle shuffle
-        if (
-          (!isLoop.current || checkLoop) &&
-          isShuffle.current &&
-          playlists.current.length > 2
-        ) {
-          let indexChange = songIndexCurrent.current;
-          let count = 0;
+        // Change to next/previous song
+        if (isShuffle.current && playlists.current.length > 1) {
+          // Shuffle mode
+          let newIndex = songIndexCurrent.current;
+          let attempts = 0;
+          const maxAttempts = Math.min(10, playlists.current.length);
 
-          const maxAttempts = Math.min(30, playlists.current.length * 2);
           while (
-            songIndexCurrent.current === indexChange &&
-            count < maxAttempts
+            newIndex === songIndexCurrent.current &&
+            attempts < maxAttempts
           ) {
-            indexChange = Math.floor(Math.random() * playlists.current.length);
-            count++;
+            newIndex = Math.floor(Math.random() * playlists.current.length);
+            attempts++;
           }
 
-          if (count >= maxAttempts) {
-            // Fallback: just get next song
-            indexChange =
+          if (newIndex === songIndexCurrent.current) {
+            // Fallback: get next song
+            newIndex =
               (songIndexCurrent.current + 1) % playlists.current.length;
           }
 
-          if (count === 30) {
-            indexChange = playlists.current.findIndex(
-              (song, index) => index !== songIndexCurrent.current
-            );
-          }
-          songIndexCurrent.current = indexChange;
-        } else if ((!isLoop.current || checkLoop) && !isShuffle.current) {
+          songIndexCurrent.current = newIndex;
+        } else {
+          // Sequential mode
           if (isNext) {
-            if (songIndexCurrent.current === playlists.current.length - 1) {
-              songIndexCurrent.current = 0;
-            } else {
-              songIndexCurrent.current++;
-            }
+            songIndexCurrent.current =
+              (songIndexCurrent.current + 1) % playlists.current.length;
           } else {
-            songIndexCurrent.current--;
+            songIndexCurrent.current = songIndexCurrent.current - 1;
             if (songIndexCurrent.current < 0) {
               songIndexCurrent.current = playlists.current.length - 1;
             }
-          }
-
-          if (audioElRef.current && audioElRef.current.readyState >= 1) {
-            audioElRef.current.currentTime = 0;
-          }
-          if (checkHasAudioKaraoke() && audioKaraokeElRef.current) {
-            audioKaraokeElRef.current.currentTime = 0;
-          }
-        } else if ((!isLoop.current || checkLoop) && isNext) {
-          songIndexCurrent.current++;
-        } else if ((!isLoop.current || checkLoop) && !isNext) {
-          songIndexCurrent.current--;
-          if (songIndexCurrent.current < 0) {
-            songIndexCurrent.current = playlists.current.length - 1;
           }
         }
 
@@ -1009,13 +996,7 @@ const MusicProvider = ({ children }) => {
         console.error("Error in checkLoopIfEnded:", error);
       }
     },
-    [
-      loadSongStart,
-      changeIconPlay,
-      checkHasAudioKaraoke,
-      changeProcess,
-      secondTimeSongToPercent,
-    ]
+    [loadSongStart, changeIconPlay, checkHasAudioKaraoke, changeProcess]
   );
 
   // Tab button event handlers
@@ -1088,18 +1069,7 @@ const MusicProvider = ({ children }) => {
   const initializeAudio = useCallback(() => {
     audioElRef.current = new Audio();
     audioKaraokeElRef.current = new Audio();
-
-    // Add event listeners for audio events
-    if (audioElRef.current) {
-      audioElRef.current.addEventListener("loadedmetadata", () => {
-        // Handle metadata loaded
-      });
-
-      audioElRef.current.addEventListener("ended", () => {
-        checkLoopIfEnded(true, false);
-      });
-    }
-  }, [checkLoopIfEnded]);
+  }, []);
 
   const renderSongHome = useCallback(() => {
     return new Promise((resolve) => {

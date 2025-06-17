@@ -14,7 +14,9 @@ export const submitReview = async (body) => {
       Authorization: "Bearer " + token,
     },
     body,
-    "POST"
+    "POST",
+    true,
+    true
   );
   return response;
 };
@@ -30,7 +32,9 @@ export const submitReaction = async (body) => {
       Authorization: "Bearer " + token,
     },
     body,
-    "POST"
+    "POST",
+    true,
+    true
   );
   return response;
 };

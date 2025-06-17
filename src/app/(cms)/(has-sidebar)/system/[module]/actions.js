@@ -1,6 +1,5 @@
 "use server";
 import { httpClient } from "@/utils/http";
-import { getToken } from "@/utils/server/utils";
 
 export const getDataModule = async (
   module,
@@ -9,7 +8,6 @@ export const getDataModule = async (
   searchParams = {}
 ) => {
   try {
-    const token = await getToken();
     const url = new URLSearchParams({
       ...searchParams,
       limit,
@@ -19,7 +17,6 @@ export const getDataModule = async (
       process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `?${url.toString()}`,
       {
         isAdmin: 1,
-        Authorization: `Bearer ${token}`,
       }
     );
   } catch (e) {
@@ -28,27 +25,19 @@ export const getDataModule = async (
 };
 
 export const getSeo = async (module) => {
-  const token = await getToken();
-  return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `/seo`, {
-    Authorization: `Bearer ${token}`,
-  });
+  return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `/seo`);
 };
 
 export const getDataModuleDetail = async (module, id) => {
-  const token = await getToken();
   return httpClient(process.env.NEXT_PUBLIC_ENDPOINT_URL + module + `/${id}`, {
     isAdmin: 1,
-    Authorization: `Bearer ${token}`,
   });
 };
 
 export const changeOrderStatus = async (value, _id) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "orders/change-order-status",
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {
       _id,
       status: value,
@@ -59,12 +48,9 @@ export const changeOrderStatus = async (value, _id) => {
 };
 
 export const changePaymentStatus = async (value, _id) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "orders/change-order-status",
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {
       _id,
       payment_status: value,
@@ -75,12 +61,9 @@ export const changePaymentStatus = async (value, _id) => {
 };
 
 export const deleteItems = async (module, ids) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + module,
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {
       ids,
     },
@@ -90,12 +73,9 @@ export const deleteItems = async (module, ids) => {
 };
 
 export const copyItem = async (module, _id) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + module + "/" + _id,
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {},
     "PUT"
   );
@@ -103,12 +83,9 @@ export const copyItem = async (module, _id) => {
 };
 
 export const changeFieldBool = async (module, field, id, value) => {
-  const token = await getToken();
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + module + "/change-field-bool",
-    {
-      Authorization: `Bearer ${token}`,
-    },
+    {},
     {
       field,
       value,

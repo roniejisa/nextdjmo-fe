@@ -1,11 +1,12 @@
-"use server"
+"use server";
 
-import { httpClient } from "@/utils/http"
-import { getToken } from "@/utils/server/utils"
+import { httpClient } from "@/utils/http";
 
 export const formSubmitSetting = async (form) => {
-    const token = await getToken()
-    return httpClient(`${process.env.NEXT_PUBLIC_ENDPOINT_URL}settings/save-all`, {
-        Authorization: `Bearer ${token}`
-    }, form,'POST')
-} 
+  return httpClient(
+    `${process.env.NEXT_PUBLIC_ENDPOINT_URL}settings/save-all`,
+    {},
+    form,
+    "POST"
+  );
+};

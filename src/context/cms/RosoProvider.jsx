@@ -1,5 +1,4 @@
 "use client";
-import { getToken } from "@/utils/server/utils";
 import { marked } from "marked";
 import { createContext, useRef, useEffect } from "react";
 import hljs from "highlight.js";
@@ -141,7 +140,6 @@ const RosoProvider = ({ children }) => {
       setIsStreaming(false);
     }
 
-    const token = await getToken();
     let data = "";
 
     // Xử lý data dựa trên loại request
@@ -498,9 +496,7 @@ const RosoProvider = ({ children }) => {
       // Gọi API streaming
       const response = await httpClientSSE(
         process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
-        {
-          Authorization: `Bearer ${token}`,
-        },
+        {},
         form,
         "POST",
         true,
@@ -510,9 +506,7 @@ const RosoProvider = ({ children }) => {
       if (!response.ok) {
         const response = await httpClientSSE(
           process.env.NEXT_PUBLIC_ENDPOINT_URL + "generation",
-          {
-            Authorization: `Bearer ${token}`,
-          },
+          {},
           form,
           "POST",
           true,

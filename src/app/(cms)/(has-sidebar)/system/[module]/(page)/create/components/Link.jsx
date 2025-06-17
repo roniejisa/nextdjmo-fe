@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { httpClient } from "@/utils/http";
-import { getToken } from "@/utils/server/utils";
 
 const Link = ({ field, defaultValue }) => {
   const [value, setValue] = useState(defaultValue || "");
@@ -9,13 +8,8 @@ const Link = ({ field, defaultValue }) => {
   const [list, setList] = useState([]);
 
   const getModuleLink = async () => {
-    const token = await getToken();
-
     const data = await httpClient(
-      process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}?fields=_id,name,slug`,
-      {
-        Authorization: `Bearer ${token}`,
-      }
+      process.env.NEXT_PUBLIC_ENDPOINT_URL + `${module}?fields=_id,name,slug`
     );
     if (data.status == 200) {
       setList(data.data.items);
@@ -54,9 +48,11 @@ const Link = ({ field, defaultValue }) => {
       >
         <option value="">-- Chọn danh sách --</option>
         {field?.data.map((item, index) => {
-          return <option key={index} value={item?.value}>
-            {item?.label}
-          </option>;
+          return (
+            <option key={index} value={item?.value}>
+              {item?.label}
+            </option>
+          );
         })}
       </select>
       <select name="model_id" onChange={handleChangeLink}>

@@ -1,13 +1,13 @@
 "use client";
 import React, { useContext, useEffect, useId, useRef } from "react";
 import "quill/dist/quill.snow.css";
-import { GalleryContext } from "@/context/cms/ImageProvider";
+import { ImageContext } from "@/context/cms/ImageProvider";
 const Editor = ({ field, defaultValue, oldData }) => {
   const editorRef = useRef(null);
   const textareaRef = useRef(null);
   const quillCurrentRef = useRef(null);
   const { setShowMedia, itemCurrent, isMultiple, choosed, setItemCurrent } =
-    useContext(GalleryContext);
+    useContext(ImageContext);
   const id = useId();
   const handleShowUpload = () => {
     setShowMedia(id);

@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 
 const Textarea = ({ value, field, item }) => {
-  console.log(value)
   const textareaRef = useRef(null);
   useEffect(() => {
     textareaRef.current.value = value ?? "";

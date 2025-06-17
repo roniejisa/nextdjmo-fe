@@ -62,6 +62,7 @@ const MusicPlayer = () => {
     // Logic xử lý audio
     if (isKaraoke.current && isShowLyric.current && isPlay.current) {
       audioElRef.current?.pause();
+      // Đảm bảo karaoke audio cũng có event listener ended
       audioKaraokeElRef.current?.play();
     } else {
       if (!audioKaraokeElRef.current?.paused) {
@@ -576,7 +577,7 @@ const MusicPlayer = () => {
           const img =
             songItem.querySelector("img")?.getAttribute("src") ?? "/logo.png";
           const author = songItem.getAttribute("data-author");
-          const lyrics = songItem.getAttribute("data-lyrics")
+          const lyrics = songItem.getAttribute("data-lyrics");
 
           const data = {
             data: {
@@ -585,7 +586,7 @@ const MusicPlayer = () => {
               title: title,
               image: img,
               author: author,
-              lyrics: lyrics ?? null
+              lyrics: lyrics ?? null,
             },
           };
           const status = "OK";
@@ -650,8 +651,13 @@ const MusicPlayer = () => {
         if (searchEl) {
           searchEl.innerHTML = playListSearch.current
             .map(
-              ({ title, id, type, image, author, duration, lyrics = "" },index) =>
-                `<div class="song-item" title="${title}" data-author="${author}" data-id="${id}" data-type="${type}" data-index="${index}" data-lyrics='${lyrics ?? ''}'>
+              (
+                { title, id, type, image, author, duration, lyrics = "" },
+                index
+              ) =>
+                `<div class="song-item" title="${title}" data-author="${author}" data-id="${id}" data-type="${type}" data-index="${index}" data-lyrics='${
+                  lyrics ?? ""
+                }'>
             <div class="image">
               ${
                 image
@@ -688,52 +694,7 @@ const MusicPlayer = () => {
       }
     }
 
-    function initAudio() {
-      if (!audioElRef.current) return;
-
-      playLines = document.querySelectorAll(".play-line");
-
-      // Audio event listeners
-      audioElRef.current.addEventListener("loadeddata", handleAudioLoadedData);
-      audioElRef.current.addEventListener("play", handleAudioPlay);
-      audioElRef.current.addEventListener("pause", handleAudioPause);
-      audioElRef.current.addEventListener(
-        "durationchange",
-        handleAudioDurationChange
-      );
-      audioElRef.current.addEventListener("timeupdate", timeUpdateHandle);
-      audioElRef.current.addEventListener("ended", handleAudioEnded);
-
-      // Playlist event listeners
-      Array.from(playlistEl.current.children).forEach(function (song, index) {
-        const handlePlaylistSongClick = function (e) {
-          if (songIndexCurrent.current === index) {
-            buttonPlayRef.current.click();
-            if (isPlay.current) {
-              changeTab();
-            }
-            return false;
-          }
-          if (!isPlay.current) {
-            buttonPlayRef.current.click();
-          }
-          if (playlists.current[songIndexCurrent.current].lyrics) {
-            addOrRemoveIconStartKaraoke();
-          }
-          songIndexCurrent.current = index;
-          loadSongStart();
-        };
-        song.addEventListener("click", handlePlaylistSongClick);
-      });
-
-      // Button event listeners
-      if (buttonKaraoke) {
-        buttonKaraoke.addEventListener("click", handleKaraokeClick);
-      }
-      if (buttonGetLyric.current) {
-        buttonGetLyric.current.addEventListener("click", handleGetLyricClick);
-      }
-    }
+    
 
     function animationLine(checkPlay = true) {
       if (!playLines) return;
@@ -823,11 +784,16 @@ const MusicPlayer = () => {
     }
 
     function addOrRemoveIconStartKaraoke(isRemove = true) {
-      const currentSong = playlists.current[songIndexCurrent.current]
-      if (!currentSong.lyrics || !Array.isArray(currentSong.lyrics) || (Array.isArray(currentSong.lyrics) && currentSong.lyrics.length == 0)) {
+      const currentSong = playlists.current[songIndexCurrent.current];
+      if (
+        !currentSong.lyrics ||
+        !Array.isArray(currentSong.lyrics) ||
+        (Array.isArray(currentSong.lyrics) && currentSong.lyrics.length == 0)
+      ) {
         return false;
       }
-      var lyricFirst = playlists.current[songIndexCurrent.current].lyrics[0].words;
+      var lyricFirst =
+        playlists.current[songIndexCurrent.current].lyrics[0].words;
       var wordFirst = lyricFirst[0];
       var step = 1000;
       var initialValue = 8000;
@@ -864,6 +830,49 @@ const MusicPlayer = () => {
       );
     }
 
+    function initAudio() {
+      if (!audioElRef.current) return;
+
+      playLines = document.querySelectorAll(".play-line");
+
+      // Audio event listeners
+      audioElRef.current.addEventListener("loadeddata", handleAudioLoadedData);
+      audioElRef.current.addEventListener("play", handleAudioPlay);
+      audioElRef.current.addEventListener("pause", handleAudioPause);
+      audioElRef.current.addEventListener("durationchange",handleAudioDurationChange);
+      audioElRef.current.addEventListener("timeupdate", timeUpdateHandle);
+      audioElRef.current.addEventListener("ended", handleAudioEnded);
+
+      // Playlist event listeners
+      Array.from(playlistEl.current.children).forEach(function (song, index) {
+        const handlePlaylistSongClick = function (e) {
+          if (songIndexCurrent.current === index) {
+            buttonPlayRef.current.click();
+            if (isPlay.current) {
+              changeTab();
+            }
+            return false;
+          }
+          if (!isPlay.current) {
+            buttonPlayRef.current.click();
+          }
+          if (playlists.current[songIndexCurrent.current].lyrics) {
+            addOrRemoveIconStartKaraoke();
+          }
+          songIndexCurrent.current = index;
+          loadSongStart();
+        };
+        song.addEventListener("click", handlePlaylistSongClick);
+      });
+
+      // Button event listeners
+      if (buttonKaraoke) {
+        buttonKaraoke.addEventListener("click", handleKaraokeClick);
+      }
+      if (buttonGetLyric.current) {
+        buttonGetLyric.current.addEventListener("click", handleGetLyricClick);
+      }
+    }
     // Add event listeners
     suggestions.forEach((item) => {
       item.addEventListener("mouseenter", handleSuggestionMouseEnter);
@@ -909,6 +918,15 @@ const MusicPlayer = () => {
 
     // Cleanup function
     return () => {
+      // Clean up audio event listeners
+      if (audioElRef.current) {
+        audioElRef.current.removeEventListener("loadeddata",handleAudioLoadedData);
+        audioElRef.current.removeEventListener("play", handleAudioPlay);
+        audioElRef.current.removeEventListener("pause", handleAudioPause);
+        audioElRef.current.removeEventListener( "durationchange", handleAudioDurationChange);
+        audioElRef.current.removeEventListener("ended", handleAudioEnded);
+        audioElRef.current.removeEventListener("timeupdate", timeUpdateHandle);
+      }
       // Remove event listeners
       suggestions.forEach((item) => {
         item.removeEventListener("mouseenter", handleSuggestionMouseEnter);
@@ -941,21 +959,7 @@ const MusicPlayer = () => {
       document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", handleWindowResize);
 
-      // Clean up audio event listeners
-      if (audioElRef.current) {
-        audioElRef.current.removeEventListener(
-          "loadeddata",
-          handleAudioLoadedData
-        );
-        audioElRef.current.removeEventListener("play", handleAudioPlay);
-        audioElRef.current.removeEventListener("pause", handleAudioPause);
-        audioElRef.current.removeEventListener(
-          "durationchange",
-          handleAudioDurationChange
-        );
-        audioElRef.current.removeEventListener("timeupdate", timeUpdateHandle);
-        audioElRef.current.removeEventListener("ended", handleAudioEnded);
-      }
+      
 
       if (buttonKaraoke) {
         buttonKaraoke.removeEventListener("click", handleKaraokeClick);

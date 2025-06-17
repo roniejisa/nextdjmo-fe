@@ -24,9 +24,7 @@ const GrapesBuilder = ({ id }) => {
           const css = editor.getCss();
           const response = await httpClient(
             process.env.NEXT_PUBLIC_ENDPOINT_URL + "pages/save",
-            {
-              Authorization: `Bearer ${token}`,
-            },
+            {},
             {
               id,
               data: JSON.stringify({
@@ -46,10 +44,7 @@ const GrapesBuilder = ({ id }) => {
         onLoad: async () => {
           if (!id) return;
           const response = await httpClient(
-            process.env.NEXT_PUBLIC_ENDPOINT_URL + "pages/" + id,
-            {
-              Authorization: `Bearer ${token}`,
-            }
+            process.env.NEXT_PUBLIC_ENDPOINT_URL + "pages/" + id
           );
           if (response.status == 200) {
             setPage(response.data);
