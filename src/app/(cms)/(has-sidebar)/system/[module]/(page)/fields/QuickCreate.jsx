@@ -1,9 +1,9 @@
 "use client";
 
 import { useContext, useEffect, useRef, useState, useTransition } from "react";
-import { handleCreate, moduleDetail } from "../actions";
-import { components } from "../components";
 import { CMSContext } from "@/context/cms/CMSProvider";
+import { moduleCreate } from "../create/actions";
+import { components } from ".";
 const QuickCreate = () => {
   const { modalQuick, setModalQuick, setUpdateField } = useContext(CMSContext);
   const [isPending, startTransition] = useTransition();
@@ -11,7 +11,7 @@ const QuickCreate = () => {
   const modalQuickRef = useRef(null);
   useEffect(() => {
     if (!modalQuick) return;
-    moduleDetail(modalQuick.module).then((res) => setModule(res.data));
+    moduleCreate(modalQuick.module).then((res) => setModule(res.data));
   }, [modalQuick]);
 
   const handleSubmit = async (form) => {
@@ -55,12 +55,16 @@ const QuickCreate = () => {
                 <form action={handleSubmit}>
                   {module.fields.map((field, index) => {
                     const Component = components[field.type];
-                    return (
-                      <div key={index} className="mb-2">
-                        <p className="text-md">{field.label}</p>
-                        <Component field={field} module={module} />
-                      </div>
-                    );
+                    if (Component) {
+                      return (
+                        <div key={index} className="mb-2">
+                          <p className="text-md">{field.label}</p>
+                          <Component field={field} module={module} />
+                        </div>
+                      );
+                    }else{
+                      console.log(field.type)
+                    }
                   })}
                   <div className="mt-4 flex justify-end">
                     <button

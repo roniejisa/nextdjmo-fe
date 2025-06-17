@@ -1,11 +1,3 @@
-/* Base form styles - giữ nguyên structure */
-input:not([type="checkbox"]):not([type="radio"]),
-select,
-textarea {
-  @apply w-full outline-outline outline-4 transition border rounded-md;
-}
-
-/* CSS Variables - chỉ thêm một số biến mới, giữ nguyên cũ */
 :root {
   --background: #f6f9ff;
   --foreground: #434656;
@@ -32,23 +24,19 @@ textarea {
   }
 }
 
-/* Checkbox/Radio - giữ nguyên */
 input[type="checkbox"]:checked,
 input[type="radio"]:checked {
   accent-color: var(--outline);
   border: 1px solid var(--outline);
 }
 
-/* Body - giữ nguyên */
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-inter);
 }
 
-/* Cải thiện table styles - giữ nguyên cấu trúc .my-table .my-columns */
 .my-table {
-  /* Thêm styling cho container */
   background: var(--main);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-light);
@@ -61,12 +49,10 @@ body {
 
   > div {
     border-bottom: 1px solid var(--color-table);
-    /* Cải thiện padding */
     padding: 12px 8px;
     transition: var(--transition);
   }
 
-  /* Header row - giữ nguyên logic */
   &:nth-child(1) {
     background: var(--light);
     font-weight: bold;
@@ -78,18 +64,15 @@ body {
     }
   }
 
-  /* Data rows - thêm hover effect nhẹ */
   &:not(:nth-child(1)):hover {
     background-color: rgba(42, 133, 255, 0.02);
   }
 
-  /* Last row - giữ nguyên */
   &:last-of-type > div {
     border-bottom: none;
   }
 }
 
-/* Scrollbar - giữ nguyên nhưng cải thiện màu sắc */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -114,7 +97,6 @@ body {
   background: #ccc;
 }
 
-/* Menu sidebar - giữ nguyên hoàn toàn */
 .menu-sidebar {
   .menu-sub {
     li {
@@ -137,13 +119,11 @@ body {
 }
 
 
-/* Icons - giữ nguyên */
 .fill-neutral {
   stroke: white;
   fill: white;
 }
 
-/* Image editor - giữ nguyên */
 .tui-image-editor-container {
   height: calc(100vh - 40px * 2 - 56px) !important;
 }
@@ -155,7 +135,6 @@ svg:has(#tui-image-editor-svg-default-icons) {
   width: 0;
 }
 
-/* Markdown - giữ nguyên */
 .markdown-content pre {
   white-space: pre-wrap;
   word-break: break-word;
@@ -165,7 +144,6 @@ svg:has(#tui-image-editor-svg-default-icons) {
   font-size: 16px;
 }
 
-/* Animation - giữ nguyên */
 .fade-in-text {
   opacity: 0;
   animation: fadeInText 0.8s ease forwards;
@@ -182,7 +160,6 @@ svg:has(#tui-image-editor-svg-default-icons) {
   }
 }
 
-/* Cải thiện spacing cho action buttons */
 .my-table .my-columns > div:last-child {
   display: flex;
   gap: 0.5rem;

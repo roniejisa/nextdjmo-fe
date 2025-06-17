@@ -40,10 +40,12 @@ export const checkSlug = async (module, slug, language, item) => {
   const jsonBody = {
     module,
     slug,
-    language,
   };
+  if (language) {
+    jsonBody.language = language;
+  }
   if (item && item?._id) {
-    jsonBody.id = item?.id;
+    jsonBody.id = item?._id;
   }
   return httpClient(
     `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}/check-slug`,

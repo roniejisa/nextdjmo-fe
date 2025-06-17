@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import ImageComponent from "./components/Image";
 import { makeId } from "@/utils/client";
 import RenderVariantTable from "./components/RenderVariantTable";
 import AttributeInput from "./components/AttributeInput";
@@ -45,7 +44,6 @@ const ProductVariant = ({ field, item, value }) => {
   const oldData = useRef(null);
   const textareaRef = useRef(null);
   const dataMoveRef = useRef(null);
-  const firstAttributeLength = useRef(0);
   const oldValue = useRef(null);
   const inputAddAttributeRef = useRef(null);
   const [showSuggestion, setShowSuggestion] = useState(false);
@@ -349,19 +347,6 @@ const ProductVariant = ({ field, item, value }) => {
     } else if (hasVariant) {
       setData([]);
     }
-
-    firstAttributeLength.current = listAttribute.reduce((acc, item, index) => {
-      if (index) {
-        if (!acc) {
-          acc = item.values.length - (item.values.length > 1 ? 1 : 0);
-        } else {
-          const length = item.values.filter((item) => item.value).length;
-          const number = length > 1 ? length : 1;
-          acc *= number;
-        }
-      }
-      return acc;
-    }, 0);
   }, [listAttribute, value]);
 
   const addValue = (index) => {
@@ -703,7 +688,6 @@ const ProductVariant = ({ field, item, value }) => {
                 generateAllSKUs={generateAllSKUs}
                 showAdvancedBulkEdit={showAdvancedBulkEdit}
                 oldValue={oldValue}
-                firstAttributeLength={firstAttributeLength}
                 upImageForData={upImageForData}
                 setShowAdvancedBulkEdit={setShowAdvancedBulkEdit}
                 bulkEditData={bulkEditData}

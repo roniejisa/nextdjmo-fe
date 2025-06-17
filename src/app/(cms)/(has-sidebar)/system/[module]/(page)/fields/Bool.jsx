@@ -5,7 +5,7 @@ import style from "./Bool.module.scss";
 
 const Bool = ({ value, field }) => {
   // Kiểm tra chính xác hơn
-  const [isTrue, setIsTrue] = useState(value);
+  const [isTrue, setIsTrue] = useState(value === "active" || false);
   const inputRef = useRef(null);
   const id = useId();
   const switchId = `switch-${id}`;
@@ -27,6 +27,7 @@ const Bool = ({ value, field }) => {
         name={field.name}
         ref={inputRef}
         value={isTrue ? "active" : "unactive"}
+        onChange={() => {}} // Thêm onChange handler rỗng
         readOnly
       />
       <input

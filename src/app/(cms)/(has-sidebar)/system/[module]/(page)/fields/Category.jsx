@@ -654,9 +654,13 @@ const Category = ({
   apiBaseUrl = "http://localhost:8000",
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState(field?.value ?? []);
-  const [jsonValue, setJsonValue] = useState(field?.value ?
-    JSON.stringify(field?.value?.map((item) => item[field.module_id])) : ""
+  const [selectedCategories, setSelectedCategories] = useState(
+    field?.value ?? []
+  );
+  const [jsonValue, setJsonValue] = useState(
+    field?.value
+      ? JSON.stringify(field?.value?.map((item) => item[field.module_id]))
+      : ""
   );
 
   useEffect(() => {

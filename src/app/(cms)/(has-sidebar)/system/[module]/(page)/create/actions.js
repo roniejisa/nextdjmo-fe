@@ -31,7 +31,7 @@ export const getDataLanguage = async (module, language, _id = null) => {
   return response;
 };
 
-export const moduleDetail = async (module, language) => {
+export const moduleCreate = async (module, language) => {
   return httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL +
       `${module}/create` +

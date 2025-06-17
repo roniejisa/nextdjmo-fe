@@ -7,6 +7,8 @@ import { useContext, useState, useTransition } from "react";
 import { postDraftOrder } from "./action";
 import useRouterCustom from "@/packages/translation/Navigation";
 import { usePathname } from "next/navigation";
+import { useVariantStore } from "@/stories/products/variantStore";
+import { useProductStore } from "@/stories/products/productStore";
 
 const FormAddOrder = () => {
   const [stock, setStock] = useState(1);
@@ -14,8 +16,8 @@ const FormAddOrder = () => {
   const notify = useNotify();
   const router = useRouterCustom();
   const [isPending, startTransition] = useTransition();
-  const { productCurrent, selectedAttributes, product, setProductCurrent } =
-    useContext(ProductContext);
+  const { product, productCurrent, setProductCurrent } = useProductStore();
+  const { selectedAttributes } = useVariantStore();
   const { setUpdateCart } = useContext(ClientContext);
 
   const handleStock = (e) => {

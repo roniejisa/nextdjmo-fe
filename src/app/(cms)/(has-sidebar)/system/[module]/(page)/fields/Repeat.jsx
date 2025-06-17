@@ -7,6 +7,7 @@ const components = {
   text: Text,
   editor: Editor,
 };
+
 const Repeat = ({ field, item }) => {
   const [data, setData] = useState([]);
   const id = useId();
@@ -106,49 +107,56 @@ const Repeat = ({ field, item }) => {
       });
     }
   };
+
   return (
-    <>
+    <div className="mt-4 mb-4 p-6 relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/10 border border-white/20 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none">
       <textarea
         name={field.name}
         ref={textareaRef}
         hidden
         defaultValue={item?.[field.name] ?? ""}
       ></textarea>
-      <div onDragEnd={dragEnd}>
+      
+      <div onDragEnd={dragEnd} className="space-y-4 relative z-10">
         {data.map((itemData) => (
           <div
             key={itemData.id}
-            className="border mb-1 flex p-2 relative gap-2 rounded-md item-group"
+            className="relative overflow-hidden rounded-xl backdrop-blur-sm bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_6px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_12px_rgba(0,0,0,0.15),-3px_-3px_9px_rgba(255,255,255,0.9)] transition-all duration-300 item-group"
             onDragOver={(e) => dragOver(e, itemData.id)}
           >
-            {itemData.fields.map((itemField, index) => {
-              const Component = components[itemField.type];
-              return (
-                <Component
-                  key={index}
-                  field={itemField}
-                  value={itemData.data[itemField.name]}
-                  onChange={(e) => updateData(e, itemData.id, itemField)}
-                  itemData={itemData}
-                  item={item}
-                  updateData={updateData}
-                />
-              );
-            })}
-            <div className="absolute top-2 right-2 flex gap-2">
+            <div className="p-4 flex gap-4 items-start">
+              {itemData.fields.map((itemField, index) => {
+                const Component = components[itemField.type];
+                return (
+                  <div key={index} className="flex-1">
+                    <Component
+                      field={itemField}
+                      value={itemData.data[itemField.name]}
+                      onChange={(e) => updateData(e, itemData.id, itemField)}
+                      itemData={itemData}
+                      item={item}
+                      updateData={updateData}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="absolute top-3 right-3 flex gap-2">
               <button
                 type="button"
-                className="border rounded-md"
+                className="p-2 rounded-lg bg-gradient-to-br from-red-500/80 to-red-600/70 hover:from-red-600/90 hover:to-red-700/80 border border-white/30 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] transform hover:scale-95 transition-all duration-200 text-white"
                 onClick={() =>
                   setData((prev) => [
                     ...prev.filter((item) => item.id !== itemData.id),
                   ])
                 }
+                title="Xóa mục này"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -164,16 +172,18 @@ const Repeat = ({ field, item }) => {
                   <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                 </svg>
               </button>
+              
               <button
                 type="button"
-                className="border rounded-md"
+                className="p-2 rounded-lg bg-gradient-to-br from-slate-400/80 to-slate-500/70 hover:from-slate-500/90 hover:to-slate-600/80 border border-white/30 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] transform hover:scale-95 transition-all duration-200 text-white cursor-move"
                 onDragStart={(e) => dragStart(e, itemData.id)}
                 draggable={true}
+                title="Kéo để sắp xếp"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -196,9 +206,10 @@ const Repeat = ({ field, item }) => {
           </div>
         ))}
       </div>
+      
       <button
         type="button"
-        className="w-full border p-2"
+        className="w-full mt-6 py-3 px-6 font-medium rounded-xl bg-gradient-to-br from-emerald-500/90 to-emerald-600/80 hover:from-emerald-600/90 hover:to-emerald-700/80 border border-white/30 shadow-[4px_4px_8px_rgba(0,0,0,0.15),-2px_-2px_6px_rgba(255,255,255,0.3)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.4)] transform hover:scale-[0.99] transition-all duration-200 text-white relative z-10"
         onClick={() =>
           setData([
             ...data,
@@ -213,9 +224,9 @@ const Repeat = ({ field, item }) => {
           ])
         }
       >
-        + Thêm
+        + Thêm mục mới
       </button>
-    </>
+    </div>
   );
 };
 

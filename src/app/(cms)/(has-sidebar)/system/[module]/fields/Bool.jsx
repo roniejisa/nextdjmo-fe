@@ -15,7 +15,7 @@ const Bool = ({ field, value, module, item }) => {
     const newIsTrue = value === "active";
     setIsTrue(newIsTrue);
 
-    // Cập nhật checkbox DOM element
+  // Cập nhật checkbox DOM element
     if (inputRef.current) {
       inputRef.current.checked = newIsTrue;
     }

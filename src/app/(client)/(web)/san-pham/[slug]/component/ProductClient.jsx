@@ -1,14 +1,13 @@
 "use client";
 
-import { useContext } from "react";
 import Variant from "./Variant";
-import { ProductContext } from "@/context/client/ProductProvider";
 import FormAddOrder from "./FormAddOrder";
 import ImagePreview from "./ImagePreview";
 import Skeleton from "@/components/Skeleton/Skeleton";
+import { useProductStore } from "@/stories/products/productStore";
 
 const ProductClient = () => {
-  const { productCurrent } = useContext(ProductContext);
+  const { productCurrent } = useProductStore();
 
   if (productCurrent == null)
     return (

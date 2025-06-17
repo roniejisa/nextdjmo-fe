@@ -1,27 +1,17 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import React from "react";
-import FormCreate from "./FormCreate";
-import { httpClient } from "@/utils/http";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 import { getDataModule } from "../../actions";
+import ModuleCreateClient from "./ModuleCreateClient";
 
-const moduleDetail = async (module, language) => {
-  return httpClient(
-    process.env.NEXT_PUBLIC_ENDPOINT_URL +
-      `${module}/create` +
-      (language ? `?language=${language}` : ""),
-    {
-      isAdmin: 1,
-    }
-  );
-};
+
 
 const cacheGetDataModule = cache(async (module, limit, page, searchParams) => {
   return await getDataModule(module, limit, page, searchParams);
 });
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 export async function generateMetadata({ params, searchParams }) {
   const { module } = await params;
   const { data } = await cacheGetDataModule(
@@ -37,44 +27,8 @@ export async function generateMetadata({ params, searchParams }) {
   };
 }
 
-const createForm = async ({ params, searchParams }) => {
-  const { module } = await params;
-
-  const language = searchParams.language;
-
-  let {
-    data: { fields, module: moduleStore },
-  } = await moduleDetail(module, language);
-
-  // Kiểm tra có phải 2 ngôn ngữ hay không
-  const isMultiple = moduleStore.language ?? false;
-  if (
-    isMultiple &&
-    (!language ||
-      moduleStore.langs.find((item) => item.code === language) === undefined)
-  ) {
-    return redirect(
-      process.env.NEXT_PUBLIC_ADMIN_URL +
-        `${module}/create?language=${moduleStore.default_lang}`
-    );
-  }
-
-  // Hết kiểm tra này
-  fields = fields.filter((field) => {
-    field.hiddenForm = field.hiddenForm ?? 0;
-    return field.hiddenForm === 0;
-  });
-
-  // Kiểm tra và redirect luôn sang ngôn ngữ mặc định đi
-
-  return (
-    <FormCreate
-      module={module}
-      fields={fields}
-      moduleStore={moduleStore}
-      searchParams={searchParams}
-    />
-  );
+const createForm = async () => {
+  return <ModuleCreateClient />;
 };
 
 export default createForm;

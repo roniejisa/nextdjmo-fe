@@ -255,11 +255,17 @@ function getLanguage(request) {
 
 export async function middleware(request) {
   const url = request.nextUrl;
-  const requireRoutes = ["/system"];
+  const requireRoutes = ["/system","/dang-nhap"];
   const pathname = url.pathname;
   const method = request.method;
+  const isPathNotCheck = requireRoutes.every(
+    (route) => !pathname.startsWith(route)
+  );
 
-  if (pathname.includes(".") && !pathname.startsWith("/api/")) {
+  if (
+    (pathname.includes(".") && pathname.startsWith("/api/")) ||
+    isPathNotCheck
+  ) {
     return NextResponse.next();
   }
 
@@ -276,7 +282,6 @@ export async function middleware(request) {
   }
 
   const { socialToken, socialRefreshToken, isOauth, newCustomer } = socialAuth;
-  console.log(pathname);
   try {
     const authResult = await authenticate(
       request,

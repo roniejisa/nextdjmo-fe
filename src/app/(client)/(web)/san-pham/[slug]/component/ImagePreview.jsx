@@ -1,10 +1,11 @@
 import ImageCustom from "@/components/Maintain/Image";
-import { ProductContext } from "@/context/client/ProductProvider";
+import { useProductStore } from "@/stories/products/productStore";
 import { showImageUrl } from "@/utils/client";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const ImagePreview = () => {
-  const { product, productCurrent, imageRef } = useContext(ProductContext);
+  const { product, productCurrent, imageRef } = useProductStore();
+
   const divRef = useRef(null);
   const previewRef = useRef(null);
   const thumbRef = useRef(null);
@@ -219,9 +220,7 @@ const ImagePreview = () => {
     return imageGrassLen;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [indexImage]);
-  const handleShowZoom = () => {
-    
-  }
+  const handleShowZoom = () => {};
   return (
     <div className="flex flex-wrap gap-4 group" ref={previewRef}>
       <div className="flex-[0_0_90px] gap-4 max-h-[calc(90px*5+16px*2)] overflow-hidden">

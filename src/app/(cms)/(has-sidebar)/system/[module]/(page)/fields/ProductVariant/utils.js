@@ -1,3 +1,5 @@
+import { makeId } from "@/utils/client";
+
 export const generateCombinations = (attributes) => {
   let combinations = [{}];
 
@@ -111,4 +113,13 @@ export const generateSKU = (item, listAttribute, existingSKUs = []) => {
   }
 
   return finalSKU;
+};
+
+// Hàm format số để hiển thị với dấu phấy
+export const formatNumber = (value) => {
+  if (!value) return "";
+  // Chỉ format nếu là số
+  const numValue = parseFloat(value.toString().replace(/,/g, ""));
+  if (isNaN(numValue)) return value;
+  return numValue.toLocaleString("en-US");
 };

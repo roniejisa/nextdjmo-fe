@@ -4,7 +4,7 @@ import LinkCustom from "@/packages/translation/Link";
 
 const GroupButtonForm = ({ module, isPending, title }) => {
   return (
-    <header className="sticky top-0 z-[999] bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+    <header className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100 shadow-sm">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Title Section */}
         <div className="flex-shrink-0">

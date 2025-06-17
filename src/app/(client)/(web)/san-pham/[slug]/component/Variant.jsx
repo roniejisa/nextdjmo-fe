@@ -1,209 +1,169 @@
 "use client";
 import ImageCustom from "@/components/Maintain/Image";
-import { ProductContext } from "@/context/client/ProductProvider";
+import { useImagePreview } from "@/hooks/products/useImagePreview";
+import { useProductEffects } from "@/hooks/products/useProductEffects";
+import { useVariantLogic } from "@/hooks/products/useVariantLogic";
 import { showImageUrl } from "@/utils/client";
-import React, { useContext, useEffect, useState } from "react";
-// Đầu tiên cần xác định cái nào đang không hàng luôn
-// Tốt nhất là chỉ nên làm như hiện tại đỡ lỗi vớ vẩn ngu người
+import React from "react";
+
 const Variant = () => {
+  // Custom hooks chứa logic
   const {
-    selectedAttributes,
-    setSelectedAttributes,
     product,
+    selectedAttributes,
     firstAttribute,
-    imageRef,
     imageVariants,
-    productCurrent,
-    setProductCurrent,
-  } = useContext(ProductContext);
-  const [listVariantOk, setListVariantOk] = useState(product.variants);
-  const chooseAttribute = (name, label) => {
-    setSelectedAttributes((prevSelected) => {
-      // Nếu giá trị đã chọn là label, thì bỏ chọn (set lại thành null)
-      if (prevSelected[name] === label) {
-        const newSelected = { ...prevSelected };
-        delete newSelected[name];
-        return newSelected;
-      }
-      // Nếu chưa chọn hoặc chọn mới, cập nhật giá trị
-      return { ...prevSelected, [name]: label };
-    });
-  };
-  useEffect(() => {
-    // Kiểm tra ở bước đầu chọn màu
-    if (selectedAttributes[firstAttribute]) {
-      productCurrent.image = imageVariants[selectedAttributes[firstAttribute]];
-    } else if (Object.keys(imageVariants).length > 0) {
-      productCurrent.image = imageVariants[Object.keys(imageVariants)[0]];
-      imageRef.current.src = showImageUrl(productCurrent?.image);
-    }
+    availableVariants,
+    handleAttributeChange,
+    getVariantClassName,
+    isAttributeDisabled,
+  } = useVariantLogic();
+  
+  const { handleImagePreview } = useImagePreview();
+  
+  // Side effects
+  useProductEffects();
 
-    const selectedWork = Object.entries(selectedAttributes).filter(
-      (item) => item[1] !== ""
-    );
-    if (selectedWork.length > 0) {
-      // Đầu tiên phải tìm thằng attribute nào chắc chắn có giá trị đã
-      const variantRequired = product.variants.filter((variant) => {
-        return selectedWork.every(([name, value]) => {
-          return variant.attributes.some((attribute) => {
-            const result =
-              attribute.name == name &&
-              attribute.value == value &&
-              Number(variant.stock) > 0;
-            return result;
-          });
-        });
-      });
+  // Early return nếu không có variants
+  if (!product?.detail_variants?.length) {
+    return null;
+  }
 
-      const data = product.variants.filter((variant) => {
-        // Tạo kiểm tra trường hợp chỉ khi nào selectedWork bằng 1 thì sẽ thêm cái kiểu cho chọn những cái thuộc cái selected đó và các thuộc tính phải thỏa mãn với những cái  chắc chặn được chọn
-        if (variantRequired.length > 0) {
-          return (
-            variantRequired.findIndex((item) => {
-              return item._id === variant._id;
-            }) !== -1
-          );
-        }
-      });
-      setListVariantOk(data);
-    } else {
-      setListVariantOk(product.variants.filter((variant) => Number(variant.stock) > 0));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAttributes]);
-
-  useEffect(() => {
-    let price = 0;
-    let priceMin = 0;
-    let priceMax = 0;
-    if (listVariantOk.length > 1) {
-      for (let i = 0; i < listVariantOk.length; i++) {
-        const variant = listVariantOk[i];
-        if (!priceMin || priceMin > Number(variant.price)) {
-          priceMin = Number(variant.price);
-        }
-        if (!priceMax || priceMax < Number(variant.price)) {
-          priceMax = Number(variant.price);
-        }
-        if (!price || price > Number(variant.price)) {
-          price = Number(variant.price);
-        }
-      }
-
-      if (priceMin === priceMax) {
-        price = Intl.NumberFormat().format(priceMin) + " VND";
-      } else {
-        price = `${Intl.NumberFormat().format(priceMin)} VND - ${Intl.NumberFormat().format(priceMax)} VND`;
-      }
-    } else {
-      price = Intl.NumberFormat().format(listVariantOk[0].price) + " VND";
-    }
-    setProductCurrent({
-      ...product,
-      ...Object.entries(listVariantOk[0])
-        .filter(([key, value]) => value !== null && value !== undefined)
-        .reduce((acc, [key, value]) => {
-          acc[key] = value;
-          return acc;
-        }, {}),
-      price,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listVariantOk]);
-  useEffect(() => {
-    setSelectedAttributes((prev) => {
-      const obj = product.detail_variants.reduce((prev, curr) => {
-        return { ...prev, [curr.name]: "" };
-      }, {});
-      return obj;
-    });
-    const filteredVariants = product.variants.filter((variant) => {
-      return Object.entries(selectedAttributes).every(([name, label]) => {
-        return variant.attributes.some(
-          (attribute) => attribute.name === name && attribute.value === label
-        );
-      });
-    });
-    setListVariantOk(filteredVariants);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const checkDisabled = (name, label) => {
-    // Đầu tiền phải xem nó có tồn tại trong listVariantOk không đã nếu không tại thì bỏ luôn đi
-    const constain = listVariantOk.some((variant) => {
-      return variant.attributes.some(
-        (attribute) => attribute.name === name && attribute.value === label
-      );
-    });
-    if (!constain) return true;
-
-    return !product.variants.some((variant) =>
-      variant.attributes.some(
-        (attribute) =>
-          attribute.name === name &&
-          attribute.value === label &&
-          Number(variant.stock) > 0
-      )
-    );
-  };
-
-  if (product.detail_variants === 0) return <></>;
   return (
-    <>
-      {product.detail_variants && (
-        <div>
-          <ul>
-            {product.detail_variants?.map(
-              ({ name, values: varaints }, index) => (
-                <div key={index}>
-                  <p>{name}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {varaints
-                      ?.filter(({ value }) => value !== "")
-                      .map(({ value: label }, index) => (
-                        <label
-                          key={index}
-                          className="border variant flex items-center gap-2 p-2 rounded-md cursor-pointer"
-                          {...(name === firstAttribute && {
-                            onMouseEnter: () => {
-                              imageRef.current.src = showImageUrl(
-                                imageVariants[label]
-                              );
-                            },
-                            onMouseLeave: () => {
-                              imageRef.current.src = showImageUrl(
-                                productCurrent?.image
-                              );
-                            },
-                          })}
-                        >
-                          {name === firstAttribute && (
-                            <ImageCustom
-                              src={showImageUrl(imageVariants[label])}
-                              alt={label}
-                              width={40}
-                              height={40}
-                            />
-                          )}
-                          {label}
-                          <input
-                            hidden
-                            type="checkbox"
-                            name={label}
-                            checked={selectedAttributes[name] === label} // Kiểm tra xem giá trị có được chọn không
-                            onChange={() => chooseAttribute(name, label)}
-                            disabled={checkDisabled(name, label)}
+    <div className="space-y-4">
+      {product.detail_variants.map(({ name, values: variants }, index) => {
+        const availableValues = variants?.filter(
+          ({ value }) => value !== "" && !isAttributeDisabled(name, value)
+        );
+
+        if (!availableValues?.length) {
+          return null;
+        }
+
+        return (
+          <div key={index} className="space-y-2">
+            <p className="font-medium text-gray-800 text-sm uppercase tracking-wide">
+              {name}
+              {availableValues.length === 0 && (
+                <span className="ml-2 text-xs text-red-500 font-normal">
+                  (Tạm hết hàng)
+                </span>
+              )}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {variants
+                ?.filter(({ value }) => value !== "")
+                .map(({ value }, valueIndex) => {
+                  const isDisabled = isAttributeDisabled(name, value);
+                  const isSelected = selectedAttributes[name] === value;
+
+                  return (
+                    <label
+                      key={valueIndex}
+                      className={getVariantClassName(name, value)}
+                      onMouseEnter={() => {
+                        if (
+                          name === firstAttribute &&
+                          !isDisabled &&
+                          imageVariants[value]
+                        ) {
+                          handleImagePreview(value, true);
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        if (
+                          name === firstAttribute &&
+                          !isDisabled &&
+                          imageVariants[value]
+                        ) {
+                          handleImagePreview(value, false);
+                        }
+                      }}
+                    >
+                      {name === firstAttribute && imageVariants[value] && (
+                        <div className="relative">
+                          <ImageCustom
+                            src={showImageUrl(imageVariants[value])}
+                            alt={value}
+                            width={40}
+                            height={40}
+                            className="rounded border"
                           />
-                        </label>
-                      ))}
-                  </div>
-                </div>
-              )
-            )}
-          </ul>
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                              <svg
+                                className="w-2 h-2 text-white"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <span className="font-medium">{value}</span>
+
+                      {isDisabled && (
+                        <span className="text-xs text-gray-400 ml-1">
+                          (Hết hàng)
+                        </span>
+                      )}
+
+                      {isSelected && name !== firstAttribute && (
+                        <svg
+                          className="w-4 h-4 text-current"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+
+                      <input
+                        type="checkbox"
+                        hidden
+                        name={value}
+                        checked={isSelected}
+                        onChange={() => handleAttributeChange(name, value)}
+                        disabled={isDisabled}
+                      />
+                    </label>
+                  );
+                })}
+            </div>
+          </div>
+        );
+      })}
+
+      {availableVariants.length === 0 && (
+        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+          <p className="text-sm text-yellow-800">
+            <svg
+              className="w-4 h-4 inline mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Sản phẩm này hiện tại không có phiên bản nào còn hàng với lựa chọn hiện tại.
+          </p>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

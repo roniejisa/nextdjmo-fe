@@ -40,9 +40,15 @@ const DateComponent = ({ field, value, item }) => {
   }, []);
   return (
     <>
-      <input type="text" hidden name={field.name} ref={inputRef} defaultValue="" />
+      <input
+        type="text"
+        hidden
+        name={field.name}
+        ref={inputRef}
+        defaultValue=""
+      />
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
           <select
             defaultValue={selectedDay}
             onChange={(e) => setSelectedDay(Number(e.target.value))}

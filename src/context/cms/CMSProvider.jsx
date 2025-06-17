@@ -2,7 +2,7 @@
 
 "use client";
 
-import QuickCreate from "@/app/(cms)/(has-sidebar)/system/[module]/(page)/create/components/QuickCreate";
+import QuickCreate from "@/app/(cms)/(has-sidebar)/system/[module]/(page)/fields/QuickCreate";
 import QuestionModal from "@/components/Modal/QuestionModal";
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { SocketContext } from "../SocketProvider";
