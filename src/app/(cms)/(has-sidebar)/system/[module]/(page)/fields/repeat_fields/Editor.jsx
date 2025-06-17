@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useRef } from "react";
 import "quill/dist/quill.snow.css";
-import Group from "../../../[module]/fields/Group";
-const Editor = ({ field, defaultValue, oldData, updateData, itemData }) => {
+import Group from "../../../fields/Group";
+const Editor = ({ field, value, item, updateData, itemData }) => {
   const editorRef = useRef(null);
   const quillCurrentRef = useRef(null);
   useEffect(() => {
@@ -49,10 +49,10 @@ const Editor = ({ field, defaultValue, oldData, updateData, itemData }) => {
   }, []);
 
   useEffect(() => {
-    if (oldData && oldData?.[field.name]) {
-      quillCurrentRef.current.root.innerHTML = oldData?.[field.name] ?? "";
-    } else if (defaultValue) {
-      quillCurrentRef.current.root.innerHTML = defaultValue || "";
+    if (item && item?.[field.name]) {
+      quillCurrentRef.current.root.innerHTML = item?.[field.name] ?? "";
+    } else if (value) {
+      quillCurrentRef.current.root.innerHTML = value || "";
     }
     if (quillCurrentRef.current.root.innerHTML) {
       updateData(
@@ -66,7 +66,7 @@ const Editor = ({ field, defaultValue, oldData, updateData, itemData }) => {
       );
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [oldData]);
+  }, [item]);
 
   return (
     <Group field={field}>

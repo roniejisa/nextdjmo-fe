@@ -1,5 +1,5 @@
-import SelectType from "./components/layouts/SelectType";
-import TabType from "./components/layouts/TabType";
+import SelectType from "./fields/layouts/SelectType";
+import TabType from "./fields/layouts/TabType";
 
 export const hookComponent = {
   tab: TabType,

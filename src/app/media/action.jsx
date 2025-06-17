@@ -16,18 +16,12 @@ export const postCreateFolder = async (body) => {
 };
 
 export const fetchFiles = async (limit = 10, page = 1, obj = {}) => {
-  const token = await getToken();
-  limit = limit ?? 10;
-  page = page ?? 1;
   const response = await httpClient(
     process.env.NEXT_PUBLIC_ENDPOINT_URL + "files",
-    {
-      Authorization: `Bearer ${token}`,
-    },
-    { limit: limit, page: page, ...obj },
-    "GET"
+    {},
+    { limit: limit, page: page, ...obj }
   );
-  return response.data;
+  return response;
 };
 
 export const getFolders = async (body) => {

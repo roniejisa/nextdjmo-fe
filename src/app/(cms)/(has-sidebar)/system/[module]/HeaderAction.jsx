@@ -1,7 +1,7 @@
 "use client";
 import LinkCustom from "@/packages/translation/Link";
 import React, { useContext } from "react";
-import Language from "./components/Language";
+import Language from "./fields/Language";
 import { CMSContext } from "@/context/cms/CMSProvider";
 
 const HeaderAction = ({moduleMain, module}) => {

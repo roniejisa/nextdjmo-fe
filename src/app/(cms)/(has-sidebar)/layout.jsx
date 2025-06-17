@@ -73,7 +73,7 @@ const AdminLayout = async ({ children, params }) => {
   const headersList = headers();
   const pathname =
     headersList.get("x-pathname") || headersList.get("x-invoke-path") || "";
-  console.log(pathname)
+  console.log(pathname);
   // Kiểm tra permission
   const hasPermission = checkPermission(pathname, permissions);
 

@@ -624,12 +624,11 @@ const MediaList = () => {
     if (loadedPages.current.has(page)) return;
 
     setIsLoading(true);
-    const posts = await fetchFiles(limitRef.current, page, {
+    const {status, data, message} = await fetchFiles(limitRef.current, page, {
       folder_id: breadcrumbs[breadcrumbs.length - 1]?._id || null,
-    });
-
+    }); 
     setMedias((prevPosts) => {
-      const allPosts = [...prevPosts, ...posts];
+      const allPosts = [...prevPosts, ...data];
       // Filter duplicates based on id
       return allPosts.filter(
         (post, index, self) =>

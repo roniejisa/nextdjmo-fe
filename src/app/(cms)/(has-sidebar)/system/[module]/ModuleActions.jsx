@@ -3,7 +3,7 @@ import React, { useContext } from "react";
 import { componentActions } from "./components";
 import { CMSContext } from "@/context/cms/CMSProvider";
 
-const ModuleActions = ({actions, module, item, moduleMain}) => {
+const ModuleActions = ({actions, module, item, moduleMain, mutate}) => {
   const { profile } = useContext(CMSContext);
   return (
     <div className="flex-1 py-1 px-2 gap-2 flex items-center">
@@ -12,6 +12,7 @@ const ModuleActions = ({actions, module, item, moduleMain}) => {
           const ComponentAction = componentActions[action.type];
           return (
             <ComponentAction
+              mutate={mutate}
               item={item}
               data={moduleMain}
               module={module}

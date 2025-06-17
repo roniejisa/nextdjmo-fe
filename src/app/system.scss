@@ -136,26 +136,6 @@ body {
   }
 }
 
-/* Permission field - giữ nguyên */
-.permission-field {
-  label {
-    display: block;
-    text-align: center;
-    padding: 4px;
-    cursor: pointer;
-    transition: all 200ms ease-in-out;
-    &:hover {
-      background: #9cccf8;
-    }
-  }
-  tr {
-    td:nth-child(1) {
-      label {
-        text-align: left;
-      }
-    }
-  }
-}
 
 /* Icons - giữ nguyên */
 .fill-neutral {

@@ -1,12 +1,14 @@
-import Group from "../../../[module]/fields/Group";
+import Group from "../../../fields/Group";
 
-const Text = ({ field, onChange, defaultValue }) => {
+const Text = ({ field, onChange, value }) => {
   return (
     <Group field={field}>
       <input
+        type="text"
+        autoComplete="off"
         data-name={field.name}
         placeholder={field.placeholder}
-        defaultValue={defaultValue || ""}
+        value={value || ""}
         onChange={onChange}
         className="w-full outline-outline outline-4 transition border rounded-md p-2"
       />

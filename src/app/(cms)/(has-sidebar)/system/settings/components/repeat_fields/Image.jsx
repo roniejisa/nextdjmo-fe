@@ -2,7 +2,7 @@
 import { GalleryContext } from "@/context/cms/ImageProvider";
 import { useContext, useEffect, useId, useRef, useState } from "react";
 import ImageCustom from "@/components/Maintain/Image";
-import Group from "../../../[module]/components/Group";
+import Group from "../../../[module]/fields/Group";
 
 const ImageComponent = ({
   field,

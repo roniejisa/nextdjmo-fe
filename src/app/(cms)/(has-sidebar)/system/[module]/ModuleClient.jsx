@@ -4,10 +4,10 @@ import { getDataModule } from "./actions";
 import Pagination from "@/components/Pagination/Pagination";
 import { useParams, useSearchParams } from "next/navigation";
 import ModuleProvider from "@/context/cms/ModuleProvider";
-import SelectRow from "./components/SelectRow";
-import SelectAllRow from "./components/SelectAllRow";
+import SelectRow from "./fields/SelectRow";
+import SelectAllRow from "./fields/SelectAllRow";
 import HeaderTable from "./HeaderTable";
-import ActionTable from "./components/ActionTable";
+import ActionTable from "./fields/ActionTable";
 import Skeleton from "@/components/Skeleton/Skeleton";
 import { components } from "./components";
 import TabModule from "./Tab";
@@ -339,6 +339,7 @@ const ModuleClient = () => {
                                     item={item}
                                     field={field}
                                     module={module}
+                                    mutate={mutate}
                                   />
                                 </div>
                               </div>
@@ -346,6 +347,7 @@ const ModuleClient = () => {
                           })}
 
                           <ModuleActions
+                            mutate={mutate}
                             actions={actions}
                             module={module}
                             item={item}
@@ -402,7 +404,7 @@ const ModuleClient = () => {
           )}
         </div>
 
-        <ActionTable />
+        <ActionTable mutate={mutate}/>
       </div>
     </ModuleProvider>
   );
