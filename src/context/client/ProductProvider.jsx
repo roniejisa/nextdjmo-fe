@@ -1,15 +1,16 @@
 "use client";
 import { useProductInitialization } from "@/hooks/products/useProductInitialization";
 import { useProductStore } from "@/stories/products/productStore";
-import { createContext, useRef } from "react";
+import { createContext, useEffect, useRef } from "react";
 
 export const ProductContext = createContext(null);
 const ProductProvider = ({ children, product }) => {
   const imageRef = useRef();
   const setProduct = useProductStore((state) => state.setProduct);
-  setProduct(product);
   useProductInitialization();
-
+  useEffect(() => {
+    setProduct(product);
+  }, []);
   return (
     <ProductContext.Provider
       value={{
