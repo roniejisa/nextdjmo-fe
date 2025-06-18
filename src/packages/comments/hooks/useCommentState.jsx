@@ -190,7 +190,6 @@ export const useCommentState = (initialComments = []) => {
               });
             }
           }
-          console.log(newReactions);
           return {
             ...comment,
             reactions: newReactions,

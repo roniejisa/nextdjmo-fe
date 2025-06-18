@@ -132,7 +132,6 @@ const ReactionButton = ({ comment }) => {
       reaction_type: newReaction,
     };
     const response = await submitReaction(data);
-    console.log(response)
     if (response.status === 401) {
       router.pushWithQuery("/dang-nhap", { redirect: pathname });
       notify.changeNotify("error", response.message);
@@ -142,7 +141,6 @@ const ReactionButton = ({ comment }) => {
 
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 600);
-    console.log(socketRef.current && comment._id && type && id);
     if (socketRef.current && comment._id && type && id) {
       const newData = {
         reaction: response.data,

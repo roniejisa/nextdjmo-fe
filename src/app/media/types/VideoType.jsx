@@ -1,16 +1,16 @@
 import { convertSize, showImageUrl } from "@/utils/client";
 import React, { useEffect, useRef } from "react";
-import { useMedia } from "../MediaProvider";
 import { mediaOptions } from "./default";
 import ImageCustom from "@/components/Maintain/Image";
+import { useMediaStore } from "@/stories/files/mediaStore";
 
 const VideoType = ({ media }) => {
-  const { filename, url, file_info, extention, _id } = media;
+  const { filename, url, file_info, extension, _id } = media;
   let fileInfo = file_info;
   if (typeof file_info === "string") {
     fileInfo = JSON.parse(file_info.replaceAll("'", '"')) ?? {};
   }
-  const { setMenuPosition, setListComponent, callbackMenu } = useMedia((data) => data);
+  const { setMenuPosition, setListComponent, callbackMenu } = useMediaStore(state => state)
   const { size } = fileInfo;
   const imageRef = useRef(null);
   const videoRef = useRef(null);

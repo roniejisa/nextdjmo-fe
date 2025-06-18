@@ -1,14 +1,16 @@
 "use client";
 
 import CloseIcon from "@/components/Icon/svg/Close";
-import { useContext, useRef, useState } from "react";
-import { postCreateFolder } from "./action";
-import { MediaContext } from "./MediaProvider";
+import { useRef, useState } from "react";
+import { postCreateFolder } from "../action";
 import { useNotify } from "@/context/NotifyProvider";
+import { useMediaStore } from "@/stories/files/mediaStore";
 
 const CreateFolder = () => {
   const [folder, setFolder] = useState("");
-  const { folders, setFolders, breadcrumbs } = useContext(MediaContext);
+  const folders = useMediaStore((state) => state.folders);
+  const setFolders = useMediaStore((state) => state.setFolders);
+  const breadcrumbs = useMediaStore((state) => state.breadcrumbs);
   const [showModal, setShowModal] = useState(false);
   const notify = useNotify();
   const modalRef = useRef(null);
@@ -34,7 +36,7 @@ const CreateFolder = () => {
       {showModal && (
         <div
           ref={modalRef}
-          className="fixed z-[9999] w-full h-full inset-0 overflow-y-auto"
+          className="fixed z-[200] w-full h-full inset-0 overflow-y-auto"
         >
           <div
             className="absolute w-full h-full bg-[rgba(0,0,0,.2)]"

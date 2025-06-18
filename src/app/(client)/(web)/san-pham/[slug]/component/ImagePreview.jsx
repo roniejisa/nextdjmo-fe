@@ -4,8 +4,7 @@ import { showImageUrl } from "@/utils/client";
 import React, { useEffect, useRef, useState } from "react";
 
 const ImagePreview = () => {
-  const { product, productCurrent, imageRef } = useProductStore();
-
+  const { product, productCurrent } = useProductStore();
   const divRef = useRef(null);
   const previewRef = useRef(null);
   const thumbRef = useRef(null);

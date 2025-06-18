@@ -1,8 +1,8 @@
 "use client";
-import { ImageContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef, useState } from "react";
+import {  useEffect, useId, useRef, useState } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import Group from "../../../[module]/fields/Group";
+import { useImageStore } from "@/stories/files/imageStore";
 
 const ImageComponent = ({
   field,
@@ -11,8 +11,7 @@ const ImageComponent = ({
   updateData,
   itemData,
 }) => {
-  const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(ImageContext);
+  const { setShowMedia, fileCurrent, setFileCurrent, choosed, isMultiple } = useImageStore(state=>state);
   const imageRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasImage, setHasImage] = useState(false);
@@ -25,7 +24,7 @@ const ImageComponent = ({
 
   const handleRemoveImage = (e) => {
     e.stopPropagation();
-    setItemCurrent((prev) => prev.filter((item) => item.id !== id));
+    setFileCurrent((prev) => prev.filter((item) => item.id !== id));
     setHasImage(false);
     updateData(
       {
@@ -38,9 +37,9 @@ const ImageComponent = ({
 
   useEffect(() => {
     if (isMultiple) return;
-    const index = itemCurrent.findIndex((item) => item.id == id);
+    const index = fileCurrent.findIndex((item) => item.id == id);
     if (index !== -1) {
-      const imageData = itemCurrent[index]?.data;
+      const imageData = fileCurrent[index]?.data;
       const imageUrl = imageData
         ? process.env.NEXT_PUBLIC_ENDPOINT_URL + imageData.url
         : "/next.svg";
@@ -64,23 +63,23 @@ const ImageComponent = ({
       setShowMedia(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCurrent, choosed]);
+  }, [fileCurrent, choosed]);
 
   useEffect(() => {
-    let itemCurrent;
+    let fileCurrent;
     try {
-      itemCurrent = JSON.parse(defaultValue || "");
+      fileCurrent = JSON.parse(defaultValue || "");
     } catch (e) {
-      itemCurrent = null;
+      fileCurrent = null;
     }
-    if (itemCurrent) {
-      setItemCurrent((prev) => [...prev, { id, data: itemCurrent }]);
+    if (fileCurrent) {
+      setFileCurrent((prev) => [...prev, { id, data: fileCurrent }]);
       setHasImage(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currentImage = itemCurrent.find((item) => item.id == id);
+  const currentImage = fileCurrent.find((item) => item.id == id);
   const imageUrl = currentImage
     ? process.env.NEXT_PUBLIC_ENDPOINT_URL + currentImage.data.url
     : "/next.svg";

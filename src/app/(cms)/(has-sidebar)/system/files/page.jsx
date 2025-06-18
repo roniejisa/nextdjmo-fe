@@ -1,14 +1,11 @@
 import MediaProvider from "@/app/media/MediaProvider";
-import MediaComponent from "@/components/Media/MediaComponent";
-import ImageProvider from "@/context/cms/ImageProvider";
+import MediaMain from "@/app/media/MediaMain";
 
 const FileManager = () => {
   return (
-    <ImageProvider>
-      <MediaProvider>
-        <MediaComponent />
-      </MediaProvider>
-    </ImageProvider>
+    <MediaProvider>
+      <MediaMain />
+    </MediaProvider>
   );
 };
 

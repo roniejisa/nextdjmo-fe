@@ -1,19 +1,14 @@
 "use client";
 
-import { MediaContext } from "@/app/media/MediaProvider";
-import { useContext } from "react";
+import { useMediaStore } from "@/stories/files/mediaStore";
 
 const Breadcrumb = () => {
-  const { breadcrumbs, setBreadcrumbs, resetDataFolder } =
-    useContext(MediaContext);
-
+  const breadcrumbs = useMediaStore((state) => state.breadcrumbs);
+  const updateBreadcrumbsByIndex = useMediaStore((state) => state.updateBreadcrumbsByIndex);
+  const resetDataFolder = useMediaStore((state) => state.resetDataFolder);
   const handleChangeBreadcrumbs = (index) => {
-    setBreadcrumbs((prev) => {
-      if (index == -1) return [];
-      const newPrev = prev.slice(0, index + 1);
-      return newPrev;
-    });
-    resetDataFolder()
+    updateBreadcrumbsByIndex(index);
+    resetDataFolder();
   };
   return (
     <div className="text-2xl font-medium flex items-center gap-2">

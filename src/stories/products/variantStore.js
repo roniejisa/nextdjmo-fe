@@ -63,7 +63,6 @@ export const useVariantStore = create(
               }, {}),
             price: displayPrice,
           };
-          console.log(updatedProduct);
           setProductCurrent(updatedProduct);
         },
 

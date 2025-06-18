@@ -1,0 +1,405 @@
+/* Custom TUI Image Editor Styles - Beautiful Modern Design */
+
+/* Main container với glassmorphism */
+.tui-image-editor-container {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Canvas area với gradient đẹp */
+.tui-image-editor-canvas-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 12px !important;
+  margin: 8px !important;
+}
+
+/* Menu bar với glassmorphism */
+.tui-image-editor-menu {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  border: none !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  margin: 8px !important;
+  padding: 8px !important;
+}
+
+.tui-image-editor-menu-item {
+  color: #4a5568 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 10px !important;
+  margin: 0 4px !important;
+  padding: 12px 16px !important;
+  font-weight: 500 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.tui-image-editor-menu-item::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.tui-image-editor-menu-item:hover::before {
+  left: 100% !important;
+}
+
+.tui-image-editor-menu-item:hover {
+  background: linear-gradient(135deg, #f59e0b, #f97316) !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) scale(1.05) !important;
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3) !important;
+}
+
+.tui-image-editor-menu-item.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Submenu với glassmorphism đẹp */
+.tui-image-editor-submenu {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+  padding: 16px !important;
+}
+
+/* Range sliders với gradient đẹp */
+.tui-image-editor-range-wrap {
+  margin: 16px 0 !important;
+  padding: 8px !important;
+  background: rgba(248, 250, 252, 0.8) !important;
+  border-radius: 12px !important;
+}
+
+.tui-image-editor-range {
+  background: linear-gradient(90deg, #e2e8f0, #cbd5e0) !important;
+  border-radius: 50px !important;
+  height: 8px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.tui-image-editor-range::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, #f59e0b, #f97316) !important;
+  border-radius: 50px !important;
+  transition: width 0.3s ease !important;
+}
+
+.tui-image-editor-range::-webkit-slider-thumb {
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+  border: 3px solid #f59e0b !important;
+  border-radius: 50% !important;
+  width: 24px !important;
+  height: 24px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3), 0 0 0 0 rgba(245, 158, 11, 0.4) !important;
+  transition: all 0.3s ease !important;
+}
+
+.tui-image-editor-range::-webkit-slider-thumb:hover {
+  transform: scale(1.2) !important;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4), 0 0 0 8px rgba(245, 158, 11, 0.1) !important;
+}
+
+.tui-image-editor-range::-moz-range-thumb {
+  background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+  border: 3px solid #f59e0b !important;
+  border-radius: 50% !important;
+  width: 24px !important;
+  height: 24px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+}
+
+/* Buttons với gradient và animation đẹp */
+.tui-image-editor-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.tui-image-editor-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-radius: 50% !important;
+  transition: all 0.5s ease !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.tui-image-editor-button:hover::before {
+  width: 300px !important;
+  height: 300px !important;
+}
+
+.tui-image-editor-button:hover {
+  transform: translateY(-3px) scale(1.05) !important;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4) !important;
+}
+
+.tui-image-editor-button:active {
+  transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Color picker với design đẹp */
+.tui-image-editor-color-picker {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.tui-image/* Custom TUI Image Editor Styles */
+
+/* Main container */
+.tui-image-editor-container {
+  background: #1a1a1a !important;
+  border-radius: 8px !important;
+}
+
+/* Canvas area */
+.tui-image-editor-canvas-container {
+  background: #0f0f0f !important;
+}
+
+/* Menu bar enhancements */
+.tui-image-editor-menu {
+  background: linear-gradient(135deg, #2d2d2d 0%, #363636 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3) !important;
+}
+
+.tui-image-editor-menu-item {
+  color: #ffffff !important;
+  transition: all 0.3s ease !important;
+  border-radius: 6px !important;
+  margin: 0 2px !important;
+}
+
+.tui-image-editor-menu-item:hover {
+  background: rgba(74, 222, 128, 0.2) !important;
+  color: #4ade80 !important;
+  transform: translateY(-1px) !important;
+}
+
+.tui-image-editor-menu-item.active {
+  background: #4ade80 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 4px rgba(74, 222, 128, 0.3) !important;
+}
+
+/* Submenu styling */
+.tui-image-editor-submenu {
+  background: #363636 !important;
+  border: 1px solid #404040 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Range sliders */
+.tui-image-editor-range-wrap {
+  margin: 10px 0 !important;
+}
+
+.tui-image-editor-range {
+  background: #404040 !important;
+  border-radius: 10px !important;
+  height: 6px !important;
+}
+
+.tui-image-editor-range::-webkit-slider-thumb {
+  background: #4ade80 !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 50% !important;
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.tui-image-editor-range::-moz-range-thumb {
+  background: #4ade80 !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 50% !important;
+  width: 18px !important;
+  height: 18px !important;
+  cursor: pointer !important;
+}
+
+/* Buttons */
+.tui-image-editor-button {
+  background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 4px rgba(74, 222, 128, 0.2) !important;
+}
+
+.tui-image-editor-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(74, 222, 128, 0.3) !important;
+}
+
+.tui-image-editor-button:active {
+  transform: translateY(0) !important;
+}
+
+/* Color picker */
+.tui-image-editor-color-picker {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+.tui-image-editor-color-palette {
+  border-radius: 6px !important;
+}
+
+/* Text input */
+.tui-image-editor-text-input {
+  background: #404040 !important;
+  color: #ffffff !important;
+  border: 1px solid #666 !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+}
+
+.tui-image-editor-text-input:focus {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1) !important;
+  outline: none !important;
+}
+
+/* Checkbox */
+.tui-image-editor-checkbox {
+  accent-color: #4ade80 !important;
+}
+
+/* Load button */
+.tui-image-editor-load-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  transition: all 0.3s ease !important;
+}
+
+.tui-image-editor-load-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Download button */
+.tui-image-editor-download-btn {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  transition: all 0.3s ease !important;
+}
+
+.tui-image-editor-download-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Selection styles */
+.tui-image-editor-selection {
+  border: 2px solid #4ade80 !important;
+  border-radius: 4px !important;
+}
+
+/* Scrollbars */
+.tui-image-editor-submenu::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.tui-image-editor-submenu::-webkit-scrollbar-track {
+  background: #2d2d2d !important;
+  border-radius: 4px !important;
+}
+
+.tui-image-editor-submenu::-webkit-scrollbar-thumb {
+  background: #4ade80 !important;
+  border-radius: 4px !important;
+}
+
+.tui-image-editor-submenu::-webkit-scrollbar-thumb:hover {
+  background: #22c55e !important;
+}
+
+/* Filter presets */
+.tui-image-editor-preset-item {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  transition: all 0.3s ease !important;
+  border: 2px solid transparent !important;
+}
+
+.tui-image-editor-preset-item:hover {
+  border-color: #4ade80 !important;
+  transform: scale(1.05) !important;
+}
+
+.tui-image-editor-preset-item.active {
+  border-color: #4ade80 !important;
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2) !important;
+}
+
+/* Labels */
+.tui-image-editor-label {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  margin-bottom: 8px !important;
+}
+
+/* Partition lines */
+.tui-image-editor-partition {
+  background: linear-gradient(90deg, transparent, #555, transparent) !important;
+  height: 1px !important;
+  margin: 15px 0 !important;
+}
+
+/* Animation for menu transitions */
+.tui-image-editor-submenu-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tui-image-editor-submenu-item:hover {
+  background: rgba(74, 222, 128, 0.1) !important;
+  border-radius: 6px !important;
+}

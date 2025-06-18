@@ -33,7 +33,6 @@ const VideoPage = async ({ searchParams }) => {
     module: moduleMain,
   } = data || {};
 
-  console.log(items);
   return (
     <div className="p-4">
       <ClientVideoPage

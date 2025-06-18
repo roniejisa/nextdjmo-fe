@@ -1,12 +1,12 @@
 "use client";
-import { ImageContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import { Upload, Link2, Image as ImageIcon } from "lucide-react";
+import { useImageStore } from "@/stories/files/imageStore";
 
 const ImageField = ({ field, value, onChange }) => {
-  const { setShowMedia, itemCurrent, isMultiple, choosed, setItemCurrent } =
-    useContext(ImageContext);
+  const { setShowMedia, fileCurrent, isMultiple, choosed, setFileCurrent } =
+    useImageStore((state) => state);
 
   const imageRef = useRef(null);
   const urlRef = useRef(null);
@@ -20,8 +20,8 @@ const ImageField = ({ field, value, onChange }) => {
 
   const checkHasIndex = (index) => {
     if (index !== -1) {
-      const imageUrl = itemCurrent[index]?.data
-        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + itemCurrent[index]?.data.url
+      const imageUrl = fileCurrent[index]?.data
+        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + fileCurrent[index]?.data.url
         : "/next.svg";
 
       imageRef.current.src = imageUrl;
@@ -43,15 +43,15 @@ const ImageField = ({ field, value, onChange }) => {
 
   // Effects
   useEffect(() => {
-    let itemCurrent;
+    let fileCurrent;
     try {
-      itemCurrent = JSON.parse(value || "");
+      fileCurrent = JSON.parse(value || "");
     } catch (e) {
-      itemCurrent = null;
+      fileCurrent = null;
     }
 
-    if (itemCurrent) {
-      setItemCurrent((prev) => [...prev, { id, data: itemCurrent }]);
+    if (fileCurrent) {
+      setFileCurrent((prev) => [...prev, { id, data: fileCurrent }]);
     } else if (value) {
       previousValueRef.current = value;
       urlRef.current.value = value;
@@ -62,14 +62,14 @@ const ImageField = ({ field, value, onChange }) => {
 
   useEffect(() => {
     if (isMultiple) return;
-    const index = itemCurrent.findIndex((item) => item.id == id);
+    const index = fileCurrent.findIndex((item) => item.id == id);
     checkHasIndex(index);
 
     if (index !== -1) {
-      onChange(JSON.stringify(itemCurrent[index]?.data));
+      onChange(JSON.stringify(fileCurrent[index]?.data));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [choosed, itemCurrent]);
+  }, [choosed, fileCurrent]);
 
   return (
     <div

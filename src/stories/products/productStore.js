@@ -7,7 +7,6 @@ export const useProductStore = create(
       // State
       product: null,
       productCurrent: null,
-      imageRef: null,
       productCurrentRef: null,
       
       // Actions
@@ -17,9 +16,6 @@ export const useProductStore = create(
       
       setProductCurrent: (productCurrent) => 
         set({ productCurrent }, false, 'setProductCurrent'),
-      
-      setImageRef: (imageRef) => 
-        set({ imageRef }, false, 'setImageRef'),
       
       setProductCurrentRef: (productCurrentRef) => 
         set({ productCurrentRef }, false, 'setProductCurrentRef'),

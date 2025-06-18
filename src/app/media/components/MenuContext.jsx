@@ -1,9 +1,11 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import { useMedia } from "../MediaProvider";
+import { useMediaStore } from "@/stories/files/mediaStore";
 
 const MenuContext = () => {
-  const { menuPosition, setMenuPosition, listComponent } = useMedia((data) => data);
+  const menuPosition = useMediaStore((state) => state.menuPosition);
+  const listComponent = useMediaStore((state) => state.listComponent);
+  const setMenuPosition = useMediaStore((state) => state.setMenuPosition);
   const [opacityList, setOpacityList] = useState([]);
   const menuContextRef = useRef(null);
   const handleCloseContextMenu = () => {
@@ -63,7 +65,7 @@ const MenuContext = () => {
             transformOrigin: "top left",
           }}
         >
-          {listComponent.map(({text, attribute}, index) => (
+          {listComponent.map(({ text, attribute }, index) => (
             <li key={index} style={{ cursor: "pointer" }} {...attribute}>
               {text}
             </li>

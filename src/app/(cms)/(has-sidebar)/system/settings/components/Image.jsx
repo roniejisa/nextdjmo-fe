@@ -1,11 +1,10 @@
 "use client";
-import { ImageContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
+import { useImageStore } from "@/stories/files/imageStore";
 
 const ImageComponent = ({ defaultValue, item, field }) => {
-  const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(ImageContext);
+  const { setShowMedia, fileCurrent, setFileCurrent, choosed, isMultiple } = useImageStore(state=>state);
   
   // Refs and ID
   const imageRef = useRef(null);
@@ -13,7 +12,7 @@ const ImageComponent = ({ defaultValue, item, field }) => {
   const id = useId();
 
   // Helper functions
-  const getCurrentImage = () => itemCurrent.find((item) => item.id === id);
+  const getCurrentImage = () => fileCurrent.find((item) => item.id === id);
   
   const getImageSrc = () => {
     const current = getCurrentImage();
@@ -53,16 +52,16 @@ const ImageComponent = ({ defaultValue, item, field }) => {
     }
     
     // Remove from context
-    setItemCurrent((prev) => prev.filter((item) => item.id !== id));
+    setFileCurrent((prev) => prev.filter((item) => item.id !== id));
   };
 
   // Effects
   useEffect(() => {
     if (isMultiple) return;
     
-    const index = itemCurrent.findIndex((item) => item.id === id);
+    const index = fileCurrent.findIndex((item) => item.id === id);
     if (index !== -1) {
-      const currentItem = itemCurrent[index];
+      const currentItem = fileCurrent[index];
       
       if (imageRef.current) {
         imageRef.current.src = currentItem?.data?.url
@@ -76,15 +75,15 @@ const ImageComponent = ({ defaultValue, item, field }) => {
       
       setShowMedia(false);
     }
-  }, [itemCurrent, choosed, id, isMultiple, setShowMedia]);
+  }, [fileCurrent, choosed, id, isMultiple, setShowMedia]);
 
   useEffect(() => {
     const parsedValue = parseDefaultValue(defaultValue);
     
     if (parsedValue) {
-      setItemCurrent((prev) => [...prev, { id, data: parsedValue }]);
+      setFileCurrent((prev) => [...prev, { id, data: parsedValue }]);
     }
-  }, [id, defaultValue, setItemCurrent]);
+  }, [id, defaultValue, setFileCurrent]);
 
   // Render components
   const renderImage = () => (

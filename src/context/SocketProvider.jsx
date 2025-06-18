@@ -92,7 +92,6 @@ const SocketProvider = ({ children }) => {
       socketRef.current.onmessage = (event) => {
         try {
           const { type, data } = JSON.parse(decryptData(event.data));
-          console.log(type, data)
           if (
             typeRef.current &&
             type &&

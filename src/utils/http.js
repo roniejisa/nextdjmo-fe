@@ -19,7 +19,7 @@ export const httpClient = async (
 ) => {
   try {
     const options = {
-      cache: "no-cache",
+      cache: "no-store",
       headers: {
         ...customHeaders,
       },
@@ -50,7 +50,6 @@ export const httpClient = async (
     } else if (body instanceof FormData) {
       options.body = body;
     }
-
     const response = await fetch(url, options);
     const data = await response.json();
     // Handle 401 - Token expired

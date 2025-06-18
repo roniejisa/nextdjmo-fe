@@ -1,12 +1,12 @@
 "use client";
-import { ImageContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { showImageUrl } from "@/utils/client";
 import ImageCustom from "@/components/Maintain/Image";
+import { useImageStore } from "@/stories/files/imageStore";
 
 const ImageComponent = ({ value, fnChooseImage, attrName, attrValue }) => {
-  const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(ImageContext);
+  const { setShowMedia, fileCurrent, setFileCurrent, choosed, isMultiple } =
+    useImageStore((state) => state);
   const imageRef = useRef(null);
   const id = useId();
   const handleShowUpload = () => {
@@ -15,33 +15,33 @@ const ImageComponent = ({ value, fnChooseImage, attrName, attrValue }) => {
 
   useEffect(() => {
     if (isMultiple) return;
-    const index = itemCurrent.findIndex((item) => item.id == id);
+    const index = fileCurrent.findIndex((item) => item.id == id);
     if (index !== -1) {
-      imageRef.current.src = showImageUrl(itemCurrent[index]?.data);
+      imageRef.current.src = showImageUrl(fileCurrent[index]?.data);
       fnChooseImage(
-        JSON.stringify(itemCurrent[index]?.data),
+        JSON.stringify(fileCurrent[index]?.data),
         attrName,
         attrValue
       );
       setShowMedia(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCurrent, choosed]);
+  }, [fileCurrent, choosed]);
 
   useEffect(() => {
-    let itemCurrent;
+    let fileCurrent;
     try {
-      itemCurrent = JSON.parse(value || "");
+      fileCurrent = JSON.parse(value || "");
     } catch (e) {
-      itemCurrent = null;
+      fileCurrent = null;
     }
-    if (itemCurrent) {
-      setItemCurrent((prev) => {
+    if (fileCurrent) {
+      setFileCurrent((prev) => {
         const index = prev.findIndex((item) => item.id == id);
         if (index !== -1) {
-          prev[index].data = itemCurrent;
+          prev[index].data = fileCurrent;
         } else {
-          prev.push({ id, data: itemCurrent });
+          prev.push({ id, data: fileCurrent });
         }
         return [...prev];
       });
@@ -57,9 +57,9 @@ const ImageComponent = ({ value, fnChooseImage, attrName, attrValue }) => {
         <ImageCustom
           ref={imageRef}
           src={
-            itemCurrent.find((item) => item.id == id)
+            fileCurrent.find((item) => item.id == id)
               ? process.env.NEXT_PUBLIC_ENDPOINT_URL +
-                itemCurrent.find((item) => item.id == id).data.url
+                fileCurrent.find((item) => item.id == id).data.url
               : "/next.svg"
           }
           height={0}

@@ -1,27 +1,23 @@
 "use client";
 
-import {
-  CHUNK_SIZE,
-  convertSize,
-  uploadFileResumable,
-} from "@/utils/client";
-import { useContext, useRef, useState, useTransition } from "react";
-import { MediaContext, useMedia } from "./MediaProvider";
+import { CHUNK_SIZE, convertSize, uploadFileResumable } from "@/utils/client";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useNotify } from "@/context/NotifyProvider";
 import ImageUpload from "@/components/Icon/svg/ImageUpload";
 import CloseIcon from "@/components/Icon/svg/Close";
 import ImageCustom from "@/components/Maintain/Image";
+import { useMediaStore } from "@/stories/files/mediaStore";
 
-const UploadForm = ({ media_id, token }) => {
-  const { breadcrumbs } = useContext(MediaContext);
+const UploadForm = ({ media_id }) => {
+  const breadcrumbs = useMediaStore((state) => state.breadcrumbs);
+  const addMedias = useMediaStore((state) => state.addMedias);
   const [progress, setProgress] = useState(0);
   const [isPending, startTransition] = useTransition();
   const countChunkCurrentRef = useRef(0);
   const [uploading, setUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const setMedias = useMedia(({ setMedias }) => setMedias);
   const [files, setFiles] = useState([]);
-  const fileListRef = useRef(new DataTransfer());
+  const fileListRef = useRef(null);
   const notify = useNotify();
   const modalRef = useRef(null);
   const handleUploadFile = async (e) => {
@@ -60,9 +56,8 @@ const UploadForm = ({ media_id, token }) => {
           (media) => {
             if (media && media.message && typeof media.message == "string")
               return;
-            setMedias((medias) => [media, ...medias]);
-          },
-          token
+            addMedias(media);
+          }
         );
         if (response.status) {
           notify.changeNotify("error", response.message);
@@ -147,6 +142,13 @@ const UploadForm = ({ media_id, token }) => {
       setShowModal(false);
     }
   };
+
+  useEffect(() => {
+    fileListRef.current = new DataTransfer();
+    return () => {
+      fileListRef.current = null;
+    };
+  }, []);
   return (
     <>
       <button
@@ -156,14 +158,14 @@ const UploadForm = ({ media_id, token }) => {
         Upload
       </button>
       {showModal && (
-        <div className="fixed top-0 left-0 w-full  z-[9999] h-full">
+        <div className="fixed top-0 left-0 w-full  z-[200] h-full">
           <div
             ref={modalRef}
             className="absolute top-0 left-0 w-full h-full cursor-pointer bg-[#00000050]"
             onClick={handleCloseModal}
             style={{ backdropFilter: "blur(12px)" }}
           ></div>
-          <div className="p-4 max-w-[500px] z-[1000] w-full bg-white rounded-lg overflow-hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="p-4 max-w-[500px] z-[200] w-full bg-white rounded-lg overflow-hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             <div className="flex justify-between pb-10 font-bold text-xl">
               <h3>Tải tệp tin</h3>
               <button

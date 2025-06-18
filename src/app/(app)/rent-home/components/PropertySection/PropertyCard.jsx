@@ -2,7 +2,6 @@
 import { MapPin, Star, Eye, Heart, Share2 } from "lucide-react";
 
 const PropertyCard = ({ property, glassClasses, textPrimaryClasses, textSecondaryClasses }) => {
-  console.log(property)
   return (
     <div
       className={`${glassClasses} rounded-3xl overflow-hidden hover:scale-105 transition-all duration-500 group hover:shadow-2xl cursor-pointer relative`}

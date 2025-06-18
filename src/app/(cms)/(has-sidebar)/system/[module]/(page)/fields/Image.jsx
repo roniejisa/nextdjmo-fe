@@ -1,13 +1,13 @@
 // BÊN TRONG
 "use client";
-import { ImageContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import ImageCustom from "@/components/Maintain/Image";
 import { isJSON } from "@/utils/client";
+import { useImageStore } from "@/stories/files/imageStore";
 
 const ImageComponent = ({ value, item, field }) => {
-  const { setShowMedia, itemCurrent, setItemCurrent, choosed, isMultiple } =
-    useContext(ImageContext);
+  const { setShowMedia, fileCurrent, setFileCurrent, choosed, isMultiple } =
+    useImageStore((state) => state);
   const imageRef = useRef(null);
   const inputRef = useRef(null);
   const [hasImage, setHasImage] = useState(false);
@@ -21,7 +21,7 @@ const ImageComponent = ({ value, item, field }) => {
 
   const handleRemoveImage = (e) => {
     e.stopPropagation();
-    setItemCurrent((prev) => prev.filter((item) => item.id !== id));
+    setFileCurrent((prev) => prev.filter((item) => item.id !== id));
     setHasImage(false);
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -31,30 +31,32 @@ const ImageComponent = ({ value, item, field }) => {
     }
   };
 
-  // Effect để sync với itemCurrent changes (khi user chọn ảnh từ gallery)
+  // Effect để sync với fileCurrent changes (khi user chọn ảnh từ gallery)
   useEffect(() => {
     if (isMultiple) return;
-    const index = itemCurrent.findIndex((item) => item.id == id);
+    const index = fileCurrent.findIndex((item) => item.id == id);
     if (index !== -1) {
-      const imageData = itemCurrent[index]?.data;
-      const imageUrl = imageData
-        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + imageData.url
-        : "/next.svg";
-
-      if (imageRef.current) {
-        imageRef.current.src = imageUrl;
-      }
-      if (inputRef.current) {
-        inputRef.current.value = JSON.stringify(imageData);
-      }
-
-      setHasImage(!!imageData);
-      setIsLoading(false);
-      setShowMedia(false);
+      const imageData = fileCurrent[index]?.data;
+      updateData(imageData);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCurrent, choosed]);
+  }, [fileCurrent, choosed]);
+  const updateData = (imageData) => {
+    const imageUrl = imageData
+      ? process.env.NEXT_PUBLIC_ENDPOINT_URL + imageData.url
+      : "/next.svg";
 
+    if (imageRef.current) {
+      imageRef.current.src = imageUrl;
+    }
+    if (inputRef.current) {
+      inputRef.current.value = JSON.stringify(imageData);
+    }
+
+    setHasImage(!!imageData);
+    setIsLoading(false);
+    setShowMedia(false);
+  };
   // Effect để sync với value changes từ props (khi component được re-render với data mới)
   useEffect(() => {
     let parsedValue;
@@ -64,16 +66,16 @@ const ImageComponent = ({ value, item, field }) => {
       parsedValue = null;
     }
 
-    // Kiểm tra xem có cần update itemCurrent không
-    const existingItem = itemCurrent.find((item) => item.id === id);
+    // Kiểm tra xem có cần update fileCurrent không
+    const existingItem = fileCurrent.find((item) => item.id === id);
 
     if (parsedValue) {
-      // Nếu có value mới và chưa có trong itemCurrent, hoặc data khác nhau
+      // Nếu có value mới và chưa có trong fileCurrent, hoặc data khác nhau
       if (
         !existingItem ||
         JSON.stringify(existingItem.data) !== JSON.stringify(parsedValue)
       ) {
-        setItemCurrent((prev) => {
+        setFileCurrent((prev) => {
           const filtered = prev.filter((item) => item.id !== id);
           return [...filtered, { id, data: parsedValue }];
         });
@@ -87,11 +89,12 @@ const ImageComponent = ({ value, item, field }) => {
       }
       if (inputRef.current) {
         inputRef.current.value = JSON.stringify(parsedValue);
+        setFileCurrent();
       }
     } else {
       // Nếu không có value, clear everything
       if (existingItem) {
-        setItemCurrent((prev) => prev.filter((item) => item.id !== id));
+        setFileCurrent((prev) => prev.filter((item) => item.id !== id));
       }
       setHasImage(false);
 
@@ -103,8 +106,7 @@ const ImageComponent = ({ value, item, field }) => {
       }
     }
   }, [value, id]); // Thêm value vào dependency array
-
-  const currentImage = itemCurrent.find((item) => item.id == id);
+  const currentImage = fileCurrent.find((item) => item.id == id);
   const imageUrl = currentImage
     ? process.env.NEXT_PUBLIC_ENDPOINT_URL + currentImage.data.url
     : "/next.svg";

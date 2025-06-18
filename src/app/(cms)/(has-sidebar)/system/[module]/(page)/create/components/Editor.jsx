@@ -1,13 +1,13 @@
 "use client";
-import React, { useContext, useEffect, useId, useRef } from "react";
+import React, { useEffect, useId, useRef } from "react";
 import "quill/dist/quill.snow.css";
-import { ImageContext } from "@/context/cms/ImageProvider";
+import { useImageStore } from "@/stories/files/imageStore";
 const Editor = ({ field, defaultValue, oldData }) => {
   const editorRef = useRef(null);
   const textareaRef = useRef(null);
   const quillCurrentRef = useRef(null);
-  const { setShowMedia, itemCurrent, isMultiple, choosed, setItemCurrent } =
-    useContext(ImageContext);
+  const { setShowMedia, fileCurrent, isMultiple, choosed, setFileCurrent } =
+    useImageStore((state) => state);
   const id = useId();
   const handleShowUpload = () => {
     setShowMedia(id);
@@ -15,10 +15,10 @@ const Editor = ({ field, defaultValue, oldData }) => {
 
   useEffect(() => {
     if (isMultiple) return;
-    const index = itemCurrent.findIndex((item) => item.id == id);
+    const index = fileCurrent.findIndex((item) => item.id == id);
     if (index !== -1) {
-      const imageUrl = itemCurrent[index]?.data
-        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + itemCurrent[index]?.data.url
+      const imageUrl = fileCurrent[index]?.data
+        ? process.env.NEXT_PUBLIC_ENDPOINT_URL + fileCurrent[index]?.data.url
         : "";
 
       if (
@@ -43,11 +43,11 @@ const Editor = ({ field, defaultValue, oldData }) => {
         // Kiểm tra tránh lặp lại
         quillCurrentRef.current.root.innerHTML += `<img src="${imageUrl}">`;
       }
-      setItemCurrent([]);
+      setFileCurrent([]);
       setShowMedia(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [choosed, itemCurrent]);
+  }, [choosed, fileCurrent]);
 
   useEffect(() => {
     const Quill = require("quill");

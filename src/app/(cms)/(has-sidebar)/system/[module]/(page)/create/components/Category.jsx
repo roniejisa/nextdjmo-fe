@@ -192,7 +192,6 @@ const CategoryModal = ({
   // Build API URL với pagination
   const apiUrl = useMemo(() => {
     let baseUrl = `${field.module}/field-type?limit=${pageSize}&page=${currentPage}`;
-    console.log(field);
     
     if (field.module_id && field.module_label) {
       baseUrl += `&fields=${field.module_id},${field.module_label}`;

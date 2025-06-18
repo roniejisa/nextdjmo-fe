@@ -15,8 +15,7 @@ export const uploadFileResumable = async (
   file,
   obj,
   onProgress,
-  onSetMedia,
-  token
+  onSetMedia
 ) => {
   const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 

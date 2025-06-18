@@ -449,7 +449,6 @@ const ProductVariant = ({ field, item, value }) => {
         ...newList[index],
         values: listIndexCurrent,
       };
-      console.log(newList);
       return newList;
     });
 

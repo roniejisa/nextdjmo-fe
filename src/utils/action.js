@@ -57,8 +57,12 @@ export async function refreshTokens() {
 }
 
 export async function clearTokensAndRedirect() {
-  cookies().delete("token");
-  cookies().delete("refreshToken");
-  cookies().set("msg", "Vui lòng đăng nhập!");
+  try{
+    cookies().delete("token");
+    cookies().delete("refreshToken");
+    cookies().set("msg", "Vui lòng đăng nhập!");
+  }catch(e){
+    console.log("Đã xảy ra lỗi ", e)
+  }
   return redirect("/dang-nhap");
 }

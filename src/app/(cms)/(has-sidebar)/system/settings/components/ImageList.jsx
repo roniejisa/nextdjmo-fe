@@ -1,16 +1,16 @@
 "use client";
-import { ImageContext } from "@/context/cms/ImageProvider";
-import { useContext, useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import ImageCustom from "@/components/Maintain/Image";
+import { useImageStore } from "@/stories/files/imageStore";
 
 const ImageListComponent = ({ defaultValue, item, field }) => {
   const {
     setShowMedia,
-    itemCurrent,
+    fileCurrent,
     listImageChoosed,
     setIsMultiple,
-    setItemCurrent,
-  } = useContext(ImageContext);
+    setFileCurrent,
+  } = useImageStore(state=>state);
   const textareaRef = useRef(null);
   const id = useId();
   const handleShowUpload = () => {
@@ -19,20 +19,20 @@ const ImageListComponent = ({ defaultValue, item, field }) => {
   };
 
   useEffect(() => {
-    const index = itemCurrent.findIndex((item) => item.id == id);
+    const index = fileCurrent.findIndex((item) => item.id == id);
     if (index != -1) {
-      const list = itemCurrent.find((item) => item.id == id)?.items;
+      const list = fileCurrent.find((item) => item.id == id)?.items;
       textareaRef.current.value = JSON.stringify(list);
       setIsMultiple(false);
       setShowMedia(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemCurrent, listImageChoosed]);
+  }, [fileCurrent, listImageChoosed]);
 
   useEffect(() => {
     const images = JSON.parse(defaultValue || "") || null;
     if (Array.isArray(images)) {
-      setItemCurrent((prev) => {
+      setFileCurrent((prev) => {
         const index = prev.findIndex((item) => item.id == id);
         if (index !== -1) {
           prev[index].items = images;
@@ -46,11 +46,11 @@ const ImageListComponent = ({ defaultValue, item, field }) => {
   }, []);
 
   const deleteItem = (idItem) => {
-    setItemCurrent((prev) => {
+    setFileCurrent((prev) => {
       const index = prev.findIndex((item) => item.id == id);
       if (index !== -1) {
         const indexItem = prev[index].items.findIndex(
-          (itemCurrent) => itemCurrent._id == idItem
+          (fileCurrent) => fileCurrent._id == idItem
         );
         if (indexItem !== -1) {
           prev[index].items.splice(indexItem, 1);
@@ -63,9 +63,9 @@ const ImageListComponent = ({ defaultValue, item, field }) => {
   return (
     <div className="relative">
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-1">
-        {itemCurrent.find((item) => item.id == id) ? (
+        {fileCurrent.find((item) => item.id == id) ? (
           <>
-            {itemCurrent
+            {fileCurrent
               .find((item) => item.id == id)
               ?.items.map((item, index) => (
                 <div className="relative border" key={index}>

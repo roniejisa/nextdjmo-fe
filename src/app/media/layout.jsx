@@ -1,11 +1,14 @@
-import ImageProvider from "@/context/cms/ImageProvider";
+import SocketProvider from "@/context/SocketProvider";
 import MediaProvider from "./MediaProvider";
-
+import CMSProvider from "@/context/cms/CMSProvider";
+import '../system.scss'
 const layout = ({ children }) => {
   return (
-    <ImageProvider>
-      <MediaProvider>{children}</MediaProvider>
-    </ImageProvider>
+    <SocketProvider>
+      <CMSProvider>
+        <MediaProvider>{children}</MediaProvider>
+      </CMSProvider>
+    </SocketProvider>
   );
 };
 

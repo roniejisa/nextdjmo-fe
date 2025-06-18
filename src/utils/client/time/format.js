@@ -32,3 +32,14 @@ export function formatTimeComment(date, type = "default") {
     return `${Math.floor(diffInSeconds)} giây trước`;
   }
 }
+
+// Format date
+export const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};

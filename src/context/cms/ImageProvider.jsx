@@ -1,18 +1,21 @@
 "use client";
 import MediaProvider from "@/app/media/MediaProvider";
-import MediaComponent from "@/components/Media/MediaComponent";
-import { createContext, useEffect, useRef, useState } from "react";
+import MediaMain from "@/app/media/MediaMain";
+import { useEffect, useRef } from "react";
+import { useImageStore } from "@/stories/files/imageStore";
 
-export const ImageContext = createContext(null);
 const ImageProvider = ({ children }) => {
-  const [showMedia, setShowMedia] = useState(false);
-  const [dataImage, setDataImage] = useState(null);
-  const [isMultiple, setIsMultiple] = useState(false);
   const imageRef = useRef(null);
-  const [choosed, setChoosed] = useState(null);
-  const [listImageChoosed, setListImageChoosed] = useState([]);
-  const [itemCurrent, setItemCurrent] = useState([]);
-  const [listImage, setListImage] = useState([]);
+  
+  const showMedia = useImageStore((state) => state.showMedia);
+  const choosed = useImageStore((state) => state.choosed);
+  const listImageChoosed = useImageStore((state) => state.listImageChoosed);
+  const setShowMedia = useImageStore((state) => state.setShowMedia);
+  const setIsMultiple = useImageStore((state) => state.setIsMultiple);
+  const setChoosed = useImageStore((state) => state.setChoosed);
+  const updateFileCurrent = useImageStore((state) => state.updateFileCurrent);
+  const updateFileCurrentItems = useImageStore((state) => state.updateFileCurrentItems);
+  
   const handleOffClick = (e) => {
     if (e.target.contains(imageRef.current)) {
       setShowMedia(false);
@@ -22,42 +25,16 @@ const ImageProvider = ({ children }) => {
 
   useEffect(() => {
     if (choosed) {
-      setItemCurrent((prev) => {
-        const index = prev.findIndex((item) => item.id == showMedia);
-        if (index !== -1) {
-          prev[index].data = choosed;
-        } else {
-          prev.push({ id: showMedia, data: choosed });
-        }
-        return prev;
-      });
+      updateFileCurrent(showMedia, choosed);
       setChoosed(null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [choosed]);
+  }, [choosed, showMedia, updateFileCurrent, setChoosed]);
 
   useEffect(() => {
     if (listImageChoosed.length > 0) {
-      setItemCurrent((prev) => {
-        const index = prev.findIndex((item) => item.id == showMedia);
-        if (index !== -1) {
-          prev[index].items = [
-            ...prev[index].items,
-            ...listImageChoosed.filter(
-              (newItem) =>
-                !prev[index].items.some(
-                  (existingItem) => existingItem._id === newItem._id
-                )
-            ),
-          ];
-        } else {
-          return [...prev, { id: showMedia, items: listImageChoosed }];
-        }
-        return [...prev];
-      });
+      updateFileCurrentItems(showMedia, listImageChoosed);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listImageChoosed]);
+  }, [listImageChoosed, showMedia, updateFileCurrentItems]);
 
   useEffect(() => {
     if (showMedia) {
@@ -66,25 +43,9 @@ const ImageProvider = ({ children }) => {
       document.body.style.overflow = "unset";
     }
   }, [showMedia]);
+
   return (
-    <ImageContext.Provider
-      value={{
-        listImageChoosed,
-        setListImageChoosed,
-        showMedia,
-        setShowMedia,
-        dataImage,
-        setDataImage,
-        choosed,
-        setChoosed,
-        itemCurrent,
-        setItemCurrent,
-        listImage,
-        setListImage,
-        isMultiple,
-        setIsMultiple,
-      }}
-    >
+    <>
       {children}
       {showMedia && (
         <div
@@ -92,15 +53,15 @@ const ImageProvider = ({ children }) => {
           onClick={handleOffClick}
         >
           <div className="max-w-[90vw] mx-auto" ref={imageRef}>
-            <div className="bg-white py-4 px-4 shadow-md rounded-lg h-[calc(100vh-80px)] mt-10 relative overflow-auto">
+            <div className="py-4 px-4 shadow-md rounded-lg bg-white h-[calc(100vh-80px)] mt-10 relative overflow-auto">
               <MediaProvider>
-                <MediaComponent />
+                <MediaMain />
               </MediaProvider>
             </div>
           </div>
         </div>
       )}
-    </ImageContext.Provider>
+    </>
   );
 };
 
