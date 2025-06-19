@@ -17,7 +17,7 @@ export {
   formatKey,
 } from "./string/format";
 
-export { formatDate, formatRelativeTime, formatTimeAgo } from "./string/time";
+export { formatDate, formatRelativeTime, formatTimeAgo, superFormatDate } from "./string/time";
 
 // UI Operations - Utils for UI elements
 export { randomBgColor, chooseColorByIndex } from "./ui/color";

@@ -188,16 +188,14 @@ const ModuleClient = () => {
                                 key={field.name}
                                 className="flex-1 py-4 px-4 flex items-center min-w-0"
                               >
-                                <div className="truncate">
-                                  <Component
-                                    value={item[field.name]}
-                                    items={items}
-                                    item={item}
-                                    field={field}
-                                    module={module}
-                                    mutate={mutate}
-                                  />
-                                </div>
+                                <Component
+                                  value={item[field.name]}
+                                  items={items}
+                                  item={item}
+                                  field={field}
+                                  module={module}
+                                  mutate={mutate}
+                                />
                               </div>
                             );
                           })}

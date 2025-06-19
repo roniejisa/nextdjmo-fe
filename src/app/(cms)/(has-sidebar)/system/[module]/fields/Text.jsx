@@ -1,6 +1,6 @@
 const Text = ({value}) => {
   return (
-    <>{value}</>
+    <span className="truncate">{value}</span>
   )
 }
 

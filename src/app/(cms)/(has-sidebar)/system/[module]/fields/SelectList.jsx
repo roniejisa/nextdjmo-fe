@@ -1,6 +1,6 @@
 "use client";
 const SelectList = ({ value, field }) => {
-  return <div>{value ? value : "Không có " + field.label}</div>;
+  return <span className="truncate">{value ? value : "Không có " + field.label}</span>;
 };
 
 export default SelectList;

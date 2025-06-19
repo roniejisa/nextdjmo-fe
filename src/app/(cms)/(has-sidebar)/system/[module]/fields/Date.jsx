@@ -1,11 +1,9 @@
+import { superFormatDate } from "@/utils/client";
+
 const Date = ({ value }) => {
   try {
-    const [year, month, day] = value.split("-");
-    return (
-      <div>
-        {day}/{month}/{year}
-      </div>
-    );
+    const time = superFormatDate(value);
+    return <>{time}</>;
   } catch (e) {
     return <div>Không xác định</div>;
   }

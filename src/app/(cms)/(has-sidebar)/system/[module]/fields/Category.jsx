@@ -206,9 +206,9 @@ const CategoryDropdown = ({
       <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45 shadow-sm"></div>
 
       {/* Dropdown Content */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-2 min-w-[320px] max-w-[450px] backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-2 max-w-[400px] backdrop-blur-sm">
         {/* Categories Grid */}
-        <div className="flex gap-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+        <div className="flex gap-2">
           {categories.map((category, index) => (
             <CategoryItem
               key={index}
