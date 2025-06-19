@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -52,55 +53,6 @@ const ProductVariant = ({ field, item, value }) => {
   const [resetKey, setResetKey] = useState(0);
   const notify = useNotify();
 
-  // Force remount khi value thay đổi
-  useEffect(() => {
-    if (currentValue !== value) {
-      setCurrentValue(value);
-      setResetKey((prev) => prev + 1);
-
-      const newInitialData = value ? JSON.parse(value) : {};
-      setHasVariant(false);
-      setAttribute("");
-      setListAttribute(newInitialData?.listAttribute ?? []);
-      setData(newInitialData?.data ?? []);
-      setSelectedItems(new Set());
-      setShowBulkEdit(false);
-      setBulkEditData({ price: "", stock: "", sku: "" });
-      setCollapsedGroups(new Set());
-      setShowAdvancedBulkEdit(false);
-      setAttributeFilters({});
-    }
-  }, [value, currentValue]);
-
-  useEffect(() => {
-    if (data.length > 0) {
-      const all = {
-        data,
-        listAttribute,
-      };
-      textareaRef.current.value = JSON.stringify(all);
-    } else {
-      textareaRef.current.value = "";
-    }
-  }, [data, listAttribute]);
-
-  useEffect(() => {
-    try {
-      oldData.current = JSON.parse(value);
-    } catch (e) {}
-    if (
-      oldData.current &&
-      "data" in oldData.current &&
-      "listAttribute" in oldData.current &&
-      oldData.current.listAttribute.length > 0
-    ) {
-      setHasVariant(true);
-      setListAttribute(oldData.current.listAttribute);
-    } else if (oldData.current && "data" in oldData.current) {
-      setData([...oldData.current.data]);
-    }
-  }, [value]);
-
   // Nhóm dữ liệu theo thuộc tính đầu tiên để thu gọn
   const groupedData = useMemo(() => {
     if (!data.length || !listAttribute.length) return {};
@@ -119,7 +71,6 @@ const ProductVariant = ({ field, item, value }) => {
     return groups;
   }, [data, listAttribute]);
 
-  // Lọc dữ liệu theo bộ lọc thuộc tính
   const filteredData = useMemo(() => {
     if (Object.keys(attributeFilters).length === 0) return data;
 
@@ -133,14 +84,12 @@ const ProductVariant = ({ field, item, value }) => {
     });
   }, [data, attributeFilters]);
 
-  // Hàm kiểm tra SKU trùng lặp
   const checkDuplicateSKU = (newSKU, currentIndex = -1) => {
     return data.some(
       (item, index) => index !== currentIndex && item.sku === newSKU
     );
   };
 
-  // Hàm tạo SKU cho tất cả items
   const generateSKUsForAllItems = (items, listAttribute) => {
     const existingSKUs = [];
 
@@ -155,7 +104,6 @@ const ProductVariant = ({ field, item, value }) => {
     });
   };
 
-  // Toggle thu gọn nhóm
   const toggleGroupCollapse = (groupKey) => {
     const newCollapsed = new Set(collapsedGroups);
     if (newCollapsed.has(groupKey)) {
@@ -166,7 +114,6 @@ const ProductVariant = ({ field, item, value }) => {
     setCollapsedGroups(newCollapsed);
   };
 
-  // Thu gọn/mở tất cả
   const toggleAllGroups = () => {
     const allGroupKeys = Object.keys(groupedData);
     if (collapsedGroups.size === allGroupKeys.length) {
@@ -176,7 +123,6 @@ const ProductVariant = ({ field, item, value }) => {
     }
   };
 
-  // Chọn theo nhóm
   const selectGroup = (groupKey) => {
     const groupItems = groupedData[groupKey] || [];
     const newSelected = new Set(selectedItems);
@@ -186,12 +132,10 @@ const ProductVariant = ({ field, item, value }) => {
     );
 
     if (isAllSelected) {
-      // Bỏ chọn nhóm
       groupItems.forEach((item) => {
         newSelected.delete(item.originalIndex);
       });
     } else {
-      // Chọn nhóm
       groupItems.forEach((item) => {
         newSelected.add(item.originalIndex);
       });
@@ -200,7 +144,6 @@ const ProductVariant = ({ field, item, value }) => {
     setSelectedItems(newSelected);
   };
 
-  // Chỉnh sửa hàng loạt nâng cao
   const handleAdvancedBulkEdit = () => {
     let targetItems = [];
 
@@ -244,7 +187,6 @@ const ProductVariant = ({ field, item, value }) => {
       return newData;
     });
 
-    // Reset
     setBulkEditData({ price: "", stock: "", sku: "" });
     setShowAdvancedBulkEdit(false);
     setSelectedItems(new Set());
@@ -263,17 +205,6 @@ const ProductVariant = ({ field, item, value }) => {
       setShowSuggestion(false);
     }
   };
-
-  useEffect(() => {
-    if (showSuggestion) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showSuggestion]);
 
   const addAttribute = () => {
     if (attribute.trim() === "" || /^\d/.test(attribute.trim()))
@@ -298,56 +229,6 @@ const ProductVariant = ({ field, item, value }) => {
     });
     setAttribute("");
   };
-
-  useEffect(() => {
-    if (listAttribute.length > 0) {
-      const newData = generateCombinations(listAttribute);
-      const listData = sortData(newData);
-
-      setData((prev) => {
-        if (prev.length === 0 && oldData.current) {
-          prev = oldData.current.data;
-        }
-        const newListData = listData.map((item) => {
-          const key = generateKey(item);
-          const oldData = prev.find((prevItem) => {
-            const dataKey = generateKey(prevItem);
-            if (key.length > dataKey.length) {
-              return key.includes(dataKey);
-            } else {
-              return dataKey.includes(key);
-            }
-          });
-          const getKeyOfFirstAttribute = listAttribute[0].name;
-          const getItemOldHasImage = prev.find(
-            (prevItem) =>
-              prevItem[getKeyOfFirstAttribute] ===
-                item[getKeyOfFirstAttribute] && prevItem.image
-          );
-          if (!oldData)
-            return {
-              price: "",
-              stock: 0,
-              sku: "",
-              image: getItemOldHasImage ? getItemOldHasImage.image : "",
-              ...item,
-            };
-          return {
-            ...item,
-            price: oldData.price ?? "",
-            stock: oldData.stock ?? 0,
-            sku: oldData.sku ?? "",
-            image: getItemOldHasImage ? getItemOldHasImage.image : "",
-          };
-        });
-
-        const dataWithSKU = generateSKUsForAllItems(newListData, listAttribute);
-        return dataWithSKU;
-      });
-    } else if (hasVariant) {
-      setData([]);
-    }
-  }, [listAttribute, value]);
 
   const addValue = (index) => {
     setListAttribute((prev) => {
@@ -380,28 +261,23 @@ const ProductVariant = ({ field, item, value }) => {
     });
   };
 
-  // DRAG AND DROP functions (giữ nguyên như code gốc)
   const dragEnd = (e) => {
     e.preventDefault();
-    // Đảm bảo reset drag data
     setTimeout(() => {
       dataMoveRef.current = null;
     }, 100);
   };
 
   const dragStart = (e, index, indexValue) => {
-    // Tạo object mới để tránh reference issues
     dataMoveRef.current = {
       ...listAttribute[index].values[indexValue],
       index: indexValue,
       attribute_id: index,
     };
 
-    // Đơn giản hóa drag image
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", "");
 
-    // Thêm class để visual feedback
     e.target.closest(".item-group")?.classList.add("dragging");
   };
 
@@ -414,10 +290,8 @@ const ProductVariant = ({ field, item, value }) => {
     const indexOld = dataMoveRef.current.index;
     const attributeOld = dataMoveRef.current.attribute_id;
 
-    // Chỉ xử lý trong cùng attribute và khác vị trí
     if (attributeOld !== index || indexOld === indexNew) return;
 
-    // Không thực hiện move trong dragOver, chỉ trong drop
   };
 
   const handleDrop = (e, index, indexNew) => {
@@ -620,6 +494,117 @@ const ProductVariant = ({ field, item, value }) => {
     });
   };
 
+  useEffect(() => {
+    if (showSuggestion) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSuggestion]);
+
+  useEffect(() => {
+    try {
+      oldData.current = JSON.parse(value);
+    } catch (e) {}
+    if (
+      oldData.current &&
+      "data" in oldData.current &&
+      "listAttribute" in oldData.current &&
+      oldData.current.listAttribute.length > 0
+    ) {
+      setHasVariant(true);
+      setListAttribute(oldData.current.listAttribute);
+    } else if (oldData.current && "data" in oldData.current) {
+      setData([...oldData.current.data]);
+    }
+    const allGroupKeys = Object.keys(groupedData);
+    setCollapsedGroups(new Set(allGroupKeys));
+  }, [value]);
+
+  useEffect(() => {
+    if (currentValue !== value) {
+      setCurrentValue(value);
+      setResetKey((prev) => prev + 1);
+
+      const newInitialData = value ? JSON.parse(value) : {};
+      setHasVariant(false);
+      setAttribute("");
+      setListAttribute(newInitialData?.listAttribute ?? []);
+      setData(newInitialData?.data ?? []);
+      setSelectedItems(new Set());
+      setShowBulkEdit(false);
+      setBulkEditData({ price: "", stock: "", sku: "" });
+      setCollapsedGroups(new Set());
+      setShowAdvancedBulkEdit(false);
+      setAttributeFilters({});
+    }
+  }, [value, currentValue]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      const all = {
+        data,
+        listAttribute,
+      };
+      textareaRef.current.value = JSON.stringify(all);
+    } else {
+      textareaRef.current.value = "";
+    }
+  }, [data, listAttribute]);
+
+  useEffect(() => {
+    if (listAttribute.length > 0) {
+      const newData = generateCombinations(listAttribute);
+      const listData = sortData(newData);
+
+      setData((prev) => {
+        if (prev.length === 0 && oldData.current) {
+          prev = oldData.current.data;
+        }
+        const newListData = listData.map((item) => {
+          const key = generateKey(item);
+          const oldData = prev.find((prevItem) => {
+            const dataKey = generateKey(prevItem);
+            if (key.length > dataKey.length) {
+              return key.includes(dataKey);
+            } else {
+              return dataKey.includes(key);
+            }
+          });
+          const getKeyOfFirstAttribute = listAttribute[0].name;
+          const getItemOldHasImage = prev.find(
+            (prevItem) =>
+              prevItem[getKeyOfFirstAttribute] ===
+                item[getKeyOfFirstAttribute] && prevItem.image
+          );
+          if (!oldData)
+            return {
+              price: "",
+              stock: 0,
+              sku: "",
+              image: getItemOldHasImage ? getItemOldHasImage.image : "",
+              ...item,
+            };
+          return {
+            ...item,
+            price: oldData.price ?? "",
+            stock: oldData.stock ?? 0,
+            sku: oldData.sku ?? "",
+            image: getItemOldHasImage ? getItemOldHasImage.image : "",
+          };
+        });
+
+        const dataWithSKU = generateSKUsForAllItems(newListData, listAttribute);
+        return dataWithSKU;
+      });
+    } else if (hasVariant) {
+      setData([]);
+    }
+  }, [listAttribute, value]);
+
   return (
     <div key={resetKey}>
       <textarea name={field.name} hidden ref={textareaRef}></textarea>
@@ -656,16 +641,15 @@ const ProductVariant = ({ field, item, value }) => {
             <>
               {/* Bulk Edit Section */}
               <BulkEditSection
-                applyBulkEdit={applyBulkEdit}
                 bulkEditData={bulkEditData}
                 data={data}
                 handleBulkEdit={handleBulkEdit}
                 handleSelectAll={handleSelectAll}
-                selectedItems={selectedItems}
-                setBulkEditData={setBulkEditData}
-                setShowBulkEdit={setShowBulkEdit}
                 showBulkEdit={showBulkEdit}
+                setShowBulkEdit={setShowBulkEdit}
+                setBulkEditData={setBulkEditData}
                 generateAllSKUs={generateAllSKUs}
+                selectedItems={selectedItems}
               />
 
               {/* Render bảng với tính năng thu gọn */}

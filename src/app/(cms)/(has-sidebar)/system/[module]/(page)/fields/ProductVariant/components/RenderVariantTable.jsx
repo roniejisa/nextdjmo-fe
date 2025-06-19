@@ -51,22 +51,13 @@ const RenderVariantTable = ({
   if (!listAttribute.length || !data.length) return null;
 
   return (
-    <div className="">
+    <>
       {/* Bộ lọc nâng cao */}
       <div className="mb-6 p-6 relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/10 border border-white/20 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none">
         <div className="flex items-center gap-4 mb-4 relative z-10">
           <h4 className="font-semibold text-slate-700 text-lg drop-shadow-sm">
             Bộ lọc và chỉnh sửa nâng cao:
           </h4>
-          <button
-            type="button"
-            onClick={toggleAllGroups}
-            className="px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-br from-slate-100/80 to-slate-200/60 hover:from-slate-200/80 hover:to-slate-300/60 border border-white/30 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_6px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transform hover:scale-95 transition-all duration-200 text-slate-700"
-          >
-            {collapsedGroups.size === Object.keys(groupedData).length
-              ? "Mở tất cả"
-              : "Thu gọn tất cả"}
-          </button>
         </div>
 
         {/* Bộ lọc theo thuộc tính */}
@@ -130,7 +121,6 @@ const RenderVariantTable = ({
             Tạo SKU tự động
           </button>
         </div>
-
       </div>
       {/* Modal chỉnh sửa nâng cao */}
       {showAdvancedBulkEdit && (
@@ -213,281 +203,296 @@ const RenderVariantTable = ({
           </div>
         </div>
       )}
-
       {/* Bảng dữ liệu với tính năng thu gọn */}
-      <div className="rounded-2xl overflow-hidden relative backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/10 border border-white/20 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none">
-        <table className="w-full relative z-10">
-          <thead className="bg-gradient-to-r from-slate-200/80 to-slate-300/60 backdrop-blur-sm border-b border-white/20">
-            <tr>
-              <th className="text-center p-4 w-12">
-                <input
-                  type="checkbox"
-                  checked={
-                    selectedItems.size === filteredData.length &&
-                    filteredData.length > 0
-                  }
-                  onChange={() => {
-                    if (selectedItems.size === filteredData.length) {
-                      setSelectedItems(new Set());
-                    } else {
-                      const newSelected = new Set();
-                      filteredData.forEach((_, index) => {
-                        const originalIndex = data.findIndex(
-                          (item) => item === filteredData[index]
-                        );
-                        newSelected.add(originalIndex);
-                      });
-                      setSelectedItems(newSelected);
+      <div className="p-6 relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/10 border border-white/20 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none">
+        <div className="flex gap-4 items-center mb-4">
+          <h4 class="font-semibold text-slate-700 text-lg drop-shadow-sm">
+            Bảng danh sách chi tiết:
+          </h4>
+          <button
+            type="button"
+            onClick={toggleAllGroups}
+            className="px-4 py-2 text-sm font-medium rounded-xl bg-gradient-to-br from-slate-100/80 to-slate-200/60 hover:from-slate-200/80 hover:to-slate-300/60 border border-white/30 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_6px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transform hover:scale-95 transition-all duration-200 text-slate-700"
+          >
+            {collapsedGroups.size === Object.keys(groupedData).length
+              ? "Mở tất cả"
+              : "Thu gọn tất cả"}
+          </button>
+        </div>
+        <div className="rounded-2xl overflow-hidden relative backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/10 border border-white/20 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none">
+          <table className="w-full relative z-10">
+            <thead className="bg-gradient-to-r from-slate-200/80 to-slate-300/60 backdrop-blur-sm border-b border-white/20">
+              <tr>
+                <th className="text-center p-4 w-12">
+                  <input
+                    type="checkbox"
+                    checked={
+                      selectedItems.size === filteredData.length &&
+                      filteredData.length > 0
                     }
-                  }}
-                  className="w-5 h-5 rounded-md bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] appearance-none checked:bg-gradient-to-r checked:from-blue-500 checked:to-blue-600 checked:shadow-[inset_2px_2px_4px_rgba(59,130,246,0.3),inset_-2px_-2px_4px_rgba(59,130,246,0.1)] transition-all duration-200"
-                />
-              </th>
-              <th className="text-center p-4 w-16 font-semibold text-slate-700 drop-shadow-sm">
-                Nhóm
-              </th>
-              {listAttribute.map((item, index) => (
-                <th
-                  key={index}
-                  className={`text-center p-4 font-semibold text-slate-700 drop-shadow-sm ${
-                    index === 0 && item.name.toLowerCase().includes("màu")
-                      ? "w-20" // Cột đầu tiên (chứa ảnh) nhỏ hơn
-                      : "w-24" // Các cột attribute khác
-                  }`}
-                >
-                  {item.name}
+                    onChange={() => {
+                      if (selectedItems.size === filteredData.length) {
+                        setSelectedItems(new Set());
+                      } else {
+                        const newSelected = new Set();
+                        filteredData.forEach((_, index) => {
+                          const originalIndex = data.findIndex(
+                            (item) => item === filteredData[index]
+                          );
+                          newSelected.add(originalIndex);
+                        });
+                        setSelectedItems(newSelected);
+                      }
+                    }}
+                    className="w-5 h-5 rounded-md bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] appearance-none checked:bg-gradient-to-r checked:from-blue-500 checked:to-blue-600 checked:shadow-[inset_2px_2px_4px_rgba(59,130,246,0.3),inset_-2px_-2px_4px_rgba(59,130,246,0.1)] transition-all duration-200"
+                  />
                 </th>
-              ))}
-              <th className="text-center p-4 w-36 font-semibold text-slate-700 drop-shadow-sm">
-                Giá
-              </th>
-              <th className="text-center p-4 w-36 font-semibold text-slate-700 drop-shadow-sm">
-                Kho
-              </th>
-              <th className="text-center p-4 w-40 font-semibold text-slate-700 drop-shadow-sm">
-                SKU
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(groupedData).map(([groupKey, groupItems]) => {
-              const isCollapsed = collapsedGroups.has(groupKey);
-              const isGroupSelected = groupItems.every((item) =>
-                selectedItems.has(item.originalIndex)
-              );
+                <th className="text-center p-4 w-16 font-semibold text-slate-700 drop-shadow-sm">
+                  Nhóm
+                </th>
+                {listAttribute.map((item, index) => (
+                  <th
+                    key={index}
+                    className={`text-center p-4 font-semibold text-slate-700 drop-shadow-sm ${
+                      index === 0 && item.name.toLowerCase().includes("màu")
+                        ? "w-20" // Cột đầu tiên (chứa ảnh) nhỏ hơn
+                        : "w-24" // Các cột attribute khác
+                    }`}
+                  >
+                    {item.name}
+                  </th>
+                ))}
+                <th className="text-center p-4 w-36 font-semibold text-slate-700 drop-shadow-sm">
+                  Giá
+                </th>
+                <th className="text-center p-4 w-36 font-semibold text-slate-700 drop-shadow-sm">
+                  Kho
+                </th>
+                <th className="text-center p-4 w-40 font-semibold text-slate-700 drop-shadow-sm">
+                  SKU
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(groupedData).map(([groupKey, groupItems]) => {
+                const isCollapsed = collapsedGroups.has(groupKey);
+                const isGroupSelected = groupItems.every((item) =>
+                  selectedItems.has(item.originalIndex)
+                );
 
-              // Reset oldValue khi bắt đầu render nhóm mới
-              if (!isCollapsed) {
-                oldValue.current = null;
-              }
+                // Reset oldValue khi bắt đầu render nhóm mới
+                if (!isCollapsed) {
+                  oldValue.current = null;
+                }
 
-              return (
-                <React.Fragment key={groupKey}>
-                  {/* Header row cho nhóm */}
-                  <tr className="bg-gradient-to-r from-slate-150/60 to-slate-200/40 backdrop-blur-sm border-b border-white/10">
-                    <td className="p-3 text-center">
-                      <input
-                        type="checkbox"
-                        checked={isGroupSelected}
-                        onChange={() => selectGroup(groupKey)}
-                        className="w-5 h-5 rounded-md bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] appearance-none checked:bg-gradient-to-r checked:from-blue-500 checked:to-blue-600 checked:shadow-[inset_2px_2px_4px_rgba(59,130,246,0.3),inset_-2px_-2px_4px_rgba(59,130,246,0.1)] transition-all duration-200"
-                      />
-                    </td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => toggleGroupCollapse(groupKey)}
-                          className="p-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_3px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transform hover:scale-95 transition-all duration-200"
-                        >
-                          {isCollapsed ? (
-                            <svg
-                              className="w-4 h-4 text-slate-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 5l7 7-7 7"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              className="w-4 h-4 text-slate-600"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M19 9l-7 7-7-7"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                        <span className="font-semibold text-slate-700 drop-shadow-sm">
-                          {groupKey}
-                        </span>
-                        <span className="text-sm text-slate-500 bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 px-2 py-1 rounded-lg shadow-[inset_1px_1px_2px_rgba(0,0,0,0.05),inset_-1px_-1px_2px_rgba(255,255,255,0.8)]">
-                          ({groupItems.length})
-                        </span>
-                      </div>
-                    </td>
-                    <td
-                      colSpan={listAttribute.length + 3}
-                      className="p-3 text-sm text-slate-500 font-medium drop-shadow-sm"
-                    >
-                      {isCollapsed ? "Nhấn để mở rộng" : "Nhấn để thu gọn"}
-                    </td>
-                  </tr>
+                return (
+                  <React.Fragment key={groupKey}>
+                    {/* Header row cho nhóm */}
+                    <tr className="bg-gradient-to-r from-slate-150/60 to-slate-200/40 backdrop-blur-sm border-b border-white/10">
+                      <td className="p-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isGroupSelected}
+                          onChange={() => selectGroup(groupKey)}
+                          className="w-5 h-5 rounded-md bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] appearance-none checked:bg-gradient-to-r checked:from-blue-500 checked:to-blue-600 checked:shadow-[inset_2px_2px_4px_rgba(59,130,246,0.3),inset_-2px_-2px_4px_rgba(59,130,246,0.1)] transition-all duration-200"
+                        />
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => toggleGroupCollapse(groupKey)}
+                            className="p-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_3px_rgba(255,255,255,0.8)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] transform hover:scale-95 transition-all duration-200"
+                          >
+                            {isCollapsed ? (
+                              <svg
+                                className="w-4 h-4 text-slate-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M9 5l7 7-7 7"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                className="w-4 h-4 text-slate-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                          <span className="font-semibold text-slate-700 drop-shadow-sm">
+                            {groupKey}
+                          </span>
+                          <span className="text-sm text-slate-500 bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 px-2 py-1 rounded-lg shadow-[inset_1px_1px_2px_rgba(0,0,0,0.05),inset_-1px_-1px_2px_rgba(255,255,255,0.8)]">
+                            ({groupItems.length})
+                          </span>
+                        </div>
+                      </td>
+                      <td
+                        colSpan={listAttribute.length + 3}
+                        className="p-3 text-sm text-slate-500 font-medium drop-shadow-sm"
+                      >
+                        {isCollapsed ? "Nhấn để mở rộng" : "Nhấn để thu gọn"}
+                      </td>
+                    </tr>
 
-                  {/* Các hàng dữ liệu trong nhóm */}
-                  {!isCollapsed &&
-                    groupItems.map((item) => {
-                      const index = item.originalIndex;
-                      return (
-                        <tr
-                          key={index}
-                          className={
-                            selectedItems.has(index)
-                              ? "bg-gradient-to-r from-blue-100/60 to-blue-200/40 backdrop-blur-sm border-b border-white/10 shadow-[inset_1px_1px_2px_rgba(59,130,246,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.8)]"
-                              : "hover:bg-gradient-to-r hover:from-slate-50/40 hover:to-slate-100/30 hover:backdrop-blur-sm border-b border-white/5 hover:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.05),inset_-1px_-1px_2px_rgba(255,255,255,0.8)] transition-all duration-200"
-                          }
-                        >
-                          <td className="p-3 text-center">
-                            <input
-                              type="checkbox"
-                              checked={selectedItems.has(index)}
-                              onChange={() => handleSelectItem(index)}
-                              className="w-5 h-5 rounded-md bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] appearance-none checked:bg-gradient-to-r checked:from-blue-500 checked:to-blue-600 checked:shadow-[inset_2px_2px_4px_rgba(59,130,246,0.3),inset_-2px_-2px_4px_rgba(59,130,246,0.1)] transition-all duration-200"
-                            />
-                          </td>
-                          <td className="p-3"></td>
-                          {listAttribute.map((attr, indexAttr) => {
-                            const countId = data.reduce(
-                              (acc, current) => {
-                                if (!acc.id) {
-                                  acc.id = current.id;
-                                } else if (acc.id !== current.id) {
-                                  acc.total++;
-                                }
-                                return acc;
-                              },
-                              {
-                                total: 1,
-                              }
-                            ).total;
-
-                            const isSingleFirst =
-                              countId == 1 && indexAttr == 0 && index == 0;
-                            const firstInit =
-                              (oldValue.current !== item.id ||
-                                !oldValue.current) &&
-                              indexAttr == 0 &&
-                              listAttribute.length > 1;
-                            if (firstInit || isSingleFirst) {
-                              oldValue.current = item.id;
-                              const currentGroupItems = groupItems.filter(
-                                (groupItem) =>
-                                  data[groupItem.originalIndex].id === item.id
-                              );
-                              const actualRowSpan = currentGroupItems.length;
-                              return (
-                                <td
-                                  key={"" + index + "." + indexAttr}
-                                  className="p-3 text-center text-slate-700 font-medium drop-shadow-sm"
-                                  rowSpan={actualRowSpan}
-                                >
-                                  {item[attr.name]}
-                                  <ImageComponent
-                                    value={item?.image}
-                                    fnChooseImage={upImageForData}
-                                    attrName={attr.name}
-                                    attrValue={item[attr.name]}
-                                  />
-                                </td>
-                              );
-                            } else if (
-                              indexAttr == 0 &&
-                              listAttribute.length > 1
-                            ) {
-                              return (
-                                <React.Fragment
-                                  key={"" + index + "." + indexAttr}
-                                ></React.Fragment>
-                              );
-                            } else if (indexAttr == 0) {
-                              return (
-                                <td
-                                  key={"" + index + "." + indexAttr}
-                                  className="p-3 text-slate-700 font-medium drop-shadow-sm"
-                                >
-                                  {item[attr.name]}
-                                  <ImageComponent
-                                    value={item?.image}
-                                    fnChooseImage={upImageForData}
-                                    attrName={attr.name}
-                                    attrValue={item[attr.name]}
-                                  />
-                                </td>
-                              );
-                            } else {
-                              return (
-                                <td
-                                  key={"" + index + "." + indexAttr}
-                                  className="p-3 text-slate-700 font-medium drop-shadow-sm"
-                                >
-                                  {item[attr.name]}
-                                </td>
-                              );
+                    {/* Các hàng dữ liệu trong nhóm */}
+                    {!isCollapsed &&
+                      groupItems.map((item) => {
+                        const index = item.originalIndex;
+                        return (
+                          <tr
+                            key={index}
+                            className={
+                              selectedItems.has(index)
+                                ? "bg-gradient-to-r from-blue-100/60 to-blue-200/40 backdrop-blur-sm border-b border-white/10 shadow-[inset_1px_1px_2px_rgba(59,130,246,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.8)]"
+                                : "hover:bg-gradient-to-r hover:from-slate-50/40 hover:to-slate-100/30 hover:backdrop-blur-sm border-b border-white/5 hover:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.05),inset_-1px_-1px_2px_rgba(255,255,255,0.8)] transition-all duration-200"
                             }
-                          })}
-                          <td className="p-3">
-                            <input
-                              type="text"
-                              value={formatNumber(item?.price)}
-                              className="w-full px-4 py-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] focus:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-0 focus:border-blue-400/50 transition-all duration-200 text-slate-700 placeholder-slate-400"
-                              onChange={(e) =>
-                                handleNumberChange(e, index, "price")
+                          >
+                            <td className="p-3 text-center">
+                              <input
+                                type="checkbox"
+                                checked={selectedItems.has(index)}
+                                onChange={() => handleSelectItem(index)}
+                                className="w-5 h-5 rounded-md bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] appearance-none checked:bg-gradient-to-r checked:from-blue-500 checked:to-blue-600 checked:shadow-[inset_2px_2px_4px_rgba(59,130,246,0.3),inset_-2px_-2px_4px_rgba(59,130,246,0.1)] transition-all duration-200"
+                              />
+                            </td>
+                            <td className="p-3"></td>
+                            {listAttribute.map((attr, indexAttr) => {
+                              const countId = data.reduce(
+                                (acc, current) => {
+                                  if (!acc.id) {
+                                    acc.id = current.id;
+                                  } else if (acc.id !== current.id) {
+                                    acc.total++;
+                                  }
+                                  return acc;
+                                },
+                                {
+                                  total: 1,
+                                }
+                              ).total;
+
+                              const isSingleFirst =
+                                countId == 1 && indexAttr == 0 && index == 0;
+                              const firstInit =
+                                (oldValue.current !== item.id ||
+                                  !oldValue.current) &&
+                                indexAttr == 0 &&
+                                listAttribute.length > 1;
+                              if (firstInit || isSingleFirst) {
+                                oldValue.current = item.id;
+                                const currentGroupItems = groupItems.filter(
+                                  (groupItem) =>
+                                    data[groupItem.originalIndex].id === item.id
+                                );
+                                const actualRowSpan = currentGroupItems.length;
+                                return (
+                                  <td
+                                    key={"" + index + "." + indexAttr}
+                                    className="p-3 text-center text-slate-700 font-medium drop-shadow-sm"
+                                    rowSpan={actualRowSpan}
+                                  >
+                                    {item[attr.name]}
+                                    <ImageComponent
+                                      value={item?.image}
+                                      fnChooseImage={upImageForData}
+                                      attrName={attr.name}
+                                      attrValue={item[attr.name]}
+                                    />
+                                  </td>
+                                );
+                              } else if (
+                                indexAttr == 0 &&
+                                listAttribute.length > 1
+                              ) {
+                                return (
+                                  <React.Fragment
+                                    key={"" + index + "." + indexAttr}
+                                  ></React.Fragment>
+                                );
+                              } else if (indexAttr == 0) {
+                                return (
+                                  <td
+                                    key={"" + index + "." + indexAttr}
+                                    className="p-3 text-slate-700 font-medium drop-shadow-sm"
+                                  >
+                                    {item[attr.name]}
+                                    <ImageComponent
+                                      value={item?.image}
+                                      fnChooseImage={upImageForData}
+                                      attrName={attr.name}
+                                      attrValue={item[attr.name]}
+                                    />
+                                  </td>
+                                );
+                              } else {
+                                return (
+                                  <td
+                                    key={"" + index + "." + indexAttr}
+                                    className="p-3 text-slate-700 font-medium drop-shadow-sm"
+                                  >
+                                    {item[attr.name]}
+                                  </td>
+                                );
                               }
-                              placeholder="Nhập giá"
-                            />
-                          </td>
-                          <td className="p-3">
-                            <input
-                              type="text"
-                              value={formatNumber(item?.stock)}
-                              className="w-full px-4 py-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] focus:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-0 focus:border-blue-400/50 transition-all duration-200 text-slate-700 placeholder-slate-400"
-                              onChange={(e) =>
-                                handleNumberChange(e, index, "stock")
-                              }
-                              placeholder="Nhập số lượng"
-                            />
-                          </td>
-                          <td className="p-3">
-                            <input
-                              type="text"
-                              value={item?.sku}
-                              className="w-full px-4 py-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] focus:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-0 focus:border-blue-400/50 transition-all duration-200 text-slate-700 placeholder-slate-400"
-                              onChange={(e) => changeData(e, index, "sku")}
-                              placeholder="Nhập SKU"
-                            />
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+                            })}
+                            <td className="p-3">
+                              <input
+                                type="text"
+                                value={formatNumber(item?.price)}
+                                className="w-full px-4 py-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] focus:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-0 focus:border-blue-400/50 transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                onChange={(e) =>
+                                  handleNumberChange(e, index, "price")
+                                }
+                                placeholder="Nhập giá"
+                              />
+                            </td>
+                            <td className="p-3">
+                              <input
+                                type="text"
+                                value={formatNumber(item?.stock)}
+                                className="w-full px-4 py-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] focus:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-0 focus:border-blue-400/50 transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                onChange={(e) =>
+                                  handleNumberChange(e, index, "stock")
+                                }
+                                placeholder="Nhập số lượng"
+                              />
+                            </td>
+                            <td className="p-3">
+                              <input
+                                type="text"
+                                value={item?.sku}
+                                className="w-full px-4 py-2 rounded-xl bg-gradient-to-br from-white/60 to-white/30 backdrop-blur-sm border border-white/40 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-2px_-2px_4px_rgba(255,255,255,0.8)] focus:shadow-[inset_3px_3px_6px_rgba(0,0,0,0.15),inset_-1px_-1px_3px_rgba(255,255,255,0.9)] focus:outline-none focus:ring-0 focus:border-blue-400/50 transition-all duration-200 text-slate-700 placeholder-slate-400"
+                                onChange={(e) => changeData(e, index, "sku")}
+                                placeholder="Nhập SKU"
+                              />
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

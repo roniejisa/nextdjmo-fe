@@ -11,6 +11,7 @@ const SelectList = ({ value: initalValue, item, field }) => {
 
   const getListData = async () => {
     const data = await selectList(field.module, item, field);
+    console.log(data)
     if (data.status == 200) {
       setList(data.data.items);
     }

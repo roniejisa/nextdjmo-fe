@@ -12,7 +12,7 @@ const MediaHeader = ({
   onSearchChange
 }) => {
   return (
-    <div className="flex w-full items-center justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-white/50">
+    <div className="flex w-full items-center flex-wrap justify-between px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-white/50">
       <div className="flex items-center space-x-4">
         <h3 className="text-xl font-semibold text-gray-800 select-none">
           Tệp tin

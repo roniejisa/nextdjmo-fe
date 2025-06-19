@@ -4,7 +4,7 @@ import ImageCustom from "@/components/Maintain/Image";
 import { isJSON } from "@/utils/client";
 import { useImageStore } from "@/stories/files/imageStore";
 
-const ImageComponent = ({ value, item, field }) => {
+const ImageComponent = ({ defaultValue, item, field }) => {
   const { setShowMedia, fileCurrent, setFileCurrent, choosed, isMultiple } =
     useImageStore((state) => state);
   const imageRef = useRef(null);
@@ -27,6 +27,10 @@ const ImageComponent = ({ value, item, field }) => {
     // Clear input và image
     if (inputRef.current) {
       inputRef.current.value = "";
+      inputRef.current.defaultValue = "";
+      // Trigger change event để React biết
+      const event = new Event('change', { bubbles: true });
+      inputRef.current.dispatchEvent(event);
     }
     if (imageRef.current) {
       imageRef.current.src = "/next.svg";
@@ -61,16 +65,16 @@ const ImageComponent = ({ value, item, field }) => {
     }
   }, [fileCurrent, choosed, id, isMultiple, setShowMedia]);
 
-  // Effect để sync với value changes từ props (khi component được re-render với data mới)
+  // Effect để sync với defaultValue changes từ props (khi component được re-render với data mới)
   useEffect(() => {
     let parsedValue = null;
     
-    // Parse value
-    if (value) {
+    // Parse defaultValue
+    if (defaultValue) {
       try {
-        parsedValue = typeof value === 'string' ? JSON.parse(value) : value;
+        parsedValue = typeof defaultValue === 'string' ? JSON.parse(defaultValue) : defaultValue;
       } catch (e) {
-        console.warn('Failed to parse image value:', value);
+        console.warn('Failed to parse image defaultValue:', defaultValue);
         parsedValue = null;
       }
     }
@@ -79,7 +83,7 @@ const ImageComponent = ({ value, item, field }) => {
     const existingItem = fileCurrent.find((item) => item.id === id);
     
     if (parsedValue) {
-      // Nếu có value mới và chưa có trong fileCurrent, hoặc data khác nhau
+      // Nếu có defaultValue mới và chưa có trong fileCurrent, hoặc data khác nhau
       const needsUpdate = !existingItem || 
         JSON.stringify(existingItem.data) !== JSON.stringify(parsedValue);
       
@@ -94,13 +98,13 @@ const ImageComponent = ({ value, item, field }) => {
       updateUI(parsedValue);
       
     } else {
-      // Nếu không có value, clear everything
+      // Nếu không có defaultValue, clear everything
       if (existingItem) {
         setFileCurrent((prev) => prev.filter((item) => item.id !== id));
       }
       updateUI(null);
     }
-  }, [value, id]); // Chỉ depend vào value và id
+  }, [defaultValue, id]); // Chỉ depend vào defaultValue và id
 
   // Get current image data
   const currentImage = fileCurrent.find((item) => item.id === id);
@@ -135,7 +139,7 @@ const ImageComponent = ({ value, item, field }) => {
               ${hasImage ? "opacity-100" : "opacity-30"}
               group-hover:scale-[1.02]
             `}
-            alt={item?.["name"] || item?.["username"] || "Selected image"}
+            alt={item?.name || item?.username || "Selected image"}
           />
 
           {/* Gentle Overlay */}
@@ -255,10 +259,12 @@ const ImageComponent = ({ value, item, field }) => {
         {/* Hidden Input */}
         <input
           type="text"
+          autoComplete="off"
           ref={inputRef}
           name={field?.name}
-          defaultValue={value || ""}
+          defaultValue={defaultValue || ""}
           hidden
+          aria-hidden="true"
         />
       </div>
       

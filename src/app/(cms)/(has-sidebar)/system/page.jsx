@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
-import { getToken } from "@/utils/server/utils";
 import { httpClient } from "@/utils/http";
-import Client from "./Client";
+import Client from "./(dashboard)/Client";
 
 const getProductHot = async () => {
   const response = await httpClient(

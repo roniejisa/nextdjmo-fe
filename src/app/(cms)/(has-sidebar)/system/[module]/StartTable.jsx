@@ -7,10 +7,8 @@ export const hookComponent = {
 };
 const StartTable = ({ module }) => {
   return (
-    <div className="flex justify-between items-center flex-wrap">
-      {module?.layoutConfig &&
-        module?.layoutConfig?.left &&
-        Array.isArray(module?.layoutConfig?.left) && (
+    <div className="flex justify-between flex-wrap">
+      {module?.layoutConfig && module?.layoutConfig?.left && Array.isArray(module?.layoutConfig?.left) && (
           <>
             {module?.layoutConfig?.left.map((item, index) => {
               const Component = hookComponent[item.type];
@@ -26,9 +24,7 @@ const StartTable = ({ module }) => {
           </>
         )}
 
-      {module?.layoutConfig &&
-        module?.layoutConfig?.right &&
-        Array.isArray(module?.layoutConfig?.right) && (
+      {module?.layoutConfig && module?.layoutConfig?.right && Array.isArray(module?.layoutConfig?.right) && (
           <>
             {module?.layoutConfig?.right.map((item, index) => {
               const Component = hookComponent[item.type];

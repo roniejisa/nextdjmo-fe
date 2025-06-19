@@ -12,20 +12,22 @@ const ListView = ({
   handleClick,
   handleDoubleClick,
   observerRef,
-  viewMode
+  viewMode,
 }) => {
   useAutoMaxHeight(mediaItemRef, 3, [medias, mediaItemRef]);
 
   return (
     <div className="px-6 py-4">
       {/* List Header with Neumorphism */}
-      <div className="grid grid-cols-12 gap-4 px-6 py-4 mb-4
+      <div
+        className="grid grid-cols-12 gap-4 px-6 py-4 mb-4
         bg-gradient-to-r from-gray-50/80 via-white/60 to-gray-50/80
         backdrop-blur-xl backdrop-saturate-150
         rounded-2xl 
         border border-white/30
         shadow-[inset_0_2px_0_0_rgba(255,255,255,0.3),inset_0_-2px_0_0_rgba(0,0,0,0.05),0_8px_32px_rgba(0,0,0,0.06)]
-        text-sm font-semibold text-gray-700/90">
+        text-sm font-semibold text-gray-700/90"
+      >
         <div className="col-span-6 md:col-span-5 flex items-center">
           <span className="drop-shadow-sm">Tên</span>
         </div>
@@ -43,12 +45,14 @@ const ListView = ({
       {/* List Content */}
       <section
         ref={mediaItemRef}
-        className="space-y-2 select-none overflow-auto file-selector"
+        className="space-y-2 select-none overflow-auto file-selector px-2"
         onMouseDown={handleMouseDown}
       >
         {medias?.map((media, index) => {
           let Component = mediaType[media.extension] || mediaType["default"];
-          const infoData = media.file_info ? JSON.stringify(media.file_info) : {}
+          const infoData = media.file_info
+            ? JSON.stringify(media.file_info)
+            : {};
           return (
             <MediaItem
               viewMode={viewMode}
@@ -77,7 +81,8 @@ const ListView = ({
               <div className="grid grid-cols-12 gap-4 items-center p-4 relative z-10">
                 {/* File Icon & Name */}
                 <div className="col-span-6 md:col-span-5 flex items-center space-x-4 min-w-0">
-                  <div className="flex-shrink-0 w-10 h-10 
+                  <div
+                    className="flex-shrink-0 w-10 h-10 
                     bg-gradient-to-br from-white/30 to-white/10
                     backdrop-blur-sm
                     rounded-xl 
@@ -85,11 +90,14 @@ const ListView = ({
                     shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_4px_16px_rgba(0,0,0,0.08)]
                     flex items-center justify-center
                     group-hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_6px_20px_rgba(0,0,0,0.12)]
-                    transition-all duration-200">
+                    transition-all duration-200"
+                  >
                     <Component media={media} />
                   </div>
-                  <span className="truncate text-sm font-medium text-gray-800/90 
-                    drop-shadow-sm group-hover:text-blue-700 transition-colors duration-200">
+                  <span
+                    className="truncate text-sm font-medium text-gray-800/90 
+                    drop-shadow-sm group-hover:text-blue-700 transition-colors duration-200"
+                  >
                     {media.name || media.filename || "Unnamed"}
                   </span>
                 </div>
@@ -101,14 +109,16 @@ const ListView = ({
 
                 {/* File Type */}
                 <div className="col-span-3 md:col-span-2 hidden md:block">
-                  <span className="inline-flex px-3 py-1 text-xs font-semibold uppercase
+                  <span
+                    className="inline-flex px-3 py-1 text-xs font-semibold uppercase
                     bg-gradient-to-r from-gray-100/60 to-gray-200/40
                     backdrop-blur-sm
                     text-gray-700/90
                     rounded-full
                     border border-white/30
                     shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_2px_8px_rgba(0,0,0,0.06)]
-                    drop-shadow-sm">
+                    drop-shadow-sm"
+                  >
                     {media.extension?.replace(".", "") || "Unknown"}
                   </span>
                 </div>
@@ -118,7 +128,7 @@ const ListView = ({
                   {media.updatedAt ? formatDateTwo(media.updatedAt) : "--"}
                 </div>
               </div>
-              
+
               {/* Subtle inner highlight */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent pointer-events-none"></div>
             </MediaItem>

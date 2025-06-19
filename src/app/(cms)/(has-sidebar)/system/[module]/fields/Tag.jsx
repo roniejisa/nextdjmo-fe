@@ -14,6 +14,12 @@ const useTagLogic = (field) => {
     return searchParams.get(field.name) || null;
   });
 
+  // Đồng bộ state với URL params khi route thay đổi
+  useEffect(() => {
+    const currentSelected = searchParams.get(field.name) || null;
+    setSelected(currentSelected);
+  }, [searchParams, field.name]);
+
   const handleSelectTag = (label) => {
     const newSelected = selected === label ? null : label;
     setSelected(newSelected);
@@ -129,7 +135,7 @@ const useDropdownLogic = (fieldName) => {
 // TagItem Component
 const TagItem = ({ label, isSelected, onClick, className = "" }) => {
   const baseClasses =
-    "inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer border-2 select-none";
+    "inline-flex items-center px-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer border-2 select-none";
 
   const selectedClasses = isSelected
     ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white border-transparent shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 hover:scale-105"
@@ -156,7 +162,7 @@ const MoreButton = ({
   return (
     <div
       ref={buttonRef}
-      className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer border-2 border-dashed border-gray-300 text-gray-600 bg-gray-50 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 hover:scale-105"
+      className="inline-flex items-center px-2 py-2.5 rounded-xl text-sm font-semibold cursor-pointer border-2 border-dashed border-gray-300 text-gray-600 bg-gray-50 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-all duration-300 hover:scale-105"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={onClick}
@@ -192,7 +198,7 @@ const Dropdown = ({
       <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45 shadow-sm"></div>
 
       {/* Dropdown Content */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 min-w-[320px] max-w-[400px] backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-2 min-w-[320px] max-w-[400px] backdrop-blur-sm">
         <div className="flex flex-wrap gap-3 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {items.map((item, index) => (
             <TagItem
@@ -262,7 +268,7 @@ const Tag = ({ value, field }) => {
   const remainingItems = value.filter((item) => item !== firstTag);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Tags Container */}
       <div className="flex flex-wrap gap-3 items-center">
         {/* Primary Tag */}

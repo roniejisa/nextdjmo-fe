@@ -14,6 +14,12 @@ const useCategoryLogic = (field) => {
     return searchParams.get(field.name) || null;
   });
 
+  // Đồng bộ state với URL params khi route thay đổi
+  useEffect(() => {
+    const currentSelected = searchParams.get(field.name) || null;
+    setSelected(currentSelected);
+  }, [searchParams, field.name]);
+
   const handleSelectCategory = (categoryId) => {
     const newSelected = selected === categoryId ? null : categoryId;
     setSelected(newSelected);
@@ -135,7 +141,7 @@ const CategoryItem = ({
   className = "",
 }) => {
   const baseClasses =
-    "inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer border-2 select-none";
+    "inline-flex items-center px-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer border-2 select-none";
 
   const selectedClasses = isSelected
     ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-transparent shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-105"
@@ -146,7 +152,6 @@ const CategoryItem = ({
       className={`${baseClasses} ${selectedClasses} ${className}`}
       onClick={onClick}
     >
-      <span className="mr-2"></span>
       {category[field.module_label]}
     </span>
   );
@@ -163,7 +168,7 @@ const MoreCategoryButton = ({
   return (
     <div
       ref={buttonRef}
-      className="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-semibold cursor-pointer border-2 border-dashed border-gray-300 text-gray-600 bg-gray-50 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-300 hover:scale-105"
+      className="inline-flex items-center px-2 py-2.5 rounded-xl text-sm font-semibold cursor-pointer border-2 border-dashed border-gray-300 text-gray-600 bg-gray-50 hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 transition-all duration-300 hover:scale-105"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={onClick}
@@ -201,7 +206,7 @@ const CategoryDropdown = ({
       <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45 shadow-sm"></div>
 
       {/* Dropdown Content */}
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-4 min-w-[320px] max-w-[450px] backdrop-blur-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-2xl p-2 min-w-[320px] max-w-[450px] backdrop-blur-sm">
         {/* Categories Grid */}
         <div className="flex gap-2 max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
           {categories.map((category, index) => (
@@ -277,7 +282,7 @@ const Category = ({ value, field, item }) => {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Categories Container */}
       <div className="flex flex-wrap gap-3 items-center">
         {/* Primary Category */}

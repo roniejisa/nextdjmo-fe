@@ -4,7 +4,8 @@ import MediaList from "@/app/media/components/MediaList";
 import MediaEditor from "@/app/media/components/MediaEditor";
 import MenuContext from "@/app/media/components/MenuContext";
 import MenuMedia from "./components/MenuMedia";
-import "./assets/custom-editor.scss"
+import "./assets/media.scss"
+
 const MediaMain = () => {
   return (
     <>

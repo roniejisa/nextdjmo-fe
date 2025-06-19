@@ -1,7 +1,6 @@
 "use server";
 
 import { httpClient } from "@/utils/http";
-import { getToken } from "@/utils/server/utils";
 
 export const getDataParent = async (module, item, field) => {
   const jsonBody = {
@@ -33,6 +32,12 @@ export const selectList = async (module, item, field) => {
     {},
     jsonBody,
     "post"
+  );
+};
+
+export const getData = async (module, fields = ["_id", "name"]) => {
+  return httpClient(
+    `${process.env.NEXT_PUBLIC_ENDPOINT_URL}${module}?fields=${fields}`
   );
 };
 

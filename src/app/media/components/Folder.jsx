@@ -146,7 +146,7 @@ const Folder = () => {
   return (
     <>
       {/* Header với Glassmorphism */}
-      <div className="flex items-center justify-between px-6 bg-gradient-to-r from-slate-50/80 via-white/60 to-indigo-50/80 backdrop-blur-xl border-b border-white/40 h-[59px] shadow-sm relative">
+      <div className="flex items-center justify-between px-6 bg-gradient-to-r from-slate-50/80 via-white/60 to-indigo-50/80 backdrop-blur-xl border-b border-white/40 h-[67px] shadow-sm relative">
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5"></div>
         <div className="flex items-center space-x-4 relative z-10">
           <h3 className="text-xl font-bold bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent select-none">

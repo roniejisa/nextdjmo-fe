@@ -18,9 +18,11 @@ const ImageType = ({ media }) => {
   const notify = useNotify()
   const callbackMenu = useCallbackMenu(notify)
   const imageRef = useRef(null);
+  const containerRef = useRef(null);
 
   const handleShowContextMenu = (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Ngăn event bubble up
 
     setMenuPosition(null);
     const { clientX, clientY } = e.nativeEvent;
@@ -47,19 +49,38 @@ const ImageType = ({ media }) => {
   };
 
   useEffect(() => {
-    const offMenuContext = () => setMenuPosition(null);
-    window.addEventListener("click", offMenuContext);
-    return () => window.removeEventListener("click", offMenuContext);
-  }, []);
+    const handleClickOutside = (e) => {
+      // Kiểm tra xem click có phải từ bên ngoài component không
+      // và không phải click vào menu (menu thường có class hoặc data attribute đặc biệt)
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        // Kiểm tra thêm xem có phải click vào menu không
+        const isMenuClick = e.target.closest('[data-menu]') || 
+                           e.target.closest('.menu') || 
+                           e.target.closest('[role="menu"]');
+        
+        if (!isMenuClick) {
+          setMenuPosition(null);
+        }
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [setMenuPosition]);
   
   return (
-    <div className="absolute inset-0 rounded-2xl overflow-hidden w-full h-full
-      bg-gradient-to-br from-white/20 via-gray-50/10 to-white/30
-      backdrop-blur-sm
-      border border-white/40
-      shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_6px_20px_rgba(0,0,0,0.1)]
-      group-hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_12px_32px_rgba(0,0,0,0.15)]
-      transition-all duration-300" 
+    <div 
+      ref={containerRef}
+      className="absolute inset-0 rounded-2xl overflow-hidden w-full h-full
+        bg-gradient-to-br from-white/20 via-gray-50/10 to-white/30
+        backdrop-blur-sm
+        border border-white/40
+        shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2),0_6px_20px_rgba(0,0,0,0.1)]
+        group-hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.3),0_12px_32px_rgba(0,0,0,0.15)]
+        transition-all duration-300" 
       onContextMenu={handleShowContextMenu}>
       <div className="absolute inset-1 rounded-xl overflow-hidden
         shadow-[0_4px_16px_rgba(0,0,0,0.12)]

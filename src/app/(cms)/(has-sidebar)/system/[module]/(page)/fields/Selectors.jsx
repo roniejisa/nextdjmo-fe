@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 export default function Selectors({ value, field, item }) {
-  const [values, setValues] = useState(JSON.parse(value) ?? {});
+  const [values, setValues] = useState(value ? JSON.parse(value) : {});
   const inputAddKeyRef = useRef(null);
   const selectorItemsRef = useRef(null);
   const isInitialRender = useRef(true);
@@ -181,7 +181,7 @@ export default function Selectors({ value, field, item }) {
 
   return (
     <div
-      className="w-full max-w-6xl mx-auto bg-white shadow-md rounded-lg p-6"
+      className="mt-4 mb-4 p-6 relative overflow-hidden rounded-2xl backdrop-blur-xl bg-gradient-to-br from-white/40 to-white/10 border border-white/20 shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:pointer-events-none"
       data-selectors=""
       data-key={field?.key}
       data-selector-default={field.selectors_default}
@@ -193,17 +193,17 @@ export default function Selectors({ value, field, item }) {
         value={JSON.stringify(values)}
       ></textarea>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-3 mb-6 relative z-10">
         <input
           ref={inputAddKeyRef}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-md"
+          className="flex-1 px-4 py-3 rounded-xl backdrop-blur-sm bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_6px_rgba(255,255,255,0.8)] focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] focus:outline-none transition-all duration-200 placeholder-gray-500"
           placeholder="Nhập thuộc tính"
           onKeyDown={handleKeyDown}
           data-input-add-key=""
         />
         <button
           type="button"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-colors"
+          className="px-6 py-3 font-medium rounded-xl bg-gradient-to-br from-emerald-500/90 to-emerald-600/80 hover:from-emerald-600/90 hover:to-emerald-700/80 border border-white/30 shadow-[4px_4px_8px_rgba(0,0,0,0.15),-2px_-2px_6px_rgba(255,255,255,0.3)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-2px_-2px_4px_rgba(255,255,255,0.4)] transform hover:scale-[0.99] transition-all duration-200 text-white"
           onClick={addNewKey}
           data-button-add-key=""
         >
@@ -211,137 +211,139 @@ export default function Selectors({ value, field, item }) {
         </button>
       </div>
 
-      <div ref={selectorItemsRef} className="space-y-6" data-items="">
+      <div ref={selectorItemsRef} className="space-y-6 relative z-10" data-items="">
         {Object.entries(values).map(([key, data]) => (
           <div
             key={key}
-            className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm"
+            className="relative overflow-hidden rounded-xl backdrop-blur-sm bg-gradient-to-br from-white/60 to-white/30 border border-white/40 shadow-[4px_4px_8px_rgba(0,0,0,0.1),-2px_-2px_6px_rgba(255,255,255,0.8)] hover:shadow-[6px_6px_12px_rgba(0,0,0,0.15),-3px_-3px_9px_rgba(255,255,255,0.9)] transition-all duration-300"
             data-key={key}
           >
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Key Information */}
-              <div className="w-full lg:w-1/4 space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Mô tả
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Tên thuộc tính"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    value={data.description || ""}
-                    onChange={(e) => updateKeyDescription(key, e.target.value)}
-                  />
+            <div className="p-4">
+              <div className="flex flex-col lg:flex-row gap-4">
+                {/* Key Information */}
+                <div className="w-full lg:w-1/4 space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Mô tả
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Tên thuộc tính"
+                      className="w-full px-3 py-2 rounded-lg backdrop-blur-sm bg-gradient-to-br from-white/70 to-white/40 border border-white/50 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_2px_rgba(255,255,255,0.8)] focus:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] focus:outline-none transition-all duration-200"
+                      value={data.description || ""}
+                      onChange={(e) => updateKeyDescription(key, e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Khóa
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 rounded-lg backdrop-blur-sm bg-gradient-to-br from-gray-100/70 to-gray-200/50 border border-white/50 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.1),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] text-gray-600 cursor-not-allowed"
+                      disabled
+                      placeholder="Thuộc tính"
+                      value={key}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Khóa
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-600"
-                    disabled
-                    placeholder="Thuộc tính"
-                    value={key}
-                  />
-                </div>
-              </div>
 
-              {/* Selectors */}
-              <div
-                className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4"
-                data-item-selectors=""
-              >
-                {data.selectors &&
-                  Object.entries(data.selectors).map(
-                    ([selectorId, selectorData]) => (
-                      <div
-                        key={selectorId}
-                        className="bg-white p-3 border border-gray-200 rounded-md relative"
-                      >
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Chọn
-                            </label>
-                            <input
-                              type="text"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                              placeholder="p, .content,..."
-                              value={selectorData.selector || ""}
-                              onChange={(e) =>
-                                updateSelectorData(
-                                  key,
-                                  selectorId,
-                                  "selector",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div className="flex gap-3">
-                            <div className="flex-1">
+                {/* Selectors */}
+                <div
+                  className="w-full lg:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4"
+                  data-item-selectors=""
+                >
+                  {data.selectors &&
+                    Object.entries(data.selectors).map(
+                      ([selectorId, selectorData]) => (
+                        <div
+                          key={selectorId}
+                          className="relative overflow-hidden rounded-lg backdrop-blur-sm bg-gradient-to-br from-white/80 to-white/50 border border-white/60 shadow-[2px_2px_4px_rgba(0,0,0,0.1),-1px_-1px_2px_rgba(255,255,255,0.8)] p-3"
+                        >
+                          <div className="space-y-3">
+                            <div>
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Loại
+                                Chọn
                               </label>
-                              <select
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                                value={selectorData.type}
+                              <input
+                                type="text"
+                                className="w-full px-3 py-2 rounded-md backdrop-blur-sm bg-gradient-to-br from-white/70 to-white/40 border border-white/50 shadow-[1px_1px_2px_rgba(0,0,0,0.1),-1px_-1px_1px_rgba(255,255,255,0.8)] focus:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] focus:outline-none transition-all duration-200"
+                                placeholder="p, .content,..."
+                                value={selectorData.selector || ""}
                                 onChange={(e) =>
                                   updateSelectorData(
                                     key,
                                     selectorId,
-                                    "type",
+                                    "selector",
                                     e.target.value
                                   )
                                 }
-                              >
-                                <option value="1">CSS</option>
-                                <option value="2">XPath</option>
-                              </select>
+                              />
                             </div>
-                            <button
-                              type="button"
-                              className="mt-6 h-10 w-10 flex items-center justify-center bg-red-100 text-red-600 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
-                              onClick={() => removeSelector(key, selectorId)}
-                            >
-                              &times;
-                            </button>
+                            <div className="flex gap-3">
+                              <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                  Loại
+                                </label>
+                                <select
+                                  className="w-full px-3 py-2 rounded-md backdrop-blur-sm bg-gradient-to-br from-white/70 to-white/40 border border-white/50 shadow-[1px_1px_2px_rgba(0,0,0,0.1),-1px_-1px_1px_rgba(255,255,255,0.8)] focus:shadow-[inset_1px_1px_2px_rgba(0,0,0,0.1)] focus:outline-none transition-all duration-200"
+                                  value={selectorData.type}
+                                  onChange={(e) =>
+                                    updateSelectorData(
+                                      key,
+                                      selectorId,
+                                      "type",
+                                      e.target.value
+                                    )
+                                  }
+                                >
+                                  <option value="1">CSS</option>
+                                  <option value="2">XPath</option>
+                                </select>
+                              </div>
+                              <button
+                                type="button"
+                                className="mt-6 h-10 w-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-red-500/80 to-red-600/70 hover:from-red-600/90 hover:to-red-700/80 border border-white/30 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] transform hover:scale-95 transition-all duration-200 text-white font-bold text-lg"
+                                onClick={() => removeSelector(key, selectorId)}
+                              >
+                                &times;
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )
-                  )}
-              </div>
+                      )
+                    )}
+                </div>
 
-              {/* Actions */}
-              <div
-                className="w-full lg:w-1/12 flex lg:flex-col gap-2"
-                data-item-actions=""
-              >
-                <button
-                  type="button"
-                  className="flex-1 h-10 max-h-10 flex items-center justify-center bg-emerald-100 text-emerald-600 rounded-md hover:bg-emerald-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
-                  onClick={() => addSelector(key)}
+                {/* Actions */}
+                <div
+                  className="w-full lg:w-1/12 flex lg:flex-col gap-2"
+                  data-item-actions=""
                 >
-                  +
-                </button>
-                <button
-                  type="button"
-                  className="flex-1 h-10 max-h-10 flex items-center justify-center bg-amber-100 text-amber-600 rounded-md hover:bg-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-colors"
-                  onClick={() => {
-                    const selectorsCount = Object.keys(
-                      data.selectors || {}
-                    ).length;
-                    if (selectorsCount <= 1) {
-                      removeKey(key);
-                    } else {
-                      removeSelector(key);
-                    }
-                  }}
-                >
-                  -
-                </button>
+                  <button
+                    type="button"
+                    className="flex-1 h-10 max-h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/80 to-emerald-600/70 hover:from-emerald-600/90 hover:to-emerald-700/80 border border-white/30 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] transform hover:scale-95 transition-all duration-200 text-white font-bold text-lg"
+                    onClick={() => addSelector(key)}
+                  >
+                    +
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 h-10 max-h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/80 to-amber-600/70 hover:from-amber-600/90 hover:to-amber-700/80 border border-white/30 shadow-[3px_3px_6px_rgba(0,0,0,0.15),-1px_-1px_3px_rgba(255,255,255,0.4)] hover:shadow-[inset_2px_2px_4px_rgba(0,0,0,0.2),inset_-1px_-1px_2px_rgba(255,255,255,0.3)] transform hover:scale-95 transition-all duration-200 text-white font-bold text-lg"
+                    onClick={() => {
+                      const selectorsCount = Object.keys(
+                        data.selectors || {}
+                      ).length;
+                      if (selectorsCount <= 1) {
+                        removeKey(key);
+                      } else {
+                        removeSelector(key);
+                      }
+                    }}
+                  >
+                    -
+                  </button>
+                </div>
               </div>
             </div>
           </div>

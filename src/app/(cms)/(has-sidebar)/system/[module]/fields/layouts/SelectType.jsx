@@ -25,7 +25,7 @@ const SelectType = ({ data, name }) => {
   };
   return (
     <div className="flex justify-between">
-      <select value={selected} onChange={(e) => searchForm(e.target.value)}>
+      <select className="shadow-[8px_8px_16px_rgba(0,0,0,0.1),-8px_-8px_16px_rgba(255,255,255,0.7)] rounded-xl p-2" value={selected} onChange={(e) => searchForm(e.target.value)}>
         <option value="">Tất cả</option>
         {data.map((tab, index) => {
           return (

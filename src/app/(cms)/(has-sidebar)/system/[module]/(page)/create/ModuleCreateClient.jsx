@@ -4,6 +4,8 @@ import React from "react";
 import FormCreate from "./FormCreate";
 import useSWR from "swr";
 import { moduleCreate } from "./actions";
+import { ModuleLoadingDetail } from "../../components/Loading";
+import { ModuleError } from "../../components/Error";
 
 const ModuleCreateClient = () => {
   const pathname = usePathname();
@@ -11,7 +13,7 @@ const ModuleCreateClient = () => {
   const params = useParams();
   const { module } = params;
   const urlParams = new URLSearchParams(searchParams);
-  const keyModuleParams = `module-${params.module}-${urlParams.toString()}`;
+  const keyModuleParams = `module-${pathname}-${params.module}-${urlParams.toString()}`;
   const language = searchParams.language;
   const { data, error, isLoading, mutate } = useSWR(
     keyModuleParams,
@@ -22,10 +24,10 @@ const ModuleCreateClient = () => {
   );
 
   if (isLoading) {
-    return <>Đang tải</>;
+    return <ModuleLoadingDetail />;
   }
   if (error) {
-    return <>Đã có lỗi xảy ra</>;
+    return <ModuleError />;
   }
   let { fields, module: moduleStore } = data.data;
 

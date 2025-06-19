@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { CMSContext } from "@/context/cms/CMSProvider";
-import { getData } from "../create/components/action";
+import { getData } from "./action";
 
 // Tag Item Component
 const TagItem = ({ tag, onRemove }) => (

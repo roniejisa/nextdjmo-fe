@@ -582,14 +582,14 @@ const MediaList = () => {
 
   return (
     <>
-      <div className="flex">
+      <div className="flex flex-wrap">
         {/* Folder Component */}
         <div className="select-none flex-[0_0_20%] border-r shadow-[1px_0px_1px_#eef2ff] relative">
           <Folder />
         </div>
 
         {/* Media Content */}
-        <div className="flex flex-col shadow-2xl flex-1 max-w-[80%]">
+        <div className="flex flex-col shadow-2xl flex-1">
           {/* Header */}
           <MediaHeader
             viewMode={viewMode}

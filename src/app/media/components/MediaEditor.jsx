@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import "tui-image-editor/dist/tui-image-editor.min.css";
+import "../assets/custom-editor.scss"
 import { checkHistoryFile, handleUpdateImage } from "./actions";
 import { useMediaStore } from "@/stories/files/mediaStore";
 
@@ -33,35 +34,9 @@ const MediaEditor = () => {
           height: "100%"
         }
       },
-      cssMaxWidth: 900,
-      cssMaxHeight: 600,
-      // Cấu hình selection style đẹp hơn
-      selectionStyle: {
-        cornerSize: 16,
-        rotatingPointOffset: 50,
-        borderColor: "#f59e0b",
-        cornerColor: "#ffffff",
-        cornerStroke: "#f59e0b",
-        transparentCorners: false,
-        lineWidth: 3,
-        cornerStyle: "circle",
-        borderOpacityWhenMoving: 0.8
-      },
-      // Cấu hình drawing
-      usageStatistics: false,
-      // Cấu hình filters với nhiều tùy chọn
-      applyCropSelectionStyle: true,
-      applyGroupSelectionStyle: true
     });
 
-    // Thêm custom styles cho editor
-    const editorElement = editorRef.current;
-    if (editorElement) {
-      editorElement.style.background = "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)";
-      editorElement.style.borderRadius = "16px";
-      editorElement.style.overflow = "hidden";
-      editorElement.style.boxShadow = "0 25px 50px -12px rgba(0, 0, 0, 0.25)";
-    }
+   
 
     // Event listeners để cải thiện UX
     instanceRef.current.on("objectActivated", () => {
@@ -248,7 +223,7 @@ const MediaEditor = () => {
               {/* Editor Container */}
               <div
                 ref={editorRef}
-                className="h-[calc(100vh-140px)] bg-gradient-to-br from-white/90 to-gray-50/90 rounded-b-2xl overflow-hidden shadow-2xl backdrop-blur-sm border border-white/20"
+                className="h-[calc(100vh-140px)]"
                 style={{
                   filter: isLoading ? "blur(2px)" : "none",
                   transition: "filter 0.3s ease"
